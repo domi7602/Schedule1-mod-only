@@ -1,0 +1,31 @@
+﻿{
+    "CapturedUtc":  "2026-11-05T08:28:24.8489378Z",
+    "Report":  ".scratch/townhall-native-save-audit-20261105/managed-boundary-review.json",
+    "ReportSha256":  "3d48257c04fcc5d93de23f03db2432f4be87207b3fde5c533f1f0a5ba9b9ef19",
+    "JsonParse":  "PASS",
+    "Findings":  9,
+    "UniqueFindingIds":  9,
+    "SaveApproval":  false,
+    "SafeNativeUnregistrationEstablished":  false,
+    "FrozenSourceFiles":  16,
+    "FrozenSourceMismatches":  [
+
+                               ],
+    "InlineSourceHashes":  8,
+    "InlineSourceMismatches":  [
+
+                               ],
+    "ToolArtifacts":  16,
+    "ToolArtifactMismatches":  [
+
+                               ],
+    "BinaryReadingMismatches":  [
+
+                                ],
+    "InstalledS1apiMatch":  true,
+    "RepositoryStatusUnchanged":  true,
+    "S1apiWorktreeClean":  true,
+    "DotnetRootUnchanged":  true,
+    "NoGameOrNativeCodeExecuted":  true,
+    "NoBuildOrTestRun":  true
+}

@@ -1,0 +1,16 @@
+[
+  {"Type":"ScheduleOne.Persistence.LoadManager","Token":"0x060017A8"},
+  {"Type":"ScheduleOne.Persistence.LoadManager","Token":"0x060017B5"},
+  {"Type":"ScheduleOne.Persistence.LoadManager","Token":"0x060017BA"},
+  {"Type":"ScheduleOne.Persistence.LoadManager","Token":"0x060017BB"},
+  {"Type":"ScheduleOne.Persistence.LoadManager","Token":"0x060017BC"},
+  {"Type":"ScheduleOne.Persistence.LoadManager+<>c__DisplayClass74_0+<<StartGame>g__LoadRoutine|0>d","Token":"0x060017E4"},
+  {"Type":"ScheduleOne.Persistence.LoadManager+<>c__DisplayClass81_0+<<ExitToMenu>g__Load|0>d","Token":"0x06001806"},
+  {"Type":"ScheduleOne.Persistence.SaveManager","Token":"0x06001824"},
+  {"Type":"ScheduleOne.Persistence.SaveManager","Token":"0x06001834"},
+  {"Type":"ScheduleOne.Persistence.SaveManager+<>c__DisplayClass52_0+<<Save>g__SaveRoutine|0>d","Token":"0x0600183B"},
+  {"Type":"ScheduleOne.Networking.Lobby","Token":"0x06001AD2"},
+  {"Type":"ScheduleOne.PlayerScripts.PlayerManager","Token":"0x06002516"},
+  {"Type":"ScheduleOne.UI.PauseMenu","Token":"0x0600628F"},
+  {"Type":"UnityEngine.MonoBehaviour","Token":"0x06000A53"}
+]

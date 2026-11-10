@@ -1,0 +1,120 @@
+{
+  "Method": {
+    "Type": "FishNet.Object.NetworkBehaviour",
+    "Name": "get_IsNetworked",
+    "Token": "0x0600067D",
+    "ParameterCount": 0,
+    "Va": "0x180CCB0B0",
+    "Rva": "0xCCB0B0",
+    "NativePointerPresent": true
+  },
+  "Bounds": {
+    "BeginRva": 13414576,
+    "EndRva": 13414607,
+    "UnwindRva": 57295320
+  },
+  "RawOffset": "0xCCA2B0",
+  "ByteLength": 31,
+  "BytesSha256": "3ab35401d653934b779ae83f0773a3ff2f9f007f8bc359f35ba0a470e86df917",
+  "Instructions": [
+    {
+      "Va": "0x180CCB0B0",
+      "Rva": "0xCCB0B0",
+      "Bytes": "48 83 EC 28",
+      "Text": "sub rsp,28h",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CCB0B4",
+      "Rva": "0xCCB0B4",
+      "Bytes": "48 8B 41 30",
+      "Text": "mov rax,[rcx+30h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CCB0B8",
+      "Rva": "0xCCB0B8",
+      "Bytes": "48 85 C0",
+      "Text": "test rax,rax",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CCB0BB",
+      "Rva": "0xCCB0BB",
+      "Bytes": "74 0C",
+      "Text": "je short 0000000180CCB0C9h",
+      "FlowControl": "ConditionalBranch",
+      "DirectTarget": "0x180CCB0C9",
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CCB0BD",
+      "Rva": "0xCCB0BD",
+      "Bytes": "0F B6 80 A1 00 00 00",
+      "Text": "movzx eax,byte ptr [rax+0A1h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CCB0C4",
+      "Rva": "0xCCB0C4",
+      "Bytes": "48 83 C4 28",
+      "Text": "add rsp,28h",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CCB0C8",
+      "Rva": "0xCCB0C8",
+      "Bytes": "C3",
+      "Text": "ret",
+      "FlowControl": "Return",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CCB0C9",
+      "Rva": "0xCCB0C9",
+      "Bytes": "E8 B2 CA 64 FF",
+      "Text": "call 0000000180317B80h",
+      "FlowControl": "Call",
+      "DirectTarget": "0x180317B80",
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CCB0CE",
+      "Rva": "0xCCB0CE",
+      "Bytes": "CC",
+      "Text": "int 3",
+      "FlowControl": "Interrupt",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    }
+  ]
+}

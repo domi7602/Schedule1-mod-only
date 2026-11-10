@@ -1,0 +1,649 @@
+{
+  "checkedUtc": "2026-11-05T08:58:42.460265+00:00",
+  "sourceRevision": "b2c6c7e6c6ecc778da9624cdb68a6578b9db471a",
+  "dotnetRoot": null,
+  "method": "Narrow standard-library byte/RVA/.pdata/relative-transfer check of three frozen V4 windows; no script/parser re-execution, no target load",
+  "inputs": [
+    {
+      "path": ".scratch/townhall-native-save-audit-20261105/native-map-v4.json",
+      "sha256": "b0325caba7394ceb3b2f2d6cd1a3d99830d982b285b6c81420a941892ff8e2a5",
+      "bytes": 40607
+    },
+    {
+      "path": ".scratch/townhall-native-save-audit-20261105/map-native.ps1",
+      "sha256": "e00ff7ef52bb7ce354d909bbed609cc3d2f49df1f98b44fcee2da287f2dd5a61",
+      "bytes": 13235
+    },
+    {
+      "path": ".scratch/townhall-native-save-audit-20261105/validate-native-evidence.py",
+      "sha256": "21aca9ebd3e37719b9d7b80351dc00a8c78e1e139a3463d2606dda2032790ed2",
+      "bytes": 9647
+    },
+    {
+      "path": ".scratch/townhall-native-save-audit-20261105/native-integrity-before-docs-20261105.json",
+      "sha256": "f14a4505af27b650d122590ed02ea5d629b1dee48a024382d7d25e0abb63890f",
+      "bytes": 19243
+    },
+    {
+      "path": ".scratch/townhall-native-save-audit-20261105/managed-boundary-review.json",
+      "sha256": "3d48257c04fcc5d93de23f03db2432f4be87207b3fde5c533f1f0a5ba9b9ef19",
+      "bytes": 33073
+    },
+    {
+      "path": ".scratch/townhall-native-save-audit-20261105/native-claims-review.json",
+      "sha256": "12baccbcf1942927b1d6db57558ab0575f17e87f3f43dced7d8fcc402a6430bb",
+      "bytes": 36018
+    },
+    {
+      "path": ".scratch/townhall-native-save-audit-20261105/native-disassembly-v4/0x0600184B-Complete.json",
+      "sha256": "d7ede109a461a651ade7c7dad2b7240a14c3ad8e87e23e6d5353f1e80861a9f2",
+      "bytes": 28633
+    },
+    {
+      "path": ".scratch/townhall-native-save-audit-20261105/native-disassembly-v4/0x0600184B-Complete.txt",
+      "sha256": "9dd2577c46b6dc089a8a09c002eefa780ccccfcd3e36ab029d1f5bfc21910139",
+      "bytes": 6347
+    },
+    {
+      "path": ".scratch/townhall-native-save-audit-20261105/native-disassembly-v4/0x06001785-WriteBaseData.json",
+      "sha256": "3fc1fce080eb5be151edd1be028d56d8cf702331fe12ee14e4f51f3f8835bc83",
+      "bytes": 73392
+    },
+    {
+      "path": ".scratch/townhall-native-save-audit-20261105/native-disassembly-v4/0x06001785-WriteBaseData.txt",
+      "sha256": "6f999668af96df9b70372f685ec3c65548eb796cdf585d5a5cf427f9111a9b72",
+      "bytes": 15758
+    },
+    {
+      "path": ".scratch/townhall-native-save-audit-20261105/native-disassembly-v4/0x06001787-CompleteSave.json",
+      "sha256": "50d21b73e016a30b90498164d733a3859593ce24c00896dbc08f3c4369bab938",
+      "bytes": 184820
+    },
+    {
+      "path": ".scratch/townhall-native-save-audit-20261105/native-disassembly-v4/0x06001787-CompleteSave.txt",
+      "sha256": "7bd5cfe2e71fa9d2afe67b041f409427df04c7177293dce9ca01d760e7a0c289",
+      "bytes": 39492
+    }
+  ],
+  "gameAssemblySha256": "61829050e56ca180d67be592e4bfe61ec97d2e9573f720d90a54e318a7e4381d",
+  "globalMetadataSha256": "e775c97da277da8eb1a90265478f3b65c9c3d6464aff4f7255d45280a1d1181f",
+  "imageBase": "0x180000000",
+  "windows": [
+    {
+      "token": "0x0600184B",
+      "rva": "0x5ABA60",
+      "windowEndRvaExclusive": "0x5abbc0",
+      "rawOffset": "0x5AAC60",
+      "bytes": 352,
+      "bytesSha256": "0dc7ca7a1685ce48e3d87e5890bda044c1811a03c7d04a2df588b6934fc8d06b",
+      "instructions": 86,
+      "directRelativeTransfersIndependentlyChecked": 19,
+      "primaryPdataBounds": {
+        "BeginRva": 5945952,
+        "EndRva": 5946161,
+        "UnwindRva": 57298624
+      },
+      "nextPointerConsistentWithFrozenSelectedMap": true,
+      "notFullGlobalPointerMapRebuilt": true,
+      "allBytesAndTxtRowsMatch": true,
+      "resolutionErrors": [],
+      "sharedTargets": [],
+      "metadataAnnotations": [
+        {
+          "rva": "0x5ABA76",
+          "ripAddress": "0x1839B4C00",
+          "kind": "TypeInfo",
+          "value": "ScheduleOne.Persistence.ISaveable"
+        },
+        {
+          "rva": "0x5ABA82",
+          "ripAddress": "0x1839F23C0",
+          "kind": "MethodRef",
+          "value": "T ScheduleOne.DevUtilities.Singleton`1<ScheduleOne.Persistence.SaveManager>.get_Instance"
+        },
+        {
+          "rva": "0x5ABA95",
+          "ripAddress": "0x1839F23C0",
+          "kind": "MethodRef",
+          "value": "T ScheduleOne.DevUtilities.Singleton`1<ScheduleOne.Persistence.SaveManager>.get_Instance"
+        },
+        {
+          "rva": "0x5ABAE9",
+          "ripAddress": "0x1839AF418",
+          "kind": "MethodRef",
+          "value": "System.Boolean System.Collections.Generic.List`1<ScheduleOne.Persistence.SaveRequest>.Remove"
+        },
+        {
+          "rva": "0x5ABB09",
+          "ripAddress": "0x1839AF418",
+          "kind": "MethodRef",
+          "value": "System.Boolean System.Collections.Generic.List`1<ScheduleOne.Persistence.SaveRequest>.Remove"
+        },
+        {
+          "rva": "0x5ABB2A",
+          "ripAddress": "0x1839B4C00",
+          "kind": "TypeInfo",
+          "value": "ScheduleOne.Persistence.ISaveable"
+        }
+      ]
+    },
+    {
+      "token": "0x06001785",
+      "rva": "0x583E70",
+      "windowEndRvaExclusive": "0x584200",
+      "rawOffset": "0x583070",
+      "bytes": 912,
+      "bytesSha256": "403722a870f8948f87ce1d43d6b409fdbb8617b5604984fb413a931a8977ba28",
+      "instructions": 223,
+      "directRelativeTransfersIndependentlyChecked": 61,
+      "primaryPdataBounds": {
+        "BeginRva": 5783152,
+        "EndRva": 5784064,
+        "UnwindRva": 57372988
+      },
+      "nextPointerConsistentWithFrozenSelectedMap": true,
+      "notFullGlobalPointerMapRebuilt": true,
+      "allBytesAndTxtRowsMatch": true,
+      "resolutionErrors": [],
+      "sharedTargets": [],
+      "metadataAnnotations": [
+        {
+          "rva": "0x583E9C",
+          "ripAddress": "0x1839F9D68",
+          "kind": "TypeInfo",
+          "value": "ScheduleOne.Console"
+        },
+        {
+          "rva": "0x583EA8",
+          "ripAddress": "0x1839B4C00",
+          "kind": "TypeInfo",
+          "value": "ScheduleOne.Persistence.ISaveable"
+        },
+        {
+          "rva": "0x583EB4",
+          "ripAddress": "0x1839F7610",
+          "kind": "TypeInfo",
+          "value": "System.IO.Path"
+        },
+        {
+          "rva": "0x583EC0",
+          "ripAddress": "0x1839E1120",
+          "kind": "StringLiteral",
+          "value": ".json"
+        },
+        {
+          "rva": "0x583ECC",
+          "ripAddress": "0x1839C6B10",
+          "kind": "StringLiteral",
+          "value": "Failed to write save data file because the save string is empty. Data path: "
+        },
+        {
+          "rva": "0x583EE7",
+          "ripAddress": "0x1839B4C00",
+          "kind": "TypeInfo",
+          "value": "ScheduleOne.Persistence.ISaveable"
+        },
+        {
+          "rva": "0x583EF6",
+          "ripAddress": "0x1839E1120",
+          "kind": "StringLiteral",
+          "value": ".json"
+        },
+        {
+          "rva": "0x583F08",
+          "ripAddress": "0x1839F7610",
+          "kind": "TypeInfo",
+          "value": "System.IO.Path"
+        },
+        {
+          "rva": "0x583F36",
+          "ripAddress": "0x1839B4C00",
+          "kind": "TypeInfo",
+          "value": "ScheduleOne.Persistence.ISaveable"
+        },
+        {
+          "rva": "0x583F51",
+          "ripAddress": "0x1839B4C00",
+          "kind": "TypeInfo",
+          "value": "ScheduleOne.Persistence.ISaveable"
+        },
+        {
+          "rva": "0x583F68",
+          "ripAddress": "0x1839B4C00",
+          "kind": "TypeInfo",
+          "value": "ScheduleOne.Persistence.ISaveable"
+        },
+        {
+          "rva": "0x583F77",
+          "ripAddress": "0x1839E1120",
+          "kind": "StringLiteral",
+          "value": ".json"
+        },
+        {
+          "rva": "0x583F89",
+          "ripAddress": "0x1839F7610",
+          "kind": "TypeInfo",
+          "value": "System.IO.Path"
+        },
+        {
+          "rva": "0x583FC8",
+          "ripAddress": "0x1839C6B10",
+          "kind": "StringLiteral",
+          "value": "Failed to write save data file because the save string is empty. Data path: "
+        },
+        {
+          "rva": "0x583FD7",
+          "ripAddress": "0x1839F9D68",
+          "kind": "TypeInfo",
+          "value": "ScheduleOne.Console"
+        },
+        {
+          "rva": "0x584016",
+          "ripAddress": "0x1839C3478",
+          "kind": "TypeInfo",
+          "value": "System.String[]"
+        },
+        {
+          "rva": "0x58403B",
+          "ripAddress": "0x1839C6BE8",
+          "kind": "StringLiteral",
+          "value": "Failed to write save data file. Exception: "
+        },
+        {
+          "rva": "0x58409D",
+          "ripAddress": "0x183A08D58",
+          "kind": "StringLiteral",
+          "value": "\nData path: "
+        },
+        {
+          "rva": "0x5840DF",
+          "ripAddress": "0x183A0A6A8",
+          "kind": "StringLiteral",
+          "value": "\nSave string: "
+        },
+        {
+          "rva": "0x584134",
+          "ripAddress": "0x1839F9D68",
+          "kind": "TypeInfo",
+          "value": "ScheduleOne.Console"
+        },
+        {
+          "rva": "0x584175",
+          "ripAddress": "0x1839B4C00",
+          "kind": "TypeInfo",
+          "value": "ScheduleOne.Persistence.ISaveable"
+        }
+      ]
+    },
+    {
+      "token": "0x06001787",
+      "rva": "0x582F00",
+      "windowEndRvaExclusive": "0x583840",
+      "rawOffset": "0x582100",
+      "bytes": 2368,
+      "bytesSha256": "8cd46f2fef9c1530e353f7fc3cd4f839f526555a04e924930520ee9b5773cb44",
+      "instructions": 565,
+      "directRelativeTransfersIndependentlyChecked": 137,
+      "primaryPdataBounds": {
+        "BeginRva": 5779200,
+        "EndRva": 5781556,
+        "UnwindRva": 57373056
+      },
+      "nextPointerConsistentWithFrozenSelectedMap": true,
+      "notFullGlobalPointerMapRebuilt": true,
+      "allBytesAndTxtRowsMatch": true,
+      "resolutionErrors": [],
+      "sharedTargets": [
+        {
+          "rva": "0x58300B",
+          "targetMethodCount": 2,
+          "shownAliases": 2
+        }
+      ],
+      "metadataAnnotations": [
+        {
+          "rva": "0x582F38",
+          "ripAddress": "0x183980848",
+          "kind": "TypeInfo",
+          "value": "System.IO.DirectoryInfo"
+        },
+        {
+          "rva": "0x582F44",
+          "ripAddress": "0x183990A68",
+          "kind": "TypeInfo",
+          "value": "System.IO.FileInfo"
+        },
+        {
+          "rva": "0x582F50",
+          "ripAddress": "0x1839B4C00",
+          "kind": "TypeInfo",
+          "value": "ScheduleOne.Persistence.ISaveable"
+        },
+        {
+          "rva": "0x582F5C",
+          "ripAddress": "0x1839C1508",
+          "kind": "MethodRef",
+          "value": "System.Void System.Collections.Generic.List`1<System.String>.AddRange"
+        },
+        {
+          "rva": "0x582F68",
+          "ripAddress": "0x1839C1430",
+          "kind": "MethodRef",
+          "value": "System.Void System.Collections.Generic.List`1<System.String>.Add"
+        },
+        {
+          "rva": "0x582F74",
+          "ripAddress": "0x1839C17A0",
+          "kind": "MethodRef",
+          "value": "System.Boolean System.Collections.Generic.List`1<System.String>.Contains"
+        },
+        {
+          "rva": "0x582F80",
+          "ripAddress": "0x1839C1198",
+          "kind": "MethodRef",
+          "value": "System.Void System.Collections.Generic.List`1<System.String>..ctor"
+        },
+        {
+          "rva": "0x582F8C",
+          "ripAddress": "0x1839C1F58",
+          "kind": "MethodRef",
+          "value": "System.Int32 System.Collections.Generic.List`1<System.String>.get_Count"
+        },
+        {
+          "rva": "0x582F98",
+          "ripAddress": "0x1839C2038",
+          "kind": "MethodRef",
+          "value": "T System.Collections.Generic.List`1<System.String>.get_Item"
+        },
+        {
+          "rva": "0x582FA4",
+          "ripAddress": "0x183A0AD80",
+          "kind": "TypeInfo",
+          "value": "System.Collections.Generic.List`1<System.String>"
+        },
+        {
+          "rva": "0x582FB0",
+          "ripAddress": "0x1839F7610",
+          "kind": "TypeInfo",
+          "value": "System.IO.Path"
+        },
+        {
+          "rva": "0x582FBC",
+          "ripAddress": "0x1839F23C0",
+          "kind": "MethodRef",
+          "value": "T ScheduleOne.DevUtilities.Singleton`1<ScheduleOne.Persistence.SaveManager>.get_Instance"
+        },
+        {
+          "rva": "0x582FC8",
+          "ripAddress": "0x1839C3478",
+          "kind": "TypeInfo",
+          "value": "System.String[]"
+        },
+        {
+          "rva": "0x582FD4",
+          "ripAddress": "0x1839E1120",
+          "kind": "StringLiteral",
+          "value": ".json"
+        },
+        {
+          "rva": "0x582FF2",
+          "ripAddress": "0x183A0AD80",
+          "kind": "TypeInfo",
+          "value": "System.Collections.Generic.List`1<System.String>"
+        },
+        {
+          "rva": "0x583001",
+          "ripAddress": "0x1839C1198",
+          "kind": "MethodRef",
+          "value": "System.Void System.Collections.Generic.List`1<System.String>..ctor"
+        },
+        {
+          "rva": "0x583018",
+          "ripAddress": "0x1839B4C00",
+          "kind": "TypeInfo",
+          "value": "ScheduleOne.Persistence.ISaveable"
+        },
+        {
+          "rva": "0x583035",
+          "ripAddress": "0x1839B4C00",
+          "kind": "TypeInfo",
+          "value": "ScheduleOne.Persistence.ISaveable"
+        },
+        {
+          "rva": "0x583059",
+          "ripAddress": "0x1839B4C00",
+          "kind": "TypeInfo",
+          "value": "ScheduleOne.Persistence.ISaveable"
+        },
+        {
+          "rva": "0x5830BB",
+          "ripAddress": "0x1839C2038",
+          "kind": "MethodRef",
+          "value": "T System.Collections.Generic.List`1<System.String>.get_Item"
+        },
+        {
+          "rva": "0x5830D0",
+          "ripAddress": "0x1839E1120",
+          "kind": "StringLiteral",
+          "value": ".json"
+        },
+        {
+          "rva": "0x5830EB",
+          "ripAddress": "0x1839C1430",
+          "kind": "MethodRef",
+          "value": "System.Void System.Collections.Generic.List`1<System.String>.Add"
+        },
+        {
+          "rva": "0x58317B",
+          "ripAddress": "0x1839B4C00",
+          "kind": "TypeInfo",
+          "value": "ScheduleOne.Persistence.ISaveable"
+        },
+        {
+          "rva": "0x58319D",
+          "ripAddress": "0x1839B4C00",
+          "kind": "TypeInfo",
+          "value": "ScheduleOne.Persistence.ISaveable"
+        },
+        {
+          "rva": "0x5831B6",
+          "ripAddress": "0x1839B4C00",
+          "kind": "TypeInfo",
+          "value": "ScheduleOne.Persistence.ISaveable"
+        },
+        {
+          "rva": "0x5831CB",
+          "ripAddress": "0x1839C1508",
+          "kind": "MethodRef",
+          "value": "System.Void System.Collections.Generic.List`1<System.String>.AddRange"
+        },
+        {
+          "rva": "0x5831E6",
+          "ripAddress": "0x1839B4C00",
+          "kind": "TypeInfo",
+          "value": "ScheduleOne.Persistence.ISaveable"
+        },
+        {
+          "rva": "0x583257",
+          "ripAddress": "0x1839C3478",
+          "kind": "TypeInfo",
+          "value": "System.String[]"
+        },
+        {
+          "rva": "0x58326E",
+          "ripAddress": "0x1839B4C00",
+          "kind": "TypeInfo",
+          "value": "ScheduleOne.Persistence.ISaveable"
+        },
+        {
+          "rva": "0x58327D",
+          "ripAddress": "0x1839E1120",
+          "kind": "StringLiteral",
+          "value": ".json"
+        },
+        {
+          "rva": "0x5832AE",
+          "ripAddress": "0x1839F7610",
+          "kind": "TypeInfo",
+          "value": "System.IO.Path"
+        },
+        {
+          "rva": "0x5832D8",
+          "ripAddress": "0x1839C1430",
+          "kind": "MethodRef",
+          "value": "System.Void System.Collections.Generic.List`1<System.String>.Add"
+        },
+        {
+          "rva": "0x58335A",
+          "ripAddress": "0x1839B4C00",
+          "kind": "TypeInfo",
+          "value": "ScheduleOne.Persistence.ISaveable"
+        },
+        {
+          "rva": "0x5833C6",
+          "ripAddress": "0x1839C1508",
+          "kind": "MethodRef",
+          "value": "System.Void System.Collections.Generic.List`1<System.String>.AddRange"
+        },
+        {
+          "rva": "0x5833E0",
+          "ripAddress": "0x1839B4C00",
+          "kind": "TypeInfo",
+          "value": "ScheduleOne.Persistence.ISaveable"
+        },
+        {
+          "rva": "0x583404",
+          "ripAddress": "0x1839B4C00",
+          "kind": "TypeInfo",
+          "value": "ScheduleOne.Persistence.ISaveable"
+        },
+        {
+          "rva": "0x58346C",
+          "ripAddress": "0x183990A68",
+          "kind": "TypeInfo",
+          "value": "System.IO.FileInfo"
+        },
+        {
+          "rva": "0x5834A7",
+          "ripAddress": "0x1839C17A0",
+          "kind": "MethodRef",
+          "value": "System.Boolean System.Collections.Generic.List`1<System.String>.Contains"
+        },
+        {
+          "rva": "0x5834E0",
+          "ripAddress": "0x183A090B8",
+          "kind": "StringLiteral",
+          "value": "\nException: "
+        },
+        {
+          "rva": "0x5834F4",
+          "ripAddress": "0x1839BE510",
+          "kind": "StringLiteral",
+          "value": "Failed to delete file: "
+        },
+        {
+          "rva": "0x58354A",
+          "ripAddress": "0x1839BE510",
+          "kind": "StringLiteral",
+          "value": "Failed to delete file: "
+        },
+        {
+          "rva": "0x583574",
+          "ripAddress": "0x1839F9D68",
+          "kind": "TypeInfo",
+          "value": "ScheduleOne.Console"
+        },
+        {
+          "rva": "0x5835FC",
+          "ripAddress": "0x183980848",
+          "kind": "TypeInfo",
+          "value": "System.IO.DirectoryInfo"
+        },
+        {
+          "rva": "0x583637",
+          "ripAddress": "0x1839C17A0",
+          "kind": "MethodRef",
+          "value": "System.Boolean System.Collections.Generic.List`1<System.String>.Contains"
+        },
+        {
+          "rva": "0x583673",
+          "ripAddress": "0x183A090B8",
+          "kind": "StringLiteral",
+          "value": "\nException: "
+        },
+        {
+          "rva": "0x583687",
+          "ripAddress": "0x1839BE5E8",
+          "kind": "StringLiteral",
+          "value": "Failed to delete folder: "
+        },
+        {
+          "rva": "0x5836BB",
+          "ripAddress": "0x1839BE5E8",
+          "kind": "StringLiteral",
+          "value": "Failed to delete folder: "
+        },
+        {
+          "rva": "0x5836E5",
+          "ripAddress": "0x1839F9D68",
+          "kind": "TypeInfo",
+          "value": "ScheduleOne.Console"
+        },
+        {
+          "rva": "0x583736",
+          "ripAddress": "0x1839B4C00",
+          "kind": "TypeInfo",
+          "value": "ScheduleOne.Persistence.ISaveable"
+        },
+        {
+          "rva": "0x583797",
+          "ripAddress": "0x1839F23C0",
+          "kind": "MethodRef",
+          "value": "T ScheduleOne.DevUtilities.Singleton`1<ScheduleOne.Persistence.SaveManager>.get_Instance"
+        }
+      ]
+    }
+  ],
+  "selectedFieldMap": [
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "QueuedSaveRequests",
+      "IndexInType": 20,
+      "Static": false,
+      "Offset": "0x68"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveRequest",
+      "Name": "Saveable",
+      "IndexInType": 0,
+      "Static": false,
+      "Offset": "0x10"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveRequest",
+      "Name": "ParentFolderPath",
+      "IndexInType": 1,
+      "Static": false,
+      "Offset": "0x18"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveRequest",
+      "Name": "<SaveString>k__BackingField",
+      "IndexInType": 2,
+      "Static": false,
+      "Offset": "0x20"
+    }
+  ],
+  "interfaceSlots": {
+    "WriteBaseData": 13,
+    "CompleteSave": 15,
+    "WriteData": 16,
+    "DeleteUnapprovedFiles": 17
+  },
+  "parentAll23WindowCounts": "Inherited only, not re-run",
+  "repositoryDocumentationHashesUsedAsDriftGate": false,
+  "oldReportsUnchanged": true,
+  "targetLoadedOrInvoked": false,
+  "nativeSaveFilesAccessed": false,
+  "userDataAccessed": false
+}

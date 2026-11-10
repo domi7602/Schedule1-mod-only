@@ -1,0 +1,48 @@
+using System.Collections.Generic;
+using Il2CppScheduleOne.Property;
+using Il2CppSystem.Collections.Generic;
+
+namespace S1API.Property;
+
+public static class BusinessManager
+{
+	public static List<BusinessWrapper> GetAllBusinesses()
+	{
+		List<BusinessWrapper> list = new List<BusinessWrapper>();
+		Enumerator<Business> enumerator = Business.Businesses.GetEnumerator();
+		while (enumerator.MoveNext())
+		{
+			Business current = enumerator.Current;
+			list.Add(new BusinessWrapper(current));
+		}
+		return list;
+	}
+
+	public static List<BusinessWrapper> GetOwnedBusinesses()
+	{
+		List<BusinessWrapper> list = new List<BusinessWrapper>();
+		Enumerator<Business> enumerator = Business.OwnedBusinesses.GetEnumerator();
+		while (enumerator.MoveNext())
+		{
+			Business current = enumerator.Current;
+			list.Add(new BusinessWrapper(current));
+		}
+		return list;
+	}
+
+	public static BusinessWrapper? FindBusinessByName(string name)
+	{
+		Enumerator<Business> enumerator = Business.Businesses.GetEnumerator();
+		while (enumerator.MoveNext())
+		{
+			Business current = enumerator.Current;
+			if (((Property)current).PropertyName == name)
+			{
+				return new BusinessWrapper(current);
+			}
+		}
+		return null;
+	}
+}
+You are not using the latest version of the tool, please update.
+Latest version is '11.2.0.10050' (yours is '8.2.0.7535-95108c96')

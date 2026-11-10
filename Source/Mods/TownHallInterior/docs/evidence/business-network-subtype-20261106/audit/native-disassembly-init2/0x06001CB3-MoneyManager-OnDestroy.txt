@@ -1,0 +1,185 @@
+; ScheduleOne.Money.MoneyManager::OnDestroy/0, token 0x06001CB3, RVA 0x5E5970, next-pointer window 0x310 bytes
+; No target execution. Parser-pointer window can contain padding/cold fragments and is not exact/full function, EH or transitive coverage. Shared direct aliases are truncated to eight names.
+0x5E5970     40 55                           push rbp
+0x5E5972     48 83 EC 20                     sub rsp,20h
+0x5E5976     80 3D DD 5F 61 03 00            cmp byte ptr [183BFB95Ah],0
+0x5E597D     48 8B E9                        mov rbp,rcx
+0x5E5980     75 7F                           jne short 00000001805E5A01h
+0x5E5982     48 8D 0D AF C3 3E 03            lea rcx,[1839D1D38h] ; TypeInfo: System.Action
+0x5E5989     E8 12 1F D3 FF                  call 00000001803178A0h
+0x5E598E     48 8D 0D FB F3 3C 03            lea rcx,[1839B4D90h] ; MethodDef: ScheduleOne.Money.MoneyManager::CheckNetworthAchievements/0
+0x5E5995     E8 06 1F D3 FF                  call 00000001803178A0h
+0x5E599A     48 8D 0D CF F4 3C 03            lea rcx,[1839B4E70h] ; MethodDef: ScheduleOne.Money.MoneyManager::Loaded/0
+0x5E59A1     E8 FA 1E D3 FF                  call 00000001803178A0h
+0x5E59A6     48 8D 0D A3 F5 3C 03            lea rcx,[1839B4F50h] ; MethodDef: ScheduleOne.Money.MoneyManager::MinPass/0
+0x5E59AD     E8 EE 1E D3 FF                  call 00000001803178A0h
+0x5E59B2     48 8D 0D D7 DC 3B 03            lea rcx,[1839A3690h] ; MethodRef: System.Void ScheduleOne.DevUtilities.NetworkSingleton`1<ScheduleOne.Money.MoneyManager>.OnDestroy
+0x5E59B9     E8 E2 1E D3 FF                  call 00000001803178A0h
+0x5E59BE     48 8D 0D 8B 19 3C 03            lea rcx,[1839A7350h] ; MethodRef: System.Boolean ScheduleOne.DevUtilities.NetworkSingleton`1<ScheduleOne.GameTime.TimeManager>.get_InstanceExists
+0x5E59C5     E8 D6 1E D3 FF                  call 00000001803178A0h
+0x5E59CA     48 8D 0D A7 18 3C 03            lea rcx,[1839A7278h] ; MethodRef: T ScheduleOne.DevUtilities.NetworkSingleton`1<ScheduleOne.GameTime.TimeManager>.get_Instance
+0x5E59D1     E8 CA 1E D3 FF                  call 00000001803178A0h
+0x5E59D6     48 8D 0D C3 6A 40 03            lea rcx,[1839EC4A0h] ; MethodRef: System.Boolean ScheduleOne.DevUtilities.Singleton`1<ScheduleOne.Persistence.LoadManager>.get_InstanceExists
+0x5E59DD     E8 BE 1E D3 FF                  call 00000001803178A0h
+0x5E59E2     48 8D 0D D7 69 40 03            lea rcx,[1839EC3C0h] ; MethodRef: T ScheduleOne.DevUtilities.Singleton`1<ScheduleOne.Persistence.LoadManager>.get_Instance
+0x5E59E9     E8 B2 1E D3 FF                  call 00000001803178A0h
+0x5E59EE     48 8D 0D BB 50 3D 03            lea rcx,[1839BAAB0h] ; TypeInfo: UnityEngine.Events.UnityAction
+0x5E59F5     E8 A6 1E D3 FF                  call 00000001803178A0h
+0x5E59FA     C6 05 59 5F 61 03 01            mov byte ptr [183BFB95Ah],1
+0x5E5A01     48 8B 15 88 DC 3B 03            mov rdx,[1839A3690h] ; MethodRef: System.Void ScheduleOne.DevUtilities.NetworkSingleton`1<ScheduleOne.Money.MoneyManager>.OnDestroy
+0x5E5A08     48 8B CD                        mov rcx,rbp
+0x5E5A0B     48 89 5C 24 30                  mov [rsp+30h],rbx
+0x5E5A10     48 89 74 24 38                  mov [rsp+38h],rsi
+0x5E5A15     48 89 7C 24 40                  mov [rsp+40h],rdi
+0x5E5A1A     E8 E1 23 A3 00                  call 0000000181017E00h ; ScheduleOne.DevUtilities.NetworkSingleton`1::OnDestroy/0
+0x5E5A1F     48 8B 0D 2A 19 3C 03            mov rcx,[1839A7350h] ; MethodRef: System.Boolean ScheduleOne.DevUtilities.NetworkSingleton`1<ScheduleOne.GameTime.TimeManager>.get_InstanceExists
+0x5E5A26     E8 95 24 A3 00                  call 0000000181017EC0h ; ScheduleOne.DevUtilities.NetworkSingleton`1::get_InstanceExists/0
+0x5E5A2B     84 C0                           test al,al
+0x5E5A2D     0F 84 72 01 00 00               je near ptr 00000001805E5BA5h
+0x5E5A33     48 8B 05 3E 18 3C 03            mov rax,[1839A7278h] ; MethodRef: T ScheduleOne.DevUtilities.NetworkSingleton`1<ScheduleOne.GameTime.TimeManager>.get_Instance
+0x5E5A3A     48 8B 40 20                     mov rax,[rax+20h]
+0x5E5A3E     F6 80 35 01 00 00 01            test byte ptr [rax+135h],1
+0x5E5A45     75 08                           jne short 00000001805E5A4Fh
+0x5E5A47     48 8B C8                        mov rcx,rax
+0x5E5A4A     E8 F1 6D D3 FF                  call 000000018031C840h
+0x5E5A4F     48 8B 80 C0 00 00 00            mov rax,[rax+0C0h]
+0x5E5A56     48 8B 40 10                     mov rax,[rax+10h]
+0x5E5A5A     F6 80 35 01 00 00 01            test byte ptr [rax+135h],1
+0x5E5A61     75 08                           jne short 00000001805E5A6Bh
+0x5E5A63     48 8B C8                        mov rcx,rax
+0x5E5A66     E8 D5 6D D3 FF                  call 000000018031C840h
+0x5E5A6B     48 8B 80 B8 00 00 00            mov rax,[rax+0B8h]
+0x5E5A72     48 8B 30                        mov rsi,[rax]
+0x5E5A75     48 85 F6                        test rsi,rsi
+0x5E5A78     0F 84 D5 01 00 00               je near ptr 00000001805E5C53h
+0x5E5A7E     48 8B 0D B3 C2 3E 03            mov rcx,[1839D1D38h] ; TypeInfo: System.Action
+0x5E5A85     48 8B BE 58 01 00 00            mov rdi,[rsi+158h]
+0x5E5A8C     E8 8F 20 D3 FF                  call 0000000180317B20h
+0x5E5A91     4C 8B 05 B8 F4 3C 03            mov r8,[1839B4F50h] ; MethodDef: ScheduleOne.Money.MoneyManager::MinPass/0
+0x5E5A98     45 33 C9                        xor r9d,r9d
+0x5E5A9B     48 8B D5                        mov rdx,rbp
+0x5E5A9E     48 8B C8                        mov rcx,rax
+0x5E5AA1     48 8B D8                        mov rbx,rax
+0x5E5AA4     E8 47 FB E3 FF                  call 00000001804255F0h ; VLB.VolumetricLightBeamSD+OnBeamGeometryInitialized::.ctor/2 | ScheduleOne.Events.BasicEvent::.ctor/2 | System.Action::.ctor/2 | System.Threading.ThreadStart::.ctor/2 | System.Runtime.Remoting.Contexts.CrossContextDelegate::.ctor/2 | System.Windows.Forms.ListView+CollectionChangedHandler::.ctor/2 | System.Windows.Forms.MethodInvoker::.ctor/2 | UnityEngine.UIElements.SavePersistentViewData::.ctor/2 | ... SHARED TARGET: 31 aliases
+0x5E5AA9     45 33 C0                        xor r8d,r8d
+0x5E5AAC     48 8B D3                        mov rdx,rbx
+0x5E5AAF     48 8B CF                        mov rcx,rdi
+0x5E5AB2     E8 09 45 F3 FF                  call 0000000180519FC0h ; ActionList::op_Subtraction/2
+0x5E5AB7     48 8D 8E 58 01 00 00            lea rcx,[rsi+158h]
+0x5E5ABE     48 89 86 58 01 00 00            mov [rsi+158h],rax
+0x5E5AC5     48 8B D0                        mov rdx,rax
+0x5E5AC8     E8 E3 0F D3 FF                  call 0000000180316AB0h
+0x5E5ACD     48 8B 05 A4 17 3C 03            mov rax,[1839A7278h] ; MethodRef: T ScheduleOne.DevUtilities.NetworkSingleton`1<ScheduleOne.GameTime.TimeManager>.get_Instance
+0x5E5AD4     48 8B 40 20                     mov rax,[rax+20h]
+0x5E5AD8     F6 80 35 01 00 00 01            test byte ptr [rax+135h],1
+0x5E5ADF     75 08                           jne short 00000001805E5AE9h
+0x5E5AE1     48 8B C8                        mov rcx,rax
+0x5E5AE4     E8 57 6D D3 FF                  call 000000018031C840h
+0x5E5AE9     48 8B 80 C0 00 00 00            mov rax,[rax+0C0h]
+0x5E5AF0     48 8B 40 10                     mov rax,[rax+10h]
+0x5E5AF4     F6 80 35 01 00 00 01            test byte ptr [rax+135h],1
+0x5E5AFB     75 08                           jne short 00000001805E5B05h
+0x5E5AFD     48 8B C8                        mov rcx,rax
+0x5E5B00     E8 3B 6D D3 FF                  call 000000018031C840h
+0x5E5B05     48 8B 80 B8 00 00 00            mov rax,[rax+0B8h]
+0x5E5B0C     48 8B 30                        mov rsi,[rax]
+0x5E5B0F     48 85 F6                        test rsi,rsi
+0x5E5B12     0F 84 3B 01 00 00               je near ptr 00000001805E5C53h
+0x5E5B18     48 8B 0D 19 C2 3E 03            mov rcx,[1839D1D38h] ; TypeInfo: System.Action
+0x5E5B1F     48 8B BE 90 01 00 00            mov rdi,[rsi+190h]
+0x5E5B26     E8 F5 1F D3 FF                  call 0000000180317B20h
+0x5E5B2B     4C 8B 05 5E F2 3C 03            mov r8,[1839B4D90h] ; MethodDef: ScheduleOne.Money.MoneyManager::CheckNetworthAchievements/0
+0x5E5B32     45 33 C9                        xor r9d,r9d
+0x5E5B35     48 8B D5                        mov rdx,rbp
+0x5E5B38     48 8B C8                        mov rcx,rax
+0x5E5B3B     48 8B D8                        mov rbx,rax
+0x5E5B3E     E8 AD FA E3 FF                  call 00000001804255F0h ; VLB.VolumetricLightBeamSD+OnBeamGeometryInitialized::.ctor/2 | ScheduleOne.Events.BasicEvent::.ctor/2 | System.Action::.ctor/2 | System.Threading.ThreadStart::.ctor/2 | System.Runtime.Remoting.Contexts.CrossContextDelegate::.ctor/2 | System.Windows.Forms.ListView+CollectionChangedHandler::.ctor/2 | System.Windows.Forms.MethodInvoker::.ctor/2 | UnityEngine.UIElements.SavePersistentViewData::.ctor/2 | ... SHARED TARGET: 31 aliases
+0x5E5B43     45 33 C0                        xor r8d,r8d
+0x5E5B46     48 8B D3                        mov rdx,rbx
+0x5E5B49     48 8B CF                        mov rcx,rdi
+0x5E5B4C     E8 DF C0 60 01                  call 0000000181BF1C30h ; System.Delegate::Remove/2
+0x5E5B51     33 D2                           xor edx,edx
+0x5E5B53     48 85 C0                        test rax,rax
+0x5E5B56     75 09                           jne short 00000001805E5B61h
+0x5E5B58     48 89 96 90 01 00 00            mov [rsi+190h],rdx
+0x5E5B5F     EB 38                           jmp short 00000001805E5B99h
+0x5E5B61     4C 8B 05 D0 C1 3E 03            mov r8,[1839D1D38h] ; TypeInfo: System.Action
+0x5E5B68     48 8B CA                        mov rcx,rdx
+0x5E5B6B     4C 39 00                        cmp [rax],r8
+0x5E5B6E     48 0F 44 C8                     cmove rcx,rax
+0x5E5B72     48 85 C9                        test rcx,rcx
+0x5E5B75     0F 84 EA 00 00 00               je near ptr 00000001805E5C65h
+0x5E5B7B     48 89 8E 90 01 00 00            mov [rsi+190h],rcx
+0x5E5B82     48 8B 0D AF C1 3E 03            mov rcx,[1839D1D38h] ; TypeInfo: System.Action
+0x5E5B89     48 39 08                        cmp [rax],rcx
+0x5E5B8C     48 0F 44 D0                     cmove rdx,rax
+0x5E5B90     48 85 D2                        test rdx,rdx
+0x5E5B93     0F 84 C0 00 00 00               je near ptr 00000001805E5C59h
+0x5E5B99     48 8D 8E 90 01 00 00            lea rcx,[rsi+190h]
+0x5E5BA0     E8 0B 0F D3 FF                  call 0000000180316AB0h
+0x5E5BA5     48 8B 0D F4 68 40 03            mov rcx,[1839EC4A0h] ; MethodRef: System.Boolean ScheduleOne.DevUtilities.Singleton`1<ScheduleOne.Persistence.LoadManager>.get_InstanceExists
+0x5E5BAC     E8 7F FF B4 00                  call 0000000181135B30h ; ScheduleOne.DevUtilities.Singleton`1::get_InstanceExists/0
+0x5E5BB1     84 C0                           test al,al
+0x5E5BB3     0F 84 85 00 00 00               je near ptr 00000001805E5C3Eh
+0x5E5BB9     48 8B 05 00 68 40 03            mov rax,[1839EC3C0h] ; MethodRef: T ScheduleOne.DevUtilities.Singleton`1<ScheduleOne.Persistence.LoadManager>.get_Instance
+0x5E5BC0     48 8B 40 20                     mov rax,[rax+20h]
+0x5E5BC4     F6 80 35 01 00 00 01            test byte ptr [rax+135h],1
+0x5E5BCB     75 08                           jne short 00000001805E5BD5h
+0x5E5BCD     48 8B C8                        mov rcx,rax
+0x5E5BD0     E8 6B 6C D3 FF                  call 000000018031C840h
+0x5E5BD5     48 8B 80 C0 00 00 00            mov rax,[rax+0C0h]
+0x5E5BDC     48 8B 40 10                     mov rax,[rax+10h]
+0x5E5BE0     F6 80 35 01 00 00 01            test byte ptr [rax+135h],1
+0x5E5BE7     75 08                           jne short 00000001805E5BF1h
+0x5E5BE9     48 8B C8                        mov rcx,rax
+0x5E5BEC     E8 4F 6C D3 FF                  call 000000018031C840h
+0x5E5BF1     48 8B 80 B8 00 00 00            mov rax,[rax+0B8h]
+0x5E5BF8     48 8B 08                        mov rcx,[rax]
+0x5E5BFB     48 85 C9                        test rcx,rcx
+0x5E5BFE     74 53                           je short 00000001805E5C53h
+0x5E5C00     48 8B 99 98 00 00 00            mov rbx,[rcx+98h]
+0x5E5C07     48 8B 0D A2 4E 3D 03            mov rcx,[1839BAAB0h] ; TypeInfo: UnityEngine.Events.UnityAction
+0x5E5C0E     E8 0D 1F D3 FF                  call 0000000180317B20h
+0x5E5C13     4C 8B 05 56 F2 3C 03            mov r8,[1839B4E70h] ; MethodDef: ScheduleOne.Money.MoneyManager::Loaded/0
+0x5E5C1A     45 33 C9                        xor r9d,r9d
+0x5E5C1D     48 8B D5                        mov rdx,rbp
+0x5E5C20     48 8B C8                        mov rcx,rax
+0x5E5C23     48 8B F8                        mov rdi,rax
+0x5E5C26     E8 C5 F9 E3 FF                  call 00000001804255F0h ; VLB.VolumetricLightBeamSD+OnBeamGeometryInitialized::.ctor/2 | ScheduleOne.Events.BasicEvent::.ctor/2 | System.Action::.ctor/2 | System.Threading.ThreadStart::.ctor/2 | System.Runtime.Remoting.Contexts.CrossContextDelegate::.ctor/2 | System.Windows.Forms.ListView+CollectionChangedHandler::.ctor/2 | System.Windows.Forms.MethodInvoker::.ctor/2 | UnityEngine.UIElements.SavePersistentViewData::.ctor/2 | ... SHARED TARGET: 31 aliases
+0x5E5C2B     48 85 DB                        test rbx,rbx
+0x5E5C2E     74 23                           je short 00000001805E5C53h
+0x5E5C30     45 33 C0                        xor r8d,r8d
+0x5E5C33     48 8B D7                        mov rdx,rdi
+0x5E5C36     48 8B CB                        mov rcx,rbx
+0x5E5C39     E8 52 14 5C 02                  call 0000000182BA7090h ; UnityEngine.Events.UnityEvent::RemoveListener/1
+0x5E5C3E     48 8B 7C 24 40                  mov rdi,[rsp+40h]
+0x5E5C43     48 8B 74 24 38                  mov rsi,[rsp+38h]
+0x5E5C48     48 8B 5C 24 30                  mov rbx,[rsp+30h]
+0x5E5C4D     48 83 C4 20                     add rsp,20h
+0x5E5C51     5D                              pop rbp
+0x5E5C52     C3                              ret
+0x5E5C53     E8 28 1F D3 FF                  call 0000000180317B80h
+0x5E5C58     CC                              int 3
+0x5E5C59     48 8B D1                        mov rdx,rcx
+0x5E5C5C     48 8B C8                        mov rcx,rax
+0x5E5C5F     E8 8C 0E D3 FF                  call 0000000180316AF0h
+0x5E5C64     CC                              int 3
+0x5E5C65     49 8B D0                        mov rdx,r8
+0x5E5C68     48 8B C8                        mov rcx,rax
+0x5E5C6B     E8 80 0E D3 FF                  call 0000000180316AF0h
+0x5E5C70     CC                              int 3
+0x5E5C71     CC                              int 3
+0x5E5C72     CC                              int 3
+0x5E5C73     CC                              int 3
+0x5E5C74     CC                              int 3
+0x5E5C75     CC                              int 3
+0x5E5C76     CC                              int 3
+0x5E5C77     CC                              int 3
+0x5E5C78     CC                              int 3
+0x5E5C79     CC                              int 3
+0x5E5C7A     CC                              int 3
+0x5E5C7B     CC                              int 3
+0x5E5C7C     CC                              int 3
+0x5E5C7D     CC                              int 3
+0x5E5C7E     CC                              int 3
+0x5E5C7F     CC                              int 3

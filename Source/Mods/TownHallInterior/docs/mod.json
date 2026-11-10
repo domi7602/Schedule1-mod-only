@@ -2,5 +2,5 @@
   "name": "TownHallInterior",
   "author": "Dominik",
   "version": "0.1.0",
-  "description": "Local experimental public hall: proximity-only sliding entrance, joined lower enclosure, visible upper floor/walls/ceiling and eight local lights. Decorative vanilla reception furniture. Hash-pinned native slices; do not redistribute. No furniture interactions, upper-floor furniture or business."
+  "description": "Local experimental public hall with TownHallTest slot 2 business purchase and upper-floor laundering. Hash-pinned native slices for local use."
 }

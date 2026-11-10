@@ -1,0 +1,133 @@
+{
+  "schema": 1,
+  "checkedUtc": "2026-11-06T11:41:16.789953+00:00",
+  "sourceRevision": "b2c6c7e6c6ecc778da9624cdb68a6578b9db471a",
+  "sourceWorktree": "dirty",
+  "scope": "Offline implementation of owned no-base NetworkObject and Business binding lifecycle; no installation or game/save actions",
+  "sourceHashes": {
+    "Source/Mods/TownHallInterior/src/BusinessConstruction.cs": "9a62ceefc8808888a226a979801425e98d1130aa1ea385034afce08fdc3be12b",
+    "Source/Mods/TownHallInterior/src/TownHallInterior.csproj": "7c9f0c1818016e27754c6a76a2d96b2a4843c55f57cabfb4a4423f7edb774327",
+    "Source/Mods/TownHallInterior/src/BusinessBindingProbe.cs": "c97fdc0623dc9075d988faa977db6b5038a0db7cbb7b0024210edf0b660cecdb",
+    "Source/Mods/TownHallInterior/docs/README.md": "83b398c0836bdef539d4d280cd59169f4ff62d5ef6bf6878d3052e2ebc161f19",
+    "Source/Mods/TownHallInterior/docs/CHANGELOG.md": "c45ce072ecef52d6af33f2e81da5393f08c1067ddfb8db204ad1478860c3e0d3",
+    "Source/Mods/TownHallInterior/docs/business-completion-plan.md": "cd5d108f1128925cc5ce0493658ca8f539e3bfa35a305d3d20bb2356644d3329",
+    "docs/compatibility.md": "d31405d3799f12c91d7cb494ca73b31af571cbfa237cd369c2f9f9a0882ce761",
+    "Source/Tests/TownHallInterior.Tests/BusinessNetworkSubtypeTests.cs": "49c3a7d9ea6bb446d2722e714527dfec63928c6fbc26a1da99abdc2f1740f3ef",
+    "Source/Mods/TownHallInterior/docs/business-network-subtype-probe.md": "804e76c67ca8d99d3f9c940b273ba8e3db474dcd33e88ce4c13504a21c6dce35"
+  },
+  "sourceHashesBeforeChanges": {
+    "Source/Mods/TownHallInterior/src/BusinessConstruction.cs": "32724b5085d1d6ca6bb34340e6b95198f450c4f67a2c5e5bbb187b68286ad708",
+    "Source/Mods/TownHallInterior/src/TownHallInterior.csproj": "1ea10486e850372e3faeed9fb3491066de1c8ac027a17f46bcfe9a746bfb1dfd",
+    "Source/Mods/TownHallInterior/src/BusinessBindingProbe.cs": "fb82cfafbee2f92b7c52d76edc9a3fe417cb905ad7f20a90a082ce681efa7fa1",
+    "Source/Mods/TownHallInterior/docs/README.md": "d6cebf0c90ad10ed6d446d67b2391b2beded29c092b55ee5b7a3505eb7ac2857",
+    "Source/Mods/TownHallInterior/docs/CHANGELOG.md": "558ebda411f70860f4a1000cf84bfa4bda8a27bb2adac907684432c25ca3c364",
+    "Source/Mods/TownHallInterior/docs/business-completion-plan.md": "e61e213d597b0ee5e71c356f264d82d50e1384c7d01dcba50d7aa85bc1845908",
+    "docs/compatibility.md": "d707d6a98ea5a854bb378cd86219e2f108e819ef0d03ddc818affb498613486f"
+  },
+  "initialTrackedAndNonignoredFiles": 2091,
+  "unrelatedOriginalFilesUnchanged": 2084,
+  "changedOriginalFiles": [
+    "Source/Mods/TownHallInterior/docs/CHANGELOG.md",
+    "Source/Mods/TownHallInterior/docs/README.md",
+    "Source/Mods/TownHallInterior/docs/business-completion-plan.md",
+    "Source/Mods/TownHallInterior/src/BusinessBindingProbe.cs",
+    "Source/Mods/TownHallInterior/src/BusinessConstruction.cs",
+    "Source/Mods/TownHallInterior/src/TownHallInterior.csproj",
+    "docs/compatibility.md"
+  ],
+  "newSourceOrDocumentationFiles": [
+    "Source/Mods/TownHallInterior/docs/business-network-subtype-probe.md",
+    "Source/Tests/TownHallInterior.Tests/BusinessNetworkSubtypeTests.cs"
+  ],
+  "productionProjectFiles": 20,
+  "baselineTests": {
+    "passed": 973,
+    "failed": 0
+  },
+  "newTests": {
+    "total": 104,
+    "passed": 104,
+    "failed": 0
+  },
+  "townHallTests": {
+    "total": 1077,
+    "passed": 1077,
+    "failed": 0
+  },
+  "testLimit": "Production trial exercised with fake native ports; no native NetworkObject/Business activation or FishNet initialization demonstrated.",
+  "builds": [
+    {
+      "mode": "Normal",
+      "exitCode": 0,
+      "dllSha256": "6fb31aedc27622727fc7ef49854221343fceda922ffd975f47f5b2df86f1c9ec",
+      "pdbSha256": "e10260751c88ad773bc32fd921e437b472594c94ac32bec555e7c6991c3bd044",
+      "noDeploy": true
+    },
+    {
+      "mode": "Subtype",
+      "exitCode": 0,
+      "dllSha256": "189755b15573537dab22649643b086f93326c6363b4a1cb68a2d29d2543941de",
+      "pdbSha256": "f3f7eff713a60dc948e026c89e25b9fae7ba2553b43c049d07894c5c6669d73c",
+      "noDeploy": true
+    },
+    {
+      "mode": "Interface",
+      "exitCode": 0,
+      "dllSha256": "75ee8f3bf2cf64dc5687c30d2e74976635a1caf036d83d341af9309323938175",
+      "pdbSha256": "cbeba8e6421e587747b5aa59a8ce8eb5063286a027f8c9ef0bd642a66f852939",
+      "noDeploy": true
+    },
+    {
+      "mode": "Manager",
+      "exitCode": 0,
+      "dllSha256": "972238e9fac16d439f71db98fa738c59ebf06452a8fa88610ca5cdc183a0aed2",
+      "pdbSha256": "170e5d191bf447a67bbc542d964ac528fc00d589ccb4d7907336cdea1b019167",
+      "noDeploy": true
+    },
+    {
+      "mode": "ActiveSubtype",
+      "exitCode": 0,
+      "dllSha256": "507e4d6e5edd607e9179aa1db4addd8fc2c793aafd41430135f2f43929a85a7d",
+      "pdbSha256": "d9182ad085057137e725b13c738a9f9b5abd4267dc5e31e253dc7e723ed6a3c0",
+      "noDeploy": true
+    },
+    {
+      "mode": "NetworkSubtype",
+      "exitCode": 0,
+      "dllSha256": "beb088f25002329ed3d676c62a993cd27b21f45f02000a9a6d433b00462a71b7",
+      "pdbSha256": "84fa0b0ffd5f133335059598551dfdd7e9b8d42038997a7f73e9f8e583040967",
+      "noDeploy": true
+    }
+  ],
+  "allBuildsWarnings": 0,
+  "allBuildsErrors": 0,
+  "expectedRejectedBuilds": [
+    "legacy activation: CS1029",
+    "NetworkSubtype plus Manager: CS1029",
+    "NetworkSubtype plus ActiveSubtype: CS1029"
+  ],
+  "scopedWhitespaceCheck": "passed",
+  "independentCodeReview": "accepted; see audit/final-code-review.json",
+  "candidateRelativePath": ".backups/townhall-network-subtype-prepared/20261106T114116758880Z",
+  "candidateSha256": "beb088f25002329ed3d676c62a993cd27b21f45f02000a9a6d433b00462a71b7",
+  "candidatePdbSha256": "84fa0b0ffd5f133335059598551dfdd7e9b8d42038997a7f73e9f8e583040967",
+  "installedHashesBeforeAndAfter": {
+    "Mods/TownHallInterior.dll": "614b81fd584040d4cebe7a18929bca09eabae478a6487ec6d846ea01d6062003",
+    "UserData/TownHallInterior/TownHallInterior.pdb": "8126ae65f5c12f6e8261af0a1734e622d8c0ab5522a91e6653c7b1ffd7d8c497",
+    "UserData/TownHallInterior/mod.json": "65938002b7273ef77dedbadf9092a186e6742f1e40fe404ef91576d3e4f81660",
+    "UserData/.deploy/receipts/TownHallInterior.json": "8b42d4c778009807dd3773fd28b5e849a0f38b9edcde17e8d842e3cb5afb0435"
+  },
+  "installationUnchanged": true,
+  "gameLaunched": false,
+  "nativeSaveFilesAccessed": false,
+  "deployed": false,
+  "committed": false,
+  "pushed": false,
+  "isolatedPureResult": "Recorded separately in isolation.json after the immutable snapshot run; not inferred from focused tests.",
+  "limits": [
+    "Original native Business/FishNet initialization, RPC readiness and constructor side effects remain unverified.",
+    "No world publication, spawn, Save, purchase, laundering, persistence/reload or general last-use/world-exit proof.",
+    "Own named Unity messages do not intercept explicit nonvirtual base-proxy calls.",
+    "Known bounded holder checks and empty client-cache gates are not universal transitive reference freedom."
+  ]
+}

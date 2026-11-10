@@ -1,0 +1,23 @@
+; ScheduleOne.Persistence.SaveManager::ReportSaveError/0, token 0x06001815, RVA 0x5AA710, metadata-pointer window 0x40 bytes
+; Raw native bytes only. Window ends at next distinct managed-method pointer, includes padding/cold fragments; not proof of full transitive/exception coverage. Shared target names show at most eight aliases; total count is recorded.
+0x5AA710     48 83 EC 28                     sub rsp,28h
+0x5AA714     80 3D 2B 10 65 03 00            cmp byte ptr [183BFB746h],0
+0x5AA71B     75 13                           jne short 00000001805AA730h
+0x5AA71D     48 8D 0D 6C BD 3D 03            lea rcx,[183986490h] ; TypeInfo: ScheduleOne.Persistence.SaveManager
+0x5AA724     E8 77 D1 D6 FF                  call 00000001803178A0h
+0x5AA729     C6 05 16 10 65 03 01            mov byte ptr [183BFB746h],1
+0x5AA730     48 8B 05 59 BD 3D 03            mov rax,[183986490h] ; TypeInfo: ScheduleOne.Persistence.SaveManager
+0x5AA737     48 8B 88 B8 00 00 00            mov rcx,[rax+0B8h]
+0x5AA73E     C6 01 01                        mov byte ptr [rcx],1
+0x5AA741     48 83 C4 28                     add rsp,28h
+0x5AA745     C3                              ret
+0x5AA746     CC                              int 3
+0x5AA747     CC                              int 3
+0x5AA748     CC                              int 3
+0x5AA749     CC                              int 3
+0x5AA74A     CC                              int 3
+0x5AA74B     CC                              int 3
+0x5AA74C     CC                              int 3
+0x5AA74D     CC                              int 3
+0x5AA74E     CC                              int 3
+0x5AA74F     CC                              int 3

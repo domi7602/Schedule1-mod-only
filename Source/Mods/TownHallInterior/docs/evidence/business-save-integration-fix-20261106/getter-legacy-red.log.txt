@@ -1,0 +1,27 @@
+  Determining projects to restore...
+  Restored C:\Users\pc\Schedule1-mod-only\.scratch\townhall-save-fix-20261106\legacy-getter\TownHallSaveLegacyGetter.Tests.csproj (in 214 ms).
+  TownHallSaveLegacyGetter.Tests -> C:\Users\pc\Schedule1-mod-only\.scratch\townhall-save-fix-20261106\legacy-getter\bin\Release\net6.0\TownHallSaveLegacyGetter.Tests.dll
+Test run for C:\Users\pc\Schedule1-mod-only\.scratch\townhall-save-fix-20261106\legacy-getter\bin\Release\net6.0\TownHallSaveLegacyGetter.Tests.dll (.NETCoreApp,Version=v6.0)
+VSTest version 17.11.1 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.25]     TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Repeated_folder_inspection_preserves_diagnostics_without_starting_a_save [FAIL]
+[xUnit.net 00:00:00.26]     TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Non_save_diagnostics_remain_counted_without_save_callback_evidence [FAIL]
+  Failed TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Repeated_folder_inspection_preserves_diagnostics_without_starting_a_save [12 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: 0
+Actual:   1
+  Stack Trace:
+     at TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Repeated_folder_inspection_preserves_diagnostics_without_starting_a_save() in C:\Users\pc\Schedule1-mod-only\.scratch\townhall-save-fix-20261106\legacy-getter\BusinessSaveIntegrationRegressionTests.cs:line 18
+  Failed TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Non_save_diagnostics_remain_counted_without_save_callback_evidence [1 ms]
+  Error Message:
+   Assert.False() Failure
+Expected: False
+Actual:   True
+  Stack Trace:
+     at TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Non_save_diagnostics_remain_counted_without_save_callback_evidence() in C:\Users\pc\Schedule1-mod-only\.scratch\townhall-save-fix-20261106\legacy-getter\BusinessSaveIntegrationRegressionTests.cs:line 56
+Results File: C:\Users\pc\Schedule1-mod-only\.scratch\townhall-save-fix-20261106\tests\getter-legacy-red.trx
+
+Failed!  - Failed:     2, Passed:     0, Skipped:     0, Total:     2, Duration: 47 ms - TownHallSaveLegacyGetter.Tests.dll (net6.0)

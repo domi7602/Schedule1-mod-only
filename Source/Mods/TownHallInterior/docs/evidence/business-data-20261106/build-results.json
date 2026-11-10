@@ -1,0 +1,51 @@
+[
+  {
+    "mode": "Normal",
+    "exitCode": 0,
+    "dllSha256": "3db12243a1402335306154f17cf1cecac302ebfa6f2d6052448aedd2f9bdb028",
+    "pdbSha256": "992b3301a09a61c6680defd9db683ead9997b183b3a43cdc78e50b4b023071ec",
+    "noDeploy": true
+  },
+  {
+    "mode": "Subtype",
+    "exitCode": 0,
+    "dllSha256": "5ddace747d36b2ed9d49274c3ee9a35f39877ce17371b27abd126332621f0a6e",
+    "pdbSha256": "67ab8d1e1e889e481200f613ca7ca612586268212bf6633024afd65c18ee5518",
+    "noDeploy": true
+  },
+  {
+    "mode": "Interface",
+    "exitCode": 0,
+    "dllSha256": "63b92734d6a1913c748edbac18eb59436a308245b79605d239253b4fed0aac8d",
+    "pdbSha256": "4e41879221edfff3246d55a538e77c7711e613010b6df75f444bbfaa9f036246",
+    "noDeploy": true
+  },
+  {
+    "mode": "Manager",
+    "exitCode": 0,
+    "dllSha256": "3f49232b2d78efdd647b7d5569f35ad888186f9ad50b720d7537c0d97e71b116",
+    "pdbSha256": "1a967a24f31cecf607125e8917ed98b1949535ee59b205e1d2e8e65cfcfe1cb5",
+    "noDeploy": true
+  },
+  {
+    "mode": "ActiveSubtype",
+    "exitCode": 0,
+    "dllSha256": "eaf33a0bcac518b71119c67ebdfe3f5c2eb421309a4cd376e4d23331092d34b2",
+    "pdbSha256": "4a4c07b04eb130bd35261f585acabae2d26ca0aaa329d44d6024ec0cbd9283a1",
+    "noDeploy": true
+  },
+  {
+    "mode": "NetworkSubtype",
+    "exitCode": 0,
+    "dllSha256": "b17572661bfd1a07644c029c8b551310a7775fd9b1cfcd545fc867cd3f51c108",
+    "pdbSha256": "404ac6599d0033c230ed315f010f20446c9d1822513ae111d1cee056bd7ec9ed",
+    "noDeploy": true
+  },
+  {
+    "mode": "Data",
+    "exitCode": 0,
+    "dllSha256": "2e519ccfdc58053281dc67ffd91e2c1b53d523aa2941657e7b8e1fcd7dd81357",
+    "pdbSha256": "724340a903ac5719dbd333c33d8eab1f8fbffa1b92c3eb1415261f83e0a40f49",
+    "noDeploy": true
+  }
+]

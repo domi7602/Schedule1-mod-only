@@ -1,0 +1,160 @@
+{
+  "Method": {
+    "Type": "ScheduleOne.Property.PropertyContentsContainer",
+    "Name": ".ctor",
+    "Token": "0x06001476",
+    "ParameterCount": 0,
+    "InterfaceOrVirtualSlot": 65535,
+    "Va": "0x18041D490",
+    "Rva": "0x41D490",
+    "NativePointerPresent": true
+  },
+  "PrimaryPdataBounds": null,
+  "WindowEndVa": "0x18041D4A0",
+  "WindowKind": "Next distinct parser method pointer, not an exact/full function extent",
+  "RawOffset": "0x41C690",
+  "ByteLength": 16,
+  "BytesSha256": "e1b484ff69482293a0c7bd2fbfabc49ef3eaf21179c5ade8a6025c66f305bc5e",
+  "Instructions": [
+    {
+      "Va": "0x18041D490",
+      "Rva": "0x41D490",
+      "Bytes": "33 D2",
+      "Text": "xor edx,edx",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x18041D492",
+      "Rva": "0x41D492",
+      "Bytes": "E9 29 66 75 02",
+      "Text": "jmp near ptr 0000000182B73AC0h",
+      "FlowControl": "UnconditionalBranch",
+      "DirectTarget": "0x182B73AC0",
+      "TargetMethodCount": 6,
+      "TargetMethods": [
+        "UnityEngine.Behaviour::.ctor/0",
+        "UnityEngine.Component::.ctor/0",
+        "UnityEngine.MonoBehaviour::.ctor/0",
+        "UnityEngine.RectTransform::.ctor/0",
+        "UnityEngine.Transform::.ctor/0",
+        "UnityEngine.U2D.Light2DBase::.ctor/0"
+      ],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x18041D497",
+      "Rva": "0x41D497",
+      "Bytes": "CC",
+      "Text": "int 3",
+      "FlowControl": "Interrupt",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x18041D498",
+      "Rva": "0x41D498",
+      "Bytes": "CC",
+      "Text": "int 3",
+      "FlowControl": "Interrupt",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x18041D499",
+      "Rva": "0x41D499",
+      "Bytes": "CC",
+      "Text": "int 3",
+      "FlowControl": "Interrupt",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x18041D49A",
+      "Rva": "0x41D49A",
+      "Bytes": "CC",
+      "Text": "int 3",
+      "FlowControl": "Interrupt",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x18041D49B",
+      "Rva": "0x41D49B",
+      "Bytes": "CC",
+      "Text": "int 3",
+      "FlowControl": "Interrupt",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x18041D49C",
+      "Rva": "0x41D49C",
+      "Bytes": "CC",
+      "Text": "int 3",
+      "FlowControl": "Interrupt",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x18041D49D",
+      "Rva": "0x41D49D",
+      "Bytes": "CC",
+      "Text": "int 3",
+      "FlowControl": "Interrupt",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x18041D49E",
+      "Rva": "0x41D49E",
+      "Bytes": "CC",
+      "Text": "int 3",
+      "FlowControl": "Interrupt",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x18041D49F",
+      "Rva": "0x41D49F",
+      "Bytes": "CC",
+      "Text": "int 3",
+      "FlowControl": "Interrupt",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    }
+  ],
+  "UndecodedTail": null
+}

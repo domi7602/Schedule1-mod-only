@@ -1,0 +1,47 @@
+; FishNet.Managing.Object.ManagedObjects::RemoveFromSpawned/3, token 0x06000D80, RVA 0xD14C20, .pdata primary extent 0xB3 bytes
+; Raw native bytes decoded without invoking the game. .pdata primary extent is not a proof of full transitive/exception-path coverage.
+0xD14C20     48 89 5C 24 08                  mov [rsp+8],rbx
+0xD14C25     48 89 74 24 10                  mov [rsp+10h],rsi
+0xD14C2A     57                              push rdi
+0xD14C2B     48 83 EC 20                     sub rsp,20h
+0xD14C2F     80 3D 09 C3 EE 02 00            cmp byte ptr [183C00F3Fh],0
+0xD14C36     41 0F B6 F0                     movzx esi,r8b
+0xD14C3A     48 8B DA                        mov rbx,rdx
+0xD14C3D     48 8B F9                        mov rdi,rcx
+0xD14C40     75 13                           jne short 0000000180D14C55h
+0xD14C42     48 8D 0D C7 97 CB 02            lea rcx,[1839CE410h]
+0xD14C49     E8 52 2C 60 FF                  call 00000001803178A0h
+0xD14C4E     C6 05 EA C2 EE 02 01            mov byte ptr [183C00F3Fh],1
+0xD14C55     48 85 DB                        test rbx,rbx
+0xD14C58     74 73                           je short 0000000180D14CCDh
+0xD14C5A     48 8B 4F 10                     mov rcx,[rdi+10h]
+0xD14C5E     48 85 C9                        test rcx,rcx
+0xD14C61     74 6A                           je short 0000000180D14CCDh
+0xD14C63     4C 8B 05 A6 97 CB 02            mov r8,[1839CE410h]
+0xD14C6A     8B 53 34                        mov edx,[rbx+34h]
+0xD14C6D     E8 AE 5F 79 00                  call 00000001814AAC20h
+0xD14C72     40 84 F6                        test sil,sil
+0xD14C75     74 46                           je short 0000000180D14CBDh
+0xD14C77     33 D2                           xor edx,edx
+0xD14C79     48 8B CB                        mov rcx,rbx
+0xD14C7C     E8 2F B7 FB FF                  call 0000000180CD03B0h ; FishNet.Object.NetworkObject::get_IsSceneObject/0
+0xD14C81     84 C0                           test al,al
+0xD14C83     74 38                           je short 0000000180D14CBDh
+0xD14C85     80 3D BA C2 EE 02 00            cmp byte ptr [183C00F46h],0
+0xD14C8C     75 13                           jne short 0000000180D14CA1h
+0xD14C8E     48 8D 0D 3B 9E CF 02            lea rcx,[183A0EAD0h]
+0xD14C95     E8 06 2C 60 FF                  call 00000001803178A0h
+0xD14C9A     C6 05 A5 C2 EE 02 01            mov byte ptr [183C00F46h],1
+0xD14CA1     48 8B 4F 20                     mov rcx,[rdi+20h]
+0xD14CA5     48 85 C9                        test rcx,rcx
+0xD14CA8     74 23                           je short 0000000180D14CCDh
+0xD14CAA     4C 8B 05 1F 9E CF 02            mov r8,[183A0EAD0h]
+0xD14CB1     48 8B 93 60 01 00 00            mov rdx,[rbx+160h]
+0xD14CB8     E8 13 8C 85 00                  call 000000018156D8D0h
+0xD14CBD     48 8B 5C 24 30                  mov rbx,[rsp+30h]
+0xD14CC2     48 8B 74 24 38                  mov rsi,[rsp+38h]
+0xD14CC7     48 83 C4 20                     add rsp,20h
+0xD14CCB     5F                              pop rdi
+0xD14CCC     C3                              ret
+0xD14CCD     E8 AE 2E 60 FF                  call 0000000180317B80h
+0xD14CD2     CC                              int 3

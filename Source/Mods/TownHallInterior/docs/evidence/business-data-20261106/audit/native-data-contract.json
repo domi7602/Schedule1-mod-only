@@ -1,0 +1,226 @@
+{
+  "capturedUtc": "2026-11-06T12:28:39.367753+00:00",
+  "reviewer": "/root/active_lifetime_review",
+  "status": "bounded-native-data-contract-confirmed",
+  "scope": "Own unpublished no-base Business/NetworkObject diagnostic data preparation and native reads only. No original Awake/Start, RPC, registration, Save, ownership change, purchase or laundering operation.",
+  "inputs": [
+    {
+      "path": "GameAssembly.dll",
+      "sha256": "61829050e56ca180d67be592e4bfe61ec97d2e9573f720d90a54e318a7e4381d",
+      "bytes": 66477568
+    },
+    {
+      "path": "Schedule I_Data/il2cpp_data/Metadata/global-metadata.dat",
+      "sha256": "e775c97da277da8eb1a90265478f3b65c9c3d6464aff4f7255d45280a1d1181f",
+      "bytes": 18689168
+    },
+    {
+      "path": "MelonLoader/Il2CppAssemblies/Assembly-CSharp.dll",
+      "sha256": "346205306273805a78b01a917f14b94518498af1361595c4c417baa0b32b4bd8",
+      "bytes": 14168576
+    },
+    {
+      "path": "Mods/S1API.Il2Cpp.MelonLoader.dll",
+      "sha256": "d751a3cb66003f7a616eb9f8054daf34da0d9d7f23416a5005a586738a680852",
+      "bytes": 1590784
+    },
+    {
+      "path": "MelonLoader/Il2CppAssemblies/Il2CppFishNet.Runtime.dll",
+      "sha256": "0acb5c70078f5be6e88574be17b675657fc50898eb3dd264a3b98a54545e24ec",
+      "bytes": 1996800
+    },
+    {
+      "path": "MelonLoader/Il2CppAssemblies/Il2Cppmscorlib.dll",
+      "sha256": "820cb71f117b91bd7d87112e553753f5ae566dbc4a44ab8c21f00c5d6d6a362d",
+      "bytes": 6147072
+    },
+    {
+      "path": "MelonLoader/Il2CppAssemblies/UnityEngine.CoreModule.dll",
+      "sha256": "0f21732b5693777f1171376fbe0abe20ea486c513850a3593492e28e535f96b1",
+      "bytes": 3350016
+    },
+    {
+      "path": "MelonLoader/Il2CppAssemblies/UnityEngine.PhysicsModule.dll",
+      "sha256": "29a3f4e6d609a82f65c582dbbf31c8f91359a21c506bd2d021e5d6d8baa9cb44",
+      "bytes": 327168
+    }
+  ],
+  "resumeChecks": "resume-input-and-loader-tail.json",
+  "provenance": {
+    "fresh": [
+      "Business/Property/Container/Loader/Time/Money/ActionList/Delegate proxy decompiles",
+      "Exactly three loader constructor native windows",
+      "Eight current input hash comparisons after resume and exact loader-tail bytes"
+    ],
+    "inherited": "inherited-evidence.json records prior same-hash native query windows and installed S1API wrapper decompiles, reread for this contract. Prior auditor /root/active_business_audit, 2026-11-06."
+  },
+  "minimalQueryDependencies": {
+    "laundering": [
+      "Business.LaunderingOperations: own readable empty Il2Cpp list of Il2CppScheduleOne.Property.LaunderingOperation",
+      "Business.LaunderCapacity=0 finite float; currentLaunderTotal and appliedLaunderLimit must each equal0"
+    ],
+    "container": [
+      "Own Unity GameObject child and AddComponent<PropertyContentsContainer>; do not use new for a MonoBehaviour",
+      "Property._Container_k__BackingField points to retained own container",
+      "Call native SetProperty(ownBusiness) once; container._Property_k__BackingField must point to same own Business before and after queries"
+    ],
+    "bounds": [
+      "Property.BoundingBox points to own helper GameObject; propertyBoundsColliders exact own one-element BoxCollider array",
+      "Own collider disabled, finite local center, strictly positive finite size, stable finite transform and nonzero scale",
+      "Inside sample at own box center and outside sample with clear margin; no boundary edge-case or calibrated TownHall boundary claim"
+    ]
+  },
+  "explicitOwnDataFields": {
+    "lists": {
+      "LaunderingOperations": "Il2CppScheduleOne.Property.LaunderingOperation",
+      "_Employees_k__BackingField": "Il2CppScheduleOne.Employees.Employee",
+      "BuildableItems": "Il2CppScheduleOne.EntityFramework.BuildableItem",
+      "Configurables": "Il2CppScheduleOne.Management.IConfigurable",
+      "Grids": "Il2CppScheduleOne.Tiles.Grid",
+      "Switches": "Il2CppScheduleOne.Misc.ModularSwitch",
+      "Toggleables": "Il2CppScheduleOne.Interaction.InteractableToggleable",
+      "_LocalExtraFiles_k__BackingField": "System.String",
+      "_LocalExtraFolders_k__BackingField": "System.String",
+      "savedObjectPaths": "System.String",
+      "savedEmployeePaths": "System.String"
+    },
+    "arrays": {
+      "propertyBoundsColliders": "UnityEngine.BoxCollider, length1 exact own collider",
+      "ObjectsToCull": "UnityEngine.GameObject, empty",
+      "EmployeeIdlePoints": "UnityEngine.Transform, empty",
+      "LoadingDocks": "Il2CppScheduleOne.Delivery.LoadingDock, empty"
+    },
+    "loaders": [
+      "Business.loader: own Il2CppScheduleOne.Persistence.Loaders.BusinessLoader",
+      "Property.loader: separate own PropertyLoader; Business hides this field, so access through explicit Property proxy/type"
+    ],
+    "neutralFlags": [
+      "Price=0, LaunderCapacity=0; no approved product balancing implied",
+      "_IsOwned_k__BackingField=false and OwnedByDefault=false",
+      "ContentCullingEnabled=false; _hasBeenLoaded=false; _HasChanged_k__BackingField=false"
+    ],
+    "limits": "Only laundering/bounds fields are demanded by the selected query algorithms. Other lists/loaders are explicit own-data preparation and must not be described as complete native constructor/Business initialization. Spawn/UI/POI/sign objects are outside this step."
+  },
+  "nativeMethods": [
+    {
+      "type": "ScheduleOne.Property.Business",
+      "method": "get_currentLaunderTotal",
+      "signature": "public instance float()",
+      "token": "0x06001398",
+      "rva": "0x54DE30",
+      "effect": "Reads own LaunderingOperations and returns LINQ Sum. May initialize native metadata and Business.__c cached selector delegate; not strictly globally side-effect-free. No world registration in decoded body.",
+      "source": "inherited-native-windows/0x06001398-Business-get_currentLaunderTotal.txt"
+    },
+    {
+      "type": "ScheduleOne.Property.Business",
+      "method": "get_appliedLaunderLimit",
+      "signature": "public instance float()",
+      "token": "0x06001399",
+      "rva": "0x54DE00",
+      "effect": "Reads capacity, calls currentLaunderTotal, subtracts; zero empty diagnostic gives0.",
+      "source": "inherited-native-windows/0x06001399-Business-get_appliedLaunderLimit.txt"
+    },
+    {
+      "type": "ScheduleOne.Property.PropertyContentsContainer",
+      "method": "SetProperty",
+      "signature": "public instance void(Property)",
+      "token": "0x06001475",
+      "rva": "0x5520E0",
+      "effect": "Unity-null-checks property then stores own backing reference (+0x20) with GC barrier; null branch logs error. No publication or listener calls in decoded body.",
+      "source": "inherited-native-windows/0x06001475-PropertyContentsContainer-SetProperty.txt"
+    },
+    {
+      "type": "ScheduleOne.Property.Property",
+      "method": "DoBoundsContainPoint",
+      "signature": "public instance bool(UnityEngine.Vector3)",
+      "token": "0x0600143E",
+      "rva": "0x554650",
+      "effect": "Iterates required nonnull bounds array, skips Unity-null colliders, invokes private point-in-box, returns true on first match.",
+      "source": "inherited-native-windows/0x0600143E-Property-DoBoundsContainPoint.txt"
+    },
+    {
+      "type": "ScheduleOne.Property.Property",
+      "method": "IsPointInsideBox",
+      "signature": "private instance bool(UnityEngine.Vector3,UnityEngine.BoxCollider)",
+      "token": "0x0600143F",
+      "rva": "0x554FA0",
+      "effect": "InverseTransformPoint(worldPoint)-center, compares absolute coordinates with size/2. Does not query Collider.bounds, physics overlaps or collider.enabled. Null box logs warning. S1API route reaches this transitively; no direct call needed.",
+      "source": "inherited-native-windows/0x0600143F-Property-IsPointInsideBox.txt"
+    }
+  ],
+  "loaderContract": {
+    "tokens": {
+      "BusinessLoader::.ctor": "0x06001862",
+      "PropertyLoader::.ctor": "0x06001899",
+      "Loader::.ctor": "0x0600187A"
+    },
+    "nativePath": "RVA0x41D580 xor edx,edx; tail-jumpRVA0x43FEC0; C2 00 00 = RET0",
+    "evidence": [
+      "native-map-loaders.json",
+      "native-disassembly-loaders/",
+      "resume-input-and-loader-tail.json"
+    ],
+    "meaning": "Plain IL2CPP GC data-object construction has no stores/IO/registration in these bounded native ctor paths. Do not call Load or serializer/file helper methods. Nested Load closure fields are not fields of the loader instance."
+  },
+  "containerLifecycle": {
+    "source": "PropertyContentsContainer.fresh.cs.txt:11-104",
+    "declaredMethods": [
+      "get_Property",
+      "set_Property",
+      "SetProperty",
+      ".ctor"
+    ],
+    "nativeCtor": "RVA0x41D490 tailcalls MonoBehaviour ctor. There are no declared Awake/Start/OnDestroy/OnEnable/OnDisable methods on this class. Add as owned Unity component; do not explicitly invoke its native parameterless ctor.",
+    "limits": "No claim that all Unity engine allocation/destruction internals are side-effect-free."
+  },
+  "s1apiContract": {
+    "BusinessWrapper": "Constructor stores same native Business in internal readonly InnerBusiness; inherited PropertyWrapper stores native Property in internal readonly InnerProperty. CurrentLaunderTotal and AppliedLaunderLimit call native getters.",
+    "PropertyWrapper": "IsPointInside(Vector3) calls native DoBoundsContainPoint.",
+    "identityReadback": "Exact declaring types GetField(name, Instance|NonPublic), verify FieldType and IsInitOnly, GetValue and read actual native pointers. Both fields must equal own Business pointer; constructor input alone is not binding evidence.",
+    "avoid": [
+      "BusinessWrapper.LaunderCapacity setter also updates UI",
+      "PropertyWrapper.Price setter also updates UI",
+      "AddLaunderingOperation invokes StartLaunderingOperation RPC",
+      "SetOwned/SetContentCulled/Load/Save remain excluded"
+    ],
+    "sources": [
+      "S1API.BusinessWrapper.fresh.cs.txt:246-328",
+      "S1API.PropertyWrapper.fresh.cs.txt:143-256"
+    ]
+  },
+  "listenerFingerprints": {
+    "data-time-listeners": "Bind same live TimeManager pointer; onMinutePass Il2Cpp.ActionList object pointer + mutable list pointer and ordered delegate identities; onTimeSkip Action<int> delegate graph.",
+    "data-money-listeners": "Bind same live MoneyManager pointer + onNetworthCalculation Action<FloatContainer> delegate graph.",
+    "data-property-listeners": "Property.onPropertyAcquired static PropertyChange delegate graph.",
+    "data-business-listeners": "Business.onOperationStarted and onOperationFinished static Action<LaunderingOperation> delegate graphs.",
+    "delegateFields": "Read direct Il2CppSystem.Delegate fields method_ptr, invoke_impl, m_target, method; MulticastDelegate.delegates array where present. Include object/array identities and bounded ordered child/target/method identities. Valid null event/static target differs from unreadable nonnull. Detect cycles/overbudget as unknown. No invocation, Add/Remove/Clear or speculative restoration.",
+    "sources": [
+      "TimeManager.fresh.cs.txt:1040",
+      "TimeManager.fresh.cs.txt:1100",
+      "MoneyManager.fresh.cs.txt:940",
+      "ActionList.fresh.cs.txt:317",
+      "Delegate.fresh.cs.txt:113-167",
+      "MulticastDelegate.fresh.cs.txt:36"
+    ],
+    "limit": "Finite direct delegate/list identity coverage, not arbitrary closure or global native last-use proof."
+  },
+  "boundaryAndCleanup": [
+    "Reuse exact world/generation/owner/process-attempt state machine; pin actual native method declaration/token/signature/method/virtual/invoker metadata before calling original query bodies. No global shared-address detours.",
+    "Before each SetProperty/query and before deactivation/destruction, revalidate same own graph/data/list/loader identities and contents, wrapper bindings, network state, external known-holder/listener fingerprints and save-idle context.",
+    "Record attempted/returned separately; exception is unknown effect and consumes attempt, no automatic retry or blind shared-state restore.",
+    "Unity-owned helper GameObjects/Transform/Container/BoxCollider and own root/Business/NetworkObject require exact retained identities plus Destroy/native-absence evidence.",
+    "Collections, arrays, loaders and wrapper handles are GC-managed objects; releasing/detaching own handles is not proof of immediate native heap reclamation."
+  ],
+  "acceptance": [
+    "CurrentLaunderTotal0; AppliedLaunderLimit0; own center inside true; clearly outside false through actual S1API/native route.",
+    "All 15 collection identities/counts and two loader identities remain own/stable; exact container/backlink/collider/bounds metadata and S1API bindings match.",
+    "Four listener fingerprints and existing foreign registries/vtables unchanged; original lifecycle/RPC/save paths never invoked.",
+    "Retirement and cleanup claims limited to observed native Unity absence and handle disposition."
+  ],
+  "limits": [
+    "No live execution, builds, tests, deployment or save-file access by this auditor.",
+    "Native linear windows and proxy metadata are bounded static evidence; not full CFG/EH/transitive engine proof.",
+    "Empty-list zero reads validate the selected dispatch/dependency seam, not nonempty laundering aggregation, production balancing, actual TownHall boundary calibration, purchase, persistence or initialized Business gameplay.",
+    "Native metadata and cached LINQ selector initialization are allowed known query effects; never claim no global effects whatsoever."
+  ]
+}

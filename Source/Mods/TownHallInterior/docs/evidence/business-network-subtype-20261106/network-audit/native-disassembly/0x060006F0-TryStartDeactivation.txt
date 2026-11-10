@@ -1,0 +1,12 @@
+; FishNet.Object.NetworkObject::TryStartDeactivation/0, token 0x060006F0, RVA 0xCCED00, .pdata primary extent 0x32 bytes
+; Raw native bytes decoded without invoking the game. .pdata primary extent is not a proof of full transitive/exception-path coverage.
+0xCCED00     40 53                           push rbx
+0xCCED02     48 83 EC 20                     sub rsp,20h
+0xCCED06     80 3D 65 1F F3 02 00            cmp byte ptr [183C00C72h],0
+0xCCED0D     48 8B D9                        mov rbx,rcx
+0xCCED10     75 13                           jne short 0000000180CCED25h
+0xCCED12     48 8D 0D DF 12 D2 02            lea rcx,[1839EFFF8h] ; TypeInfo: UnityEngine.Object
+0xCCED19     E8 82 8B 64 FF                  call 00000001803178A0h
+0xCCED1E     C6 05 4D 1F F3 02 01            mov byte ptr [183C00C72h],1
+0xCCED25     80 BB A1 00 00 00 00            cmp byte ptr [rbx+0A1h],0
+0xCCED2C     0F 84 D9 00 00 00               je near ptr 0000000180CCEE0Bh

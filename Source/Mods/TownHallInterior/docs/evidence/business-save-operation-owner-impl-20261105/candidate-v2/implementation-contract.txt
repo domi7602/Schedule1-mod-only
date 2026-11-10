@@ -1,0 +1,116 @@
+# API agreement for the data-only implementation
+
+Repository rules and `docs/business-save-operation-owner.md` remain authoritative.
+This agreement narrows the first implementation slice; every effect/outcome is
+synthetic data, never an executable command or native proof. No runtime wiring.
+
+## File ownership
+
+- Coder: ONLY insert a marked block in `Source/Mods/TownHallInterior/src/BusinessConstruction.cs`.
+- Parent: new `Source/Tests/TownHallInterior.Tests/BusinessSaveOperationOwnerTests.cs`, run tests, docs/evidence/vault.
+- A separate verifier reviews both after the implementation freeze.
+- Preserve all old source bytes. Insert immediately before `public sealed record SubtypeResult`:
+  `#region DataOnlySaveOperationOwnership` through `#endregion`, followed by one blank line.
+  Removing that exact marked block must reproduce `BusinessConstruction.before.cs` byte-for-byte.
+- No edits to old state machines, guards, native classes/callbacks, Mod, project/build files or existing tests.
+- Production file budget remains 20; the existing Business file already groups the relevant pure contracts.
+
+## Exact public API (namespace TownHallInterior)
+
+All records sealed except readonly record struct Key. No object/delegate/port/IntPtr fields.
+
+```csharp
+public readonly record struct BusinessSaveModelKey(Guid ProcessId, long Operation);
+public sealed record BusinessSaveModelBinding(ConstructionContext Context, long Epoch,
+    string LoadManager, string SaveManager, string Saveables, string BaseSaveables,
+    string Completed, string Requests, string Participant);
+public sealed record BusinessSaveModelStamp(BusinessSaveModelKey Key,
+    BusinessSaveModelBinding Binding, long Sequence, double Time, string Source = "synthetic");
+public enum BusinessSaveModelEffect { TypeRegistration, Construction, Registration, Save, Removal, Destroy }
+public enum BusinessSaveModelOutcome { Returned, Failed }
+public sealed record BusinessSaveModelEffectState(bool Intent, bool Returned, bool ReadbackConfirmed, bool Failure);
+public sealed record BusinessSaveModelDiagnostic(long Sequence, string Kind, string Detail);
+public sealed record BusinessSaveModelSnapshot(Guid ProcessId, BusinessSaveModelKey? Key,
+    BusinessSaveModelBinding? Binding, string Status, bool SlotConsumed, bool Revoked,
+    string? FirstRevocationReason, long LastSequence, double? LastTime, int ActiveCallbacks,
+    bool CallbacksUncertain, bool DiagnosticsIncomplete,
+    IReadOnlyDictionary<BusinessSaveModelEffect, BusinessSaveModelEffectState> Effects,
+    IReadOnlyList<BusinessSaveModelDiagnostic> Diagnostics);
+// Snapshot additionally exposes computed, immutable properties:
+// SimulationOnly => true; NativeSaveWriteAllowed/SafeToUnregister/SafeToDestroy => false;
+// ReferenceProof/NativeWriteProof/ModDataProof => "unknown" (no proof-setting API).
+
+public sealed class BusinessSaveProcessModel
+{
+    public const int DiagnosticCapacity = 64, MaxTextLength = 160;
+    public const double TimeoutSeconds = 60;
+    public Guid ProcessId { get; } // generated once, artificial process identity
+    public BusinessSaveOperationOwner CreateOwner(); // each facade shares this model's state/tombstone
+}
+public sealed class BusinessSaveOperationOwner
+{
+    // Created only via process.CreateOwner(); no independently resettable public constructor.
+    public BusinessSaveModelSnapshot Snapshot { get; }
+    public bool TryBind(BusinessSaveModelBinding? binding, double now);
+    public bool TryRecordIntent(BusinessSaveModelEffect effect, BusinessSaveModelStamp stamp);
+    public bool RecordOutcome(BusinessSaveModelEffect effect, BusinessSaveModelOutcome outcome, BusinessSaveModelStamp stamp);
+    public bool RecordReadback(BusinessSaveModelEffect effect, bool confirmed, BusinessSaveModelStamp stamp);
+    public long EnterCallback(BusinessSaveModelStamp stamp); // positive ticket or 0; model bookkeeping only
+    public bool ExitCallback(long ticket, BusinessSaveModelStamp stamp);
+    public bool ObserveTelemetry(string detail, BusinessSaveModelStamp stamp);
+    public bool ObserveContext(BusinessSaveModelBinding? current, BusinessSaveModelStamp stamp);
+    public bool ObserveUnexpectedSave(BusinessSaveModelStamp stamp);
+    public void Revoke(string reason); // any calling thread; immediate, monotone, bounded first cause
+    public bool Tick(double now); // main-model-thread; false if unbound/revoked
+}
+```
+
+## Semantics to implement and test independently
+
+1. Each explicitly synthetic process model has one shared slot. New owner facades
+   cannot reset it or its early revocation. Separate model objects represent
+   separate simulated processes, NOT a wired OS-process singleton or native authority.
+2. Model creation captures the main managed thread; new facades inherit that
+   thread identity. Except Revoke and Snapshot, off-thread methods revoke and do
+   not admit intents. Snapshot and all mutation/revocation are synchronized on
+   one private model lock; no external callbacks, tasks, timers or delegates.
+3. Bind validates `ConstructionGate.CheckSave` for fixed TownHallTest/SaveGame_2,
+   positive epoch, all seven nonempty identity labels <=160 characters without
+   controls, finite nonnegative time, and bounded paths (<=32767 chars). Freeze
+   canonical absolute path values without opening files. Invalid candidate before
+   binding consumes no slot; an early callback/explicit revoke closes admission.
+4. Bound key is `(ProcessId, 1)`; retain immutable binding forever for this
+   bounded slice. Same paths/pointers/labels with different epoch or identity must
+   not rebind. Every stamp needs exact key/binding, positive strictly advancing
+   sequence, finite nonnegative nondecreasing time; max-value exhaustion cannot wrap.
+5. Status is only `empty`, `bound-data-only`, `quarantined`; no native lifecycle
+   state or proof can be established by this minimal ledger. Actual call counts
+   are always zero; named effects are modeled intent/return/readback/failure bits.
+6. Effects occur in enum order. A new intent requires all prior effects Returned
+   and ReadbackConfirmed without Failure, no active/uncertain callbacks, and no
+   revocation. Set intent at the synchronized model transition, at most once per
+   effect. Duplicate/invalid ordering revokes, never clears previous bits.
+7. Failed outcome or failed readback latches Failure and revokes. No outcome
+   without prior intent; confirmed readback requires a prior returned outcome.
+   Valid late outcomes/readbacks for already-intended effects may be recorded
+   after revocation but cannot clear it or authorize another effect. Duplicate
+   return/readback or undefined enum values revoke, never retry/roll back.
+8. Callback enter/exit only count synthetic messages, not native dispatch or
+   execution of callback bodies. Track at most64 active tickets; keep an
+   uncertainty latch on invalid/unbound/off-thread/untracked entry or exit.
+   Bound, same-thread valid late callbacks may be counted after revocation;
+   never claim zero means quiescence. Callers can model finally with ExitCallback.
+9. ObserveContext compares the candidate with frozen canonical binding; change/
+   loss revokes but never replaces it. UnexpectedSave revokes without issuing a
+   save or intercepting others. Telemetry (including repeated Completion/Idle/
+   queue-empty hints) has no effect/proof authority. Revoke-before-intent denies
+   it; intent-before-Revoke retains possible effect. Return never revives pending.
+10. At bound elapsed>=60, Tick/observations revoke for diagnostic timeout only.
+    Clock/sequence errors and ring overflow latch incomplete diagnostics and
+    revoke. Keep <=64 latest bounded entries (Kind/Detail <=160 chars), first
+    bounded revocation cause and fixed latches. Never store whole input stamps,
+    payloads or SaveStrings. Snapshots must be independent read-only copies.
+11. All three actual native proof strings remain unknown and permission flags
+    false regardless of fake messages, even a fully successful modeled ledger.
+    No IBusinessSavePort, old SaveTrial.Begin, Unity types, filesystem IO,
+    registration/callback/mod wiring, extra dependencies or new production file.

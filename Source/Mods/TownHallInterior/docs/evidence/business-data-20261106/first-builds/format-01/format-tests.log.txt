@@ -1,0 +1,16 @@
+  The dotnet runtime version is '8.0.32'.
+  The dotnet CLI version is '8.0.426'.
+  Using MSBuild.exe located in 'C:\Program Files\dotnet\sdk\8.0.426\'.
+  Formatting code files in workspace 'C:/Users/pc/Schedule1-mod-only/Source/Tests/TownHallInterior.Tests/TownHallInterior.Tests.csproj'.
+  Loading workspace.
+  Project TownHallInterior.Tests is using configuration from 'C:\Users\pc\Schedule1-mod-only\.editorconfig'.
+  Project TownHallInterior.Tests is using configuration from 'C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\obj\Debug\net6.0\TownHallInterior.Tests.GeneratedMSBuildEditorConfig.editorconfig'.
+  Project TownHallInterior.Tests is using configuration from 'C:\Program Files\dotnet\sdk\8.0.426\Sdks\Microsoft.NET.Sdk\analyzers\build\config\analysislevel_6_default.globalconfig'.
+  Complete in 1577ms.
+  Determining formattable files.
+  Skipping referenced project 'TownHallInterior.Tests'.
+  Complete in 3ms.
+  Running formatters.
+  Complete in 2ms.
+  Formatted 0 of 0 files.
+  Format complete in 1596ms.

@@ -1,0 +1,235 @@
+{
+  "schema": 1,
+  "checkedUtc": "2026-11-05T18:26:23.281566+00:00",
+  "scope": "Isolated working-file Pure run before final documentation; actual failed overall result retained",
+  "sourceDigest": "917416c62f7530dc53f803a0628f2414fda0d419152556a2efbbf98a6df64ea2",
+  "snapshotStatus": "Failed",
+  "snapshotError": "Isolated verification failed (exit 1).",
+  "sourceRevision": "b2c6c7e6c6ecc778da9624cdb68a6578b9db471a",
+  "sourceWorktree": "dirty",
+  "sourceSha256": "e4bb1d13324a3d61419d26ba172e88ba2ea53e30b15d3c6b6f43fb3e72212f50",
+  "testSha256": "c92e90af755b8feadbd77282ccf0a852b0e1cedaf25ec63eea8a354f3d9ce198",
+  "manualAfterRunComparison": {
+    "allCapturedFileHashesStillMatchSourceAndCheckout": true,
+    "currentNonignoredFileSetMatches": true,
+    "files": 1910,
+    "pinnedSubmoduleHeadsMatch": 2
+  },
+  "overallExitCode": 1,
+  "passedSteps": 20,
+  "failedSteps": 2,
+  "failedStepNames": [
+    "format",
+    "versions"
+  ],
+  "ownFailure": "Formatting only: new test initializer lines 828-829. Correct separately without weakening assertions.",
+  "unrelatedFailure": "Existing HitmanPhone/Minimap/PoliceTestMode version drift; not repaired in this task.",
+  "xunitProjects": 18,
+  "xunitPassed": 4740,
+  "consolePassed": 265,
+  "tests": [
+    {
+      "project": "AutoPackagingStation.Tests",
+      "sha256": "81a55bd0c9a2bc4b7067576eedbb6e740f82ce9bbac373f50914556c7a9569db",
+      "counters": {
+        "total": 66,
+        "executed": 66,
+        "passed": 66,
+        "failed": 0
+      },
+      "path": "C:\\Users\\pc\\.cache\\s1ov\\clean-checkout-24cf43130849\\checks\\verify-6369d3a0cc13\\tests\\test-all-20261105-192053-f03d01b2\\AutoPackagingStation.Tests\\AutoPackagingStation.Tests-2a32141819d3.trx"
+    },
+    {
+      "project": "BankApp.Tests",
+      "sha256": "35a63379bc86011a6e180d9657967ec60ffcd4ea4ef4057704411d8cfb581c9e",
+      "counters": {
+        "total": 103,
+        "executed": 103,
+        "passed": 103,
+        "failed": 0
+      },
+      "path": "C:\\Users\\pc\\.cache\\s1ov\\clean-checkout-24cf43130849\\checks\\verify-6369d3a0cc13\\tests\\test-all-20261105-192053-f03d01b2\\BankApp.Tests\\BankApp.Tests-9bca32a6e575.trx"
+    },
+    {
+      "project": "BusinessIncome.ConfigIo.Tests",
+      "sha256": "fee0335e8bb78ec7104124388a0078915686e78fd157b5b8e94abc123bc119a4",
+      "counters": {
+        "total": 17,
+        "executed": 17,
+        "passed": 17,
+        "failed": 0
+      },
+      "path": "C:\\Users\\pc\\.cache\\s1ov\\clean-checkout-24cf43130849\\checks\\verify-6369d3a0cc13\\tests\\test-all-20261105-192053-f03d01b2\\BusinessIncome.ConfigIo.Tests\\BusinessIncome.ConfigIo.Tests-acb9df37c4df.trx"
+    },
+    {
+      "project": "BusinessIncome.Tests",
+      "sha256": "1702ef2a413db70aef193ed2145c47323658859ec0eb03aa525e4e500bc00537",
+      "counters": {
+        "total": 228,
+        "executed": 228,
+        "passed": 228,
+        "failed": 0
+      },
+      "path": "C:\\Users\\pc\\.cache\\s1ov\\clean-checkout-24cf43130849\\checks\\verify-6369d3a0cc13\\tests\\test-all-20261105-192053-f03d01b2\\BusinessIncome.Tests\\BusinessIncome.Tests-93a176c445a3.trx"
+    },
+    {
+      "project": "CalculatorApp.Tests",
+      "sha256": "c80c1a4b4dc509954d84ac8ae60fe2d33aea08d91bd41bef4e9598b255a1e49d",
+      "counters": {
+        "total": 18,
+        "executed": 18,
+        "passed": 18,
+        "failed": 0
+      },
+      "path": "C:\\Users\\pc\\.cache\\s1ov\\clean-checkout-24cf43130849\\checks\\verify-6369d3a0cc13\\tests\\test-all-20261105-192053-f03d01b2\\CalculatorApp.Tests\\CalculatorApp.Tests-25f0b606d158.trx"
+    },
+    {
+      "project": "GoldenHour.Tests",
+      "sha256": "f6485639b4cdca4e90b39abeb51afd323fcc09d8eb6f0fc661d0753741a40481",
+      "counters": {
+        "total": 104,
+        "executed": 104,
+        "passed": 104,
+        "failed": 0
+      },
+      "path": "C:\\Users\\pc\\.cache\\s1ov\\clean-checkout-24cf43130849\\checks\\verify-6369d3a0cc13\\tests\\test-all-20261105-192053-f03d01b2\\GoldenHour.Tests\\GoldenHour.Tests-ae2473f94025.trx"
+    },
+    {
+      "project": "HitmanPhone.Tests",
+      "sha256": "7ffe48c8fa8410a19bb34b31c578ebe22fefde388920167828ba00e86e0761e6",
+      "counters": {
+        "total": 148,
+        "executed": 148,
+        "passed": 148,
+        "failed": 0
+      },
+      "path": "C:\\Users\\pc\\.cache\\s1ov\\clean-checkout-24cf43130849\\checks\\verify-6369d3a0cc13\\tests\\test-all-20261105-192053-f03d01b2\\HitmanPhone.Tests\\HitmanPhone.Tests-6a63050f74c2.trx"
+    },
+    {
+      "project": "MessagesPlus.Tests",
+      "sha256": "0b6d98deb6a69e630f165e81d7f7fe73de8fcb7f492a9f407efb2b5efb964fc4",
+      "counters": {
+        "total": 25,
+        "executed": 25,
+        "passed": 25,
+        "failed": 0
+      },
+      "path": "C:\\Users\\pc\\.cache\\s1ov\\clean-checkout-24cf43130849\\checks\\verify-6369d3a0cc13\\tests\\test-all-20261105-192053-f03d01b2\\MessagesPlus.Tests\\MessagesPlus.Tests-4b22db5e2538.trx"
+    },
+    {
+      "project": "Minimap.Tests",
+      "sha256": "ec469a07b1c52c58d18399e725eaeac24c16d7e4e62732461ff42f1f909278ce",
+      "counters": {
+        "total": 222,
+        "executed": 222,
+        "passed": 222,
+        "failed": 0
+      },
+      "path": "C:\\Users\\pc\\.cache\\s1ov\\clean-checkout-24cf43130849\\checks\\verify-6369d3a0cc13\\tests\\test-all-20261105-192053-f03d01b2\\Minimap.Tests\\Minimap.Tests-ed606ee266c1.trx"
+    },
+    {
+      "project": "PocketShop.Tests",
+      "sha256": "7b5290b7dd6fc14630d1261dc8cc0fb219246ceec0c3a5213122929ae27f4af5",
+      "counters": {
+        "total": 64,
+        "executed": 64,
+        "passed": 64,
+        "failed": 0
+      },
+      "path": "C:\\Users\\pc\\.cache\\s1ov\\clean-checkout-24cf43130849\\checks\\verify-6369d3a0cc13\\tests\\test-all-20261105-192053-f03d01b2\\PocketShop.Tests\\PocketShop.Tests-33848259b918.trx"
+    },
+    {
+      "project": "PoliceTestMode.Tests",
+      "sha256": "2c30a824cd0444df2cb180cf6c713b5603e1de5a8924c1b4c4c9e3b279aa0008",
+      "counters": {
+        "total": 36,
+        "executed": 36,
+        "passed": 36,
+        "failed": 0
+      },
+      "path": "C:\\Users\\pc\\.cache\\s1ov\\clean-checkout-24cf43130849\\checks\\verify-6369d3a0cc13\\tests\\test-all-20261105-192053-f03d01b2\\PoliceTestMode.Tests\\PoliceTestMode.Tests-712f4218d0f1.trx"
+    },
+    {
+      "project": "PropertyLEDs.Tests",
+      "sha256": "e3bdb2ef8107ef564755add10f555f617184a81d72947119a3a82a801d2ea7ec",
+      "counters": {
+        "total": 122,
+        "executed": 122,
+        "passed": 122,
+        "failed": 0
+      },
+      "path": "C:\\Users\\pc\\.cache\\s1ov\\clean-checkout-24cf43130849\\checks\\verify-6369d3a0cc13\\tests\\test-all-20261105-192053-f03d01b2\\PropertyLEDs.Tests\\PropertyLEDs.Tests-9ccb60e1face.trx"
+    },
+    {
+      "project": "S1MCP.Tests",
+      "sha256": "d176fa47192fdf5064155483f48672bd9665653307c5039be36b3a240ea666e0",
+      "counters": {
+        "total": 62,
+        "executed": 62,
+        "passed": 62,
+        "failed": 0
+      },
+      "path": "C:\\Users\\pc\\.cache\\s1ov\\clean-checkout-24cf43130849\\checks\\verify-6369d3a0cc13\\tests\\test-all-20261105-192053-f03d01b2\\S1MCP.Tests\\S1MCP.Tests-84ddba0b4392.trx"
+    },
+    {
+      "project": "StorageScanner.Tests",
+      "sha256": "f447a1b34b05a12ec3980242c2c7739dee41d3ff2a9b971ae36f0e8ab67e3190",
+      "counters": {
+        "total": 37,
+        "executed": 37,
+        "passed": 37,
+        "failed": 0
+      },
+      "path": "C:\\Users\\pc\\.cache\\s1ov\\clean-checkout-24cf43130849\\checks\\verify-6369d3a0cc13\\tests\\test-all-20261105-192053-f03d01b2\\StorageScanner.Tests\\StorageScanner.Tests-9b2b8cb7bbb3.trx"
+    },
+    {
+      "project": "TaxiDriver.Tests",
+      "sha256": "cb732465d1082b6e5727184a94baf10549a82328de3870941f4578941485978c",
+      "counters": {
+        "total": 1402,
+        "executed": 1402,
+        "passed": 1402,
+        "failed": 0
+      },
+      "path": "C:\\Users\\pc\\.cache\\s1ov\\clean-checkout-24cf43130849\\checks\\verify-6369d3a0cc13\\tests\\test-all-20261105-192053-f03d01b2\\TaxiDriver.Tests\\TaxiDriver.Tests-7d6b65621330.trx"
+    },
+    {
+      "project": "TownHallInterior.Tests",
+      "sha256": "ca0269afb137d47138968dd9b580e9865a2b8b8edfd57ca631ce540c16a49de1",
+      "counters": {
+        "total": 809,
+        "executed": 809,
+        "passed": 809,
+        "failed": 0
+      },
+      "path": "C:\\Users\\pc\\.cache\\s1ov\\clean-checkout-24cf43130849\\checks\\verify-6369d3a0cc13\\tests\\test-all-20261105-192053-f03d01b2\\TownHallInterior.Tests\\TownHallInterior.Tests-58cc33ff6972.trx"
+    },
+    {
+      "project": "WaterShader.Tests",
+      "sha256": "80e6b0d1f579e17b366d0fe5c259043c427d41abe90ae087ee9f57c72b94e905",
+      "counters": {
+        "total": 1231,
+        "executed": 1231,
+        "passed": 1231,
+        "failed": 0
+      },
+      "path": "C:\\Users\\pc\\.cache\\s1ov\\clean-checkout-24cf43130849\\checks\\verify-6369d3a0cc13\\tests\\test-all-20261105-192053-f03d01b2\\WaterShader.Tests\\WaterShader.Tests-eaf7edbcbebf.trx"
+    },
+    {
+      "project": "WorldLook.Tests",
+      "sha256": "d761a98df1731052fa09934f50312d722f431762271a3cbc3502756ae756e65d",
+      "counters": {
+        "total": 46,
+        "executed": 46,
+        "passed": 46,
+        "failed": 0
+      },
+      "path": "C:\\Users\\pc\\.cache\\s1ov\\clean-checkout-24cf43130849\\checks\\verify-6369d3a0cc13\\tests\\test-all-20261105-192053-f03d01b2\\WorldLook.Tests\\WorldLook.Tests-286b83975497.trx"
+    }
+  ],
+  "gameReferencesAvailable": false,
+  "gameDirectoryOverriddenToAbsentSyntheticPath": true,
+  "submodulesInitializedFromLocalRepositoriesViaProcessOnlyUrlMapping": true,
+  "nativeSaveWriteAllowed": false,
+  "actualDeploymentOrNativeCalls": false
+}

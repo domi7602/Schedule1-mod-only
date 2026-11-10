@@ -1,0 +1,385 @@
+{
+  "capturedUtc": "2026-11-06T11:19:26.122197+00:00",
+  "files": [
+    {
+      "path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-bind-20261106\\network-audit\\CachedNetworkObject.fresh.cs.txt",
+      "bytes": 38009,
+      "sha256": "aa29ba87eccb5716c69675ad193edd343cb86ebd6f71f8aa865fe088d014bfaa"
+    },
+    {
+      "path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-bind-20261106\\network-audit\\ClientManager.fresh.cs.txt",
+      "bytes": 83068,
+      "sha256": "db8ac36a68b99391e7543ea0c87816bddb2a0c74d1149dc2be0d45bed1b1d88d"
+    },
+    {
+      "path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-bind-20261106\\network-audit\\ClientObjectCache.fresh.cs.txt",
+      "bytes": 24804,
+      "sha256": "e426d2ab17a83dfa7209f6165e7e5e692d8f9d79f72ac25245205650aa4ec769"
+    },
+    {
+      "path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-bind-20261106\\network-audit\\ClientObjects.fresh.cs.txt",
+      "bytes": 40944,
+      "sha256": "7d0e3a4d73c6643146101914da7093dcf51e409a0be10e26a18045456b3c18ce"
+    },
+    {
+      "path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-bind-20261106\\network-audit\\ManagedObjects.fresh.cs.txt",
+      "bytes": 51893,
+      "sha256": "eb904214c7c0407541104c0787456e78f784f50ff477681d3481acbb57693059"
+    },
+    {
+      "path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-bind-20261106\\network-audit\\map-network.ps1",
+      "bytes": 11112,
+      "sha256": "6c0472f0a109670cd3bb48f33188fbc02ee94858532e040c6ce2d47985bf080c"
+    },
+    {
+      "path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-bind-20261106\\network-audit\\native-disassembly\\0x06000641-get_IsSpawned.json",
+      "bytes": 4687,
+      "sha256": "8625d7b620c8dd60cef11efb7bbf3f12be3d3ac2d38f1dc94a46c69b03a5f5e7"
+    },
+    {
+      "path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-bind-20261106\\network-audit\\native-disassembly\\0x06000641-get_IsSpawned.txt",
+      "bytes": 1177,
+      "sha256": "f4efa3fe37b8800147c38c01804bee4887c45babafe247a1d3cec4a75b2c3ff2"
+    },
+    {
+      "path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-bind-20261106\\network-audit\\native-disassembly\\0x06000646-Preinitialize_Internal.json",
+      "bytes": 9562,
+      "sha256": "1238241962f6857340b8484d98874559c1b19d5e05c5e95dcba97de7ba5ad284"
+    },
+    {
+      "path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-bind-20261106\\network-audit\\native-disassembly\\0x06000646-Preinitialize_Internal.txt",
+      "bytes": 2339,
+      "sha256": "1faf07829aebd96dc33f5dd5108a72bc439e65cea5f344c8fe23fa3c72238c13"
+    },
+    {
+      "path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-bind-20261106\\network-audit\\native-disassembly\\0x06000648-SerializeComponents.json",
+      "bytes": 4079,
+      "sha256": "580edc4fc64d78cd811586c54456093c71bfe98c8a7f31d940ea786fa3164a18"
+    },
+    {
+      "path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-bind-20261106\\network-audit\\native-disassembly\\0x06000648-SerializeComponents.txt",
+      "bytes": 1034,
+      "sha256": "e2ca8f82e37a700e3d07da095e09d05179dda451fc57a08117e9e51e059fa00a"
+    },
+    {
+      "path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-bind-20261106\\network-audit\\native-disassembly\\0x06000649-InitializeIfDisabled.json",
+      "bytes": 7025,
+      "sha256": "e21c8b1a0cbfaf1f99acd07ddc820b6bbab1c67f41d7957cc159ca9758b74c6e"
+    },
+    {
+      "path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-bind-20261106\\network-audit\\native-disassembly\\0x06000649-InitializeIfDisabled.txt",
+      "bytes": 1748,
+      "sha256": "911adb48a8de106343f62a78e8c1c137993861d44fef64a1532e927db418d985"
+    },
+    {
+      "path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-bind-20261106\\network-audit\\native-disassembly\\0x0600067D-get_IsNetworked.json",
+      "bytes": 3029,
+      "sha256": "b7c10b7c291fcb869b0341a89f51759efc4dba3636c25a1fa2261f66fd4d0149"
+    },
+    {
+      "path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-bind-20261106\\network-audit\\native-disassembly\\0x0600067D-get_IsNetworked.txt",
+      "bytes": 815,
+      "sha256": "c77a7043c4d170d3f339bd5323e0035b31f6251acb9fae9aed6f38f51462bd1b"
+    },
+    {
+      "path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-bind-20261106\\network-audit\\native-disassembly\\0x06000682-get_ObjectId.json",
+      "bytes": 3002,
+      "sha256": "ed17bf3673fec3a81c4de5be6961b6d1e0c48f1c1da865ffd9a47d547c753999"
+    },
+    {
+      "path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-bind-20261106\\network-audit\\native-disassembly\\0x06000682-get_ObjectId.txt",
+      "bytes": 800,
+      "sha256": "b563a123d42fa70b1e2ca512f07c4d39ce98a1dfffdd9fad29f17ea9cfaf24c7"
+    },
+    {
+      "path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-bind-20261106\\network-audit\\native-disassembly\\0x060006B3-_ctor.json",
+      "bytes": 53820,
+      "sha256": "af2f38770072673939c68205f36b4db0607adadeb271d75c487bc44a783b6ea6"
+    },
+    {
+      "path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-bind-20261106\\network-audit\\native-disassembly\\0x060006B3-_ctor.txt",
+      "bytes": 13252,
+      "sha256": "004b4728645e5399422a710bd7a1cfd6d274a7e15dc5364c2e96b10c28e88729"
+    },
+    {
+      "path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-bind-20261106\\network-audit\\native-disassembly\\0x060006E8-Awake.json",
+      "bytes": 24196,
+      "sha256": "143e8c80f295fa7384a7529a4033d007a105953149d42b623219a837605a64c9"
+    },
+    {
+      "path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-bind-20261106\\network-audit\\native-disassembly\\0x060006E8-Awake.txt",
+      "bytes": 5682,
+      "sha256": "e89d7cff052bf1d79b000b38f48d80bdb6c1fc1513f944d6291cc515d15d4eb9"
+    },
+    {
+      "path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-bind-20261106\\network-audit\\native-disassembly\\0x060006E9-Start.json",
+      "bytes": 3511,
+      "sha256": "bbd8aba3494ec69dc5e50a069e9e4cf14b82dabe1f6fde4dd6ce358fd7adb6e5"
+    },
+    {
+      "path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-bind-20261106\\network-audit\\native-disassembly\\0x060006E9-Start.txt",
+      "bytes": 951,
+      "sha256": "dd28c594f3bc775c5ebd327a62493348c4f2a4237c20bb9bcd15b0db08ede0de"
+    },
+    {
+      "path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-bind-20261106\\network-audit\\native-disassembly\\0x060006EB-OnDisable.json",
+      "bytes": 33891,
+      "sha256": "1f67cc06d10e9c27ade9734e0bc7c949341f6091a29c91f0e2ba7f68fc065deb"
+    },
+    {
+      "path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-bind-20261106\\network-audit\\native-disassembly\\0x060006EB-OnDisable.txt",
+      "bytes": 8174,
+      "sha256": "a925962667a6e25b5e86f5c12ac19e3ef1917c148357bc70884525462ebdd28e"
+    },
+    {
+      "path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-bind-20261106\\network-audit\\native-disassembly\\0x060006EC-OnDestroy.json",
+      "bytes": 6488,
+      "sha256": "ad407909a20e326c1b30428d53831ebc4a09a3d271ab66151a60726e0b2c9f12"
+    },
+    {
+      "path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-bind-20261106\\network-audit\\native-disassembly\\0x060006EC-OnDestroy.txt",
+      "bytes": 1578,
+      "sha256": "3f48b5f4023bd9796d5db0c019f22d2a82348d87392c84837b96a2e4ea66323c"
+    },
+    {
+      "path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-bind-20261106\\network-audit\\native-disassembly\\0x060006ED-InitializeNetworkBehavioursIfDisabled.json",
+      "bytes": 1950,
+      "sha256": "e25f8d6e2c98973783c87c3e64dbcb88925af4720ce96754681bba643c20a398"
+    },
+    {
+      "path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-bind-20261106\\network-audit\\native-disassembly\\0x060006ED-InitializeNetworkBehavioursIfDisabled.txt",
+      "bytes": 595,
+      "sha256": "5279dbcaaa2f24b5dabade66fee13498cd1d41c0dffe0258ead596caa4dbf910"
+    },
+    {
+      "path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-bind-20261106\\network-audit\\native-disassembly\\0x060006EF-SetChildDespawnedState.json",
+      "bytes": 15869,
+      "sha256": "ff393d50635de31bca507a96b17a3aa4392815591785e904f87ed7f2ddfb698e"
+    },
+    {
+      "path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-bind-20261106\\network-audit\\native-disassembly\\0x060006EF-SetChildDespawnedState.txt",
+      "bytes": 3665,
+      "sha256": "a5e6ca30ca2d8a2fdd5f8d3d1aec624988c7cd42ae001b4ad7b26dd86a612233"
+    },
+    {
+      "path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-bind-20261106\\network-audit\\native-disassembly\\0x060006F0-TryStartDeactivation.json",
+      "bytes": 3526,
+      "sha256": "4e5c95a4a0da9abc2bf73d33954bdc9c42736be54e9f626a6f1f8d76d2a003ba"
+    },
+    {
+      "path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-bind-20261106\\network-audit\\native-disassembly\\0x060006F0-TryStartDeactivation.txt",
+      "bytes": 966,
+      "sha256": "787a94c658b8cf2df753ae6790f8824c81a81321589672d022e7bdd730c08ade"
+    },
+    {
+      "path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-bind-20261106\\network-audit\\native-disassembly\\0x060006F3-Preinitialize_Internal.json",
+      "bytes": 59574,
+      "sha256": "6ea7bf0c2437047303ba48819ceed4c516fe73ce1904c4400e6609973e2e0bdb"
+    },
+    {
+      "path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-bind-20261106\\network-audit\\native-disassembly\\0x060006F3-Preinitialize_Internal.txt",
+      "bytes": 14035,
+      "sha256": "c5726b77b2e39678271d9eeaf36ebdf2bf1735323ca5358072e1d4e11c5eeaea"
+    },
+    {
+      "path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-bind-20261106\\network-audit\\native-disassembly\\0x060006FA-UpdateNetworkBehaviours.json",
+      "bytes": 406527,
+      "sha256": "0d506c3563ad42726c8ca8c517246f1c961ac85c81cceea14daaeef73ea4b0f4"
+    },
+    {
+      "path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-bind-20261106\\network-audit\\native-disassembly\\0x060006FA-UpdateNetworkBehaviours.txt",
+      "bytes": 271984,
+      "sha256": "7d1c497747d7bc4d8f2721d33a1866eeb121ca4ec7ff3189f82398aa37e08484"
+    },
+    {
+      "path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-bind-20261106\\network-audit\\native-disassembly\\0x06000757-_ctor.json",
+      "bytes": 24616,
+      "sha256": "8614f35c4f410e976e0219d98efa9eab965471f2ed05792498d549faa7aa09a4"
+    },
+    {
+      "path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-bind-20261106\\network-audit\\native-disassembly\\0x06000757-_ctor.txt",
+      "bytes": 6231,
+      "sha256": "08ea7d0546b1fb2e0326f72ac2038843b140d83926609b89e60f7357012f32d8"
+    },
+    {
+      "path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-bind-20261106\\network-audit\\native-disassembly\\0x06000B14-Awake.json",
+      "bytes": 22603,
+      "sha256": "9c89758a10ca135726e2cccd52eda117abaa38e66d57d3a2664ee057cf1e6135"
+    },
+    {
+      "path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-bind-20261106\\network-audit\\native-disassembly\\0x06000B14-Awake.txt",
+      "bytes": 4922,
+      "sha256": "f4c196a4bd0ece38e592926696e8906ef8c963af9e7a66ccefc94ee9d76eb305"
+    },
+    {
+      "path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-bind-20261106\\network-audit\\native-disassembly\\0x06000B15-Start.json",
+      "bytes": 2457,
+      "sha256": "cb05247bf3b9cfd47f3e8912920eb86d9f5219929642e0b36d46fe06ede4a6b4"
+    },
+    {
+      "path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-bind-20261106\\network-audit\\native-disassembly\\0x06000B15-Start.txt",
+      "bytes": 678,
+      "sha256": "ca0cc03a8f233c990d84b9535f910d824568f1d682458881bd9c2ca0a257f46b"
+    },
+    {
+      "path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-bind-20261106\\network-audit\\native-disassembly\\0x06000B16-OnDestroy.json",
+      "bytes": 8900,
+      "sha256": "ae669d5443c08e5d0cc0dae9410e0aa27e24a4c89408fda742666e737a950a81"
+    },
+    {
+      "path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-bind-20261106\\network-audit\\native-disassembly\\0x06000B16-OnDestroy.txt",
+      "bytes": 2146,
+      "sha256": "33aab034c3043acee95e59589933128e84d7723728e92dffa482a1f7d62be9d6"
+    },
+    {
+      "path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-bind-20261106\\network-audit\\native-disassembly\\0x06000B4A-_ctor.json",
+      "bytes": 18872,
+      "sha256": "85cd6c1374451171161a239c6cb818e9d447ffb108354da229ac4350581f5d81"
+    },
+    {
+      "path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-bind-20261106\\network-audit\\native-disassembly\\0x06000B4A-_ctor.txt",
+      "bytes": 4784,
+      "sha256": "ed9fa5567d4d29b00d6f8a24874627e5e5ebb4b33ca6660946250357b0519351"
+    },
+    {
+      "path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-bind-20261106\\network-audit\\native-disassembly\\0x06000BB7-_ctor.json",
+      "bytes": 17814,
+      "sha256": "b4a10f586473e38fa1f25fc8ff6c61ab079237179b974fab4ecaf7f4037e49bb"
+    },
+    {
+      "path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-bind-20261106\\network-audit\\native-disassembly\\0x06000BB7-_ctor.txt",
+      "bytes": 4224,
+      "sha256": "c82b0f948ccaf914158f35908c91860c9b1cce0c3dba8ed4295e73b1e7470a00"
+    },
+    {
+      "path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-bind-20261106\\network-audit\\native-disassembly\\0x06000D80-RemoveFromSpawned.json",
+      "bytes": 14122,
+      "sha256": "04be0df662121bac40529a6b0775fd1e504a11ccbf357804cc0efa7bc80c1353"
+    },
+    {
+      "path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-bind-20261106\\network-audit\\native-disassembly\\0x06000D80-RemoveFromSpawned.txt",
+      "bytes": 3229,
+      "sha256": "f3c87fd296ca62116ce3a77aae84d1eefb4bf1a5f1daab96f232d1d38761e04b"
+    },
+    {
+      "path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-bind-20261106\\network-audit\\native-disassembly\\0x06000D86-AddToSpawned.json",
+      "bytes": 7678,
+      "sha256": "c03af6987456e890828350f641d9fce92f797c09104a29f7e3aaa3b3a8ec78e2"
+    },
+    {
+      "path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-bind-20261106\\network-audit\\native-disassembly\\0x06000D86-AddToSpawned.txt",
+      "bytes": 1798,
+      "sha256": "89c63c48579191491dbd9a086d00939c09fad56c17810cd379ff93b12baef44a"
+    },
+    {
+      "path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-bind-20261106\\network-audit\\native-disassembly\\0x06000D87-AddToSceneObjects.json",
+      "bytes": 7696,
+      "sha256": "6729875f479db9c49ed14ff7c33fe6fa26b0f047c81a799f6d2b67b3f7c930aa"
+    },
+    {
+      "path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-bind-20261106\\network-audit\\native-disassembly\\0x06000D87-AddToSceneObjects.txt",
+      "bytes": 1804,
+      "sha256": "388f26ca9f0bbf8e34ee4acb6e4254a82f205aa2f2acb15bf4f37bb77ee56253"
+    },
+    {
+      "path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-bind-20261106\\network-audit\\native-disassembly\\0x06000D88-RemoveFromSceneObjects.json",
+      "bytes": 7431,
+      "sha256": "6284d6ecc24019696d3bf43bdf4f4cafa10f85816980162186f4dba92415c66d"
+    },
+    {
+      "path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-bind-20261106\\network-audit\\native-disassembly\\0x06000D88-RemoveFromSceneObjects.txt",
+      "bytes": 1752,
+      "sha256": "2eec111a50f4d58ae0cd867cdf74c19555a8162fdcc1540d1ac4c91b58a758f2"
+    },
+    {
+      "path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-bind-20261106\\network-audit\\native-disassembly\\0x06000D89-RemoveFromSceneObjects.json",
+      "bytes": 6835,
+      "sha256": "0c605fa6acc03eda80310ea6890edfecacd395dde01290b3a52035d623636bd7"
+    },
+    {
+      "path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-bind-20261106\\network-audit\\native-disassembly\\0x06000D89-RemoveFromSceneObjects.txt",
+      "bytes": 1613,
+      "sha256": "8b4115fb04e3ee3b59c8c7879cabcb1d0522df5ab921d60b3c27bfb5932e08c7"
+    },
+    {
+      "path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-bind-20261106\\network-audit\\native-disassembly\\0x06000D95-_ctor.json",
+      "bytes": 152352,
+      "sha256": "eae86a79c34e90c3979f9b56767ce1960419f890c4f72c9d0595267d32e85587"
+    },
+    {
+      "path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-bind-20261106\\network-audit\\native-disassembly\\0x06000D95-_ctor.txt",
+      "bytes": 124834,
+      "sha256": "c8a41fd757e6c033bad571dde030f7bf0a0ecdc7571b35e76a485184b4daf589"
+    },
+    {
+      "path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-bind-20261106\\network-audit\\native-disassembly\\0x06000E0C-_ctor.json",
+      "bytes": 173043,
+      "sha256": "d3704c66dda86df589b7781c6e137fcc4fa60e2ec190b3ad05e070c31d7a98bc"
+    },
+    {
+      "path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-bind-20261106\\network-audit\\native-disassembly\\0x06000E0C-_ctor.txt",
+      "bytes": 129725,
+      "sha256": "20c1b0ce69b1dc3f698d1334d2e3cdaf8a24cd9f6b851310bef1b89045686d1e"
+    },
+    {
+      "path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-bind-20261106\\network-audit\\native-disassembly\\0x06000E10-AddToSpawned.json",
+      "bytes": 21235,
+      "sha256": "c37cba8cbd00a12ea39c318948cdb78f7826972aacc47e56f72dca5f4a446514"
+    },
+    {
+      "path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-bind-20261106\\network-audit\\native-disassembly\\0x06000E10-AddToSpawned.txt",
+      "bytes": 4842,
+      "sha256": "6e4a95f9b7255e91273a9215978d7d54cb4021921d35818424694212d084a1a6"
+    },
+    {
+      "path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-bind-20261106\\network-audit\\native-disassembly\\0x06000E11-RemoveFromSpawned.json",
+      "bytes": 17693,
+      "sha256": "eaaef2784f9345c229d56f4212d2922225f3df841721bd741125d3fd987076ee"
+    },
+    {
+      "path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-bind-20261106\\network-audit\\native-disassembly\\0x06000E11-RemoveFromSpawned.txt",
+      "bytes": 3978,
+      "sha256": "160e0df0078275e13d64fe5009168e4022905b8ef92746d861cff1fba0a4d5e3"
+    },
+    {
+      "path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-bind-20261106\\network-audit\\native-map.json",
+      "bytes": 144932,
+      "sha256": "b135d1e79f1d6aa93a547ffa125a830b59060f14501b73ab818aa599b8b0705d"
+    },
+    {
+      "path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-bind-20261106\\network-audit\\network-audit.json",
+      "bytes": 7960,
+      "sha256": "f614a83c825a706395d4e1153dd77cdc57103b76dc40a483adccfe1f58b901c4"
+    },
+    {
+      "path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-bind-20261106\\network-audit\\NetworkConnection.fresh.cs.txt",
+      "bytes": 111078,
+      "sha256": "21d61af775fd02b8e7a3489ab5b5260b5a53a7296865f7f313168697569c5e90"
+    },
+    {
+      "path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-bind-20261106\\network-audit\\NetworkManager.fresh.cs.txt",
+      "bytes": 128398,
+      "sha256": "85192e2c7f616c3e9f858838556d5b9f09e46b2931e92237ea0590a67b62d5c5"
+    },
+    {
+      "path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-bind-20261106\\network-audit\\NetworkObject.fresh.cs.txt",
+      "bytes": 219070,
+      "sha256": "ebc1be6bc99a806ef5100fb7ab4e09610810309143c5347444622524671ca603"
+    },
+    {
+      "path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-bind-20261106\\network-audit\\NetworkObjectState.fresh.cs.txt",
+      "bytes": 366,
+      "sha256": "7707770f32184f477d5641c1c9fda434bf92c71aecfe718216b738d36a2b1e40"
+    },
+    {
+      "path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-bind-20261106\\network-audit\\ServerManager.fresh.cs.txt",
+      "bytes": 142553,
+      "sha256": "19b03d4bb94ea1ea67a22e5eb5e58349e6bfd54bb5b909070d94ee555aed1963"
+    },
+    {
+      "path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-bind-20261106\\network-audit\\ServerObjects.fresh.cs.txt",
+      "bytes": 93384,
+      "sha256": "49c4f81af1654561368fd45773d14e17329de4c938390c68d4809f2b910e765e"
+    }
+  ]
+}

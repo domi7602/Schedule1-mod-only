@@ -1,0 +1,80 @@
+; FishNet.Object.NetworkObject::Awake/0, token 0x060006E8, RVA 0xCCB640, .pdata primary extent 0x131 bytes
+; Raw native bytes decoded without invoking the game. .pdata primary extent is not a proof of full transitive/exception-path coverage.
+0xCCB640     40 57                           push rdi
+0xCCB642     48 83 EC 20                     sub rsp,20h
+0xCCB646     80 3D 1F 56 F3 02 00            cmp byte ptr [183C00C6Ch],0
+0xCCB64D     48 8B F9                        mov rdi,rcx
+0xCCB650     75 1F                           jne short 0000000180CCB671h
+0xCCB652     48 8D 0D B7 55 CD 02            lea rcx,[1839A0C10h]
+0xCCB659     E8 42 C2 64 FF                  call 00000001803178A0h
+0xCCB65E     48 8D 0D 43 D3 CB 02            lea rcx,[1839889A8h] ; TypeInfo: GameKit.Utilities.CollectionCaches`1<FishNet.Object.NetworkObject>
+0xCCB665     E8 36 C2 64 FF                  call 00000001803178A0h
+0xCCB66A     C6 05 FB 55 F3 02 01            mov byte ptr [183C00C6Ch],1
+0xCCB671     48 89 5C 24 30                  mov [rsp+30h],rbx
+0xCCB676     33 D2                           xor edx,edx
+0xCCB678     48 8B CF                        mov rcx,rdi
+0xCCB67B     48 89 74 24 38                  mov [rsp+38h],rsi
+0xCCB680     E8 2B 8D EA 01                  call 0000000182B743B0h ; UnityEngine.Component::get_gameObject/0
+0xCCB685     48 85 C0                        test rax,rax
+0xCCB688     0F 84 DD 00 00 00               je near ptr 0000000180CCB76Bh
+0xCCB68E     33 D2                           xor edx,edx
+0xCCB690     48 8B C8                        mov rcx,rax
+0xCCB693     E8 E8 D2 EA 01                  call 0000000182B78980h ; UnityEngine.GameObject::get_isStatic/0
+0xCCB698     88 87 F4 00 00 00               mov [rdi+0F4h],al
+0xCCB69E     48 8B 0D 03 D3 CB 02            mov rcx,[1839889A8h] ; TypeInfo: GameKit.Utilities.CollectionCaches`1<FishNet.Object.NetworkObject>
+0xCCB6A5     83 B9 E0 00 00 00 00            cmp dword ptr [rcx+0E0h],0
+0xCCB6AC     75 05                           jne short 0000000180CCB6B3h
+0xCCB6AE     E8 7D C5 64 FF                  call 0000000180317C30h
+0xCCB6B3     48 8B 0D 56 55 CD 02            mov rcx,[1839A0C10h]
+0xCCB6BA     E8 31 D7 6E 00                  call 00000001813B8DF0h ; GameKit.Utilities.CollectionCaches`1::RetrieveList/0
+0xCCB6BF     48 8D 4F 70                     lea rcx,[rdi+70h]
+0xCCB6C3     48 89 47 70                     mov [rdi+70h],rax
+0xCCB6C7     48 8B D0                        mov rdx,rax
+0xCCB6CA     E8 E1 B3 64 FF                  call 0000000180316AB0h
+0xCCB6CF     80 3D 9B 55 F3 02 00            cmp byte ptr [183C00C71h],0
+0xCCB6D6     75 1F                           jne short 0000000180CCB6F7h
+0xCCB6D8     48 8D 0D E1 26 CC 02            lea rcx,[18398DDC0h]
+0xCCB6DF     E8 BC C1 64 FF                  call 00000001803178A0h
+0xCCB6E4     48 8D 0D AD 27 CC 02            lea rcx,[18398DE98h]
+0xCCB6EB     E8 B0 C1 64 FF                  call 00000001803178A0h
+0xCCB6F0     C6 05 7A 55 F3 02 01            mov byte ptr [183C00C71h],1
+0xCCB6F7     48 8B 47 58                     mov rax,[rdi+58h]
+0xCCB6FB     33 DB                           xor ebx,ebx
+0xCCB6FD     33 C9                           xor ecx,ecx
+0xCCB6FF     48 85 C0                        test rax,rax
+0xCCB702     74 67                           je short 0000000180CCB76Bh
+0xCCB704     3B 48 18                        cmp ecx,[rax+18h]
+0xCCB707     7D 52                           jge short 0000000180CCB75Bh
+0xCCB709     48 8B 4F 58                     mov rcx,[rdi+58h]
+0xCCB70D     48 85 C9                        test rcx,rcx
+0xCCB710     74 59                           je short 0000000180CCB76Bh
+0xCCB712     4C 8B 05 7F 27 CC 02            mov r8,[18398DE98h]
+0xCCB719     8B D3                           mov edx,ebx
+0xCCB71B     E8 10 B5 B8 00                  call 0000000181856C30h
+0xCCB720     48 8B F0                        mov rsi,rax
+0xCCB723     48 85 C0                        test rax,rax
+0xCCB726     74 43                           je short 0000000180CCB76Bh
+0xCCB728     33 D2                           xor edx,edx
+0xCCB72A     48 8B C8                        mov rcx,rax
+0xCCB72D     E8 7E 8C EA 01                  call 0000000182B743B0h ; UnityEngine.Component::get_gameObject/0
+0xCCB732     48 85 C0                        test rax,rax
+0xCCB735     74 34                           je short 0000000180CCB76Bh
+0xCCB737     33 D2                           xor edx,edx
+0xCCB739     48 8B C8                        mov rcx,rax
+0xCCB73C     E8 FF D1 EA 01                  call 0000000182B78940h ; UnityEngine.GameObject::get_activeSelf/0
+0xCCB741     84 C0                           test al,al
+0xCCB743     75 07                           jne short 0000000180CCB74Ch
+0xCCB745     C6 86 A0 00 00 00 02            mov byte ptr [rsi+0A0h],2
+0xCCB74C     48 8B 47 58                     mov rax,[rdi+58h]
+0xCCB750     FF C3                           inc ebx
+0xCCB752     8B CB                           mov ecx,ebx
+0xCCB754     48 85 C0                        test rax,rax
+0xCCB757     74 12                           je short 0000000180CCB76Bh
+0xCCB759     EB A9                           jmp short 0000000180CCB704h
+0xCCB75B     48 8B 74 24 38                  mov rsi,[rsp+38h]
+0xCCB760     48 8B 5C 24 30                  mov rbx,[rsp+30h]
+0xCCB765     48 83 C4 20                     add rsp,20h
+0xCCB769     5F                              pop rdi
+0xCCB76A     C3                              ret
+0xCCB76B     E8 10 C4 64 FF                  call 0000000180317B80h
+0xCCB770     CC                              int 3

@@ -1,0 +1,39 @@
+{
+  "capturedDate": "2026-11-06",
+  "reviewer": "/root/active_business_audit",
+  "status": "bounded-static-acceptance-no-mandatory-finding",
+  "scope": "Only the pure BusinessActiveSubtypeTrial/NetworkSubtypeState changes and docs/business-network-subtype-probe.md contract, before native adapter completion. No build or test execution in this review.",
+  "source": {
+    "path": "Source/Mods/TownHallInterior/src/BusinessConstruction.cs",
+    "lines": "1-403",
+    "fullFileSha256AtRead": "dcc540c12895ffc6238ee19d8806f960aab5870286f034d60a3bc7c71f290cee",
+    "purePrefixSha256": "8fc68c0964ece5039794f000a859235c748e65dff0e9c79b3651fb09d8438985",
+    "purePrefixHashDefinition": "SHA256 of UTF-8 text from file start up to but excluding public sealed record ManagerRegistration; full file is still being edited by coder."
+  },
+  "findings": [],
+  "inspectedInvariants": [
+    "Network mode requires IBusinessNetworkSubtypePort before consuming the attempt; old default mode rejects an unexpected Network state.",
+    "The network object/class/behaviour-array identities are nonzero, mutually distinct from all other pinned identities, and equal on subsequent reads. Bidirectional binding checks include BusinessNetworkObject, component index zero, one behaviour, and exact Business pointer.",
+    "Both Business and Network counter dictionaries are defensively copied into bounded read-only dictionaries. Counters must be nonnegative/bounded; unexpected nonzero callback names are rejected.",
+    "ReadCurrent checks revocation/context before and after port read, freezes data and checks identity plus monotonically nondecreasing frames/Business/Network counters. Retirement also goes through this common read path.",
+    "Before SetActive(true), SetActive(false), and Cleanup the trial performs fresh current-context checks; port adapters still must guard their own internal multiple native accesses.",
+    "Network activation success requires a later real Unity frame and own Awake/Start/OnEnable/FixedUpdate observations. Deadline wins over a first late successful observation.",
+    "Deactivation requires an exact single OnDisable delta for each participant; cleanup requires an exact OnDestroy delta for each participant. Unconfirmed cleanup or later evidence failure clears CleanupComplete and quarantines without retry.",
+    "On context loss the trial retains ownership and records quarantine; it does not guess at destruction or repeat a failed attempt.",
+    "Network snapshot extension preserves the original ten mandatory registry names, freezes baseline keys/values, and requires equality. Naming/identity/coverage of additional FishNet holders remain the native adapter's responsibility."
+  ],
+  "pending": [
+    "Review native adapter and conditional csproj/runtime wiring when coder declares stable.",
+    "Review new independently authored production-trial tests when stable.",
+    "Parent performs no-deploy builds and tests; these have not been executed by this reviewer.",
+    "All native Unity/FishNet callback, method collection/invoker and holder coverage claims need native adapter plus eventual scoped live evidence."
+  ],
+  "historicalAuditSourceClarification": {
+    "path": "native-init-findings.json",
+    "issue": "Its ../../../Source/... line references are to pre-binding source excerpts, not stable line anchors in the now modified file.",
+    "source": "Source/Mods/TownHallInterior/src/BusinessConstruction.cs",
+    "preBindingSourceSha256": "32724b5085d1d6ca6bb34340e6b95198f450c4f67a2c5e5bbb187b68286ad708",
+    "provenance": "This baseline identity was retained in the previous active-subtype review and supplied/confirmed by the parent for the pre-binding source. It was not freshly reconstructed from the current changing file. Native disassembly and installed S1API decompile evidence are separately hash-pinned by the audit manifests.",
+    "recommendation": "When archiving native-init-findings, annotate those source references with the pre-binding hash/source snapshot; do not present old line numbers as current binding implementation evidence."
+  }
+}

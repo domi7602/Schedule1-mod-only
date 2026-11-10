@@ -1,0 +1,21 @@
+{
+  "capturedUtc": "2026-11-06T14:44:00.000Z",
+  "files": {
+    "deployment-plan.json": {
+      "sha256": "3462a88066e099198959cb5a7795054e2d60e6d8f46961e22b6a2897fc4c5f4e",
+      "bytes": 1696
+    },
+    "deployment-receipt.json": {
+      "sha256": "c1200d0fea73f71602bf4f4eefdd4e7ff9c9d0af6796829e97fd4d7fa7b4fa5d",
+      "bytes": 3246
+    },
+    "deployment-verification.json": {
+      "sha256": "578e8bd9840f9e75c82f501d62e5cdae4d42758b66c5eb7e2ef0bfd8ad02f808",
+      "bytes": 2674
+    },
+    "deployment.log.txt": {
+      "sha256": "bffcd9058b6972c04e85f152b922f892e6d14879f691ca410371373c065e956a",
+      "bytes": 342
+    }
+  }
+}

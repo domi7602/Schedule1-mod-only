@@ -1,0 +1,19 @@
+{
+  "processLocalOnly": true,
+  "reason": "Use already available clean pinned local submodules for the corrected isolated snapshot",
+  "noGlobalGitConfigChanges": true,
+  "sources": [
+    {
+      "module": "S1API",
+      "path": "C:/Users/pc/Schedule1-mod-only/ThirdParty/S1API",
+      "commit": "6b6d7bada39054822732224508cf0f4f45ee7c26",
+      "clean": true
+    },
+    {
+      "module": "S1MAPI",
+      "path": "C:/Users/pc/Schedule1-mod-only/ThirdParty/S1MAPI",
+      "commit": "89b8d0173946324bb21b3eb1fa584ee9c5f3e618",
+      "clean": true
+    }
+  ]
+}

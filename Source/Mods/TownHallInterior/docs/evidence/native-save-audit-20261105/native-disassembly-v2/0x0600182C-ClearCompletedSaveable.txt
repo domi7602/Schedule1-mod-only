@@ -1,0 +1,23 @@
+; ScheduleOne.Persistence.SaveManager::ClearCompletedSaveable/1, token 0x0600182C, RVA 0x5A9A40, .pdata primary extent 0x54 bytes
+; Raw native bytes decoded without invoking the game. .pdata primary extent is not a proof of full transitive/exception-path coverage.
+0x5A9A40     48 89 5C 24 08                  mov [rsp+8],rbx
+0x5A9A45     57                              push rdi
+0x5A9A46     48 83 EC 20                     sub rsp,20h
+0x5A9A4A     80 3D 00 1D 65 03 00            cmp byte ptr [183BFB751h],0
+0x5A9A51     48 8B FA                        mov rdi,rdx
+0x5A9A54     48 8B D9                        mov rbx,rcx
+0x5A9A57     75 13                           jne short 00000001805A9A6Ch
+0x5A9A59     48 8D 0D 38 C7 44 03            lea rcx,[1839F6198h]
+0x5A9A60     E8 3B DE D6 FF                  call 00000001803178A0h
+0x5A9A65     C6 05 E5 1C 65 03 01            mov byte ptr [183BFB751h],1
+0x5A9A6C     48 8B 4B 60                     mov rcx,[rbx+60h]
+0x5A9A70     48 85 C9                        test rcx,rcx
+0x5A9A73     74 19                           je short 00000001805A9A8Eh
+0x5A9A75     4C 8B 05 1C C7 44 03            mov r8,[1839F6198h]
+0x5A9A7C     48 8B D7                        mov rdx,rdi
+0x5A9A7F     48 8B 5C 24 30                  mov rbx,[rsp+30h]
+0x5A9A84     48 83 C4 20                     add rsp,20h
+0x5A9A88     5F                              pop rdi
+0x5A9A89     E9 12 E9 32 01                  jmp near ptr 00000001818D83A0h
+0x5A9A8E     E8 ED E0 D6 FF                  call 0000000180317B80h
+0x5A9A93     CC                              int 3

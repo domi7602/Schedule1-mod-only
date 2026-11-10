@@ -1,0 +1,115 @@
+{
+  "capturedUtc": "2026-11-06T12:42:27.766838+00:00",
+  "reviewer": "/root/active_lifetime_review",
+  "status": "accepted",
+  "sourceSha256": "cc2fd3f9871d3781be88132e10f917d3a71167a9497b655d24ae16c0866aa4b1",
+  "sourceFiles": [
+    {
+      "path": "Source/Mods/TownHallInterior/src/BusinessConstruction.cs",
+      "sha256": "cc2fd3f9871d3781be88132e10f917d3a71167a9497b655d24ae16c0866aa4b1",
+      "bytes": 307953,
+      "scope": "reviewed-production"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/TownHallInterior.csproj",
+      "sha256": "9ca3fa493371986cad141d9096d2d1751630586417943b1673f70136c8ec0132",
+      "bytes": 3674,
+      "scope": "reviewed-production"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/BusinessBindingProbe.cs",
+      "sha256": "4b80b541109831c4aa48cc191f0a2bdef7bb1025a87e8ef7b4e6cc20dd1afb41",
+      "bytes": 21686,
+      "scope": "reviewed-production"
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/BusinessDataTests.cs",
+      "sha256": "e0094d3b9687ca736f686854d0ccdfb87df79d1fc654ac897cdf2eb137735896",
+      "bytes": 28741,
+      "scope": "parent-tested-source-provenance-only"
+    }
+  ],
+  "acceptanceScope": "Independent static pure-owner and native-adapter review for the opt-in, nonpublished, no-base Business diagnostic-data probe. No open mandatory findings in this bounded slice.",
+  "findings": [],
+  "closedFindings": [
+    {
+      "id": "D1",
+      "priority": "P1",
+      "finding": "Native allocations returned into KeepData/KeepDataUnity could be lost if a post-allocation context check threw before retention.",
+      "resolution": "Every nonnull returned wrapper is first retained in a managed pending list before context/pointer/Unity operations; successful ownership registration removes it, uncertain handles remain quarantined and block cleanup confirmation.",
+      "lines": [
+        3667,
+        3675,
+        3872
+      ]
+    },
+    {
+      "id": "D2",
+      "priority": "P1",
+      "finding": "Actual native query/loader bodies were audited by GameAssembly and metadata hash, but runtime originally checked only proxy/framework binaries.",
+      "resolution": "DATA mode finds the loaded GameAssembly module, rejects ambiguous/empty paths, and verifies its backing file and matching global-metadata.dat against the exact audited hashes before arming.",
+      "lines": [
+        2981,
+        3010,
+        3018
+      ]
+    },
+    {
+      "id": "D3",
+      "priority": "P1",
+      "finding": "SetProperty occurs in Prepare before the first normal ReadActiveState world pin; a generic valid Slot2 predicate was insufficient for the first mutation.",
+      "resolution": "DATA Current closure binds the original Begin context canonical paths and SaveManager; first Capture pins world/generation/manager before Prepare. RequireContext rechecks these plus save queue idle. Pre-SetProperty boundaries also require inactive own root and zero own callback ledgers.",
+      "lines": [
+        3127,
+        627,
+        3430,
+        3831
+      ]
+    },
+    {
+      "id": "D4",
+      "priority": "P1",
+      "finding": "A native return followed by context revocation could lose already-known SetProperty return or query scalar evidence.",
+      "resolution": "SetPropertyReturned and invariant scalar/type receipts are recorded using managed state immediately after return, before the post-call context guard; readback confirmation follows successful fresh checks. Nonfinite failure values remain JSON-readable strings.",
+      "origin": "Root independent review, relayed and checked by this reviewer",
+      "lines": [
+        3732,
+        3850,
+        3853
+      ]
+    }
+  ],
+  "checks": [
+    "Pure requireData requires network/data port; exact15 collection keys/counts and immutable copied snapshots with stable distinct IDs; four listener keys mandatory.",
+    "Pure query and retirement paths retain process-attempt/revocation semantics, fresh pre/post states, exact callbacks and additional data cleanup confirmation.",
+    "Eleven own empty IL2CPP lists, four arrays (one bounds element), two separately hidden loader fields, zero price/capacity and neutral flags are initialized/read back directly. No S1API setters with UI effects.",
+    "Two owned inactive helper GameObjects, their transforms, container and disabled unit-space BoxCollider are identity/parent/component/geometry checked. Root transform is also retained.",
+    "Native SetProperty, two native Business getters and S1API inside/outside route are method-token/signature/declaring-class/pointer/invoker pinned. Loader constructors match the bounded native audit. No original Business/FishNet Awake/Start/RPC/Register/Save calls added.",
+    "Both actual internal readonly S1API InnerBusiness and InnerProperty fields are read through exact declaring/type metadata and must point to own Business.",
+    "Each query substep revalidates current world/data/network/known holders/listeners before and after native call; wrong scalar results stop before subsequent queries.",
+    "Four listener groups include TimeManager ActionList object/list and ordered delegate graph, onTimeSkip, MoneyManager networth, Property acquisition, Business operation-start/finish; null delegates are distinguishable from unreadable wrappers; bounded graph cycles/overflow fail closed.",
+    "SetActive/deactivation/Destroy require fresh matching own data and foreign snapshots; Unity-owned helper/root/component absence is checked after Destroy while context remains current.",
+    "Only confirmed GC handles/wrapper references are released. Reports explicitly deny immediate native GC memory reclamation; cached report generation performs no fresh native observation after revocation.",
+    "Opt-in Data flag is isolated from other probe modes; normal mode remains unaffected by DATA-preprocessor sections."
+  ],
+  "validation": {
+    "reviewerTestsRun": false,
+    "reviewerBuildsRun": false,
+    "parentReported": "Root reports final1166/1166 tests including89 Data cases, all7 NoDeploy WarnAsError builds0warnings0errors. Guard builds were still running when this report was created; no result claimed here."
+  },
+  "limits": [
+    "Static source/binary review and parent-attributed build/tests do not prove the new native query path ran in-game.",
+    "Empty laundering data and zero capacity test dispatch/dependency behavior only; they do not prove positive-balance aggregation, product balancing or gameplay money laundering.",
+    "Diagnostic box samples do not establish actual TownHall boundary calibration, purchase, initialized native Business/FishNet operation, spawn, persistence/reload or save safety for future writing code.",
+    "Native getter may initialize metadata and cached LINQ selector delegate; this is not a claim of zero global effects.",
+    "Finite known registry/listener/delegate identity scans are not global closure/heap/native last-use or world-exit/unload proof.",
+    "GC object handle release is not immediate native-memory reclamation.",
+    "Reviewer performed no production/test edits, builds, deployment, game actions or save-file access."
+  ],
+  "auditContract": {
+    "path": ".scratch/townhall-business-data-20261106/audit/native-data-contract.json",
+    "sha256": "f18ff24fcb8fca03ade7f23e5cf7b6811fc217f8d36c366c8391a95da42fc754"
+  },
+  "reviewerGameInvoked": false,
+  "reviewerSaveFilesRead": false
+}

@@ -1,0 +1,55 @@
+; ScheduleOne.Property.BusinessManager::.ctor/0, token 0x060013CC, RVA 0x54BCD0, next-pointer window 0xF0 bytes
+; No target execution. Parser-pointer window can contain padding/cold fragments and is not exact/full function, EH or transitive coverage. Shared direct aliases are truncated to eight names.
+0x54BCD0     48 89 5C 24 08                  mov [rsp+8],rbx
+0x54BCD5     57                              push rdi
+0x54BCD6     48 83 EC 20                     sub rsp,20h
+0x54BCDA     80 3D 58 F8 6A 03 00            cmp byte ptr [183BFB539h],0
+0x54BCE1     48 8B F9                        mov rdi,rcx
+0x54BCE4     75 37                           jne short 000000018054BD1Dh
+0x54BCE6     48 8D 0D 1B C3 49 03            lea rcx,[1839E8008h] ; TypeInfo: ScheduleOne.Persistence.Loaders.BusinessesLoader
+0x54BCED     E8 AE BB DC FF                  call 00000001803178A0h
+0x54BCF2     48 8D 0D 9F 54 47 03            lea rcx,[1839C1198h] ; MethodRef: System.Void System.Collections.Generic.List`1<System.String>..ctor
+0x54BCF9     E8 A2 BB DC FF                  call 00000001803178A0h
+0x54BCFE     48 8D 0D 7B F0 4B 03            lea rcx,[183A0AD80h] ; TypeInfo: System.Collections.Generic.List`1<System.String>
+0x54BD05     E8 96 BB DC FF                  call 00000001803178A0h
+0x54BD0A     48 8D 0D 0F 7E 49 03            lea rcx,[1839E3B20h] ; MethodRef: System.Void ScheduleOne.DevUtilities.Singleton`1<ScheduleOne.Property.BusinessManager>..ctor
+0x54BD11     E8 8A BB DC FF                  call 00000001803178A0h
+0x54BD16     C6 05 1C F8 6A 03 01            mov byte ptr [183BFB539h],1
+0x54BD1D     48 8B 0D E4 C2 49 03            mov rcx,[1839E8008h] ; TypeInfo: ScheduleOne.Persistence.Loaders.BusinessesLoader
+0x54BD24     E8 F7 BD DC FF                  call 0000000180317B20h
+0x54BD29     33 D2                           xor edx,edx
+0x54BD2B     48 8B C8                        mov rcx,rax
+0x54BD2E     48 8B D8                        mov rbx,rax
+0x54BD31     E8 4A 18 ED FF                  call 000000018041D580h ; DeveloperManager::OnStartServer/0 | DeveloperManager+LiveFloatVariable::.ctor/0 | DeveloperManager+LiveStringVariable::.ctor/0 | DeveloperManager+<>c__DisplayClass11_0::.ctor/0 | DeveloperManager+<>c__DisplayClass15_0::.ctor/0 | DeveloperManager+<>c__DisplayClass16_0::.ctor/0 | DeveloperSettings+Item::.ctor/0 | InvertMouseSetter+<>c::.ctor/0 | ... SHARED TARGET: 2614 aliases
+0x54BD36     48 8D 4F 28                     lea rcx,[rdi+28h]
+0x54BD3A     48 89 5F 28                     mov [rdi+28h],rbx
+0x54BD3E     48 8B D3                        mov rdx,rbx
+0x54BD41     E8 6A AD DC FF                  call 0000000180316AB0h
+0x54BD46     48 8B 0D 33 F0 4B 03            mov rcx,[183A0AD80h] ; TypeInfo: System.Collections.Generic.List`1<System.String>
+0x54BD4D     E8 CE BD DC FF                  call 0000000180317B20h
+0x54BD52     48 8B 15 3F 54 47 03            mov rdx,[1839C1198h] ; MethodRef: System.Void System.Collections.Generic.List`1<System.String>..ctor
+0x54BD59     48 8B C8                        mov rcx,rax
+0x54BD5C     48 8B D8                        mov rbx,rax
+0x54BD5F     E8 CC 80 A6 00                  call 0000000180FB3E30h ; System.Collections.Generic.List`1::.ctor/0 | System.Collections.Generic.LowLevelList`1::.ctor/0
+0x54BD64     48 8D 4F 30                     lea rcx,[rdi+30h]
+0x54BD68     48 89 5F 30                     mov [rdi+30h],rbx
+0x54BD6C     48 8B D3                        mov rdx,rbx
+0x54BD6F     E8 3C AD DC FF                  call 0000000180316AB0h
+0x54BD74     48 8B 0D 05 F0 4B 03            mov rcx,[183A0AD80h] ; TypeInfo: System.Collections.Generic.List`1<System.String>
+0x54BD7B     E8 A0 BD DC FF                  call 0000000180317B20h
+0x54BD80     48 8B 15 11 54 47 03            mov rdx,[1839C1198h] ; MethodRef: System.Void System.Collections.Generic.List`1<System.String>..ctor
+0x54BD87     48 8B C8                        mov rcx,rax
+0x54BD8A     48 8B D8                        mov rbx,rax
+0x54BD8D     E8 9E 80 A6 00                  call 0000000180FB3E30h ; System.Collections.Generic.List`1::.ctor/0 | System.Collections.Generic.LowLevelList`1::.ctor/0
+0x54BD92     48 8D 4F 38                     lea rcx,[rdi+38h]
+0x54BD96     48 89 5F 38                     mov [rdi+38h],rbx
+0x54BD9A     48 8B D3                        mov rdx,rbx
+0x54BD9D     E8 0E AD DC FF                  call 0000000180316AB0h
+0x54BDA2     C6 47 40 01                     mov byte ptr [rdi+40h],1
+0x54BDA6     48 8B CF                        mov rcx,rdi
+0x54BDA9     48 8B 15 70 7D 49 03            mov rdx,[1839E3B20h] ; MethodRef: System.Void ScheduleOne.DevUtilities.Singleton`1<ScheduleOne.Property.BusinessManager>..ctor
+0x54BDB0     48 8B 5C 24 30                  mov rbx,[rsp+30h]
+0x54BDB5     48 83 C4 20                     add rsp,20h
+0x54BDB9     5F                              pop rdi
+0x54BDBA     E9 D1 16 ED FF                  jmp near ptr 000000018041D490h ; EventTriggerContact::.ctor/0 | EventTriggerTest::.ctor/0 | UnityServicesManager::.ctor/0 | EntityConfigurationData::.ctor/0 | ActivityManager::.ctor/0 | SteamManager::.ctor/0 | InvertMouseSetter::.ctor/0 | UIScaleSetter::.ctor/0 | ... SHARED TARGET: 448 aliases
+0x54BDBF     CC                              int 3

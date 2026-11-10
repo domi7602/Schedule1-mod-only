@@ -1,0 +1,72 @@
+{
+  "schema": 1,
+  "kind": "Frozen parent interpretation for narrow independent counterreview; static evidence only",
+  "project": "schedule1-mod-only",
+  "sourceRevision": "b2c6c7e6c6ecc778da9624cdb68a6578b9db471a",
+  "sourceWorktree": "dirty",
+  "nativeSaveWriteAllowed": false,
+  "claims": [
+    {
+      "id": "WX-01",
+      "claim": "SaveManager.Start registers an instance-bound Clean UnityAction on the current LoadManager.onPreSceneChange event. Zero raw direct Clean xrefs is therefore not a no-caller proof.",
+      "evidence": ["native-disassembly-pass2/0x06001824-SaveManager-Start.json"],
+      "anchors": ["0x5AAD59: LoadManager event +0x78", "0x5AAD69: Clean MethodDef", "0x5AAD73: delegate target is own SaveManager", "0x5AAD8F: UnityEvent.AddListener"],
+      "limit": "Registration path in native bytes, not observation of successful listener installation/order/invocation in every runtime."
+    },
+    {
+      "id": "WX-02",
+      "claim": "Clean locally clears Saveables +0x48 and BaseSaveables +0x50. It does not locally drain Completed +0x60, requests +0x68 or reset SaveManager.IsSaving +0x29. It is not an own-participant last-use acknowledgement.",
+      "evidence": ["native-disassembly-pass2/0x06001834-SaveManager-Clean.json", "native-map-pass4.json"],
+      "anchors": ["0x5A9511..0x5A9536", "0x5A953B..0x5A9565"],
+      "limit": "Local body claim only; does not rule out other cleanup elsewhere or prove what live requests survive."
+    },
+    {
+      "id": "WX-03",
+      "claim": "On its loaded exit path LoadManager invalidates IsGameLoaded and ActiveSaveInfo, sets its own IsLoading, then starts the exit coroutine. PreSceneChange is invoked later by that coroutine, so that event is not a reliable place to recover the already-cleared old active identity.",
+      "evidence": ["native-disassembly-pass2/0x060017BC-LoadManager-ExitToMenu.json", "native-disassembly-pass2/0x06001806-__ExitToMenu_g__Load_0_d-MoveNext.json", "native-map-pass4.json"],
+      "anchors": ["0x586BCB: IsGameLoaded=false", "0x586BD1: ActiveSaveInfo=null", "0x586BE8: LoadManager.IsLoading=true, not SaveManager.IsSaving", "0x586C5C: StartCoroutine", "0x5AE418: PreSceneChange.Invoke"],
+      "limit": "Only the locally shown successful path/order. No universal event delivery, EH or transitive callback claim."
+    },
+    {
+      "id": "WX-04",
+      "claim": "The server branch of exit yields a fixed 1.25-second realtime wait. The client branch requests Player data, then WaitUntil uses Player.Local.playerSaveRequestReturned OR realtime elapsed > maxWait (3 seconds). Neither shown wait is a SaveManager request/batch/completed drain or a last-use acknowledgement for the own business.",
+      "evidence": ["native-disassembly-pass2/0x06001806-__ExitToMenu_g__Load_0_d-MoveNext.json", "native-disassembly-pass3/0x0600180B-__c__DisplayClass81_1-_ExitToMenu_b__1.json", "native-byte-integrity.json", "native-map-pass4.json"],
+      "anchors": ["0x5AE945..0x5AE96D: IsServer branch and realtime wait", "0x5AEA07: RequestSavePlayer", "0x5AEA11: maxWait=3.0f", "0x5AEA1F: wait start", "0x5AEA36..0x5AEA60: predicate and WaitUntil", "0x5B3A8B..0x5B3AB5: player acknowledgement OR elapsed > maxWait"],
+      "limit": "No multiplayer acceptance or correctness analysis of player network save itself. Timeout alone does not prove request success."
+    },
+    {
+      "id": "WX-05",
+      "claim": "SaveManager.Awake calls the shared PersistentSingleton<SaveManager>.Awake body, which first calls Singleton.Awake and, unless duplicate-marked, detaches its transform and calls DontDestroyOnLoad on its GameObject. A menu scene load is therefore not by itself evidence that this manager or all of its references die. Singleton.OnDestroy merely conditionally nulls its own static instance; it supplies no save-drain logic.",
+      "evidence": ["native-disassembly-pass4/0x06001823-SaveManager-Awake.json", "native-disassembly-pass3/0x060030C9-PersistentSingleton_1-Awake.json", "native-disassembly-pass3/0x060030FF-Singleton_1-Awake.json", "native-disassembly-pass3/0x06003100-Singleton_1-OnDestroy.json"],
+      "anchors": ["0x5A8FEB: persistent base call with SaveManager MethodRef", "0x10709F2: Singleton.Awake", "0x10709F7..0x10709FB: native duplicate flag +0x20", "0x1070A14: SetParent(null)", "0x1070A40: DontDestroyOnLoad", "0x1135AE9..0x1135B1B: conditional static-instance reset"],
+      "limit": "No assertion that every live manager survives or that Unity engine persistence is reimplemented here. Open-generic FieldMap offsets can be unresolved/zero; no inference uses those offsets."
+    },
+    {
+      "id": "WX-06",
+      "claim": "ConfirmExitScreen.ConfirmExit and Tools.ExitToMenu.Exit directly call ExitToMenu with null autoLoadSave/popup and preventLeaveLobby=false; no local SaveManager drain check is present. ConfirmExitScreen.Update formats time-since-save, not a drain proof. Exit may call StartGame for a captured autoLoadSave after Menu; StartGame publishes new current save info/folder before its load coroutine later invokes PreSceneChange and CleanUp. Current singleton/path is not immutable old-request ownership.",
+      "evidence": ["native-disassembly-pass3/0x06006A54-ConfirmExitScreen-ConfirmExit.json", "native-disassembly-pass3/0x06003CFE-ExitToMenu-Exit.json", "native-disassembly-pass4/0x06006A53-ConfirmExitScreen-Update.json", "native-disassembly-pass2/0x060017B5-LoadManager-StartGame.json", "native-disassembly-pass2/0x060017E4-__StartGame_g__LoadRoutine_0_d-MoveNext.json", "native-disassembly-pass2/0x06001806-__ExitToMenu_g__Load_0_d-MoveNext.json"],
+      "anchors": ["0xA680AD and 0x7DFC58: ExitToMenu", "0xA681B6: SaveManager time since last save +0x2C", "0x5AE79F and 0x5AE88A: StartGame captured save", "0x588385 and 0x5883AA: publish new identity/folder", "0x591153: PreSceneChange", "0x59116F: CleanUp", "0x591335: LoadSceneAsync"],
+      "limit": "No claim that every UI caller is inventoried, every UI interaction is enabled while saving, or any observed world was corrupted. StartGame rejects an already loaded world; no unsafe direct slot-switch claim is made. LoadManager.CleanUp is separate from SaveManager.Clean; not a save-drain acknowledgement."
+    },
+    {
+      "id": "WX-07",
+      "claim": "The selected SaveRoutine.Dispose body is ret 0 plus padding and has no own completion/cleanup acknowledgement. StopAllCoroutines is a cached indirect Unity internalcall wrapper; its engine implementation and actual cancellation/dispose behavior remain unanalysed. No complete negative abort or terminal-completion proof follows from these windows or the raw E8/E9 scan.",
+      "evidence": ["native-disassembly-pass2/0x0600183B-__Save_g__SaveRoutine_0_d-System_IDisposable_Dispose.json", "native-disassembly-pass2/0x06000A53-MonoBehaviour-StopAllCoroutines.json", "world-exit-reference-candidates.json", "native-byte-integrity.json"],
+      "anchors": ["0x43FEC0: C2 00 00", "0x2B79B56..0x2B79B80: cached internalcall"],
+      "limit": "Shared Dispose target is not a proposed hook. Raw xrefs are candidates; only six are confirmed in the new windows. Indirect calls, delegates, external modules, EH and Unity destruction/cancellation semantics are not completely covered."
+    },
+    {
+      "id": "WX-08",
+      "claim": "Combined with the independent own-lifecycle source review, no verified own last-use/removal/world-exit boundary exists for a transient business save participant. Keep fail-closed before registration/save. Close this audit with a bounded architecture decision: do not turn the synchronous transient probe into an async writer by simply removing the guard. Prefer a separately designed own operation owner with frozen identity/revocation and explicitly proven participant lifetime/non-retarget/non-IO behavior, or obtain a complete transient detach proof first. Neither alternative is implemented or approved.",
+      "evidence": ["own-lifecycle-review.json", "native-byte-integrity.json"],
+      "anchors": ["OWN-01..OWN-07", "ARCH-01..ARCH-05", "WX-01..WX-07"],
+      "limit": "A reasoned design requirement, not a native implementation theorem. Retain, an own callback counter, a persistent root, Idle, Completion, queue emptiness or one later frame does not substitute for last-use proof. Own release, native save success and sidecar consistency remain three distinct proof goals."
+    }
+  ],
+  "coverageLimits": [
+    "24 next-pointer windows / 19856 bytes; 4621 linear decoder rows include padding and 9 rows in a known StartGame data table; 23 suffix bytes are explicitly undecoded.",
+    "StartGame state dispatcher indexes 11 RVA entries at 0x592560. The original failed pass1 export and pass2 outputs remain unchanged; the independent supplement identifies data, not hidden code completion.",
+    "Primary pdata bounds, matched bytes and branch displacements do not prove complete function/EH/indirect/transitive coverage.",
+    "No live game, save, bridge, native call, build, test suite, installation, download, production/test edit, commit or push."
+  ]
+}

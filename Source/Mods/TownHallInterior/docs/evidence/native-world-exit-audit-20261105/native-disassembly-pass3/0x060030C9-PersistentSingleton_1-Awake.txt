@@ -1,0 +1,57 @@
+; ScheduleOne.DevUtilities.PersistentSingleton`1::Awake/0, token 0x060030C9, RVA 0x10709B0, next-pointer window 0xB0 bytes
+; No target execution. Parser-pointer window can contain padding/cold fragments and is not exact/full function, EH or transitive coverage. Shared direct aliases are truncated to eight names.
+0x10709B0    48 89 5C 24 08                  mov [rsp+8],rbx
+0x10709B5    57                              push rdi
+0x10709B6    48 83 EC 20                     sub rsp,20h
+0x10709BA    80 3D BA 0A B9 02 00            cmp byte ptr [183C0147Bh],0
+0x10709C1    48 8B FA                        mov rdi,rdx
+0x10709C4    48 8B D9                        mov rbx,rcx
+0x10709C7    75 13                           jne short 00000001810709DCh
+0x10709C9    48 8D 0D 28 F6 97 02            lea rcx,[1839EFFF8h] ; TypeInfo: UnityEngine.Object
+0x10709D0    E8 CB 6E 2A FF                  call 00000001803178A0h
+0x10709D5    C6 05 9F 0A B9 02 01            mov byte ptr [183C0147Bh],1
+0x10709DC    48 85 DB                        test rbx,rbx
+0x10709DF    74 6F                           je short 0000000181070A50h
+0x10709E1    48 8B 47 20                     mov rax,[rdi+20h]
+0x10709E5    48 8B CB                        mov rcx,rbx
+0x10709E8    48 8B 90 C0 00 00 00            mov rdx,[rax+0C0h]
+0x10709EF    48 8B 12                        mov rdx,[rdx]
+0x10709F2    E8 D9 4D 0C 00                  call 00000001811357D0h ; ScheduleOne.DevUtilities.Singleton`1::Awake/0
+0x10709F7    80 7B 20 00                     cmp byte ptr [rbx+20h],0
+0x10709FB    75 48                           jne short 0000000181070A45h
+0x10709FD    33 D2                           xor edx,edx
+0x10709FF    48 8B CB                        mov rcx,rbx
+0x1070A02    E8 59 3A B0 01                  call 0000000182B74460h ; UnityEngine.Component::get_transform/0
+0x1070A07    48 85 C0                        test rax,rax
+0x1070A0A    74 44                           je short 0000000181070A50h
+0x1070A0C    45 33 C0                        xor r8d,r8d
+0x1070A0F    33 D2                           xor edx,edx
+0x1070A11    48 8B C8                        mov rcx,rax
+0x1070A14    E8 E7 65 B1 01                  call 0000000182B87000h ; UnityEngine.Transform::set_parentInternal/1 | UnityEngine.Transform::SetParent/1
+0x1070A19    33 D2                           xor edx,edx
+0x1070A1B    48 8B CB                        mov rcx,rbx
+0x1070A1E    E8 8D 39 B0 01                  call 0000000182B743B0h ; UnityEngine.Component::get_gameObject/0
+0x1070A23    48 8B 0D CE F5 97 02            mov rcx,[1839EFFF8h] ; TypeInfo: UnityEngine.Object
+0x1070A2A    48 8B D8                        mov rbx,rax
+0x1070A2D    83 B9 E0 00 00 00 00            cmp dword ptr [rcx+0E0h],0
+0x1070A34    75 05                           jne short 0000000181070A3Bh
+0x1070A36    E8 F5 71 2A FF                  call 0000000180317C30h
+0x1070A3B    33 D2                           xor edx,edx
+0x1070A3D    48 8B CB                        mov rcx,rbx
+0x1070A40    E8 1B A0 B0 01                  call 0000000182B7AA60h ; UnityEngine.Object::DontDestroyOnLoad/1
+0x1070A45    48 8B 5C 24 30                  mov rbx,[rsp+30h]
+0x1070A4A    48 83 C4 20                     add rsp,20h
+0x1070A4E    5F                              pop rdi
+0x1070A4F    C3                              ret
+0x1070A50    E8 2B 71 2A FF                  call 0000000180317B80h
+0x1070A55    CC                              int 3
+0x1070A56    CC                              int 3
+0x1070A57    CC                              int 3
+0x1070A58    CC                              int 3
+0x1070A59    CC                              int 3
+0x1070A5A    CC                              int 3
+0x1070A5B    CC                              int 3
+0x1070A5C    CC                              int 3
+0x1070A5D    CC                              int 3
+0x1070A5E    CC                              int 3
+0x1070A5F    CC                              int 3

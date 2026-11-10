@@ -1,0 +1,11 @@
+; FishNet.Object.NetworkBehaviour::get_IsNetworked/0, token 0x0600067D, RVA 0xCCB0B0, .pdata primary extent 0x1F bytes
+; Raw native bytes decoded without invoking the game. .pdata primary extent is not a proof of full transitive/exception-path coverage.
+0xCCB0B0     48 83 EC 28                     sub rsp,28h
+0xCCB0B4     48 8B 41 30                     mov rax,[rcx+30h]
+0xCCB0B8     48 85 C0                        test rax,rax
+0xCCB0BB     74 0C                           je short 0000000180CCB0C9h
+0xCCB0BD     0F B6 80 A1 00 00 00            movzx eax,byte ptr [rax+0A1h]
+0xCCB0C4     48 83 C4 28                     add rsp,28h
+0xCCB0C8     C3                              ret
+0xCCB0C9     E8 B2 CA 64 FF                  call 0000000180317B80h
+0xCCB0CE     CC                              int 3

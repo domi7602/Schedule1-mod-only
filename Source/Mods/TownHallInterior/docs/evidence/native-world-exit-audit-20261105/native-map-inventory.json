@@ -1,0 +1,4919 @@
+{
+  "CapturedUtc": "2026-11-05T16:39:57.1308581Z",
+  "NativeSha256": "61829050e56ca180d67be592e4bfe61ec97d2e9573f720d90a54e318a7e4381d",
+  "MetadataVersion": 31.1,
+  "GlobalMethodCount": 149349,
+  "Method": "Fresh LibCpp2IL mapping + Iced native-byte decode, target assemblies never loaded/invoked",
+  "FieldMap": [
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+ELoadStatus",
+      "Name": "value__",
+      "Static": false,
+      "Offset": "0x0"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+ELoadStatus",
+      "Name": "None",
+      "Static": true,
+      "Offset": "0x0"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+ELoadStatus",
+      "Name": "LoadingScene",
+      "Static": true,
+      "Offset": "0x0"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+ELoadStatus",
+      "Name": "Initializing",
+      "Static": true,
+      "Offset": "0x0"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+ELoadStatus",
+      "Name": "LoadingData",
+      "Static": true,
+      "Offset": "0x0"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+ELoadStatus",
+      "Name": "SpawningPlayer",
+      "Static": true,
+      "Offset": "0x0"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+ELoadStatus",
+      "Name": "WaitingForHost",
+      "Static": true,
+      "Offset": "0x0"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+ELoadStatus",
+      "Name": "WaitingForAuth",
+      "Static": true,
+      "Offset": "0x0"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+EAuthOutcome",
+      "Name": "value__",
+      "Static": false,
+      "Offset": "0x0"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+EAuthOutcome",
+      "Name": "Waiting",
+      "Static": true,
+      "Offset": "0x0"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+EAuthOutcome",
+      "Name": "Success",
+      "Static": true,
+      "Offset": "0x0"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+EAuthOutcome",
+      "Name": "Failure",
+      "Static": true,
+      "Offset": "0x0"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<<StartLoadErrorAutosubmit>g__Wait|77_0>d",
+      "Name": "<>1__state",
+      "Static": false,
+      "Offset": "0x10"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<<StartLoadErrorAutosubmit>g__Wait|77_0>d",
+      "Name": "<>2__current",
+      "Static": false,
+      "Offset": "0x18"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<<StartLoadErrorAutosubmit>g__Wait|77_0>d",
+      "Name": "<>4__this",
+      "Static": false,
+      "Offset": "0x20"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<<StartLoadErrorAutosubmit>g__Wait|77_0>d",
+      "Name": "<t>5__2",
+      "Static": false,
+      "Offset": "0x28"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c",
+      "Name": "<>9",
+      "Static": true,
+      "Offset": "0x0"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c",
+      "Name": "<>9__74_6",
+      "Static": true,
+      "Offset": "0x8"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c",
+      "Name": "<>9__74_1",
+      "Static": true,
+      "Offset": "0x10"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c",
+      "Name": "<>9__74_2",
+      "Static": true,
+      "Offset": "0x18"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c",
+      "Name": "<>9__74_3",
+      "Static": true,
+      "Offset": "0x20"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c",
+      "Name": "<>9__74_4",
+      "Static": true,
+      "Offset": "0x28"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c",
+      "Name": "<>9__75_2",
+      "Static": true,
+      "Offset": "0x30"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c",
+      "Name": "<>9__75_3",
+      "Static": true,
+      "Offset": "0x38"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c",
+      "Name": "<>9__75_4",
+      "Static": true,
+      "Offset": "0x40"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c",
+      "Name": "<>9__76_4",
+      "Static": true,
+      "Offset": "0x48"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c",
+      "Name": "<>9__76_5",
+      "Static": true,
+      "Offset": "0x50"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c",
+      "Name": "<>9__76_6",
+      "Static": true,
+      "Offset": "0x58"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c",
+      "Name": "<>9__76_7",
+      "Static": true,
+      "Offset": "0x60"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass69_0",
+      "Name": "itemType",
+      "Static": false,
+      "Offset": "0x10"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass70_0",
+      "Name": "objectType",
+      "Static": false,
+      "Offset": "0x10"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass71_0",
+      "Name": "npcType",
+      "Static": false,
+      "Offset": "0x10"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass72_0",
+      "Name": "npcType",
+      "Static": false,
+      "Offset": "0x10"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass74_0+<<StartGame>g__LoadRoutine|0>d",
+      "Name": "<>1__state",
+      "Static": false,
+      "Offset": "0x10"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass74_0+<<StartGame>g__LoadRoutine|0>d",
+      "Name": "<>2__current",
+      "Static": false,
+      "Offset": "0x18"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass74_0+<<StartGame>g__LoadRoutine|0>d",
+      "Name": "<>4__this",
+      "Static": false,
+      "Offset": "0x20"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass74_0+<<StartGame>g__LoadRoutine|0>d",
+      "Name": "<playingTutorial>5__2",
+      "Static": false,
+      "Offset": "0x28"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass74_0+<<StartGame>g__LoadRoutine|0>d",
+      "Name": "<asyncLoad>5__3",
+      "Static": false,
+      "Offset": "0x30"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass74_0+<<StartGame>g__LoadRoutine|0>d",
+      "Name": "<transport>5__4",
+      "Static": false,
+      "Offset": "0x38"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass74_0",
+      "Name": "info",
+      "Static": false,
+      "Offset": "0x10"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass74_0",
+      "Name": "<>4__this",
+      "Static": false,
+      "Offset": "0x18"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass74_1",
+      "Name": "fishy",
+      "Static": false,
+      "Offset": "0x10"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass74_1",
+      "Name": "port",
+      "Static": false,
+      "Offset": "0x18"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass75_0+<<LoadTutorialAsClient>g__LoadRoutine|0>d",
+      "Name": "<>1__state",
+      "Static": false,
+      "Offset": "0x10"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass75_0+<<LoadTutorialAsClient>g__LoadRoutine|0>d",
+      "Name": "<>2__current",
+      "Static": false,
+      "Offset": "0x18"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass75_0+<<LoadTutorialAsClient>g__LoadRoutine|0>d",
+      "Name": "<>4__this",
+      "Static": false,
+      "Offset": "0x20"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass75_0+<<LoadTutorialAsClient>g__LoadRoutine|0>d",
+      "Name": "<asyncLoad>5__2",
+      "Static": false,
+      "Offset": "0x28"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass75_0+<<LoadTutorialAsClient>g__LoadRoutine|0>d",
+      "Name": "<yak>5__3",
+      "Static": false,
+      "Offset": "0x30"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass75_0",
+      "Name": "waitForExit",
+      "Static": false,
+      "Offset": "0x10"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass75_0",
+      "Name": "<>4__this",
+      "Static": false,
+      "Offset": "0x18"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass76_0+<<LoadAsClient>g__LoadRoutine|0>d",
+      "Name": "<>1__state",
+      "Static": false,
+      "Offset": "0x10"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass76_0+<<LoadAsClient>g__LoadRoutine|0>d",
+      "Name": "<>2__current",
+      "Static": false,
+      "Offset": "0x18"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass76_0+<<LoadAsClient>g__LoadRoutine|0>d",
+      "Name": "<>4__this",
+      "Static": false,
+      "Offset": "0x20"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass76_0+<<LoadAsClient>g__LoadRoutine|0>d",
+      "Name": "<>8__1",
+      "Static": false,
+      "Offset": "0x28"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass76_0",
+      "Name": "waitForExit",
+      "Static": false,
+      "Offset": "0x10"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass76_0",
+      "Name": "<>4__this",
+      "Static": false,
+      "Offset": "0x18"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass76_0",
+      "Name": "steamId64",
+      "Static": false,
+      "Offset": "0x20"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass76_1",
+      "Name": "authOutcome",
+      "Static": false,
+      "Offset": "0x10"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass76_2",
+      "Name": "authenticator",
+      "Static": false,
+      "Offset": "0x10"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass76_2",
+      "Name": "CS$<>8__locals1",
+      "Static": false,
+      "Offset": "0x18"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass81_0+<<ExitToMenu>g__Load|0>d",
+      "Name": "<>1__state",
+      "Static": false,
+      "Offset": "0x10"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass81_0+<<ExitToMenu>g__Load|0>d",
+      "Name": "<>2__current",
+      "Static": false,
+      "Offset": "0x18"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass81_0+<<ExitToMenu>g__Load|0>d",
+      "Name": "<>4__this",
+      "Static": false,
+      "Offset": "0x20"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass81_0+<<ExitToMenu>g__Load|0>d",
+      "Name": "<asyncLoad>5__2",
+      "Static": false,
+      "Offset": "0x28"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass81_0",
+      "Name": "<>4__this",
+      "Static": false,
+      "Offset": "0x10"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass81_0",
+      "Name": "autoLoadSave",
+      "Static": false,
+      "Offset": "0x18"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass81_0",
+      "Name": "mainMenuPopup",
+      "Static": false,
+      "Offset": "0x20"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass81_1",
+      "Name": "timeOnWaitStart",
+      "Static": false,
+      "Offset": "0x10"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass81_1",
+      "Name": "maxWait",
+      "Static": false,
+      "Offset": "0x14"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager",
+      "Name": "LOADS_PER_FRAME",
+      "Static": true,
+      "Offset": "0x0"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager",
+      "Name": "DEBUG",
+      "Static": true,
+      "Offset": "0x0"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager",
+      "Name": "LOAD_ERROR_TIMEOUT",
+      "Static": true,
+      "Offset": "0x0"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager",
+      "Name": "NETWORK_TIMEOUT",
+      "Static": true,
+      "Offset": "0x0"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager",
+      "Name": "LoadHistory",
+      "Static": true,
+      "Offset": "0x0"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager",
+      "Name": "SaveGames",
+      "Static": true,
+      "Offset": "0x8"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager",
+      "Name": "LastPlayedGame",
+      "Static": true,
+      "Offset": "0x10"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager",
+      "Name": "<IsGameLoaded>k__BackingField",
+      "Static": false,
+      "Offset": "0x28"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager",
+      "Name": "<IsLoading>k__BackingField",
+      "Static": false,
+      "Offset": "0x29"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager",
+      "Name": "<TimeSinceGameLoaded>k__BackingField",
+      "Static": false,
+      "Offset": "0x2C"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager",
+      "Name": "<DebugMode>k__BackingField",
+      "Static": false,
+      "Offset": "0x30"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager",
+      "Name": "<LoadStatus>k__BackingField",
+      "Static": false,
+      "Offset": "0x34"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager",
+      "Name": "<LoadedGameFolderPath>k__BackingField",
+      "Static": false,
+      "Offset": "0x38"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager",
+      "Name": "<ActiveSaveInfo>k__BackingField",
+      "Static": false,
+      "Offset": "0x40"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager",
+      "Name": "<StoredSaveInfo>k__BackingField",
+      "Static": false,
+      "Offset": "0x48"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager",
+      "Name": "loadRequests",
+      "Static": false,
+      "Offset": "0x50"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager",
+      "Name": "ItemLoaders",
+      "Static": false,
+      "Offset": "0x58"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager",
+      "Name": "ObjectLoaders",
+      "Static": false,
+      "Offset": "0x60"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager",
+      "Name": "LegacyNPCLoaders",
+      "Static": false,
+      "Offset": "0x68"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager",
+      "Name": "NPCLoaders",
+      "Static": false,
+      "Offset": "0x70"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager",
+      "Name": "onPreSceneChange",
+      "Static": false,
+      "Offset": "0x78"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager",
+      "Name": "onSceneChangeDone",
+      "Static": false,
+      "Offset": "0x80"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager",
+      "Name": "OnLocalSaveLoadStart",
+      "Static": false,
+      "Offset": "0x88"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager",
+      "Name": "onLoadConfigurations",
+      "Static": true,
+      "Offset": "0x18"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager",
+      "Name": "onPreLoad",
+      "Static": false,
+      "Offset": "0x90"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager",
+      "Name": "onLoadComplete",
+      "Static": false,
+      "Offset": "0x98"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager",
+      "Name": "onSaveInfoLoaded",
+      "Static": false,
+      "Offset": "0xA0"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager",
+      "Name": "staggeredReplicators",
+      "Static": true,
+      "Offset": "0x20"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager+<>c__DisplayClass52_0+<<Save>g__SaveRoutine|0>d",
+      "Name": "<>1__state",
+      "Static": false,
+      "Offset": "0x10"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager+<>c__DisplayClass52_0+<<Save>g__SaveRoutine|0>d",
+      "Name": "<>2__current",
+      "Static": false,
+      "Offset": "0x18"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager+<>c__DisplayClass52_0+<<Save>g__SaveRoutine|0>d",
+      "Name": "<>4__this",
+      "Static": false,
+      "Offset": "0x20"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager+<>c__DisplayClass52_0",
+      "Name": "<>4__this",
+      "Static": false,
+      "Offset": "0x10"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager+<>c__DisplayClass52_0",
+      "Name": "saveFolderPath",
+      "Static": false,
+      "Offset": "0x18"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "MAIN_SCENE_NAME",
+      "Static": true,
+      "Offset": "0x0"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "MENU_SCENE_NAME",
+      "Static": true,
+      "Offset": "0x0"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "TUTORIAL_SCENE_NAME",
+      "Static": true,
+      "Offset": "0x0"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "SAVES_PER_FRAME",
+      "Static": true,
+      "Offset": "0x0"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "SAVE_FILE_EXTENSION",
+      "Static": true,
+      "Offset": "0x0"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "SAVE_SLOT_COUNT",
+      "Static": true,
+      "Offset": "0x0"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "SAVE_GAME_PREFIX",
+      "Static": true,
+      "Offset": "0x0"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "DEBUG",
+      "Static": true,
+      "Offset": "0x0"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "PRETTY_PRINT",
+      "Static": true,
+      "Offset": "0x0"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "SaveError",
+      "Static": true,
+      "Offset": "0x0"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "<AccessPermissionIssueDetected>k__BackingField",
+      "Static": false,
+      "Offset": "0x28"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "<IsSaving>k__BackingField",
+      "Static": false,
+      "Offset": "0x29"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "<SecondsSinceLastSave>k__BackingField",
+      "Static": false,
+      "Offset": "0x2C"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "<PlayersSavePath>k__BackingField",
+      "Static": false,
+      "Offset": "0x30"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "<IndividualSavesContainerPath>k__BackingField",
+      "Static": false,
+      "Offset": "0x38"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "<SaveName>k__BackingField",
+      "Static": false,
+      "Offset": "0x40"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "Saveables",
+      "Static": false,
+      "Offset": "0x48"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "BaseSaveables",
+      "Static": false,
+      "Offset": "0x50"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "ApprovedBaseLevelPaths",
+      "Static": false,
+      "Offset": "0x58"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "CompletedSaveables",
+      "Static": false,
+      "Offset": "0x60"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "QueuedSaveRequests",
+      "Static": false,
+      "Offset": "0x68"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "WriteIssueDisplay",
+      "Static": false,
+      "Offset": "0x70"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "onSaveStart",
+      "Static": false,
+      "Offset": "0x78"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "onSaveComplete",
+      "Static": false,
+      "Offset": "0x80"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "saveFolderInitialized",
+      "Static": false,
+      "Offset": "0x88"
+    },
+    {
+      "Type": "ScheduleOne.Networking.Lobby",
+      "Name": "PlayerLimit",
+      "Static": true,
+      "Offset": "0x0"
+    },
+    {
+      "Type": "ScheduleOne.Networking.Lobby",
+      "Name": "JoinReadyMessage",
+      "Static": true,
+      "Offset": "0x0"
+    },
+    {
+      "Type": "ScheduleOne.Networking.Lobby",
+      "Name": "LoadTutorialMessage",
+      "Static": true,
+      "Offset": "0x0"
+    },
+    {
+      "Type": "ScheduleOne.Networking.Lobby",
+      "Name": "HostLoadingMessage",
+      "Static": true,
+      "Offset": "0x0"
+    },
+    {
+      "Type": "ScheduleOne.Networking.Lobby",
+      "Name": "<LobbyID>k__BackingField",
+      "Static": false,
+      "Offset": "0x28"
+    },
+    {
+      "Type": "ScheduleOne.Networking.Lobby",
+      "Name": "OnLobbyChange",
+      "Static": false,
+      "Offset": "0x30"
+    },
+    {
+      "Type": "ScheduleOne.Networking.Lobby",
+      "Name": "_lobbyService",
+      "Static": false,
+      "Offset": "0x38"
+    },
+    {
+      "Type": "ScheduleOne.PlayerScripts.PlayerManager",
+      "Name": "loader",
+      "Static": false,
+      "Offset": "0x28"
+    },
+    {
+      "Type": "ScheduleOne.PlayerScripts.PlayerManager",
+      "Name": "<LocalExtraFiles>k__BackingField",
+      "Static": false,
+      "Offset": "0x30"
+    },
+    {
+      "Type": "ScheduleOne.PlayerScripts.PlayerManager",
+      "Name": "<LocalExtraFolders>k__BackingField",
+      "Static": false,
+      "Offset": "0x38"
+    },
+    {
+      "Type": "ScheduleOne.PlayerScripts.PlayerManager",
+      "Name": "<HasChanged>k__BackingField",
+      "Static": false,
+      "Offset": "0x40"
+    },
+    {
+      "Type": "ScheduleOne.PlayerScripts.PlayerManager",
+      "Name": "<LoadOrder>k__BackingField",
+      "Static": false,
+      "Offset": "0x44"
+    },
+    {
+      "Type": "ScheduleOne.PlayerScripts.PlayerManager",
+      "Name": "PlayerRecoverySurface",
+      "Static": false,
+      "Offset": "0x48"
+    },
+    {
+      "Type": "ScheduleOne.PlayerScripts.PlayerManager",
+      "Name": "loadedPlayerData",
+      "Static": false,
+      "Offset": "0x50"
+    },
+    {
+      "Type": "ScheduleOne.PlayerScripts.PlayerManager",
+      "Name": "loadedPlayerDataPaths",
+      "Static": false,
+      "Offset": "0x58"
+    },
+    {
+      "Type": "ScheduleOne.PlayerScripts.PlayerManager",
+      "Name": "loadedPlayerFileNames",
+      "Static": false,
+      "Offset": "0x60"
+    },
+    {
+      "Type": "ScheduleOne.PlayerScripts.PlayerManager",
+      "Name": "_playersDataLoaded",
+      "Static": false,
+      "Offset": "0x68"
+    },
+    {
+      "Type": "ScheduleOne.DevUtilities.GameManager",
+      "Name": "IS_DEMO",
+      "Static": true,
+      "Offset": "0x0"
+    },
+    {
+      "Type": "ScheduleOne.DevUtilities.GameManager",
+      "Name": "IS_BETA",
+      "Static": true,
+      "Offset": "0x0"
+    },
+    {
+      "Type": "ScheduleOne.DevUtilities.GameManager",
+      "Name": "seed",
+      "Static": false,
+      "Offset": "0x120"
+    },
+    {
+      "Type": "ScheduleOne.DevUtilities.GameManager",
+      "Name": "OrganisationName",
+      "Static": false,
+      "Offset": "0x128"
+    },
+    {
+      "Type": "ScheduleOne.DevUtilities.GameManager",
+      "Name": "<OrganisationLogo>k__BackingField",
+      "Static": false,
+      "Offset": "0x130"
+    },
+    {
+      "Type": "ScheduleOne.DevUtilities.GameManager",
+      "Name": "Settings",
+      "Static": false,
+      "Offset": "0x138"
+    },
+    {
+      "Type": "ScheduleOne.DevUtilities.GameManager",
+      "Name": "SpawnPoint",
+      "Static": false,
+      "Offset": "0x140"
+    },
+    {
+      "Type": "ScheduleOne.DevUtilities.GameManager",
+      "Name": "NoHomeRespawnPoint",
+      "Static": false,
+      "Offset": "0x148"
+    },
+    {
+      "Type": "ScheduleOne.DevUtilities.GameManager",
+      "Name": "Temp",
+      "Static": false,
+      "Offset": "0x150"
+    },
+    {
+      "Type": "ScheduleOne.DevUtilities.GameManager",
+      "Name": "onSettingsLoaded",
+      "Static": false,
+      "Offset": "0x158"
+    },
+    {
+      "Type": "ScheduleOne.DevUtilities.GameManager",
+      "Name": "loader",
+      "Static": false,
+      "Offset": "0x160"
+    },
+    {
+      "Type": "ScheduleOne.DevUtilities.GameManager",
+      "Name": "<LocalExtraFiles>k__BackingField",
+      "Static": false,
+      "Offset": "0x168"
+    },
+    {
+      "Type": "ScheduleOne.DevUtilities.GameManager",
+      "Name": "<LocalExtraFolders>k__BackingField",
+      "Static": false,
+      "Offset": "0x170"
+    },
+    {
+      "Type": "ScheduleOne.DevUtilities.GameManager",
+      "Name": "<HasChanged>k__BackingField",
+      "Static": false,
+      "Offset": "0x178"
+    },
+    {
+      "Type": "ScheduleOne.DevUtilities.GameManager",
+      "Name": "<LoadOrder>k__BackingField",
+      "Static": false,
+      "Offset": "0x17C"
+    },
+    {
+      "Type": "ScheduleOne.DevUtilities.GameManager",
+      "Name": "NetworkInitialize___EarlyScheduleOne.DevUtilities.GameManagerAssembly-CSharp.dll_Excuted",
+      "Static": false,
+      "Offset": "0x180"
+    },
+    {
+      "Type": "ScheduleOne.DevUtilities.GameManager",
+      "Name": "NetworkInitialize__LateScheduleOne.DevUtilities.GameManagerAssembly-CSharp.dll_Excuted",
+      "Static": false,
+      "Offset": "0x181"
+    },
+    {
+      "Type": "ScheduleOne.UI.PauseMenu",
+      "Name": "<IsPaused>k__BackingField",
+      "Static": false,
+      "Offset": "0x28"
+    },
+    {
+      "Type": "ScheduleOne.UI.PauseMenu",
+      "Name": "Canvas",
+      "Static": false,
+      "Offset": "0x30"
+    },
+    {
+      "Type": "ScheduleOne.UI.PauseMenu",
+      "Name": "Container",
+      "Static": false,
+      "Offset": "0x38"
+    },
+    {
+      "Type": "ScheduleOne.UI.PauseMenu",
+      "Name": "Screen",
+      "Static": false,
+      "Offset": "0x40"
+    },
+    {
+      "Type": "ScheduleOne.UI.PauseMenu",
+      "Name": "State",
+      "Static": false,
+      "Offset": "0x48"
+    },
+    {
+      "Type": "ScheduleOne.UI.PauseMenu",
+      "Name": "TogglePauseAction",
+      "Static": false,
+      "Offset": "0x50"
+    },
+    {
+      "Type": "ScheduleOne.UI.PauseMenu",
+      "Name": "CartelNameLabel",
+      "Static": false,
+      "Offset": "0x58"
+    },
+    {
+      "Type": "ScheduleOne.UI.PauseMenu",
+      "Name": "onPause",
+      "Static": false,
+      "Offset": "0x60"
+    },
+    {
+      "Type": "ScheduleOne.UI.PauseMenu",
+      "Name": "onResume",
+      "Static": false,
+      "Offset": "0x68"
+    },
+    {
+      "Type": "ScheduleOne.UI.PauseMenu",
+      "Name": "_togglePausePressedThisFrame",
+      "Static": false,
+      "Offset": "0x70"
+    },
+    {
+      "Type": "ScheduleOne.UI.MainMenu.MainMenuController",
+      "Name": "State",
+      "Static": false,
+      "Offset": "0x20"
+    },
+    {
+      "Type": "UnityEngine.Application",
+      "Name": "lowMemory",
+      "Static": true,
+      "Offset": "0x0"
+    },
+    {
+      "Type": "UnityEngine.Application",
+      "Name": "memoryUsageChanged",
+      "Static": true,
+      "Offset": "0x8"
+    },
+    {
+      "Type": "UnityEngine.Application",
+      "Name": "s_LogCallbackHandler",
+      "Static": true,
+      "Offset": "0x10"
+    },
+    {
+      "Type": "UnityEngine.Application",
+      "Name": "s_LogCallbackHandlerThreaded",
+      "Static": true,
+      "Offset": "0x18"
+    },
+    {
+      "Type": "UnityEngine.Application",
+      "Name": "focusChanged",
+      "Static": true,
+      "Offset": "0x20"
+    },
+    {
+      "Type": "UnityEngine.Application",
+      "Name": "deepLinkActivated",
+      "Static": true,
+      "Offset": "0x28"
+    },
+    {
+      "Type": "UnityEngine.Application",
+      "Name": "wantsToQuit",
+      "Static": true,
+      "Offset": "0x30"
+    },
+    {
+      "Type": "UnityEngine.Application",
+      "Name": "quitting",
+      "Static": true,
+      "Offset": "0x38"
+    },
+    {
+      "Type": "UnityEngine.Application",
+      "Name": "unloading",
+      "Static": true,
+      "Offset": "0x40"
+    },
+    {
+      "Type": "UnityEngine.Application",
+      "Name": "s_currentCancellationTokenSource",
+      "Static": true,
+      "Offset": "0x48"
+    },
+    {
+      "Type": "UnityEngine.MonoBehaviour",
+      "Name": "m_CancellationTokenSource",
+      "Static": false,
+      "Offset": "0x18"
+    },
+    {
+      "Type": "UnityEngine.SceneManagement.SceneManager",
+      "Name": "s_AllowLoadScene",
+      "Static": true,
+      "Offset": "0x0"
+    },
+    {
+      "Type": "UnityEngine.SceneManagement.SceneManager",
+      "Name": "sceneLoaded",
+      "Static": true,
+      "Offset": "0x8"
+    },
+    {
+      "Type": "UnityEngine.SceneManagement.SceneManager",
+      "Name": "sceneUnloaded",
+      "Static": true,
+      "Offset": "0x10"
+    },
+    {
+      "Type": "UnityEngine.SceneManagement.SceneManager",
+      "Name": "activeSceneChanged",
+      "Static": true,
+      "Offset": "0x18"
+    }
+  ],
+  "MethodMap": [
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<<StartLoadErrorAutosubmit>g__Wait|77_0>d",
+      "Name": ".ctor",
+      "Token": "0x060017C4",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18052D2B0",
+      "Rva": "0x52D2B0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<<StartLoadErrorAutosubmit>g__Wait|77_0>d",
+      "Name": "System.IDisposable.Dispose",
+      "Token": "0x060017C5",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 5,
+      "Va": "0x18043FEC0",
+      "Rva": "0x43FEC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<<StartLoadErrorAutosubmit>g__Wait|77_0>d",
+      "Name": "MoveNext",
+      "Token": "0x060017C6",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 6,
+      "Va": "0x1805925D0",
+      "Rva": "0x5925D0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<<StartLoadErrorAutosubmit>g__Wait|77_0>d",
+      "Name": "System.Collections.Generic.IEnumerator<System.Object>.get_Current",
+      "Token": "0x060017C7",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 4,
+      "Va": "0x18043F260",
+      "Rva": "0x43F260",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<<StartLoadErrorAutosubmit>g__Wait|77_0>d",
+      "Name": "System.Collections.IEnumerator.Reset",
+      "Token": "0x060017C8",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 8,
+      "Va": "0x1805926B0",
+      "Rva": "0x5926B0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<<StartLoadErrorAutosubmit>g__Wait|77_0>d",
+      "Name": "System.Collections.IEnumerator.get_Current",
+      "Token": "0x060017C9",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 7,
+      "Va": "0x18043F260",
+      "Rva": "0x43F260",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c",
+      "Name": ".cctor",
+      "Token": "0x060017CA",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180593020",
+      "Rva": "0x593020",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c",
+      "Name": ".ctor",
+      "Token": "0x060017CB",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18041D580",
+      "Rva": "0x41D580",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c",
+      "Name": "<StartGame>b__74_6",
+      "Token": "0x060017CC",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180592960",
+      "Rva": "0x592960",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c",
+      "Name": "<StartGame>b__74_1",
+      "Token": "0x060017CD",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180592970",
+      "Rva": "0x592970",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c",
+      "Name": "<StartGame>b__74_2",
+      "Token": "0x060017CE",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180592A20",
+      "Rva": "0x592A20",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c",
+      "Name": "<StartGame>b__74_3",
+      "Token": "0x060017CF",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180592AA0",
+      "Rva": "0x592AA0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c",
+      "Name": "<StartGame>b__74_4",
+      "Token": "0x060017D0",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180592B50",
+      "Rva": "0x592B50",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c",
+      "Name": "<LoadTutorialAsClient>b__75_2",
+      "Token": "0x060017D1",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180592960",
+      "Rva": "0x592960",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c",
+      "Name": "<LoadTutorialAsClient>b__75_3",
+      "Token": "0x060017D2",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180592970",
+      "Rva": "0x592970",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c",
+      "Name": "<LoadTutorialAsClient>b__75_4",
+      "Token": "0x060017D3",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805929A0",
+      "Rva": "0x5929A0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c",
+      "Name": "<LoadAsClient>b__76_4",
+      "Token": "0x060017D4",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180592730",
+      "Rva": "0x592730",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c",
+      "Name": "<LoadAsClient>b__76_5",
+      "Token": "0x060017D5",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805927A0",
+      "Rva": "0x5927A0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c",
+      "Name": "<LoadAsClient>b__76_6",
+      "Token": "0x060017D6",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180592820",
+      "Rva": "0x592820",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c",
+      "Name": "<LoadAsClient>b__76_7",
+      "Token": "0x060017D7",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180592890",
+      "Rva": "0x592890",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass69_0",
+      "Name": ".ctor",
+      "Token": "0x060017D8",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18041D580",
+      "Rva": "0x41D580",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass69_0",
+      "Name": "<GetItemLoader>b__0",
+      "Token": "0x060017D9",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180592E50",
+      "Rva": "0x592E50",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass70_0",
+      "Name": ".ctor",
+      "Token": "0x060017DA",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18041D580",
+      "Rva": "0x41D580",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass70_0",
+      "Name": "<GetObjectLoader>b__0",
+      "Token": "0x060017DB",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180592E90",
+      "Rva": "0x592E90",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass71_0",
+      "Name": ".ctor",
+      "Token": "0x060017DC",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18041D580",
+      "Rva": "0x41D580",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass71_0",
+      "Name": "<GetLegacyNPCLoader>b__0",
+      "Token": "0x060017DD",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180592E90",
+      "Rva": "0x592E90",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass72_0",
+      "Name": ".ctor",
+      "Token": "0x060017DE",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18041D580",
+      "Rva": "0x41D580",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass72_0",
+      "Name": "<GetNPCLoader>b__0",
+      "Token": "0x060017DF",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180592E90",
+      "Rva": "0x592E90",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass74_0+<<StartGame>g__LoadRoutine|0>d",
+      "Name": ".ctor",
+      "Token": "0x060017E2",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18052D2B0",
+      "Rva": "0x52D2B0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass74_0+<<StartGame>g__LoadRoutine|0>d",
+      "Name": "System.IDisposable.Dispose",
+      "Token": "0x060017E3",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 5,
+      "Va": "0x18043FEC0",
+      "Rva": "0x43FEC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass74_0+<<StartGame>g__LoadRoutine|0>d",
+      "Name": "MoveNext",
+      "Token": "0x060017E4",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 6,
+      "Va": "0x180590A80",
+      "Rva": "0x590A80",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass74_0+<<StartGame>g__LoadRoutine|0>d",
+      "Name": "System.Collections.Generic.IEnumerator<System.Object>.get_Current",
+      "Token": "0x060017E5",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 4,
+      "Va": "0x18043F260",
+      "Rva": "0x43F260",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass74_0+<<StartGame>g__LoadRoutine|0>d",
+      "Name": "System.Collections.IEnumerator.Reset",
+      "Token": "0x060017E6",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 8,
+      "Va": "0x180592590",
+      "Rva": "0x592590",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass74_0+<<StartGame>g__LoadRoutine|0>d",
+      "Name": "System.Collections.IEnumerator.get_Current",
+      "Token": "0x060017E7",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 7,
+      "Va": "0x18043F260",
+      "Rva": "0x43F260",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass74_0",
+      "Name": ".ctor",
+      "Token": "0x060017E0",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18041D580",
+      "Rva": "0x41D580",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass74_0",
+      "Name": "<StartGame>g__LoadRoutine|0",
+      "Token": "0x060017E1",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180592ED0",
+      "Rva": "0x592ED0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass74_1",
+      "Name": ".ctor",
+      "Token": "0x060017E8",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18041D580",
+      "Rva": "0x41D580",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass74_1",
+      "Name": "<StartGame>g__Done|5",
+      "Token": "0x060017E9",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805B3290",
+      "Rva": "0x5B3290",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass75_0+<<LoadTutorialAsClient>g__LoadRoutine|0>d",
+      "Name": ".ctor",
+      "Token": "0x060017ED",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18052D2B0",
+      "Rva": "0x52D2B0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass75_0+<<LoadTutorialAsClient>g__LoadRoutine|0>d",
+      "Name": "System.IDisposable.Dispose",
+      "Token": "0x060017EE",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 5,
+      "Va": "0x18043FEC0",
+      "Rva": "0x43FEC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass75_0+<<LoadTutorialAsClient>g__LoadRoutine|0>d",
+      "Name": "MoveNext",
+      "Token": "0x060017EF",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 6,
+      "Va": "0x1805AFAB0",
+      "Rva": "0x5AFAB0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass75_0+<<LoadTutorialAsClient>g__LoadRoutine|0>d",
+      "Name": "System.Collections.Generic.IEnumerator<System.Object>.get_Current",
+      "Token": "0x060017F0",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 4,
+      "Va": "0x18043F260",
+      "Rva": "0x43F260",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass75_0+<<LoadTutorialAsClient>g__LoadRoutine|0>d",
+      "Name": "System.Collections.IEnumerator.Reset",
+      "Token": "0x060017F1",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 8,
+      "Va": "0x1805B0BE0",
+      "Rva": "0x5B0BE0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass75_0+<<LoadTutorialAsClient>g__LoadRoutine|0>d",
+      "Name": "System.Collections.IEnumerator.get_Current",
+      "Token": "0x060017F2",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 7,
+      "Va": "0x18043F260",
+      "Rva": "0x43F260",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass75_0",
+      "Name": ".ctor",
+      "Token": "0x060017EA",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18041D580",
+      "Rva": "0x41D580",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass75_0",
+      "Name": "<LoadTutorialAsClient>g__LoadRoutine|0",
+      "Token": "0x060017EB",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805B35C0",
+      "Rva": "0x5B35C0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass75_0",
+      "Name": "<LoadTutorialAsClient>b__1",
+      "Token": "0x060017EC",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805B3520",
+      "Rva": "0x5B3520",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass76_0+<<LoadAsClient>g__LoadRoutine|0>d",
+      "Name": ".ctor",
+      "Token": "0x060017F7",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18052D2B0",
+      "Rva": "0x52D2B0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass76_0+<<LoadAsClient>g__LoadRoutine|0>d",
+      "Name": "System.IDisposable.Dispose",
+      "Token": "0x060017F8",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 5,
+      "Va": "0x18043FEC0",
+      "Rva": "0x43FEC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass76_0+<<LoadAsClient>g__LoadRoutine|0>d",
+      "Name": "MoveNext",
+      "Token": "0x060017F9",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 6,
+      "Va": "0x1805AEAE0",
+      "Rva": "0x5AEAE0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass76_0+<<LoadAsClient>g__LoadRoutine|0>d",
+      "Name": "System.Collections.Generic.IEnumerator<System.Object>.get_Current",
+      "Token": "0x060017FA",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 4,
+      "Va": "0x18043F260",
+      "Rva": "0x43F260",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass76_0+<<LoadAsClient>g__LoadRoutine|0>d",
+      "Name": "System.Collections.IEnumerator.Reset",
+      "Token": "0x060017FB",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 8,
+      "Va": "0x1805AFA70",
+      "Rva": "0x5AFA70",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass76_0+<<LoadAsClient>g__LoadRoutine|0>d",
+      "Name": "System.Collections.IEnumerator.get_Current",
+      "Token": "0x060017FC",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 7,
+      "Va": "0x18043F260",
+      "Rva": "0x43F260",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass76_0",
+      "Name": ".ctor",
+      "Token": "0x060017F3",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18041D580",
+      "Rva": "0x41D580",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass76_0",
+      "Name": "<LoadAsClient>g__LoadRoutine|0",
+      "Token": "0x060017F4",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805B38A0",
+      "Rva": "0x5B38A0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass76_0",
+      "Name": "<LoadAsClient>b__1",
+      "Token": "0x060017F5",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805B3630",
+      "Rva": "0x5B3630",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass76_0",
+      "Name": "<LoadAsClient>g__AbortLoadAsClient|9",
+      "Token": "0x060017F6",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805B36D0",
+      "Rva": "0x5B36D0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass76_1",
+      "Name": ".ctor",
+      "Token": "0x060017FD",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18041D580",
+      "Rva": "0x41D580",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass76_1",
+      "Name": "<LoadAsClient>g__OnLocalConnectionStateChange|2",
+      "Token": "0x060017FE",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805B3920",
+      "Rva": "0x5B3920",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass76_1",
+      "Name": "<LoadAsClient>b__3",
+      "Token": "0x060017FF",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805B3910",
+      "Rva": "0x5B3910",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass76_2",
+      "Name": ".ctor",
+      "Token": "0x06001800",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18041D580",
+      "Rva": "0x41D580",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass76_2",
+      "Name": "<LoadAsClient>g__OnAuthResult|10",
+      "Token": "0x06001801",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805B3930",
+      "Rva": "0x5B3930",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass81_0+<<ExitToMenu>g__Load|0>d",
+      "Name": ".ctor",
+      "Token": "0x06001804",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18052D2B0",
+      "Rva": "0x52D2B0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass81_0+<<ExitToMenu>g__Load|0>d",
+      "Name": "System.IDisposable.Dispose",
+      "Token": "0x06001805",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 5,
+      "Va": "0x18043FEC0",
+      "Rva": "0x43FEC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass81_0+<<ExitToMenu>g__Load|0>d",
+      "Name": "MoveNext",
+      "Token": "0x06001806",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 6,
+      "Va": "0x1805AE1A0",
+      "Rva": "0x5AE1A0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass81_0+<<ExitToMenu>g__Load|0>d",
+      "Name": "System.Collections.Generic.IEnumerator<System.Object>.get_Current",
+      "Token": "0x06001807",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 4,
+      "Va": "0x18043F260",
+      "Rva": "0x43F260",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass81_0+<<ExitToMenu>g__Load|0>d",
+      "Name": "System.Collections.IEnumerator.Reset",
+      "Token": "0x06001808",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 8,
+      "Va": "0x1805AEAA0",
+      "Rva": "0x5AEAA0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass81_0+<<ExitToMenu>g__Load|0>d",
+      "Name": "System.Collections.IEnumerator.get_Current",
+      "Token": "0x06001809",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 7,
+      "Va": "0x18043F260",
+      "Rva": "0x43F260",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass81_0",
+      "Name": ".ctor",
+      "Token": "0x06001802",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18041D580",
+      "Rva": "0x41D580",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass81_0",
+      "Name": "<ExitToMenu>g__Load|0",
+      "Token": "0x06001803",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805B39D0",
+      "Rva": "0x5B39D0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass81_1",
+      "Name": ".ctor",
+      "Token": "0x0600180A",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18041D580",
+      "Rva": "0x41D580",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass81_1",
+      "Name": "<ExitToMenu>b__1",
+      "Token": "0x0600180B",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805B3A40",
+      "Rva": "0x5B3A40",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager",
+      "Name": "get_DefaultTutorialSaveFolder",
+      "Token": "0x06001793",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180589E80",
+      "Rva": "0x589E80",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager",
+      "Name": "get_IsInGameScene",
+      "Token": "0x06001794",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180589F10",
+      "Rva": "0x589F10",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager",
+      "Name": "get_IsGameLoaded",
+      "Token": "0x06001795",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18045FBC0",
+      "Rva": "0x45FBC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager",
+      "Name": "set_IsGameLoaded",
+      "Token": "0x06001796",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18045FBD0",
+      "Rva": "0x45FBD0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager",
+      "Name": "get_IsLoading",
+      "Token": "0x06001797",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180589FE0",
+      "Rva": "0x589FE0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager",
+      "Name": "set_IsLoading",
+      "Token": "0x06001798",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18058A0F0",
+      "Rva": "0x58A0F0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager",
+      "Name": "get_TimeSinceGameLoaded",
+      "Token": "0x06001799",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180463B00",
+      "Rva": "0x463B00",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager",
+      "Name": "set_TimeSinceGameLoaded",
+      "Token": "0x0600179A",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18058A110",
+      "Rva": "0x58A110",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager",
+      "Name": "get_DebugMode",
+      "Token": "0x0600179B",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180465080",
+      "Rva": "0x465080",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager",
+      "Name": "set_DebugMode",
+      "Token": "0x0600179C",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18049A650",
+      "Rva": "0x49A650",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager",
+      "Name": "get_LoadStatus",
+      "Token": "0x0600179D",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180499500",
+      "Rva": "0x499500",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager",
+      "Name": "set_LoadStatus",
+      "Token": "0x0600179E",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1804ADFB0",
+      "Rva": "0x4ADFB0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager",
+      "Name": "get_LoadedGameFolderPath",
+      "Token": "0x0600179F",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180421DE0",
+      "Rva": "0x421DE0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager",
+      "Name": "set_LoadedGameFolderPath",
+      "Token": "0x060017A0",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180421E20",
+      "Rva": "0x421E20",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager",
+      "Name": "get_ActiveSaveInfo",
+      "Token": "0x060017A1",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1804610C0",
+      "Rva": "0x4610C0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager",
+      "Name": "set_ActiveSaveInfo",
+      "Token": "0x060017A2",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18049EF90",
+      "Rva": "0x49EF90",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager",
+      "Name": "get_StoredSaveInfo",
+      "Token": "0x060017A3",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18048DD60",
+      "Rva": "0x48DD60",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager",
+      "Name": "set_StoredSaveInfo",
+      "Token": "0x060017A4",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18058A100",
+      "Rva": "0x58A100",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager",
+      "Name": "add_onLoadConfigurations",
+      "Token": "0x060017A5",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180589D80",
+      "Rva": "0x589D80",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager",
+      "Name": "remove_onLoadConfigurations",
+      "Token": "0x060017A6",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180589FF0",
+      "Rva": "0x589FF0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager",
+      "Name": "Awake",
+      "Token": "0x060017A7",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 5,
+      "Va": "0x180585E20",
+      "Rva": "0x585E20",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager",
+      "Name": "Start",
+      "Token": "0x060017A8",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 4,
+      "Va": "0x1805885E0",
+      "Rva": "0x5885E0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager",
+      "Name": "Bananas",
+      "Token": "0x060017A9",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180585E60",
+      "Rva": "0x585E60",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager",
+      "Name": "InitializeItemLoaders",
+      "Token": "0x060017AA",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180587340",
+      "Rva": "0x587340",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager",
+      "Name": "InitializeObjectLoaders",
+      "Token": "0x060017AB",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805876C0",
+      "Rva": "0x5876C0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager",
+      "Name": "InitializeNPCLoaders",
+      "Token": "0x060017AC",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180587500",
+      "Rva": "0x587500",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager",
+      "Name": "Update",
+      "Token": "0x060017AD",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180589760",
+      "Rva": "0x589760",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager",
+      "Name": "QueueLoadRequest",
+      "Token": "0x060017AE",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180587C80",
+      "Rva": "0x587C80",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager",
+      "Name": "DequeueLoadRequest",
+      "Token": "0x060017AF",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180586890",
+      "Rva": "0x586890",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager",
+      "Name": "GetItemLoader",
+      "Token": "0x060017B0",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180586C90",
+      "Rva": "0x586C90",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager",
+      "Name": "GetObjectLoader",
+      "Token": "0x060017B1",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180587200",
+      "Rva": "0x587200",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager",
+      "Name": "GetLegacyNPCLoader",
+      "Token": "0x060017B2",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180586DD0",
+      "Rva": "0x586DD0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager",
+      "Name": "GetNPCLoader",
+      "Token": "0x060017B3",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805870C0",
+      "Rva": "0x5870C0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager",
+      "Name": "GetLoadStatusText",
+      "Token": "0x060017B4",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180586F10",
+      "Rva": "0x586F10",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager",
+      "Name": "StartGame",
+      "Token": "0x060017B5",
+      "ParameterCount": 3,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805881C0",
+      "Rva": "0x5881C0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager",
+      "Name": "LoadTutorialAsClient",
+      "Token": "0x060017B6",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180587B90",
+      "Rva": "0x587B90",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager",
+      "Name": "LoadAsClient",
+      "Token": "0x060017B7",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805879F0",
+      "Rva": "0x5879F0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager",
+      "Name": "StartLoadErrorAutosubmit",
+      "Token": "0x060017B8",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180588560",
+      "Rva": "0x588560",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager",
+      "Name": "SetWaitingForHostLoad",
+      "Token": "0x060017B9",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805881B0",
+      "Rva": "0x5881B0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager",
+      "Name": "LoadLastSave",
+      "Token": "0x060017BA",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180587B00",
+      "Rva": "0x587B00",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager",
+      "Name": "CleanUp",
+      "Token": "0x060017BB",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180586250",
+      "Rva": "0x586250",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager",
+      "Name": "ExitToMenu",
+      "Token": "0x060017BC",
+      "ParameterCount": 3,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805868F0",
+      "Rva": "0x5868F0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager",
+      "Name": "TryLoadSaveInfo",
+      "Token": "0x060017BD",
+      "ParameterCount": 4,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180588BF0",
+      "Rva": "0x588BF0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager",
+      "Name": "RefreshSaveInfo",
+      "Token": "0x060017BE",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180587D30",
+      "Rva": "0x587D30",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager",
+      "Name": "AddStaggeredReplicator",
+      "Token": "0x060017BF",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180585CF0",
+      "Rva": "0x585CF0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager",
+      "Name": ".ctor",
+      "Token": "0x060017C0",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180589BB0",
+      "Rva": "0x589BB0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager",
+      "Name": ".cctor",
+      "Token": "0x060017C1",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180589A50",
+      "Rva": "0x589A50",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager",
+      "Name": "<LoadAsClient>g__PlayerSpawned|76_8",
+      "Token": "0x060017C2",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180589580",
+      "Rva": "0x589580",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager",
+      "Name": "<StartLoadErrorAutosubmit>g__Wait|77_0",
+      "Token": "0x060017C3",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805896F0",
+      "Rva": "0x5896F0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager+<>c__DisplayClass52_0+<<Save>g__SaveRoutine|0>d",
+      "Name": ".ctor",
+      "Token": "0x0600183A",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18052D2B0",
+      "Rva": "0x52D2B0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager+<>c__DisplayClass52_0+<<Save>g__SaveRoutine|0>d",
+      "Name": "System.IDisposable.Dispose",
+      "Token": "0x0600183B",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 5,
+      "Va": "0x18043FEC0",
+      "Rva": "0x43FEC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager+<>c__DisplayClass52_0+<<Save>g__SaveRoutine|0>d",
+      "Name": "MoveNext",
+      "Token": "0x0600183C",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 6,
+      "Va": "0x1805B0C20",
+      "Rva": "0x5B0C20",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager+<>c__DisplayClass52_0+<<Save>g__SaveRoutine|0>d",
+      "Name": "System.Collections.Generic.IEnumerator<System.Object>.get_Current",
+      "Token": "0x0600183D",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 4,
+      "Va": "0x18043F260",
+      "Rva": "0x43F260",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager+<>c__DisplayClass52_0+<<Save>g__SaveRoutine|0>d",
+      "Name": "System.Collections.IEnumerator.Reset",
+      "Token": "0x0600183E",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 8,
+      "Va": "0x1805B14E0",
+      "Rva": "0x5B14E0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager+<>c__DisplayClass52_0+<<Save>g__SaveRoutine|0>d",
+      "Name": "System.Collections.IEnumerator.get_Current",
+      "Token": "0x0600183F",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 7,
+      "Va": "0x18043F260",
+      "Rva": "0x43F260",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager+<>c__DisplayClass52_0",
+      "Name": ".ctor",
+      "Token": "0x06001838",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18041D580",
+      "Rva": "0x41D580",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager+<>c__DisplayClass52_0",
+      "Name": "<Save>g__SaveRoutine|0",
+      "Token": "0x06001839",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805B3220",
+      "Rva": "0x5B3220",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "ReportSaveError",
+      "Token": "0x06001815",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805AA710",
+      "Rva": "0x5AA710",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "get_AccessPermissionIssueDetected",
+      "Token": "0x06001816",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18045FBC0",
+      "Rva": "0x45FBC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "set_AccessPermissionIssueDetected",
+      "Token": "0x06001817",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18045FBD0",
+      "Rva": "0x45FBD0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "get_IsSaving",
+      "Token": "0x06001818",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180589FE0",
+      "Rva": "0x589FE0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "set_IsSaving",
+      "Token": "0x06001819",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18058A0F0",
+      "Rva": "0x58A0F0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "get_SecondsSinceLastSave",
+      "Token": "0x0600181A",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180463B00",
+      "Rva": "0x463B00",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "set_SecondsSinceLastSave",
+      "Token": "0x0600181B",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18058A110",
+      "Rva": "0x58A110",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "get_PlayersSavePath",
+      "Token": "0x0600181C",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180421DD0",
+      "Rva": "0x421DD0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "set_PlayersSavePath",
+      "Token": "0x0600181D",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180421E10",
+      "Rva": "0x421E10",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "get_IndividualSavesContainerPath",
+      "Token": "0x0600181E",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180421DE0",
+      "Rva": "0x421DE0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "set_IndividualSavesContainerPath",
+      "Token": "0x0600181F",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180421E20",
+      "Rva": "0x421E20",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "get_BackupFolderPath",
+      "Token": "0x06001820",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805AB0E0",
+      "Rva": "0x5AB0E0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "get_SaveName",
+      "Token": "0x06001821",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1804610C0",
+      "Rva": "0x4610C0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "set_SaveName",
+      "Token": "0x06001822",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18049EF90",
+      "Rva": "0x49EF90",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "Awake",
+      "Token": "0x06001823",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 5,
+      "Va": "0x1805A8F70",
+      "Rva": "0x5A8F70",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "Start",
+      "Token": "0x06001824",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 4,
+      "Va": "0x1805AACB0",
+      "Rva": "0x5AACB0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "CheckSaveFolderInitialized",
+      "Token": "0x06001825",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805A9230",
+      "Rva": "0x5A9230",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "HasWritePermissionOnDir",
+      "Token": "0x06001826",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805AA3A0",
+      "Rva": "0x5AA3A0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "Update",
+      "Token": "0x06001827",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805AAE30",
+      "Rva": "0x5AAE30",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "Save",
+      "Token": "0x06001828",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805AA800",
+      "Rva": "0x5AA800",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "Save",
+      "Token": "0x06001829",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805AA890",
+      "Rva": "0x5AA890",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "ClearBaseLevelOutdatedSaves",
+      "Token": "0x0600182A",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805A9580",
+      "Rva": "0x5A9580",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "CompleteSaveable",
+      "Token": "0x0600182B",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805A9AA0",
+      "Rva": "0x5A9AA0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "ClearCompletedSaveable",
+      "Token": "0x0600182C",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805A9A40",
+      "Rva": "0x5A9A40",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "CreateSaveBackup",
+      "Token": "0x0600182D",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805A9B70",
+      "Rva": "0x5A9B70",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "RegisterSaveable",
+      "Token": "0x0600182E",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805AA5C0",
+      "Rva": "0x5AA5C0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "QueueSaveRequest",
+      "Token": "0x0600182F",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805AA510",
+      "Rva": "0x5AA510",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "DequeueSaveRequest",
+      "Token": "0x06001830",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805A9FA0",
+      "Rva": "0x5A9FA0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "StripExtensions",
+      "Token": "0x06001831",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805AADC0",
+      "Rva": "0x5AADC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "MakeFileSafe",
+      "Token": "0x06001832",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805AA460",
+      "Rva": "0x5AA460",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "GetVersionNumber",
+      "Token": "0x06001833",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805AA1E0",
+      "Rva": "0x5AA1E0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "Clean",
+      "Token": "0x06001834",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805A94E0",
+      "Rva": "0x5A94E0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "DisablePlayTutorial",
+      "Token": "0x06001835",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805AA000",
+      "Rva": "0x5AA000",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "SanitizeFileName",
+      "Token": "0x06001836",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805AA750",
+      "Rva": "0x5AA750",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": ".ctor",
+      "Token": "0x06001837",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805AAEE0",
+      "Rva": "0x5AAEE0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Networking.Lobby",
+      "Name": "get_IsHost",
+      "Token": "0x06001AC6",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805C1490",
+      "Rva": "0x5C1490",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Networking.Lobby",
+      "Name": "get_LobbyID",
+      "Token": "0x06001AC7",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180421DF0",
+      "Rva": "0x421DF0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Networking.Lobby",
+      "Name": "set_LobbyID",
+      "Token": "0x06001AC8",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805C1620",
+      "Rva": "0x5C1620",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Networking.Lobby",
+      "Name": "get_IsInLobby",
+      "Token": "0x06001AC9",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805C14E0",
+      "Rva": "0x5C14E0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Networking.Lobby",
+      "Name": "get_PlayerCount",
+      "Token": "0x06001ACA",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805C1530",
+      "Rva": "0x5C1530",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Networking.Lobby",
+      "Name": "add_OnLobbyChange",
+      "Token": "0x06001ACB",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805C13F0",
+      "Rva": "0x5C13F0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Networking.Lobby",
+      "Name": "remove_OnLobbyChange",
+      "Token": "0x06001ACC",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805C1580",
+      "Rva": "0x5C1580",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Networking.Lobby",
+      "Name": "Awake",
+      "Token": "0x06001ACD",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 5,
+      "Va": "0x1805C0560",
+      "Rva": "0x5C0560",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Networking.Lobby",
+      "Name": "Start",
+      "Token": "0x06001ACE",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 4,
+      "Va": "0x1805C0D70",
+      "Rva": "0x5C0D70",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Networking.Lobby",
+      "Name": "CreateLobbyService",
+      "Token": "0x06001ACF",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805C0690",
+      "Rva": "0x5C0690",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Networking.Lobby",
+      "Name": "TryOpenInviteInterface",
+      "Token": "0x06001AD0",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805C1220",
+      "Rva": "0x5C1220",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Networking.Lobby",
+      "Name": "CreateLobby",
+      "Token": "0x06001AD1",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805C07F0",
+      "Rva": "0x5C07F0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Networking.Lobby",
+      "Name": "LeaveLobby",
+      "Token": "0x06001AD2",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805C0BF0",
+      "Rva": "0x5C0BF0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Networking.Lobby",
+      "Name": "GetLaunchLobby",
+      "Token": "0x06001AD3",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805C08A0",
+      "Rva": "0x5C08A0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Networking.Lobby",
+      "Name": "GetLobbyMemberIDs",
+      "Token": "0x06001AD4",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805C0970",
+      "Rva": "0x5C0970",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Networking.Lobby",
+      "Name": "SendLobbyMessage",
+      "Token": "0x06001AD5",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805C0C40",
+      "Rva": "0x5C0C40",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Networking.Lobby",
+      "Name": "SetLobbyData",
+      "Token": "0x06001AD6",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805C0CA0",
+      "Rva": "0x5C0CA0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Networking.Lobby",
+      "Name": "IsSessionReadyForClient",
+      "Token": "0x06001AD7",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805C0AF0",
+      "Rva": "0x5C0AF0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Networking.Lobby",
+      "Name": "GetSessionConnectionIdentifier",
+      "Token": "0x06001AD8",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805C0A30",
+      "Rva": "0x5C0A30",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Networking.Lobby",
+      "Name": ".ctor",
+      "Token": "0x06001AD9",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805C13B0",
+      "Rva": "0x5C13B0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Networking.Lobby",
+      "Name": "<Start>b__19_0",
+      "Token": "0x06001ADA",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805C1390",
+      "Rva": "0x5C1390",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.PlayerScripts.PlayerManager",
+      "Name": "get_SaveFolderName",
+      "Token": "0x06002506",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 8,
+      "Va": "0x180678AB0",
+      "Rva": "0x678AB0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.PlayerScripts.PlayerManager",
+      "Name": "get_SaveFileName",
+      "Token": "0x06002507",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 9,
+      "Va": "0x180678A80",
+      "Rva": "0x678A80",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.PlayerScripts.PlayerManager",
+      "Name": "get_Loader",
+      "Token": "0x06002508",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 10,
+      "Va": "0x180421DF0",
+      "Rva": "0x421DF0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.PlayerScripts.PlayerManager",
+      "Name": "get_ShouldSaveUnderFolder",
+      "Token": "0x06002509",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 11,
+      "Va": "0x1804574D0",
+      "Rva": "0x4574D0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.PlayerScripts.PlayerManager",
+      "Name": "get_LocalExtraFiles",
+      "Token": "0x0600250A",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 12,
+      "Va": "0x180421DD0",
+      "Rva": "0x421DD0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.PlayerScripts.PlayerManager",
+      "Name": "set_LocalExtraFiles",
+      "Token": "0x0600250B",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 13,
+      "Va": "0x180421E10",
+      "Rva": "0x421E10",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.PlayerScripts.PlayerManager",
+      "Name": "get_LocalExtraFolders",
+      "Token": "0x0600250C",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 14,
+      "Va": "0x180421DE0",
+      "Rva": "0x421DE0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.PlayerScripts.PlayerManager",
+      "Name": "set_LocalExtraFolders",
+      "Token": "0x0600250D",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 15,
+      "Va": "0x180421E20",
+      "Rva": "0x421E20",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.PlayerScripts.PlayerManager",
+      "Name": "get_HasChanged",
+      "Token": "0x0600250E",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 16,
+      "Va": "0x180465110",
+      "Rva": "0x465110",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.PlayerScripts.PlayerManager",
+      "Name": "set_HasChanged",
+      "Token": "0x0600250F",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 17,
+      "Va": "0x180465190",
+      "Rva": "0x465190",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.PlayerScripts.PlayerManager",
+      "Name": "get_LoadOrder",
+      "Token": "0x06002510",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 7,
+      "Va": "0x18054BDC0",
+      "Rva": "0x54BDC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.PlayerScripts.PlayerManager",
+      "Name": "get__playerList",
+      "Token": "0x06002511",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180678AE0",
+      "Rva": "0x678AE0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.PlayerScripts.PlayerManager",
+      "Name": "Awake",
+      "Token": "0x06002512",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 5,
+      "Va": "0x180676030",
+      "Rva": "0x676030",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.PlayerScripts.PlayerManager",
+      "Name": "InitializeSaveable",
+      "Token": "0x06002513",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 31,
+      "Va": "0x180676EB0",
+      "Rva": "0x676EB0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.PlayerScripts.PlayerManager",
+      "Name": "GetSaveString",
+      "Token": "0x06002514",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 32,
+      "Va": "0x180676E70",
+      "Rva": "0x676E70",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.PlayerScripts.PlayerManager",
+      "Name": "WriteData",
+      "Token": "0x06002515",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 33,
+      "Va": "0x180678390",
+      "Rva": "0x678390",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.PlayerScripts.PlayerManager",
+      "Name": "SavePlayer",
+      "Token": "0x06002516",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180676F40",
+      "Rva": "0x676F40",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.PlayerScripts.PlayerManager",
+      "Name": "StorePlayerData",
+      "Token": "0x06002517",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180677480",
+      "Rva": "0x677480",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.PlayerScripts.PlayerManager",
+      "Name": "SetAllPlayerDatasLoaded",
+      "Token": "0x06002518",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1806773D0",
+      "Rva": "0x6773D0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.PlayerScripts.PlayerManager",
+      "Name": "TryGetPlayerData",
+      "Token": "0x06002519",
+      "ParameterCount": 4,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180677660",
+      "Rva": "0x677660",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.PlayerScripts.PlayerManager",
+      "Name": "TryGetPlayerData",
+      "Token": "0x0600251A",
+      "ParameterCount": 3,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180677840",
+      "Rva": "0x677840",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.PlayerScripts.PlayerManager",
+      "Name": "GetPlayer",
+      "Token": "0x0600251B",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180676B00",
+      "Rva": "0x676B00",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.PlayerScripts.PlayerManager",
+      "Name": "GetRandomPlayer",
+      "Token": "0x0600251C",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180676C60",
+      "Rva": "0x676C60",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.PlayerScripts.PlayerManager",
+      "Name": "GetPlayer",
+      "Token": "0x0600251D",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1806769E0",
+      "Rva": "0x6769E0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.PlayerScripts.PlayerManager",
+      "Name": "GetPlayerByName",
+      "Token": "0x0600251E",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1806768C0",
+      "Rva": "0x6768C0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.PlayerScripts.PlayerManager",
+      "Name": "GetClosestPlayer",
+      "Token": "0x0600251F",
+      "ParameterCount": 3,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180676320",
+      "Rva": "0x676320",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.PlayerScripts.PlayerManager",
+      "Name": "GetClosestPlayer",
+      "Token": "0x06002520",
+      "ParameterCount": 3,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1806765E0",
+      "Rva": "0x6765E0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.PlayerScripts.PlayerManager",
+      "Name": "GetClosestPlayerSqr",
+      "Token": "0x06002521",
+      "ParameterCount": 3,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180676080",
+      "Rva": "0x676080",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.PlayerScripts.PlayerManager",
+      "Name": "AreAllPlayersReadyToSleep",
+      "Token": "0x06002522",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180675E50",
+      "Rva": "0x675E50",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.PlayerScripts.PlayerManager",
+      "Name": ".ctor",
+      "Token": "0x06002523",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1806788F0",
+      "Rva": "0x6788F0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.DevUtilities.GameManager",
+      "Name": "get_IS_TUTORIAL",
+      "Token": "0x06003049",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180713230",
+      "Rva": "0x713230",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.DevUtilities.GameManager",
+      "Name": "get_Seed",
+      "Token": "0x0600304A",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180713370",
+      "Rva": "0x713370",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.DevUtilities.GameManager",
+      "Name": "get_OrganisationLogo",
+      "Token": "0x0600304B",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18054E840",
+      "Rva": "0x54E840",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.DevUtilities.GameManager",
+      "Name": "set_OrganisationLogo",
+      "Token": "0x0600304C",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18054E850",
+      "Rva": "0x54E850",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.DevUtilities.GameManager",
+      "Name": "get_IsTutorial",
+      "Token": "0x0600304D",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1807132A0",
+      "Rva": "0x7132A0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.DevUtilities.GameManager",
+      "Name": "get_SaveFolderName",
+      "Token": "0x0600304E",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 26,
+      "Va": "0x180713340",
+      "Rva": "0x713340",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.DevUtilities.GameManager",
+      "Name": "get_SaveFileName",
+      "Token": "0x0600304F",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 27,
+      "Va": "0x180713310",
+      "Rva": "0x713310",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.DevUtilities.GameManager",
+      "Name": "get_Loader",
+      "Token": "0x06003050",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 28,
+      "Va": "0x1805E73C0",
+      "Rva": "0x5E73C0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.DevUtilities.GameManager",
+      "Name": "get_ShouldSaveUnderFolder",
+      "Token": "0x06003051",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 29,
+      "Va": "0x18045FA60",
+      "Rva": "0x45FA60",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.DevUtilities.GameManager",
+      "Name": "get_LocalExtraFiles",
+      "Token": "0x06003052",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 30,
+      "Va": "0x1805E73D0",
+      "Rva": "0x5E73D0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.DevUtilities.GameManager",
+      "Name": "set_LocalExtraFiles",
+      "Token": "0x06003053",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 31,
+      "Va": "0x1805E7500",
+      "Rva": "0x5E7500",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.DevUtilities.GameManager",
+      "Name": "get_LocalExtraFolders",
+      "Token": "0x06003054",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 32,
+      "Va": "0x180561770",
+      "Rva": "0x561770",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.DevUtilities.GameManager",
+      "Name": "set_LocalExtraFolders",
+      "Token": "0x06003055",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 33,
+      "Va": "0x1805E7520",
+      "Rva": "0x5E7520",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.DevUtilities.GameManager",
+      "Name": "get_HasChanged",
+      "Token": "0x06003056",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 34,
+      "Va": "0x1805E7390",
+      "Rva": "0x5E7390",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.DevUtilities.GameManager",
+      "Name": "set_HasChanged",
+      "Token": "0x06003057",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 35,
+      "Va": "0x1805E74E0",
+      "Rva": "0x5E74E0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.DevUtilities.GameManager",
+      "Name": "get_LoadOrder",
+      "Token": "0x06003058",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 25,
+      "Va": "0x1805E73B0",
+      "Rva": "0x5E73B0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.DevUtilities.GameManager",
+      "Name": "Awake",
+      "Token": "0x06003059",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 20,
+      "Va": "0x180712310",
+      "Rva": "0x712310",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.DevUtilities.GameManager",
+      "Name": "OnSpawnServer",
+      "Token": "0x0600305A",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 9,
+      "Va": "0x180712AC0",
+      "Rva": "0x712AC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.DevUtilities.GameManager",
+      "Name": "SetGameData",
+      "Token": "0x0600305B",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180712E40",
+      "Rva": "0x712E40",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.DevUtilities.GameManager",
+      "Name": "InitializeSaveable",
+      "Token": "0x0600305C",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 49,
+      "Va": "0x180712710",
+      "Rva": "0x712710",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.DevUtilities.GameManager",
+      "Name": "GetSaveString",
+      "Token": "0x0600305D",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 50,
+      "Va": "0x180712680",
+      "Rva": "0x712680",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.DevUtilities.GameManager",
+      "Name": "Load",
+      "Token": "0x0600305E",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1807127A0",
+      "Rva": "0x7127A0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.DevUtilities.GameManager",
+      "Name": "EndTutorial",
+      "Token": "0x0600305F",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180712390",
+      "Rva": "0x712390",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.DevUtilities.GameManager",
+      "Name": ".ctor",
+      "Token": "0x06003060",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180713000",
+      "Rva": "0x713000",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.DevUtilities.GameManager",
+      "Name": "NetworkInitialize___Early",
+      "Token": "0x06003061",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 22,
+      "Va": "0x180712870",
+      "Rva": "0x712870",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.DevUtilities.GameManager",
+      "Name": "NetworkInitialize__Late",
+      "Token": "0x06003062",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 23,
+      "Va": "0x180712820",
+      "Rva": "0x712820",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.DevUtilities.GameManager",
+      "Name": "NetworkInitializeIfDisabled",
+      "Token": "0x06003063",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 14,
+      "Va": "0x18051FE10",
+      "Rva": "0x51FE10",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.DevUtilities.GameManager",
+      "Name": "RpcWriter___Target_SetGameData_3076874643",
+      "Token": "0x06003064",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180712E40",
+      "Rva": "0x712E40",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.DevUtilities.GameManager",
+      "Name": "RpcLogic___SetGameData_3076874643",
+      "Token": "0x06003065",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180712D20",
+      "Rva": "0x712D20",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.DevUtilities.GameManager",
+      "Name": "RpcReader___Target_SetGameData_3076874643",
+      "Token": "0x06003066",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180712DA0",
+      "Rva": "0x712DA0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.DevUtilities.GameManager",
+      "Name": "Awake_UserLogic_ScheduleOne.DevUtilities.GameManager_Assembly-CSharp.dll",
+      "Token": "0x06003067",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 51,
+      "Va": "0x1807122B0",
+      "Rva": "0x7122B0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.UI.PauseMenu",
+      "Name": "get_IsPaused",
+      "Token": "0x0600628A",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18045FBC0",
+      "Rva": "0x45FBC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.UI.PauseMenu",
+      "Name": "set_IsPaused",
+      "Token": "0x0600628B",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18045FBD0",
+      "Rva": "0x45FBD0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.UI.PauseMenu",
+      "Name": "Awake",
+      "Token": "0x0600628C",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 5,
+      "Va": "0x1809F5B10",
+      "Rva": "0x9F5B10",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.UI.PauseMenu",
+      "Name": "Start",
+      "Token": "0x0600628D",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 4,
+      "Va": "0x1809F63C0",
+      "Rva": "0x9F63C0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.UI.PauseMenu",
+      "Name": "OnGameLoseFocus",
+      "Token": "0x0600628E",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1809F5FF0",
+      "Rva": "0x9F5FF0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.UI.PauseMenu",
+      "Name": "Exit",
+      "Token": "0x0600628F",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1809F5CF0",
+      "Rva": "0x9F5CF0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.UI.PauseMenu",
+      "Name": "CanTogglePause",
+      "Token": "0x06006290",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1809F5B90",
+      "Rva": "0x9F5B90",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.UI.PauseMenu",
+      "Name": "OnDestroy",
+      "Token": "0x06006291",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 6,
+      "Va": "0x1809F5E30",
+      "Rva": "0x9F5E30",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.UI.PauseMenu",
+      "Name": "PrepForScreenshot",
+      "Token": "0x06006292",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1809F6210",
+      "Rva": "0x9F6210",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.UI.PauseMenu",
+      "Name": "UpdateCartelName",
+      "Token": "0x06006293",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1809F67D0",
+      "Rva": "0x9F67D0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.UI.PauseMenu",
+      "Name": "CleanupScreenshot",
+      "Token": "0x06006294",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1809F5CC0",
+      "Rva": "0x9F5CC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.UI.PauseMenu",
+      "Name": "Update",
+      "Token": "0x06006295",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1809F6870",
+      "Rva": "0x9F6870",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.UI.PauseMenu",
+      "Name": "CheckTogglePause",
+      "Token": "0x06006296",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1809F5C70",
+      "Rva": "0x9F5C70",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.UI.PauseMenu",
+      "Name": "LateUpdate",
+      "Token": "0x06006297",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1809F5DC0",
+      "Rva": "0x9F5DC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.UI.PauseMenu",
+      "Name": "Pause",
+      "Token": "0x06006298",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1809F60D0",
+      "Rva": "0x9F60D0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.UI.PauseMenu",
+      "Name": "Resume",
+      "Token": "0x06006299",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1809F6240",
+      "Rva": "0x9F6240",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.UI.PauseMenu",
+      "Name": "StuckButtonClicked",
+      "Token": "0x0600629A",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1809F6630",
+      "Rva": "0x9F6630",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.UI.PauseMenu",
+      "Name": ".ctor",
+      "Token": "0x0600629B",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1809F68F0",
+      "Rva": "0x9F68F0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.UI.MainMenu.MainMenuController",
+      "Name": "Awake",
+      "Token": "0x06006A6E",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180A78EA0",
+      "Rva": "0xA78EA0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.UI.MainMenu.MainMenuController",
+      "Name": "Start",
+      "Token": "0x06006A6F",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180A78F70",
+      "Rva": "0xA78F70",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.UI.MainMenu.MainMenuController",
+      "Name": "OnDestroy",
+      "Token": "0x06006A70",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180A78EC0",
+      "Rva": "0xA78EC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.UI.MainMenu.MainMenuController",
+      "Name": ".ctor",
+      "Token": "0x06006A71",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18041D490",
+      "Rva": "0x41D490",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.Application",
+      "Name": "Quit",
+      "Token": "0x06000170",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182B3B3A0",
+      "Rva": "0x2B3B3A0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.Application",
+      "Name": "Quit",
+      "Token": "0x06000171",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182B3B3E0",
+      "Rva": "0x2B3B3E0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.Application",
+      "Name": "get_isPlaying",
+      "Token": "0x06000172",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182B3BA50",
+      "Rva": "0x2B3BA50",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.Application",
+      "Name": "get_isFocused",
+      "Token": "0x06000173",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182B3B980",
+      "Rva": "0x2B3B980",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.Application",
+      "Name": "get_buildGUID",
+      "Token": "0x06000174",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182B3B830",
+      "Rva": "0x2B3B830",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.Application",
+      "Name": "get_runInBackground",
+      "Token": "0x06000175",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182B3BB10",
+      "Rva": "0x2B3BB10",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.Application",
+      "Name": "set_runInBackground",
+      "Token": "0x06000176",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182B3BEA0",
+      "Rva": "0x2B3BEA0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.Application",
+      "Name": "get_isBatchMode",
+      "Token": "0x06000177",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182B3B950",
+      "Rva": "0x2B3B950",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.Application",
+      "Name": "get_dataPath",
+      "Token": "0x06000178",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182B3B890",
+      "Rva": "0x2B3B890",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.Application",
+      "Name": "get_streamingAssetsPath",
+      "Token": "0x06000179",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182B3BB40",
+      "Rva": "0x2B3BB40",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.Application",
+      "Name": "get_persistentDataPath",
+      "Token": "0x0600017A",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182B3BA80",
+      "Rva": "0x2B3BA80",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.Application",
+      "Name": "get_version",
+      "Token": "0x0600017B",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182B3BB70",
+      "Rva": "0x2B3BB70",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.Application",
+      "Name": "get_identifier",
+      "Token": "0x0600017C",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182B3B920",
+      "Rva": "0x2B3B920",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.Application",
+      "Name": "get_productName",
+      "Token": "0x0600017D",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182B3BAE0",
+      "Rva": "0x2B3BAE0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.Application",
+      "Name": "get_cloudProjectId",
+      "Token": "0x0600017E",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182B3B860",
+      "Rva": "0x2B3B860",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.Application",
+      "Name": "OpenURL",
+      "Token": "0x0600017F",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182B3B360",
+      "Rva": "0x2B3B360",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.Application",
+      "Name": "set_targetFrameRate",
+      "Token": "0x06000180",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182B3BEE0",
+      "Rva": "0x2B3BEE0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.Application",
+      "Name": "SetLogCallbackDefined",
+      "Token": "0x06000181",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182B3B440",
+      "Rva": "0x2B3B440",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.Application",
+      "Name": "get_genuine",
+      "Token": "0x06000182",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182B3B8F0",
+      "Rva": "0x2B3B8F0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.Application",
+      "Name": "get_genuineCheckAvailable",
+      "Token": "0x06000183",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182B3B8C0",
+      "Rva": "0x2B3B8C0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.Application",
+      "Name": "get_platform",
+      "Token": "0x06000184",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182B3BAB0",
+      "Rva": "0x2B3BAB0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.Application",
+      "Name": "get_isMobilePlatform",
+      "Token": "0x06000185",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182B3B9B0",
+      "Rva": "0x2B3B9B0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.Application",
+      "Name": "CallLowMemory",
+      "Token": "0x06000186",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182B3ACB0",
+      "Rva": "0x2B3ACB0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.Application",
+      "Name": "HasLogCallback",
+      "Token": "0x06000187",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182B3ADF0",
+      "Rva": "0x2B3ADF0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.Application",
+      "Name": "add_logMessageReceived",
+      "Token": "0x06000188",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182B3B610",
+      "Rva": "0x2B3B610",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.Application",
+      "Name": "remove_logMessageReceived",
+      "Token": "0x06000189",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182B3BCB0",
+      "Rva": "0x2B3BCB0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.Application",
+      "Name": "CallLogCallback",
+      "Token": "0x0600018A",
+      "ParameterCount": 4,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182B3ABE0",
+      "Rva": "0x2B3ABE0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.Application",
+      "Name": "add_focusChanged",
+      "Token": "0x0600018B",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182B3B500",
+      "Rva": "0x2B3B500",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.Application",
+      "Name": "remove_focusChanged",
+      "Token": "0x0600018C",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182B3BBA0",
+      "Rva": "0x2B3BBA0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.Application",
+      "Name": "add_quitting",
+      "Token": "0x0600018D",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182B3B730",
+      "Rva": "0x2B3B730",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.Application",
+      "Name": "remove_quitting",
+      "Token": "0x0600018E",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182B3BDA0",
+      "Rva": "0x2B3BDA0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.Application",
+      "Name": "Internal_ApplicationWantsToQuit",
+      "Token": "0x0600018F",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182B3B040",
+      "Rva": "0x2B3B040",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.Application",
+      "Name": "Internal_ApplicationInit",
+      "Token": "0x06000190",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182B3AE70",
+      "Rva": "0x2B3AE70",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.Application",
+      "Name": "Internal_ApplicationQuit",
+      "Token": "0x06000191",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182B3AF00",
+      "Rva": "0x2B3AF00",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.Application",
+      "Name": "Internal_ApplicationUnload",
+      "Token": "0x06000192",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182B3AFB0",
+      "Rva": "0x2B3AFB0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.Application",
+      "Name": "InvokeOnBeforeRender",
+      "Token": "0x06000193",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182B3B320",
+      "Rva": "0x2B3B320",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.Application",
+      "Name": "InvokeFocusChanged",
+      "Token": "0x06000194",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182B3B280",
+      "Rva": "0x2B3B280",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.Application",
+      "Name": "InvokeDeepLinkActivated",
+      "Token": "0x06000195",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182B3B1E0",
+      "Rva": "0x2B3B1E0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.Application",
+      "Name": "get_isEditor",
+      "Token": "0x06000196",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180EBA0D0",
+      "Rva": "0xEBA0D0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.Application",
+      "Name": ".cctor",
+      "Token": "0x06000197",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182B3B480",
+      "Rva": "0x2B3B480",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.MonoBehaviour",
+      "Name": "get_destroyCancellationToken",
+      "Token": "0x06000A44",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182B79EA0",
+      "Rva": "0x2B79EA0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.MonoBehaviour",
+      "Name": "RaiseCancellation",
+      "Token": "0x06000A45",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182B79740",
+      "Rva": "0x2B79740",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.MonoBehaviour",
+      "Name": "IsInvoking",
+      "Token": "0x06000A46",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182B79490",
+      "Rva": "0x2B79490",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.MonoBehaviour",
+      "Name": "CancelInvoke",
+      "Token": "0x06000A47",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182B793C0",
+      "Rva": "0x2B793C0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.MonoBehaviour",
+      "Name": "Invoke",
+      "Token": "0x06000A48",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182B79610",
+      "Rva": "0x2B79610",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.MonoBehaviour",
+      "Name": "InvokeRepeating",
+      "Token": "0x06000A49",
+      "ParameterCount": 3,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182B79540",
+      "Rva": "0x2B79540",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.MonoBehaviour",
+      "Name": "CancelInvoke",
+      "Token": "0x06000A4A",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182B79400",
+      "Rva": "0x2B79400",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.MonoBehaviour",
+      "Name": "IsInvoking",
+      "Token": "0x06000A4B",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182B79670",
+      "Rva": "0x2B79670",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.MonoBehaviour",
+      "Name": "StartCoroutine",
+      "Token": "0x06000A4C",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182B79920",
+      "Rva": "0x2B79920",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.MonoBehaviour",
+      "Name": "StartCoroutine",
+      "Token": "0x06000A4D",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182B79A30",
+      "Rva": "0x2B79A30",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.MonoBehaviour",
+      "Name": "StartCoroutine",
+      "Token": "0x06000A4E",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182B79810",
+      "Rva": "0x2B79810",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.MonoBehaviour",
+      "Name": "StartCoroutine_Auto",
+      "Token": "0x06000A4F",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182B79810",
+      "Rva": "0x2B79810",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.MonoBehaviour",
+      "Name": "StopCoroutine",
+      "Token": "0x06000A50",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182B79D90",
+      "Rva": "0x2B79D90",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.MonoBehaviour",
+      "Name": "StopCoroutine",
+      "Token": "0x06000A51",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182B79C80",
+      "Rva": "0x2B79C80",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.MonoBehaviour",
+      "Name": "StopCoroutine",
+      "Token": "0x06000A52",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182B79C30",
+      "Rva": "0x2B79C30",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.MonoBehaviour",
+      "Name": "StopAllCoroutines",
+      "Token": "0x06000A53",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182B79B50",
+      "Rva": "0x2B79B50",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.MonoBehaviour",
+      "Name": "get_useGUILayout",
+      "Token": "0x06000A54",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182B7A030",
+      "Rva": "0x2B7A030",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.MonoBehaviour",
+      "Name": "set_useGUILayout",
+      "Token": "0x06000A55",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182B7A0C0",
+      "Rva": "0x2B7A0C0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.MonoBehaviour",
+      "Name": "print",
+      "Token": "0x06000A56",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182B7A070",
+      "Rva": "0x2B7A070",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.MonoBehaviour",
+      "Name": "Internal_CancelInvokeAll",
+      "Token": "0x06000A57",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182B793C0",
+      "Rva": "0x2B793C0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.MonoBehaviour",
+      "Name": "Internal_IsInvokingAll",
+      "Token": "0x06000A58",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182B79490",
+      "Rva": "0x2B79490",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.MonoBehaviour",
+      "Name": "InvokeDelayed",
+      "Token": "0x06000A59",
+      "ParameterCount": 4,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182B794D0",
+      "Rva": "0x2B794D0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.MonoBehaviour",
+      "Name": "CancelInvoke",
+      "Token": "0x06000A5A",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182B79400",
+      "Rva": "0x2B79400",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.MonoBehaviour",
+      "Name": "IsInvoking",
+      "Token": "0x06000A5B",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182B79670",
+      "Rva": "0x2B79670",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.MonoBehaviour",
+      "Name": "IsObjectMonoBehaviour",
+      "Token": "0x06000A5C",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182B796C0",
+      "Rva": "0x2B796C0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.MonoBehaviour",
+      "Name": "StartCoroutineManaged",
+      "Token": "0x06000A5D",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182B797B0",
+      "Rva": "0x2B797B0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.MonoBehaviour",
+      "Name": "StartCoroutineManaged2",
+      "Token": "0x06000A5E",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182B79760",
+      "Rva": "0x2B79760",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.MonoBehaviour",
+      "Name": "StopCoroutineManaged",
+      "Token": "0x06000A5F",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182B79BE0",
+      "Rva": "0x2B79BE0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.MonoBehaviour",
+      "Name": "StopCoroutineFromEnumeratorManaged",
+      "Token": "0x06000A60",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182B79B90",
+      "Rva": "0x2B79B90",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.MonoBehaviour",
+      "Name": "GetScriptClassName",
+      "Token": "0x06000A61",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182B79450",
+      "Rva": "0x2B79450",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.MonoBehaviour",
+      "Name": "OnCancellationTokenCreated",
+      "Token": "0x06000A62",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182B79700",
+      "Rva": "0x2B79700",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.MonoBehaviour",
+      "Name": ".ctor",
+      "Token": "0x06000A63",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182B73AC0",
+      "Rva": "0x2B73AC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.SceneManagement.SceneManager",
+      "Name": "get_sceneCount",
+      "Token": "0x06000DC7",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182BA3270",
+      "Rva": "0x2BA3270",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.SceneManagement.SceneManager",
+      "Name": "GetActiveScene",
+      "Token": "0x06000DC8",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182BA23F0",
+      "Rva": "0x2BA23F0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.SceneManagement.SceneManager",
+      "Name": "SetActiveScene",
+      "Token": "0x06000DC9",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182BA2D40",
+      "Rva": "0x2BA2D40",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.SceneManagement.SceneManager",
+      "Name": "GetSceneByName",
+      "Token": "0x06000DCA",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182BA2570",
+      "Rva": "0x2BA2570",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.SceneManagement.SceneManager",
+      "Name": "GetSceneAt",
+      "Token": "0x06000DCB",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182BA24A0",
+      "Rva": "0x2BA24A0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.SceneManagement.SceneManager",
+      "Name": "CreateScene",
+      "Token": "0x06000DCC",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182BA2330",
+      "Rva": "0x2BA2330",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.SceneManagement.SceneManager",
+      "Name": "UnloadSceneAsyncInternal",
+      "Token": "0x06000DCD",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182BA2DF0",
+      "Rva": "0x2BA2DF0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.SceneManagement.SceneManager",
+      "Name": "LoadSceneAsyncNameIndexInternal",
+      "Token": "0x06000DCE",
+      "ParameterCount": 4,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182BA2840",
+      "Rva": "0x2BA2840",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.SceneManagement.SceneManager",
+      "Name": "MoveGameObjectToScene",
+      "Token": "0x06000DCF",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182BA2C90",
+      "Rva": "0x2BA2C90",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.SceneManagement.SceneManager",
+      "Name": "LoadFirstScene_Internal",
+      "Token": "0x06000DD0",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182BA27D0",
+      "Rva": "0x2BA27D0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.SceneManagement.SceneManager",
+      "Name": "add_sceneLoaded",
+      "Token": "0x06000DD1",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182BA3050",
+      "Rva": "0x2BA3050",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.SceneManagement.SceneManager",
+      "Name": "remove_sceneLoaded",
+      "Token": "0x06000DD2",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182BA33B0",
+      "Rva": "0x2BA33B0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.SceneManagement.SceneManager",
+      "Name": "add_sceneUnloaded",
+      "Token": "0x06000DD3",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182BA3160",
+      "Rva": "0x2BA3160",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.SceneManagement.SceneManager",
+      "Name": "remove_sceneUnloaded",
+      "Token": "0x06000DD4",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182BA34C0",
+      "Rva": "0x2BA34C0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.SceneManagement.SceneManager",
+      "Name": "add_activeSceneChanged",
+      "Token": "0x06000DD5",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182BA2F40",
+      "Rva": "0x2BA2F40",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.SceneManagement.SceneManager",
+      "Name": "remove_activeSceneChanged",
+      "Token": "0x06000DD6",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182BA32A0",
+      "Rva": "0x2BA32A0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.SceneManagement.SceneManager",
+      "Name": "CreateScene",
+      "Token": "0x06000DD7",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182BA2270",
+      "Rva": "0x2BA2270",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.SceneManagement.SceneManager",
+      "Name": "LoadScene",
+      "Token": "0x06000DD8",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182BA2B20",
+      "Rva": "0x2BA2B20",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.SceneManagement.SceneManager",
+      "Name": "LoadScene",
+      "Token": "0x06000DD9",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182BA2A20",
+      "Rva": "0x2BA2A20",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.SceneManagement.SceneManager",
+      "Name": "LoadSceneAsync",
+      "Token": "0x06000DDA",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182BA2910",
+      "Rva": "0x2BA2910",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.SceneManagement.SceneManager",
+      "Name": "LoadSceneAsync",
+      "Token": "0x06000DDB",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182BA29B0",
+      "Rva": "0x2BA29B0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.SceneManagement.SceneManager",
+      "Name": "UnloadSceneAsync",
+      "Token": "0x06000DDC",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182BA2E60",
+      "Rva": "0x2BA2E60",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.SceneManagement.SceneManager",
+      "Name": "Internal_SceneLoaded",
+      "Token": "0x06000DDD",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182BA2690",
+      "Rva": "0x2BA2690",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.SceneManagement.SceneManager",
+      "Name": "Internal_SceneUnloaded",
+      "Token": "0x06000DDE",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182BA2730",
+      "Rva": "0x2BA2730",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.SceneManagement.SceneManager",
+      "Name": "Internal_ActiveSceneChanged",
+      "Token": "0x06000DDF",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182BA25F0",
+      "Rva": "0x2BA25F0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.SceneManagement.SceneManager",
+      "Name": ".cctor",
+      "Token": "0x06000DE0",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182BA2F00",
+      "Rva": "0x2BA2F00",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.SceneManagement.SceneManager",
+      "Name": "GetActiveScene_Injected",
+      "Token": "0x06000DE1",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182BA23B0",
+      "Rva": "0x2BA23B0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.SceneManagement.SceneManager",
+      "Name": "SetActiveScene_Injected",
+      "Token": "0x06000DE2",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182BA2D00",
+      "Rva": "0x2BA2D00",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.SceneManagement.SceneManager",
+      "Name": "GetSceneByName_Injected",
+      "Token": "0x06000DE3",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182BA2520",
+      "Rva": "0x2BA2520",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.SceneManagement.SceneManager",
+      "Name": "GetSceneAt_Injected",
+      "Token": "0x06000DE4",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182BA2460",
+      "Rva": "0x2BA2460",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.SceneManagement.SceneManager",
+      "Name": "CreateScene_Injected",
+      "Token": "0x06000DE5",
+      "ParameterCount": 3,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182BA2210",
+      "Rva": "0x2BA2210",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.SceneManagement.SceneManager",
+      "Name": "UnloadSceneAsyncInternal_Injected",
+      "Token": "0x06000DE6",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182BA2DB0",
+      "Rva": "0x2BA2DB0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "UnityEngine.SceneManagement.SceneManager",
+      "Name": "MoveGameObjectToScene_Injected",
+      "Token": "0x06000DE7",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x182BA2C40",
+      "Rva": "0x2BA2C40",
+      "NativePointerPresent": true
+    }
+  ],
+  "RawReferenceOwnerCandidates": [
+    {
+      "Candidate": {
+        "rva": "0x5b10cd",
+        "va": "0x1805b10cd",
+        "rawOffset": "0x5b02cd",
+        "bytes": "e8 8e a9 ff ff",
+        "targetRva": "0x5aba60",
+        "target": "SaveRequest.Complete",
+        "kind": "raw-E8/E9-candidate-not-yet-decoder-confirmed"
+      },
+      "NearestPreviousMethodPointer": "0x1805B0C20",
+      "OwnerCandidates": [
+        {
+          "Type": "ScheduleOne.Persistence.SaveManager+<>c__DisplayClass52_0+<<Save>g__SaveRoutine|0>d",
+          "Name": "MoveNext",
+          "Token": "0x0600183C",
+          "ParameterCount": 0,
+          "InterfaceOrVirtualSlot": 6,
+          "Va": "0x1805B0C20",
+          "Rva": "0x5B0C20",
+          "NativePointerPresent": true
+        }
+      ],
+      "Limit": "Nearest parser pointer is only a candidate owner until a decoded containing window confirms the transfer."
+    },
+    {
+      "Candidate": {
+        "rva": "0x677182",
+        "va": "0x180677182",
+        "rawOffset": "0x676382",
+        "bytes": "e8 b9 28 f3 ff",
+        "targetRva": "0x5a9a40",
+        "target": "SaveManager.ClearCompletedSaveable",
+        "kind": "raw-E8/E9-candidate-not-yet-decoder-confirmed"
+      },
+      "NearestPreviousMethodPointer": "0x180676F40",
+      "OwnerCandidates": [
+        {
+          "Type": "ScheduleOne.PlayerScripts.PlayerManager",
+          "Name": "SavePlayer",
+          "Token": "0x06002516",
+          "ParameterCount": 1,
+          "InterfaceOrVirtualSlot": 65535,
+          "Va": "0x180676F40",
+          "Rva": "0x676F40",
+          "NativePointerPresent": true
+        }
+      ],
+      "Limit": "Nearest parser pointer is only a candidate owner until a decoded containing window confirms the transfer."
+    }
+  ],
+  "Disassembled": [],
+  "NativeSaveWriteAllowed": false,
+  "GameInvoked": false,
+  "NativeSaveFilesRead": false
+}

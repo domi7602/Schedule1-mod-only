@@ -1,0 +1,11 @@
+  Shared -> C:\Users\pc\Schedule1-mod-only\Source\Mods\Shared\src\bin\Release\net6.0\Shared.dll
+C:\Users\pc\Schedule1-mod-only\Source\Mods\TownHallInterior\src\BusinessConstruction.cs(4029,28): warning CS8602: Dereference of a possibly null reference. [C:\Users\pc\Schedule1-mod-only\Source\Mods\TownHallInterior\src\TownHallInterior.csproj]
+  TownHallInterior -> C:\Users\pc\Schedule1-mod-only\Source\Mods\TownHallInterior\src\bin\Release\net6.0\TownHallInterior.dll
+
+Build succeeded.
+
+C:\Users\pc\Schedule1-mod-only\Source\Mods\TownHallInterior\src\BusinessConstruction.cs(4029,28): warning CS8602: Dereference of a possibly null reference. [C:\Users\pc\Schedule1-mod-only\Source\Mods\TownHallInterior\src\TownHallInterior.csproj]
+    1 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:01.19

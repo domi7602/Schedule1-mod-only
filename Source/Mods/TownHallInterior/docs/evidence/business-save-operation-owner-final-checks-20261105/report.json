@@ -1,0 +1,131 @@
+{
+  "SchemaVersion": 1,
+  "Repository": "C:\\Users\\pc\\.cache\\s1ov\\clean-checkout-e0035c00d8f4\\checkout",
+  "RequestedMode": "Quick",
+  "Mode": "Quick",
+  "StartedUtc": "2026-11-05T18:41:10.6050834Z",
+  "FinishedUtc": "2026-11-05T18:41:47.1736171Z",
+  "GameReferences": false,
+  "GameProbe": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-save-operation-owner-impl-20261105\\deliberately-absent-game\\MelonLoader\\Il2CppAssemblies\\Assembly-CSharp.dll",
+  "Dotnet": "C:\\Program Files\\dotnet\\dotnet.exe",
+  "ExitCode": 1,
+  "Passed": 6,
+  "Failed": 1,
+  "Skipped": 0,
+  "Steps": [
+    {
+      "Name": "sdk",
+      "Status": "Passed",
+      "ExitCode": 0,
+      "Seconds": 0.09,
+      "Command": "C:\\Program Files\\dotnet\\dotnet.exe",
+      "Arguments": [
+        "--version"
+      ],
+      "LogPath": "C:\\Users\\pc\\.cache\\s1ov\\clean-checkout-e0035c00d8f4\\checks\\verify-626a10b2f4fd\\sdk.log",
+      "Error": null
+    },
+    {
+      "Name": "format",
+      "Status": "Passed",
+      "ExitCode": 0,
+      "Seconds": 30.3,
+      "Command": "C:\\Program Files\\dotnet\\dotnet.exe",
+      "Arguments": [
+        "format",
+        "C:\\Users\\pc\\.cache\\s1ov\\clean-checkout-e0035c00d8f4\\checkout\\Source\\Mods\\S1Mods.sln",
+        "--verify-no-changes",
+        "--verbosity",
+        "minimal"
+      ],
+      "LogPath": "C:\\Users\\pc\\.cache\\s1ov\\clean-checkout-e0035c00d8f4\\checks\\verify-626a10b2f4fd\\format.log",
+      "Error": null
+    },
+    {
+      "Name": "solution",
+      "Status": "Passed",
+      "ExitCode": 0,
+      "Seconds": 0.4,
+      "Command": "C:\\Program Files\\WindowsApps\\Microsoft.PowerShell_7.6.8.0_x64__8wekyb3d8bbwe\\pwsh.exe",
+      "Arguments": [
+        "-NoProfile",
+        "-NonInteractive",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "C:\\Users\\pc\\.cache\\s1ov\\clean-checkout-e0035c00d8f4\\checkout\\Tools\\gen-sln.ps1",
+        "-Check"
+      ],
+      "LogPath": "C:\\Users\\pc\\.cache\\s1ov\\clean-checkout-e0035c00d8f4\\checks\\verify-626a10b2f4fd\\solution.log",
+      "Error": null
+    },
+    {
+      "Name": "versions",
+      "Status": "Failed",
+      "ExitCode": 1,
+      "Seconds": 1.02,
+      "Command": "C:\\Program Files\\WindowsApps\\Microsoft.PowerShell_7.6.8.0_x64__8wekyb3d8bbwe\\pwsh.exe",
+      "Arguments": [
+        "-NoProfile",
+        "-NonInteractive",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "C:\\Users\\pc\\.cache\\s1ov\\clean-checkout-e0035c00d8f4\\checkout\\Tools\\check-version-sync.ps1"
+      ],
+      "LogPath": "C:\\Users\\pc\\.cache\\s1ov\\clean-checkout-e0035c00d8f4\\checks\\verify-626a10b2f4fd\\versions.log",
+      "Error": "Child process exited 1."
+    },
+    {
+      "Name": "docs",
+      "Status": "Passed",
+      "ExitCode": 0,
+      "Seconds": 3.21,
+      "Command": "C:\\Program Files\\WindowsApps\\Microsoft.PowerShell_7.6.8.0_x64__8wekyb3d8bbwe\\pwsh.exe",
+      "Arguments": [
+        "-NoProfile",
+        "-NonInteractive",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "C:\\Users\\pc\\.cache\\s1ov\\clean-checkout-e0035c00d8f4\\checkout\\Tools\\check-doc-paths.ps1"
+      ],
+      "LogPath": "C:\\Users\\pc\\.cache\\s1ov\\clean-checkout-e0035c00d8f4\\checks\\verify-626a10b2f4fd\\docs.log",
+      "Error": null
+    },
+    {
+      "Name": "skills",
+      "Status": "Passed",
+      "ExitCode": 0,
+      "Seconds": 1.09,
+      "Command": "C:\\Program Files\\WindowsApps\\Microsoft.PowerShell_7.6.8.0_x64__8wekyb3d8bbwe\\pwsh.exe",
+      "Arguments": [
+        "-NoProfile",
+        "-NonInteractive",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "C:\\Users\\pc\\.cache\\s1ov\\clean-checkout-e0035c00d8f4\\checkout\\Tools\\check-skills-health.ps1"
+      ],
+      "LogPath": "C:\\Users\\pc\\.cache\\s1ov\\clean-checkout-e0035c00d8f4\\checks\\verify-626a10b2f4fd\\skills.log",
+      "Error": null
+    },
+    {
+      "Name": "xml",
+      "Status": "Passed",
+      "ExitCode": 0,
+      "Seconds": 0.36,
+      "Command": "C:\\Program Files\\WindowsApps\\Microsoft.PowerShell_7.6.8.0_x64__8wekyb3d8bbwe\\pwsh.exe",
+      "Arguments": [
+        "-NoProfile",
+        "-NonInteractive",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "C:\\Users\\pc\\.cache\\s1ov\\clean-checkout-e0035c00d8f4\\checkout\\Tools\\check-xml.ps1"
+      ],
+      "LogPath": "C:\\Users\\pc\\.cache\\s1ov\\clean-checkout-e0035c00d8f4\\checks\\verify-626a10b2f4fd\\xml.log",
+      "Error": null
+    }
+  ]
+}

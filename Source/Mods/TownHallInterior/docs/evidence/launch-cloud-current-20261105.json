@@ -1,0 +1,17 @@
+{
+  "checkedUtc": "2026-11-05T07:06:51.191258+00:00",
+  "source": "Steam/userdata/<account>/7/remote/sharedconfig.vdf: UserRoamingConfigStore/Software/Valve/Steam/CloudEnabled",
+  "globalCloudEnabled": false,
+  "configSha256": "f17a5d3437d115375445bfb0dad12db954ea1726f6d8c393e8e8a82a190a8e78",
+  "appLastSyncState": null,
+  "recentAppSignals": [
+    {
+      "timestamp": "2026-11-04 08:12:17",
+      "kind": "sync-disabled",
+      "syncDisabled": true
+    }
+  ],
+  "settingsChanged": false,
+  "remoteStateChecked": false,
+  "conflictsResolved": false
+}

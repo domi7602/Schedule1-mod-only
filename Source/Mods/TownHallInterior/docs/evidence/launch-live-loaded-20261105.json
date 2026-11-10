@@ -1,0 +1,188 @@
+{
+  "schema": 1,
+  "capturedUtc": "2026-11-05T07:51:25.138907+00:00",
+  "project": "schedule1-mod-only",
+  "sourceRevision": "b2c6c7e6c6ecc778da9624cdb68a6578b9db471a",
+  "sourceWorktree": "dirty",
+  "ownerStatement": {
+    "speaker": "Dominik",
+    "date": "2026-11-05",
+    "text": "geladen",
+    "scope": "Reports successful loading after the prepared baseline instructions; phone open/close not separately itemized."
+  },
+  "process": {
+    "pid": 11888,
+    "startedUtc": "2026-11-05T07:45:03.1595460Z",
+    "executableMatchesResolvedGameDirectory": true,
+    "sameBeforeAndAfterCapture": true
+  },
+  "logCapture": {
+    "source": "MelonLoader/Latest.log",
+    "capturedPrefixBytes": 38712,
+    "originalPrefixSha256": "b4f722c44b5aef253fc59b378bdc548800fcfcfc90e14bdf60db63936be60074",
+    "lineCount": 474,
+    "lastTimestampLocal": "08:51:05.338",
+    "captureMethod": "One fixed-size UTF-8 prefix through the last complete line; prefix equality checked, no tail/follow loop.",
+    "completePrivateSnapshotRetained": true,
+    "publicArtifactIsSelectedRedactedExcerpt": true
+  },
+  "identities": [
+    {
+      "path": "Mods/TownHallInterior.dll",
+      "sha256": "614b81fd584040d4cebe7a18929bca09eabae478a6487ec6d846ea01d6062003",
+      "loaderLines": [
+        113,
+        114
+      ],
+      "installedFileAndLoaderHashMatch": true
+    },
+    {
+      "path": "Mods/S1API.Il2Cpp.MelonLoader.dll",
+      "sha256": "d751a3cb66003f7a616eb9f8054daf34da0d9d7f23416a5005a586738a680852",
+      "loaderLines": [
+        103,
+        104
+      ],
+      "installedFileAndLoaderHashMatch": true
+    },
+    {
+      "path": "Plugins/S1APILoader.MelonLoader.dll",
+      "sha256": "b05187bd64be49acf5c5ac8f67a21a2f6605712afbc2d626c8ba55ccd89ac576",
+      "loaderLines": [
+        37,
+        38
+      ],
+      "installedFileAndLoaderHashMatch": true
+    }
+  ],
+  "observations": {
+    "slotName": {
+      "line": 342,
+      "message": "[08:45:13.072] [MoreSaveSlots] Slot 2: 'TownHallTest' v0.4.7f12 10/28/2026 8:20:32 PM"
+    },
+    "loadRequest": {
+      "line": 349,
+      "message": "[08:46:06.087] [MoreSaveSlots] ContinueScreen.LoadGame: mapped slot 2 -> 2 (SaveGame_2)"
+    },
+    "mainScene": {
+      "line": 374,
+      "message": "[08:46:12.623] [PotScanner] Scene loaded: 'Main' (#1)"
+    },
+    "hallPublished": {
+      "line": 381,
+      "message": "[08:46:17.812] [TownHallInterior] TownHallInterior: hall and geometric facade opening published; native knock retained."
+    },
+    "phoneDiscovery": {
+      "line": 394,
+      "message": "[08:46:20.862] [PhoneApp] Discovered 11 custom phone app type(s)."
+    },
+    "loadComplete": {
+      "line": 432,
+      "message": "[08:46:25.206] [CustomSkateboard] [CustomSkateboard] GameLifecycle.OnLoadComplete: Checking for active Skateboard seller dialogues..."
+    },
+    "slot2Ready": {
+      "line": 455,
+      "message": "[08:46:27.221] [HitmanPhone] [HitmanPhone] [context] ready slot=2, active=0, history=0; checkpoint mode."
+    }
+  },
+  "phoneAppInitializationEntries": [
+    {
+      "line": 395,
+      "type": "BankApp.BankApp"
+    },
+    {
+      "line": 397,
+      "type": "CalculatorApp.CalculatorApp"
+    },
+    {
+      "line": 399,
+      "type": "LightControl.LightControlApp"
+    },
+    {
+      "line": 403,
+      "type": "Minimap.MinimapSettingsApp"
+    },
+    {
+      "line": 407,
+      "type": "NotesApp.NotesApp"
+    },
+    {
+      "line": 409,
+      "type": "PocketShop.PocketShopApp"
+    },
+    {
+      "line": 411,
+      "type": "PotScanner.PotScannerApp"
+    },
+    {
+      "line": 414,
+      "type": "PropertyLEDs.PropertyLEDsApp"
+    },
+    {
+      "line": 415,
+      "type": "StorageScanner.StorageScannerApp"
+    },
+    {
+      "line": 417,
+      "type": "TaxiDriver.TaxiApp"
+    },
+    {
+      "line": 419,
+      "type": "Weather.WeatherApp"
+    }
+  ],
+  "triage": {
+    "errorOrFatalLines": [],
+    "townHallFailureLines": [],
+    "businessProbeMessageLines": [],
+    "warningLines": [
+      248,
+      325,
+      326,
+      348,
+      400
+    ],
+    "exceptionLines": [
+      400
+    ],
+    "lightControlWarning": "Caught Segoe UI MissingMethodException; logged fallback to built-in Arial. Phone initialization continues.",
+    "otherWarnings": [
+      "Il2CppInterop Class::Init substitute",
+      "Two expected TownHall staging/door warnings",
+      "TaxiDriver parking-lot fallback while in menu; not a ride test"
+    ]
+  },
+  "conclusion": {
+    "normalTownHallBuildLoaded": true,
+    "townHallTestSlot2LoadObserved": true,
+    "hallPublicationObserved": true,
+    "phoneAppInitializationObserved": true,
+    "phoneOpenCloseExplicitlyConfirmed": false,
+    "visualInteriorAcceptanceRepeated": false,
+    "nativeBusinessSaveLoadTestPerformed": false,
+    "nativeSaveProbeAllowed": false
+  },
+  "agentActions": {
+    "readOnlyLogProcessAndArtifactInspection": true,
+    "gameLaunchedOrControlled": false,
+    "bridgeOrConsoleCommands": false,
+    "saveInvoked": false,
+    "nativeSaveFilesAccessed": false,
+    "buildOrDeployment": false,
+    "configurationChanged": false,
+    "commitOrPush": false
+  },
+  "artifacts": [
+    {
+      "path": "Source/Mods/TownHallInterior/docs/evidence/launch-live-loaded-excerpt-20261105.txt",
+      "sha256": "d2ae3b67ca9a07ec1a8b7d9bfaa1bb119f8cd98a51c2ad3390d6bfe78b27a4bc"
+    }
+  ],
+  "limits": [
+    "No desktop/phone interaction or screenshot observed; owner statement is not expanded into unitemized actions.",
+    "Captured log statements are bounded evidence, not proof of all features or absence of unlogged failures.",
+    "No native save-file comparison while the game is running; ordinary game/mod autosaves may occur.",
+    "Native business completion/release contract remains unproven; this normal build does not execute that probe.",
+    "No build/test gate rerun while the game is running."
+  ]
+}

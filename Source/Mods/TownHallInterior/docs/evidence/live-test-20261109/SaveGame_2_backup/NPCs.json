@@ -1,0 +1,1463 @@
+{
+    "DataType": "NPCCollectionData",
+    "DataVersion": 0,
+    "GameVersion": "0.4.7f12",
+    "NPCs": [
+        {
+            "DataType": "NPCData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"NPCData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"donna_martin\"}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                },
+                {
+                    "Name": "CustomerData",
+                    "Contents": "{\n    \"DataType\": \"CustomerData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"Dependence\": 0.0,\n    \"ProductAffinities\": [\n        0.927234411239624,\n        -0.27379047870635989,\n        0.25126001238822939,\n        0.320330947637558\n    ],\n    \"TimeSinceLastDealCompleted\": 1000102,\n    \"TimeSinceLastDealOffered\": 1000102,\n    \"OfferedDeals\": 0,\n    \"CompletedDeals\": 0,\n    \"IsContractOffered\": false,\n    \"OfferedContract\": {\n        \"Payment\": 0.0,\n        \"Products\": {\n            \"entries\": []\n        },\n        \"DeliveryLocationGUID\": \"\",\n        \"DeliveryWindow\": {\n            \"IsEnabled\": false,\n            \"WindowStartTime\": 1200,\n            \"WindowEndTime\": 1800\n        },\n        \"Expires\": false,\n        \"ExpiresAfter\": 0,\n        \"PickupScheduleIndex\": 0,\n        \"IsCounterOffer\": false\n    },\n    \"OfferedContractTime\": {\n        \"elapsedDays\": 0,\n        \"time\": 0\n    },\n    \"TimeSincePlayerApproached\": 1000102,\n    \"TimeSinceInstantDealOffered\": 1000102,\n    \"HasBeenRecommended\": false\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "NPCData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"NPCData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"trent_sherman\"}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                },
+                {
+                    "Name": "CustomerData",
+                    "Contents": "{\n    \"DataType\": \"CustomerData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"Dependence\": 0.0,\n    \"ProductAffinities\": [\n        0.6790000200271606,\n        0.22599999606609345,\n        0.9020000100135803,\n        0.28110775351524355\n    ],\n    \"TimeSinceLastDealCompleted\": 1000102,\n    \"TimeSinceLastDealOffered\": 1000102,\n    \"OfferedDeals\": 0,\n    \"CompletedDeals\": 0,\n    \"IsContractOffered\": false,\n    \"OfferedContract\": {\n        \"Payment\": 0.0,\n        \"Products\": {\n            \"entries\": []\n        },\n        \"DeliveryLocationGUID\": \"\",\n        \"DeliveryWindow\": {\n            \"IsEnabled\": false,\n            \"WindowStartTime\": 1200,\n            \"WindowEndTime\": 1800\n        },\n        \"Expires\": false,\n        \"ExpiresAfter\": 0,\n        \"PickupScheduleIndex\": 0,\n        \"IsCounterOffer\": false\n    },\n    \"OfferedContractTime\": {\n        \"elapsedDays\": 0,\n        \"time\": 0\n    },\n    \"TimeSincePlayerApproached\": 1000102,\n    \"TimeSinceInstantDealOffered\": 1000102,\n    \"HasBeenRecommended\": false\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "NPCData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"NPCData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"weapon_thief\"}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "NPCData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"NPCData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"lucy_pennington\"}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                },
+                {
+                    "Name": "CustomerData",
+                    "Contents": "{\n    \"DataType\": \"CustomerData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"Dependence\": 0.0,\n    \"ProductAffinities\": [\n        0.6463172435760498,\n        -0.7910830974578857,\n        0.19469010829925538,\n        0.23858648538589478\n    ],\n    \"TimeSinceLastDealCompleted\": 1000104,\n    \"TimeSinceLastDealOffered\": 1000104,\n    \"OfferedDeals\": 0,\n    \"CompletedDeals\": 0,\n    \"IsContractOffered\": false,\n    \"OfferedContract\": {\n        \"Payment\": 0.0,\n        \"Products\": {\n            \"entries\": []\n        },\n        \"DeliveryLocationGUID\": \"\",\n        \"DeliveryWindow\": {\n            \"IsEnabled\": false,\n            \"WindowStartTime\": 1200,\n            \"WindowEndTime\": 1800\n        },\n        \"Expires\": false,\n        \"ExpiresAfter\": 0,\n        \"PickupScheduleIndex\": 0,\n        \"IsCounterOffer\": false\n    },\n    \"OfferedContractTime\": {\n        \"elapsedDays\": 0,\n        \"time\": 0\n    },\n    \"TimeSincePlayerApproached\": 1000104,\n    \"TimeSinceInstantDealOffered\": 1000104,\n    \"HasBeenRecommended\": false\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "NPCData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"NPCData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"joyce_ball\"}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                },
+                {
+                    "Name": "CustomerData",
+                    "Contents": "{\n    \"DataType\": \"CustomerData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"Dependence\": 0.0,\n    \"ProductAffinities\": [\n        1.0,\n        0.5899999737739563,\n        -0.6399999856948853,\n        0.45048829913139346\n    ],\n    \"TimeSinceLastDealCompleted\": 1000104,\n    \"TimeSinceLastDealOffered\": 1000104,\n    \"OfferedDeals\": 0,\n    \"CompletedDeals\": 0,\n    \"IsContractOffered\": false,\n    \"OfferedContract\": {\n        \"Payment\": 0.0,\n        \"Products\": {\n            \"entries\": []\n        },\n        \"DeliveryLocationGUID\": \"\",\n        \"DeliveryWindow\": {\n            \"IsEnabled\": false,\n            \"WindowStartTime\": 1200,\n            \"WindowEndTime\": 1800\n        },\n        \"Expires\": false,\n        \"ExpiresAfter\": 0,\n        \"PickupScheduleIndex\": 0,\n        \"IsCounterOffer\": false\n    },\n    \"OfferedContractTime\": {\n        \"elapsedDays\": 0,\n        \"time\": 0\n    },\n    \"TimeSincePlayerApproached\": 1000104,\n    \"TimeSinceInstantDealOffered\": 1000104,\n    \"HasBeenRecommended\": false\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "NPCData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"NPCData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"ludwig_meyer\"}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                },
+                {
+                    "Name": "CustomerData",
+                    "Contents": "{\n    \"DataType\": \"CustomerData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"Dependence\": 0.0,\n    \"ProductAffinities\": [\n        0.7930686473846436,\n        -0.5934600830078125,\n        -0.6796560287475586,\n        0.7481521964073181\n    ],\n    \"TimeSinceLastDealCompleted\": 1000104,\n    \"TimeSinceLastDealOffered\": 1000104,\n    \"OfferedDeals\": 0,\n    \"CompletedDeals\": 0,\n    \"IsContractOffered\": false,\n    \"OfferedContract\": {\n        \"Payment\": 0.0,\n        \"Products\": {\n            \"entries\": []\n        },\n        \"DeliveryLocationGUID\": \"\",\n        \"DeliveryWindow\": {\n            \"IsEnabled\": false,\n            \"WindowStartTime\": 1200,\n            \"WindowEndTime\": 1800\n        },\n        \"Expires\": false,\n        \"ExpiresAfter\": 0,\n        \"PickupScheduleIndex\": 0,\n        \"IsCounterOffer\": false\n    },\n    \"OfferedContractTime\": {\n        \"elapsedDays\": 0,\n        \"time\": 0\n    },\n    \"TimeSincePlayerApproached\": 1000104,\n    \"TimeSinceInstantDealOffered\": 1000104,\n    \"HasBeenRecommended\": false\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "NPCData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"NPCData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"jessi_waters\"}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 3.0,\n    \"Unlocked\": true,\n    \"UnlockType\": 1\n}"
+                },
+                {
+                    "Name": "CustomerData",
+                    "Contents": "{\n    \"DataType\": \"CustomerData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"Dependence\": 0.4000000059604645,\n    \"ProductAffinities\": [\n        0.0,\n        1.0,\n        -0.27000001072883608,\n        0.5488758087158203\n    ],\n    \"TimeSinceLastDealCompleted\": 1001173,\n    \"TimeSinceLastDealOffered\": 1001173,\n    \"OfferedDeals\": 0,\n    \"CompletedDeals\": 0,\n    \"IsContractOffered\": false,\n    \"OfferedContract\": {\n        \"Payment\": 0.0,\n        \"Products\": {\n            \"entries\": []\n        },\n        \"DeliveryLocationGUID\": \"\",\n        \"DeliveryWindow\": {\n            \"IsEnabled\": false,\n            \"WindowStartTime\": 1200,\n            \"WindowEndTime\": 1800\n        },\n        \"Expires\": false,\n        \"ExpiresAfter\": 0,\n        \"PickupScheduleIndex\": 0,\n        \"IsCounterOffer\": false\n    },\n    \"OfferedContractTime\": {\n        \"elapsedDays\": 0,\n        \"time\": 0\n    },\n    \"TimeSincePlayerApproached\": 104,\n    \"TimeSinceInstantDealOffered\": 104,\n    \"HasBeenRecommended\": false\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "DealerData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"DealerData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"brad_crosby\",\"Recruited\":false,\"AssignedCustomerIDs\":[],\"ActiveContractGUIDs\":[],\"Cash\":0.0,\"OverflowItems\":{\"Items\":[\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\"],\"SlotFilters\":[{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]}]},\"HasBeenRecommended\":false}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "NPCData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"NPCData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"jack_knight\"}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                },
+                {
+                    "Name": "CustomerData",
+                    "Contents": "{\n    \"DataType\": \"CustomerData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"Dependence\": 0.0,\n    \"ProductAffinities\": [\n        0.6573824882507324,\n        0.8844335079193115,\n        0.09767544269561768,\n        0.7453888654708862\n    ],\n    \"TimeSinceLastDealCompleted\": 1000102,\n    \"TimeSinceLastDealOffered\": 1000102,\n    \"OfferedDeals\": 0,\n    \"CompletedDeals\": 0,\n    \"IsContractOffered\": false,\n    \"OfferedContract\": {\n        \"Payment\": 0.0,\n        \"Products\": {\n            \"entries\": []\n        },\n        \"DeliveryLocationGUID\": \"\",\n        \"DeliveryWindow\": {\n            \"IsEnabled\": false,\n            \"WindowStartTime\": 1200,\n            \"WindowEndTime\": 1800\n        },\n        \"Expires\": false,\n        \"ExpiresAfter\": 0,\n        \"PickupScheduleIndex\": 0,\n        \"IsCounterOffer\": false\n    },\n    \"OfferedContractTime\": {\n        \"elapsedDays\": 0,\n        \"time\": 0\n    },\n    \"TimeSincePlayerApproached\": 1000102,\n    \"TimeSinceInstantDealOffered\": 1000102,\n    \"HasBeenRecommended\": false\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "NPCData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"NPCData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"geraldine_poon\"}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                },
+                {
+                    "Name": "CustomerData",
+                    "Contents": "{\n    \"DataType\": \"CustomerData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"Dependence\": 0.0,\n    \"ProductAffinities\": [\n        0.8840000033378601,\n        0.6600000262260437,\n        0.25999999046325686,\n        1.0\n    ],\n    \"TimeSinceLastDealCompleted\": 1000102,\n    \"TimeSinceLastDealOffered\": 1000102,\n    \"OfferedDeals\": 0,\n    \"CompletedDeals\": 0,\n    \"IsContractOffered\": false,\n    \"OfferedContract\": {\n        \"Payment\": 0.0,\n        \"Products\": {\n            \"entries\": []\n        },\n        \"DeliveryLocationGUID\": \"\",\n        \"DeliveryWindow\": {\n            \"IsEnabled\": false,\n            \"WindowStartTime\": 1200,\n            \"WindowEndTime\": 1800\n        },\n        \"Expires\": false,\n        \"ExpiresAfter\": 0,\n        \"PickupScheduleIndex\": 0,\n        \"IsCounterOffer\": false\n    },\n    \"OfferedContractTime\": {\n        \"elapsedDays\": 0,\n        \"time\": 0\n    },\n    \"TimeSincePlayerApproached\": 1000102,\n    \"TimeSinceInstantDealOffered\": 1000102,\n    \"HasBeenRecommended\": false\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "NPCData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"NPCData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"keith_wagner\"}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                },
+                {
+                    "Name": "CustomerData",
+                    "Contents": "{\n    \"DataType\": \"CustomerData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"Dependence\": 0.0,\n    \"ProductAffinities\": [\n        0.0,\n        1.0,\n        0.20999999344348908,\n        0.1469506025314331\n    ],\n    \"TimeSinceLastDealCompleted\": 1000104,\n    \"TimeSinceLastDealOffered\": 1000104,\n    \"OfferedDeals\": 0,\n    \"CompletedDeals\": 0,\n    \"IsContractOffered\": false,\n    \"OfferedContract\": {\n        \"Payment\": 0.0,\n        \"Products\": {\n            \"entries\": []\n        },\n        \"DeliveryLocationGUID\": \"\",\n        \"DeliveryWindow\": {\n            \"IsEnabled\": false,\n            \"WindowStartTime\": 1200,\n            \"WindowEndTime\": 1800\n        },\n        \"Expires\": false,\n        \"ExpiresAfter\": 0,\n        \"PickupScheduleIndex\": 0,\n        \"IsCounterOffer\": false\n    },\n    \"OfferedContractTime\": {\n        \"elapsedDays\": 0,\n        \"time\": 0\n    },\n    \"TimeSincePlayerApproached\": 1000104,\n    \"TimeSinceInstantDealOffered\": 1000104,\n    \"HasBeenRecommended\": false\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "NPCData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"NPCData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"kevin_oakley\"}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                },
+                {
+                    "Name": "CustomerData",
+                    "Contents": "{\n    \"DataType\": \"CustomerData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"Dependence\": 0.0,\n    \"ProductAffinities\": [\n        0.7239999771118164,\n        -0.5120000243186951,\n        0.6159999966621399,\n        -0.8099826574325562\n    ],\n    \"TimeSinceLastDealCompleted\": 1000104,\n    \"TimeSinceLastDealOffered\": 1000104,\n    \"OfferedDeals\": 0,\n    \"CompletedDeals\": 0,\n    \"IsContractOffered\": false,\n    \"OfferedContract\": {\n        \"Payment\": 0.0,\n        \"Products\": {\n            \"entries\": []\n        },\n        \"DeliveryLocationGUID\": \"\",\n        \"DeliveryWindow\": {\n            \"IsEnabled\": false,\n            \"WindowStartTime\": 1200,\n            \"WindowEndTime\": 1800\n        },\n        \"Expires\": false,\n        \"ExpiresAfter\": 0,\n        \"PickupScheduleIndex\": 0,\n        \"IsCounterOffer\": false\n    },\n    \"OfferedContractTime\": {\n        \"elapsedDays\": 0,\n        \"time\": 0\n    },\n    \"TimeSincePlayerApproached\": 1000104,\n    \"TimeSinceInstantDealOffered\": 1000104,\n    \"HasBeenRecommended\": false\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "NPCData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"NPCData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"billy_kramer\"}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                },
+                {
+                    "Name": "CustomerData",
+                    "Contents": "{\n    \"DataType\": \"CustomerData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"Dependence\": 0.0,\n    \"ProductAffinities\": [\n        0.08743894100189209,\n        -0.6264557838439941,\n        0.5707523822784424,\n        -0.5821741223335266\n    ],\n    \"TimeSinceLastDealCompleted\": 1000104,\n    \"TimeSinceLastDealOffered\": 1000104,\n    \"OfferedDeals\": 0,\n    \"CompletedDeals\": 0,\n    \"IsContractOffered\": false,\n    \"OfferedContract\": {\n        \"Payment\": 0.0,\n        \"Products\": {\n            \"entries\": []\n        },\n        \"DeliveryLocationGUID\": \"\",\n        \"DeliveryWindow\": {\n            \"IsEnabled\": false,\n            \"WindowStartTime\": 1200,\n            \"WindowEndTime\": 1800\n        },\n        \"Expires\": false,\n        \"ExpiresAfter\": 0,\n        \"PickupScheduleIndex\": 0,\n        \"IsCounterOffer\": false\n    },\n    \"OfferedContractTime\": {\n        \"elapsedDays\": 0,\n        \"time\": 0\n    },\n    \"TimeSincePlayerApproached\": 1000104,\n    \"TimeSinceInstantDealOffered\": 1000104,\n    \"HasBeenRecommended\": false\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "NPCData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"NPCData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"marco_baron\"}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                },
+                {
+                    "Name": "CustomerData",
+                    "Contents": "{\n    \"DataType\": \"CustomerData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"Dependence\": 0.0,\n    \"ProductAffinities\": [\n        0.33875367045402529,\n        0.08089005947113037,\n        0.5416569709777832,\n        -0.9263917803764343\n    ],\n    \"TimeSinceLastDealCompleted\": 1000104,\n    \"TimeSinceLastDealOffered\": 1000104,\n    \"OfferedDeals\": 0,\n    \"CompletedDeals\": 0,\n    \"IsContractOffered\": false,\n    \"OfferedContract\": {\n        \"Payment\": 0.0,\n        \"Products\": {\n            \"entries\": []\n        },\n        \"DeliveryLocationGUID\": \"\",\n        \"DeliveryWindow\": {\n            \"IsEnabled\": false,\n            \"WindowStartTime\": 1200,\n            \"WindowEndTime\": 1800\n        },\n        \"Expires\": false,\n        \"ExpiresAfter\": 0,\n        \"PickupScheduleIndex\": 0,\n        \"IsCounterOffer\": false\n    },\n    \"OfferedContractTime\": {\n        \"elapsedDays\": 0,\n        \"time\": 0\n    },\n    \"TimeSincePlayerApproached\": 1000104,\n    \"TimeSinceInstantDealOffered\": 1000104,\n    \"HasBeenRecommended\": false\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "NPCData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"NPCData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"stan_carney\"}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "NPCData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"NPCData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"kathy_henderson\"}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 3.0,\n    \"Unlocked\": true,\n    \"UnlockType\": 1\n}"
+                },
+                {
+                    "Name": "CustomerData",
+                    "Contents": "{\n    \"DataType\": \"CustomerData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"Dependence\": 0.0,\n    \"ProductAffinities\": [\n        0.550000011920929,\n        0.27000001072883608,\n        -0.6100000143051148,\n        -0.8021265864372253\n    ],\n    \"TimeSinceLastDealCompleted\": 1001171,\n    \"TimeSinceLastDealOffered\": 1001171,\n    \"OfferedDeals\": 0,\n    \"CompletedDeals\": 0,\n    \"IsContractOffered\": false,\n    \"OfferedContract\": {\n        \"Payment\": 0.0,\n        \"Products\": {\n            \"entries\": []\n        },\n        \"DeliveryLocationGUID\": \"\",\n        \"DeliveryWindow\": {\n            \"IsEnabled\": false,\n            \"WindowStartTime\": 1200,\n            \"WindowEndTime\": 1800\n        },\n        \"Expires\": false,\n        \"ExpiresAfter\": 0,\n        \"PickupScheduleIndex\": 0,\n        \"IsCounterOffer\": false\n    },\n    \"OfferedContractTime\": {\n        \"elapsedDays\": 0,\n        \"time\": 0\n    },\n    \"TimeSincePlayerApproached\": 102,\n    \"TimeSinceInstantDealOffered\": 102,\n    \"HasBeenRecommended\": false\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "DealerData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"DealerData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"jane_lucero\",\"Recruited\":false,\"AssignedCustomerIDs\":[],\"ActiveContractGUIDs\":[],\"Cash\":0.0,\"OverflowItems\":{\"Items\":[\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\"],\"SlotFilters\":[{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]}]},\"HasBeenRecommended\":false}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "SupplierData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"SupplierData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"albert_hoover\",\"timeSinceMeetingStart\":-1,\"timeSinceLastMeetingEnd\":1893,\"debt\":0.0,\"minsUntilDeadDropReady\":-1,\"deaddropItems\":[],\"debtReminderSent\":false}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.5,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "NPCData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"NPCData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"beth_penn\"}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                },
+                {
+                    "Name": "CustomerData",
+                    "Contents": "{\n    \"DataType\": \"CustomerData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"Dependence\": 0.0,\n    \"ProductAffinities\": [\n        0.30246588587760928,\n        0.3084084689617157,\n        -0.1968921422958374,\n        0.12882213294506074\n    ],\n    \"TimeSinceLastDealCompleted\": 1000102,\n    \"TimeSinceLastDealOffered\": 1000102,\n    \"OfferedDeals\": 0,\n    \"CompletedDeals\": 0,\n    \"IsContractOffered\": false,\n    \"OfferedContract\": {\n        \"Payment\": 0.0,\n        \"Products\": {\n            \"entries\": []\n        },\n        \"DeliveryLocationGUID\": \"\",\n        \"DeliveryWindow\": {\n            \"IsEnabled\": false,\n            \"WindowStartTime\": 1200,\n            \"WindowEndTime\": 1800\n        },\n        \"Expires\": false,\n        \"ExpiresAfter\": 0,\n        \"PickupScheduleIndex\": 0,\n        \"IsCounterOffer\": false\n    },\n    \"OfferedContractTime\": {\n        \"elapsedDays\": 0,\n        \"time\": 0\n    },\n    \"TimeSincePlayerApproached\": 1000102,\n    \"TimeSinceInstantDealOffered\": 1000102,\n    \"HasBeenRecommended\": false\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "NPCData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"NPCData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"tobias_wentworth\"}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                },
+                {
+                    "Name": "CustomerData",
+                    "Contents": "{\n    \"DataType\": \"CustomerData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"Dependence\": 0.0,\n    \"ProductAffinities\": [\n        0.1862882375717163,\n        0.7633481025695801,\n        0.16926825046539308,\n        0.4084472358226776\n    ],\n    \"TimeSinceLastDealCompleted\": 1000102,\n    \"TimeSinceLastDealOffered\": 1000102,\n    \"OfferedDeals\": 0,\n    \"CompletedDeals\": 0,\n    \"IsContractOffered\": false,\n    \"OfferedContract\": {\n        \"Payment\": 0.0,\n        \"Products\": {\n            \"entries\": []\n        },\n        \"DeliveryLocationGUID\": \"\",\n        \"DeliveryWindow\": {\n            \"IsEnabled\": false,\n            \"WindowStartTime\": 1200,\n            \"WindowEndTime\": 1800\n        },\n        \"Expires\": false,\n        \"ExpiresAfter\": 0,\n        \"PickupScheduleIndex\": 0,\n        \"IsCounterOffer\": false\n    },\n    \"OfferedContractTime\": {\n        \"elapsedDays\": 0,\n        \"time\": 0\n    },\n    \"TimeSincePlayerApproached\": 1000102,\n    \"TimeSinceInstantDealOffered\": 1000102,\n    \"HasBeenRecommended\": false\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "NPCData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"NPCData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"kim_delaney\"}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                },
+                {
+                    "Name": "CustomerData",
+                    "Contents": "{\n    \"DataType\": \"CustomerData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"Dependence\": 0.0,\n    \"ProductAffinities\": [\n        0.7300000190734863,\n        -0.5699999928474426,\n        0.8600000143051148,\n        -0.6305105686187744\n    ],\n    \"TimeSinceLastDealCompleted\": 1000104,\n    \"TimeSinceLastDealOffered\": 1000104,\n    \"OfferedDeals\": 0,\n    \"CompletedDeals\": 0,\n    \"IsContractOffered\": false,\n    \"OfferedContract\": {\n        \"Payment\": 0.0,\n        \"Products\": {\n            \"entries\": []\n        },\n        \"DeliveryLocationGUID\": \"\",\n        \"DeliveryWindow\": {\n            \"IsEnabled\": false,\n            \"WindowStartTime\": 1200,\n            \"WindowEndTime\": 1800\n        },\n        \"Expires\": false,\n        \"ExpiresAfter\": 0,\n        \"PickupScheduleIndex\": 0,\n        \"IsCounterOffer\": false\n    },\n    \"OfferedContractTime\": {\n        \"elapsedDays\": 0,\n        \"time\": 0\n    },\n    \"TimeSincePlayerApproached\": 1000104,\n    \"TimeSinceInstantDealOffered\": 1000104,\n    \"HasBeenRecommended\": false\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "SupplierData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"SupplierData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"salvador_moreno\",\"timeSinceMeetingStart\":-1,\"timeSinceLastMeetingEnd\":824,\"debt\":0.0,\"minsUntilDeadDropReady\":-1,\"deaddropItems\":[],\"debtReminderSent\":false}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "NPCData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"NPCData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"lisa_gardener\"}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                },
+                {
+                    "Name": "CustomerData",
+                    "Contents": "{\n    \"DataType\": \"CustomerData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"Dependence\": 0.0,\n    \"ProductAffinities\": [\n        -0.8211581707000732,\n        -0.3561795949935913,\n        -0.2764521837234497,\n        -0.775590181350708\n    ],\n    \"TimeSinceLastDealCompleted\": 1000104,\n    \"TimeSinceLastDealOffered\": 1000104,\n    \"OfferedDeals\": 0,\n    \"CompletedDeals\": 0,\n    \"IsContractOffered\": false,\n    \"OfferedContract\": {\n        \"Payment\": 0.0,\n        \"Products\": {\n            \"entries\": []\n        },\n        \"DeliveryLocationGUID\": \"\",\n        \"DeliveryWindow\": {\n            \"IsEnabled\": false,\n            \"WindowStartTime\": 1200,\n            \"WindowEndTime\": 1800\n        },\n        \"Expires\": false,\n        \"ExpiresAfter\": 0,\n        \"PickupScheduleIndex\": 0,\n        \"IsCounterOffer\": false\n    },\n    \"OfferedContractTime\": {\n        \"elapsedDays\": 0,\n        \"time\": 0\n    },\n    \"TimeSincePlayerApproached\": 1000104,\n    \"TimeSinceInstantDealOffered\": 1000104,\n    \"HasBeenRecommended\": false\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "NPCData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"NPCData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"eugene_buckley\"}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                },
+                {
+                    "Name": "CustomerData",
+                    "Contents": "{\n    \"DataType\": \"CustomerData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"Dependence\": 0.0,\n    \"ProductAffinities\": [\n        0.6618354320526123,\n        0.10985362529754639,\n        0.1664646863937378,\n        0.10216096043586731\n    ],\n    \"TimeSinceLastDealCompleted\": 1000104,\n    \"TimeSinceLastDealOffered\": 1000104,\n    \"OfferedDeals\": 0,\n    \"CompletedDeals\": 0,\n    \"IsContractOffered\": false,\n    \"OfferedContract\": {\n        \"Payment\": 0.0,\n        \"Products\": {\n            \"entries\": []\n        },\n        \"DeliveryLocationGUID\": \"\",\n        \"DeliveryWindow\": {\n            \"IsEnabled\": false,\n            \"WindowStartTime\": 1200,\n            \"WindowEndTime\": 1800\n        },\n        \"Expires\": false,\n        \"ExpiresAfter\": 0,\n        \"PickupScheduleIndex\": 0,\n        \"IsCounterOffer\": false\n    },\n    \"OfferedContractTime\": {\n        \"elapsedDays\": 0,\n        \"time\": 0\n    },\n    \"TimeSincePlayerApproached\": 1000104,\n    \"TimeSinceInstantDealOffered\": 1000104,\n    \"HasBeenRecommended\": false\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "NPCData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"NPCData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"karen_kennedy\"}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                },
+                {
+                    "Name": "CustomerData",
+                    "Contents": "{\n    \"DataType\": \"CustomerData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"Dependence\": 0.0,\n    \"ProductAffinities\": [\n        0.5270000100135803,\n        -0.5120000243186951,\n        0.546999990940094,\n        -0.0355280339717865\n    ],\n    \"TimeSinceLastDealCompleted\": 1000104,\n    \"TimeSinceLastDealOffered\": 1000104,\n    \"OfferedDeals\": 0,\n    \"CompletedDeals\": 0,\n    \"IsContractOffered\": false,\n    \"OfferedContract\": {\n        \"Payment\": 0.0,\n        \"Products\": {\n            \"entries\": []\n        },\n        \"DeliveryLocationGUID\": \"\",\n        \"DeliveryWindow\": {\n            \"IsEnabled\": false,\n            \"WindowStartTime\": 1200,\n            \"WindowEndTime\": 1800\n        },\n        \"Expires\": false,\n        \"ExpiresAfter\": 0,\n        \"PickupScheduleIndex\": 0,\n        \"IsCounterOffer\": false\n    },\n    \"OfferedContractTime\": {\n        \"elapsedDays\": 0,\n        \"time\": 0\n    },\n    \"TimeSincePlayerApproached\": 1000104,\n    \"TimeSinceInstantDealOffered\": 1000104,\n    \"HasBeenRecommended\": false\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "NPCData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"NPCData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"jen_heard\"}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                },
+                {
+                    "Name": "Inventory",
+                    "Contents": "{\n    \"Items\": [\n        \"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"sewerkey\\\",\\\"Quantity\\\":1}\",\n        \"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\n        \"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\n        \"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\n        \"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\"\n    ],\n    \"SlotFilters\": [\n        {\n            \"Type\": 0,\n            \"ItemIDs\": [],\n            \"AllowedQualities\": [\n                0,\n                1,\n                2,\n                3,\n                4\n            ]\n        },\n        {\n            \"Type\": 0,\n            \"ItemIDs\": [],\n            \"AllowedQualities\": [\n                0,\n                1,\n                2,\n                3,\n                4\n            ]\n        },\n        {\n            \"Type\": 0,\n            \"ItemIDs\": [],\n            \"AllowedQualities\": [\n                0,\n                1,\n                2,\n                3,\n                4\n            ]\n        },\n        {\n            \"Type\": 0,\n            \"ItemIDs\": [],\n            \"AllowedQualities\": [\n                0,\n                1,\n                2,\n                3,\n                4\n            ]\n        },\n        {\n            \"Type\": 0,\n            \"ItemIDs\": [],\n            \"AllowedQualities\": [\n                0,\n                1,\n                2,\n                3,\n                4\n            ]\n        }\n    ]\n}"
+                },
+                {
+                    "Name": "CustomerData",
+                    "Contents": "{\n    \"DataType\": \"CustomerData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"Dependence\": 0.0,\n    \"ProductAffinities\": [\n        0.41100001335144045,\n        -0.7860000133514404,\n        1.0,\n        -0.4815446138381958\n    ],\n    \"TimeSinceLastDealCompleted\": 1000102,\n    \"TimeSinceLastDealOffered\": 1000102,\n    \"OfferedDeals\": 0,\n    \"CompletedDeals\": 0,\n    \"IsContractOffered\": false,\n    \"OfferedContract\": {\n        \"Payment\": 0.0,\n        \"Products\": {\n            \"entries\": []\n        },\n        \"DeliveryLocationGUID\": \"\",\n        \"DeliveryWindow\": {\n            \"IsEnabled\": false,\n            \"WindowStartTime\": 1200,\n            \"WindowEndTime\": 1800\n        },\n        \"Expires\": false,\n        \"ExpiresAfter\": 0,\n        \"PickupScheduleIndex\": 0,\n        \"IsCounterOffer\": false\n    },\n    \"OfferedContractTime\": {\n        \"elapsedDays\": 0,\n        \"time\": 0\n    },\n    \"TimeSincePlayerApproached\": 1000102,\n    \"TimeSinceInstantDealOffered\": 1000102,\n    \"HasBeenRecommended\": false\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "DealerData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"DealerData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"carteldealer\",\"Recruited\":false,\"AssignedCustomerIDs\":[],\"ActiveContractGUIDs\":[],\"Cash\":0.0,\"OverflowItems\":{\"Items\":[\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\"],\"SlotFilters\":[{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]}]},\"HasBeenRecommended\":false}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "DealerData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"DealerData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"carteldealer\",\"Recruited\":false,\"AssignedCustomerIDs\":[],\"ActiveContractGUIDs\":[],\"Cash\":0.0,\"OverflowItems\":{\"Items\":[\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\"],\"SlotFilters\":[{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]}]},\"HasBeenRecommended\":false}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "DealerData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"DealerData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"carteldealer\",\"Recruited\":false,\"AssignedCustomerIDs\":[],\"ActiveContractGUIDs\":[],\"Cash\":0.0,\"OverflowItems\":{\"Items\":[\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\"],\"SlotFilters\":[{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]}]},\"HasBeenRecommended\":false}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "DealerData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"DealerData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"carteldealer\",\"Recruited\":false,\"AssignedCustomerIDs\":[],\"ActiveContractGUIDs\":[],\"Cash\":0.0,\"OverflowItems\":{\"Items\":[\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\"],\"SlotFilters\":[{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]}]},\"HasBeenRecommended\":false}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "DealerData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"DealerData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"carteldealer\",\"Recruited\":false,\"AssignedCustomerIDs\":[],\"ActiveContractGUIDs\":[],\"Cash\":0.0,\"OverflowItems\":{\"Items\":[\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\"],\"SlotFilters\":[{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]}]},\"HasBeenRecommended\":false}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "NPCData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"NPCData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"michael_boog\"}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                },
+                {
+                    "Name": "CustomerData",
+                    "Contents": "{\n    \"DataType\": \"CustomerData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"Dependence\": 0.0,\n    \"ProductAffinities\": [\n        0.1705714464187622,\n        0.954737663269043,\n        0.7000224590301514,\n        0.7702413201332092\n    ],\n    \"TimeSinceLastDealCompleted\": 1000104,\n    \"TimeSinceLastDealOffered\": 1000104,\n    \"OfferedDeals\": 0,\n    \"CompletedDeals\": 0,\n    \"IsContractOffered\": false,\n    \"OfferedContract\": {\n        \"Payment\": 0.0,\n        \"Products\": {\n            \"entries\": []\n        },\n        \"DeliveryLocationGUID\": \"\",\n        \"DeliveryWindow\": {\n            \"IsEnabled\": false,\n            \"WindowStartTime\": 1200,\n            \"WindowEndTime\": 1800\n        },\n        \"Expires\": false,\n        \"ExpiresAfter\": 0,\n        \"PickupScheduleIndex\": 0,\n        \"IsCounterOffer\": false\n    },\n    \"OfferedContractTime\": {\n        \"elapsedDays\": 0,\n        \"time\": 0\n    },\n    \"TimeSincePlayerApproached\": 1000104,\n    \"TimeSinceInstantDealOffered\": 1000104,\n    \"HasBeenRecommended\": false\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "NPCData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"NPCData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"dean_webster\"}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                },
+                {
+                    "Name": "CustomerData",
+                    "Contents": "{\n    \"DataType\": \"CustomerData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"Dependence\": 0.0,\n    \"ProductAffinities\": [\n        0.5080000162124634,\n        1.0,\n        0.0,\n        -0.0780571699142456\n    ],\n    \"TimeSinceLastDealCompleted\": 1000102,\n    \"TimeSinceLastDealOffered\": 1000102,\n    \"OfferedDeals\": 0,\n    \"CompletedDeals\": 0,\n    \"IsContractOffered\": false,\n    \"OfferedContract\": {\n        \"Payment\": 0.0,\n        \"Products\": {\n            \"entries\": []\n        },\n        \"DeliveryLocationGUID\": \"\",\n        \"DeliveryWindow\": {\n            \"IsEnabled\": false,\n            \"WindowStartTime\": 1200,\n            \"WindowEndTime\": 1800\n        },\n        \"Expires\": false,\n        \"ExpiresAfter\": 0,\n        \"PickupScheduleIndex\": 0,\n        \"IsCounterOffer\": false\n    },\n    \"OfferedContractTime\": {\n        \"elapsedDays\": 0,\n        \"time\": 0\n    },\n    \"TimeSincePlayerApproached\": 1000102,\n    \"TimeSinceInstantDealOffered\": 1000102,\n    \"HasBeenRecommended\": false\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "NPCData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"NPCData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"elizabeth_homley\"}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                },
+                {
+                    "Name": "CustomerData",
+                    "Contents": "{\n    \"DataType\": \"CustomerData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"Dependence\": 0.0,\n    \"ProductAffinities\": [\n        0.32612964510917666,\n        0.4473540484905243,\n        0.3176529109477997,\n        -0.4008634388446808\n    ],\n    \"TimeSinceLastDealCompleted\": 1000102,\n    \"TimeSinceLastDealOffered\": 1000102,\n    \"OfferedDeals\": 0,\n    \"CompletedDeals\": 0,\n    \"IsContractOffered\": false,\n    \"OfferedContract\": {\n        \"Payment\": 0.0,\n        \"Products\": {\n            \"entries\": []\n        },\n        \"DeliveryLocationGUID\": \"\",\n        \"DeliveryWindow\": {\n            \"IsEnabled\": false,\n            \"WindowStartTime\": 1200,\n            \"WindowEndTime\": 1800\n        },\n        \"Expires\": false,\n        \"ExpiresAfter\": 0,\n        \"PickupScheduleIndex\": 0,\n        \"IsCounterOffer\": false\n    },\n    \"OfferedContractTime\": {\n        \"elapsedDays\": 0,\n        \"time\": 0\n    },\n    \"TimeSincePlayerApproached\": 1000102,\n    \"TimeSinceInstantDealOffered\": 1000102,\n    \"HasBeenRecommended\": false\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "NPCData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"NPCData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"herbert_bleuball\"}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                },
+                {
+                    "Name": "CustomerData",
+                    "Contents": "{\n    \"DataType\": \"CustomerData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"Dependence\": 0.0,\n    \"ProductAffinities\": [\n        0.8096444606781006,\n        0.3889605700969696,\n        0.2694868743419647,\n        0.708579421043396\n    ],\n    \"TimeSinceLastDealCompleted\": 1000104,\n    \"TimeSinceLastDealOffered\": 1000104,\n    \"OfferedDeals\": 0,\n    \"CompletedDeals\": 0,\n    \"IsContractOffered\": false,\n    \"OfferedContract\": {\n        \"Payment\": 0.0,\n        \"Products\": {\n            \"entries\": []\n        },\n        \"DeliveryLocationGUID\": \"\",\n        \"DeliveryWindow\": {\n            \"IsEnabled\": false,\n            \"WindowStartTime\": 1200,\n            \"WindowEndTime\": 1800\n        },\n        \"Expires\": false,\n        \"ExpiresAfter\": 0,\n        \"PickupScheduleIndex\": 0,\n        \"IsCounterOffer\": false\n    },\n    \"OfferedContractTime\": {\n        \"elapsedDays\": 0,\n        \"time\": 0\n    },\n    \"TimeSincePlayerApproached\": 1000104,\n    \"TimeSinceInstantDealOffered\": 1000104,\n    \"HasBeenRecommended\": false\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "NPCData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"NPCData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"mick_lubbin\"}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 3.0,\n    \"Unlocked\": true,\n    \"UnlockType\": 1\n}"
+                },
+                {
+                    "Name": "CustomerData",
+                    "Contents": "{\n    \"DataType\": \"CustomerData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"Dependence\": 0.0,\n    \"ProductAffinities\": [\n        -0.7300000190734863,\n        0.8799999952316284,\n        0.3700000047683716,\n        -0.08235520124435425\n    ],\n    \"TimeSinceLastDealCompleted\": 1001173,\n    \"TimeSinceLastDealOffered\": 1001173,\n    \"OfferedDeals\": 0,\n    \"CompletedDeals\": 0,\n    \"IsContractOffered\": false,\n    \"OfferedContract\": {\n        \"Payment\": 0.0,\n        \"Products\": {\n            \"entries\": []\n        },\n        \"DeliveryLocationGUID\": \"\",\n        \"DeliveryWindow\": {\n            \"IsEnabled\": false,\n            \"WindowStartTime\": 1200,\n            \"WindowEndTime\": 1800\n        },\n        \"Expires\": false,\n        \"ExpiresAfter\": 0,\n        \"PickupScheduleIndex\": 0,\n        \"IsCounterOffer\": false\n    },\n    \"OfferedContractTime\": {\n        \"elapsedDays\": 0,\n        \"time\": 0\n    },\n    \"TimeSincePlayerApproached\": 104,\n    \"TimeSinceInstantDealOffered\": 104,\n    \"HasBeenRecommended\": false\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "NPCData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"NPCData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"genghis_barn\"}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                },
+                {
+                    "Name": "CustomerData",
+                    "Contents": "{\n    \"DataType\": \"CustomerData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"Dependence\": 0.0,\n    \"ProductAffinities\": [\n        0.8450076580047607,\n        -0.6381111145019531,\n        0.4453870952129364,\n        -0.47514447569847109\n    ],\n    \"TimeSinceLastDealCompleted\": 1000104,\n    \"TimeSinceLastDealOffered\": 1000104,\n    \"OfferedDeals\": 0,\n    \"CompletedDeals\": 0,\n    \"IsContractOffered\": false,\n    \"OfferedContract\": {\n        \"Payment\": 0.0,\n        \"Products\": {\n            \"entries\": []\n        },\n        \"DeliveryLocationGUID\": \"\",\n        \"DeliveryWindow\": {\n            \"IsEnabled\": false,\n            \"WindowStartTime\": 1200,\n            \"WindowEndTime\": 1800\n        },\n        \"Expires\": false,\n        \"ExpiresAfter\": 0,\n        \"PickupScheduleIndex\": 0,\n        \"IsCounterOffer\": false\n    },\n    \"OfferedContractTime\": {\n        \"elapsedDays\": 0,\n        \"time\": 0\n    },\n    \"TimeSincePlayerApproached\": 1000104,\n    \"TimeSinceInstantDealOffered\": 1000104,\n    \"HasBeenRecommended\": false\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "NPCData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"NPCData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"chloe_bowers\"}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                },
+                {
+                    "Name": "CustomerData",
+                    "Contents": "{\n    \"DataType\": \"CustomerData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"Dependence\": 0.0,\n    \"ProductAffinities\": [\n        0.44398877024650576,\n        0.7921531200408936,\n        0.24973881244659425,\n        0.1690000593662262\n    ],\n    \"TimeSinceLastDealCompleted\": 1000102,\n    \"TimeSinceLastDealOffered\": 1000102,\n    \"OfferedDeals\": 0,\n    \"CompletedDeals\": 0,\n    \"IsContractOffered\": false,\n    \"OfferedContract\": {\n        \"Payment\": 0.0,\n        \"Products\": {\n            \"entries\": []\n        },\n        \"DeliveryLocationGUID\": \"\",\n        \"DeliveryWindow\": {\n            \"IsEnabled\": false,\n            \"WindowStartTime\": 1200,\n            \"WindowEndTime\": 1800\n        },\n        \"Expires\": false,\n        \"ExpiresAfter\": 0,\n        \"PickupScheduleIndex\": 0,\n        \"IsCounterOffer\": false\n    },\n    \"OfferedContractTime\": {\n        \"elapsedDays\": 0,\n        \"time\": 0\n    },\n    \"TimeSincePlayerApproached\": 1000102,\n    \"TimeSinceInstantDealOffered\": 1000102,\n    \"HasBeenRecommended\": false\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "NPCData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"NPCData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"mac_cooper\"}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                },
+                {
+                    "Name": "CustomerData",
+                    "Contents": "{\n    \"DataType\": \"CustomerData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"Dependence\": 0.0,\n    \"ProductAffinities\": [\n        -0.5712406635284424,\n        -0.38329994678497317,\n        0.2680961787700653,\n        -0.796015202999115\n    ],\n    \"TimeSinceLastDealCompleted\": 1000102,\n    \"TimeSinceLastDealOffered\": 1000102,\n    \"OfferedDeals\": 0,\n    \"CompletedDeals\": 0,\n    \"IsContractOffered\": false,\n    \"OfferedContract\": {\n        \"Payment\": 0.0,\n        \"Products\": {\n            \"entries\": []\n        },\n        \"DeliveryLocationGUID\": \"\",\n        \"DeliveryWindow\": {\n            \"IsEnabled\": false,\n            \"WindowStartTime\": 1200,\n            \"WindowEndTime\": 1800\n        },\n        \"Expires\": false,\n        \"ExpiresAfter\": 0,\n        \"PickupScheduleIndex\": 0,\n        \"IsCounterOffer\": false\n    },\n    \"OfferedContractTime\": {\n        \"elapsedDays\": 0,\n        \"time\": 0\n    },\n    \"TimeSincePlayerApproached\": 1000102,\n    \"TimeSinceInstantDealOffered\": 1000102,\n    \"HasBeenRecommended\": false\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "NPCData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"NPCData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"sam_thompson\"}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 3.0,\n    \"Unlocked\": true,\n    \"UnlockType\": 1\n}"
+                },
+                {
+                    "Name": "CustomerData",
+                    "Contents": "{\n    \"DataType\": \"CustomerData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"Dependence\": 0.0,\n    \"ProductAffinities\": [\n        -0.755561351776123,\n        0.2995903193950653,\n        -0.8023519515991211,\n        0.23905718326568604\n    ],\n    \"TimeSinceLastDealCompleted\": 1000134,\n    \"TimeSinceLastDealOffered\": 1000134,\n    \"OfferedDeals\": 0,\n    \"CompletedDeals\": 0,\n    \"IsContractOffered\": false,\n    \"OfferedContract\": {\n        \"Payment\": 0.0,\n        \"Products\": {\n            \"entries\": []\n        },\n        \"DeliveryLocationGUID\": \"\",\n        \"DeliveryWindow\": {\n            \"IsEnabled\": false,\n            \"WindowStartTime\": 1200,\n            \"WindowEndTime\": 1800\n        },\n        \"Expires\": false,\n        \"ExpiresAfter\": 0,\n        \"PickupScheduleIndex\": 0,\n        \"IsCounterOffer\": false\n    },\n    \"OfferedContractTime\": {\n        \"elapsedDays\": 0,\n        \"time\": 0\n    },\n    \"TimeSincePlayerApproached\": 1000134,\n    \"TimeSinceInstantDealOffered\": 1000134,\n    \"HasBeenRecommended\": false\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "NPCData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"NPCData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"igor_romanovich\"}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "DealerData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"DealerData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"molly_presley\",\"Recruited\":false,\"AssignedCustomerIDs\":[],\"ActiveContractGUIDs\":[],\"Cash\":0.0,\"OverflowItems\":{\"Items\":[\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\"],\"SlotFilters\":[{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]}]},\"HasBeenRecommended\":false}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "NPCData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"NPCData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"jerry_montero\"}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                },
+                {
+                    "Name": "Inventory",
+                    "Contents": "{\n    \"Items\": [\n        \"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"sewerkey\\\",\\\"Quantity\\\":1}\",\n        \"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\n        \"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\n        \"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\n        \"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\"\n    ],\n    \"SlotFilters\": [\n        {\n            \"Type\": 0,\n            \"ItemIDs\": [],\n            \"AllowedQualities\": [\n                0,\n                1,\n                2,\n                3,\n                4\n            ]\n        },\n        {\n            \"Type\": 0,\n            \"ItemIDs\": [],\n            \"AllowedQualities\": [\n                0,\n                1,\n                2,\n                3,\n                4\n            ]\n        },\n        {\n            \"Type\": 0,\n            \"ItemIDs\": [],\n            \"AllowedQualities\": [\n                0,\n                1,\n                2,\n                3,\n                4\n            ]\n        },\n        {\n            \"Type\": 0,\n            \"ItemIDs\": [],\n            \"AllowedQualities\": [\n                0,\n                1,\n                2,\n                3,\n                4\n            ]\n        },\n        {\n            \"Type\": 0,\n            \"ItemIDs\": [],\n            \"AllowedQualities\": [\n                0,\n                1,\n                2,\n                3,\n                4\n            ]\n        }\n    ]\n}"
+                },
+                {
+                    "Name": "CustomerData",
+                    "Contents": "{\n    \"DataType\": \"CustomerData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"Dependence\": 0.0,\n    \"ProductAffinities\": [\n        0.3400000035762787,\n        0.0,\n        0.6100000143051148,\n        0.9440000057220459\n    ],\n    \"TimeSinceLastDealCompleted\": 1000102,\n    \"TimeSinceLastDealOffered\": 1000102,\n    \"OfferedDeals\": 0,\n    \"CompletedDeals\": 0,\n    \"IsContractOffered\": false,\n    \"OfferedContract\": {\n        \"Payment\": 0.0,\n        \"Products\": {\n            \"entries\": []\n        },\n        \"DeliveryLocationGUID\": \"\",\n        \"DeliveryWindow\": {\n            \"IsEnabled\": false,\n            \"WindowStartTime\": 1200,\n            \"WindowEndTime\": 1800\n        },\n        \"Expires\": false,\n        \"ExpiresAfter\": 0,\n        \"PickupScheduleIndex\": 0,\n        \"IsCounterOffer\": false\n    },\n    \"OfferedContractTime\": {\n        \"elapsedDays\": 0,\n        \"time\": 0\n    },\n    \"TimeSincePlayerApproached\": 1000102,\n    \"TimeSinceInstantDealOffered\": 1000102,\n    \"HasBeenRecommended\": false\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "NPCData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"NPCData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"greg_fliggle\"}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                },
+                {
+                    "Name": "CustomerData",
+                    "Contents": "{\n    \"DataType\": \"CustomerData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"Dependence\": 0.0,\n    \"ProductAffinities\": [\n        0.5778086185455322,\n        -0.5788087844848633,\n        -0.34890711307525637,\n        -0.9119643568992615\n    ],\n    \"TimeSinceLastDealCompleted\": 1000102,\n    \"TimeSinceLastDealOffered\": 1000102,\n    \"OfferedDeals\": 0,\n    \"CompletedDeals\": 0,\n    \"IsContractOffered\": false,\n    \"OfferedContract\": {\n        \"Payment\": 0.0,\n        \"Products\": {\n            \"entries\": []\n        },\n        \"DeliveryLocationGUID\": \"\",\n        \"DeliveryWindow\": {\n            \"IsEnabled\": false,\n            \"WindowStartTime\": 1200,\n            \"WindowEndTime\": 1800\n        },\n        \"Expires\": false,\n        \"ExpiresAfter\": 0,\n        \"PickupScheduleIndex\": 0,\n        \"IsCounterOffer\": false\n    },\n    \"OfferedContractTime\": {\n        \"elapsedDays\": 0,\n        \"time\": 0\n    },\n    \"TimeSincePlayerApproached\": 1000102,\n    \"TimeSinceInstantDealOffered\": 1000102,\n    \"HasBeenRecommended\": false\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "NPCData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"NPCData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"cartelgoon\"}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "NPCData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"NPCData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"cartelgoon\"}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "NPCData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"NPCData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"cartelgoon\"}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "NPCData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"NPCData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"cartelgoon\"}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "NPCData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"NPCData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"cartelgoon\"}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "NPCData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"NPCData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"jeff_gilmore\"}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                },
+                {
+                    "Name": "CustomerData",
+                    "Contents": "{\n    \"DataType\": \"CustomerData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"Dependence\": 0.0,\n    \"ProductAffinities\": [\n        0.75,\n        -0.8399999737739563,\n        -0.3100000023841858,\n        0.8889999985694885\n    ],\n    \"TimeSinceLastDealCompleted\": 1000102,\n    \"TimeSinceLastDealOffered\": 1000102,\n    \"OfferedDeals\": 0,\n    \"CompletedDeals\": 0,\n    \"IsContractOffered\": false,\n    \"OfferedContract\": {\n        \"Payment\": 0.0,\n        \"Products\": {\n            \"entries\": []\n        },\n        \"DeliveryLocationGUID\": \"\",\n        \"DeliveryWindow\": {\n            \"IsEnabled\": false,\n            \"WindowStartTime\": 1200,\n            \"WindowEndTime\": 1800\n        },\n        \"Expires\": false,\n        \"ExpiresAfter\": 0,\n        \"PickupScheduleIndex\": 0,\n        \"IsCounterOffer\": false\n    },\n    \"OfferedContractTime\": {\n        \"elapsedDays\": 0,\n        \"time\": 0\n    },\n    \"TimeSincePlayerApproached\": 1000102,\n    \"TimeSinceInstantDealOffered\": 1000102,\n    \"HasBeenRecommended\": false\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "NPCData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"NPCData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"george_greene\"}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                },
+                {
+                    "Name": "CustomerData",
+                    "Contents": "{\n    \"DataType\": \"CustomerData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"Dependence\": 0.0,\n    \"ProductAffinities\": [\n        0.8999999761581421,\n        0.3700000047683716,\n        -0.15000000596046449,\n        -0.36948683857917788\n    ],\n    \"TimeSinceLastDealCompleted\": 1000104,\n    \"TimeSinceLastDealOffered\": 1000104,\n    \"OfferedDeals\": 0,\n    \"CompletedDeals\": 0,\n    \"IsContractOffered\": false,\n    \"OfferedContract\": {\n        \"Payment\": 0.0,\n        \"Products\": {\n            \"entries\": []\n        },\n        \"DeliveryLocationGUID\": \"\",\n        \"DeliveryWindow\": {\n            \"IsEnabled\": false,\n            \"WindowStartTime\": 1200,\n            \"WindowEndTime\": 1800\n        },\n        \"Expires\": false,\n        \"ExpiresAfter\": 0,\n        \"PickupScheduleIndex\": 0,\n        \"IsCounterOffer\": false\n    },\n    \"OfferedContractTime\": {\n        \"elapsedDays\": 0,\n        \"time\": 0\n    },\n    \"TimeSincePlayerApproached\": 1000104,\n    \"TimeSinceInstantDealOffered\": 1000104,\n    \"HasBeenRecommended\": false\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "NPCData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"NPCData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"sewerking\"}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                },
+                {
+                    "Name": "Inventory",
+                    "Contents": "{\n    \"Items\": [\n        \"{\\\"DataType\\\":\\\"ClothingData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"trashcrown\\\",\\\"Quantity\\\":1,\\\"Color\\\":0}\",\n        \"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\n        \"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\n        \"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\n        \"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\"\n    ],\n    \"SlotFilters\": [\n        {\n            \"Type\": 0,\n            \"ItemIDs\": [],\n            \"AllowedQualities\": [\n                0,\n                1,\n                2,\n                3,\n                4\n            ]\n        },\n        {\n            \"Type\": 0,\n            \"ItemIDs\": [],\n            \"AllowedQualities\": [\n                0,\n                1,\n                2,\n                3,\n                4\n            ]\n        },\n        {\n            \"Type\": 0,\n            \"ItemIDs\": [],\n            \"AllowedQualities\": [\n                0,\n                1,\n                2,\n                3,\n                4\n            ]\n        },\n        {\n            \"Type\": 0,\n            \"ItemIDs\": [],\n            \"AllowedQualities\": [\n                0,\n                1,\n                2,\n                3,\n                4\n            ]\n        },\n        {\n            \"Type\": 0,\n            \"ItemIDs\": [],\n            \"AllowedQualities\": [\n                0,\n                1,\n                2,\n                3,\n                4\n            ]\n        }\n    ]\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "DealerData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"DealerData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"benji_coleman\",\"Recruited\":false,\"AssignedCustomerIDs\":[],\"ActiveContractGUIDs\":[],\"Cash\":0.0,\"OverflowItems\":{\"Items\":[\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\"],\"SlotFilters\":[{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]}]},\"HasBeenRecommended\":false}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "NPCData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"NPCData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"javier_perez\"}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                },
+                {
+                    "Name": "CustomerData",
+                    "Contents": "{\n    \"DataType\": \"CustomerData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"Dependence\": 0.0,\n    \"ProductAffinities\": [\n        0.7200000286102295,\n        -0.30000001192092898,\n        0.44999998807907107,\n        0.6583106517791748\n    ],\n    \"TimeSinceLastDealCompleted\": 1000102,\n    \"TimeSinceLastDealOffered\": 1000102,\n    \"OfferedDeals\": 0,\n    \"CompletedDeals\": 0,\n    \"IsContractOffered\": false,\n    \"OfferedContract\": {\n        \"Payment\": 0.0,\n        \"Products\": {\n            \"entries\": []\n        },\n        \"DeliveryLocationGUID\": \"\",\n        \"DeliveryWindow\": {\n            \"IsEnabled\": false,\n            \"WindowStartTime\": 1200,\n            \"WindowEndTime\": 1800\n        },\n        \"Expires\": false,\n        \"ExpiresAfter\": 0,\n        \"PickupScheduleIndex\": 0,\n        \"IsCounterOffer\": false\n    },\n    \"OfferedContractTime\": {\n        \"elapsedDays\": 0,\n        \"time\": 0\n    },\n    \"TimeSincePlayerApproached\": 1000102,\n    \"TimeSinceInstantDealOffered\": 1000102,\n    \"HasBeenRecommended\": false\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "NPCData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"NPCData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"chris_sullivan\"}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                },
+                {
+                    "Name": "CustomerData",
+                    "Contents": "{\n    \"DataType\": \"CustomerData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"Dependence\": 0.0,\n    \"ProductAffinities\": [\n        -0.8336539268493652,\n        0.39973828196525576,\n        0.7902395725250244,\n        -0.22580406069755555\n    ],\n    \"TimeSinceLastDealCompleted\": 1000102,\n    \"TimeSinceLastDealOffered\": 1000102,\n    \"OfferedDeals\": 0,\n    \"CompletedDeals\": 0,\n    \"IsContractOffered\": false,\n    \"OfferedContract\": {\n        \"Payment\": 0.0,\n        \"Products\": {\n            \"entries\": []\n        },\n        \"DeliveryLocationGUID\": \"\",\n        \"DeliveryWindow\": {\n            \"IsEnabled\": false,\n            \"WindowStartTime\": 1200,\n            \"WindowEndTime\": 1800\n        },\n        \"Expires\": false,\n        \"ExpiresAfter\": 0,\n        \"PickupScheduleIndex\": 0,\n        \"IsCounterOffer\": false\n    },\n    \"OfferedContractTime\": {\n        \"elapsedDays\": 0,\n        \"time\": 0\n    },\n    \"TimeSincePlayerApproached\": 1000102,\n    \"TimeSinceInstantDealOffered\": 1000102,\n    \"HasBeenRecommended\": false\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "NPCData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"NPCData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"carl_bundy\"}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                },
+                {
+                    "Name": "CustomerData",
+                    "Contents": "{\n    \"DataType\": \"CustomerData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"Dependence\": 0.0,\n    \"ProductAffinities\": [\n        -0.814988374710083,\n        -0.23450887203216554,\n        -0.5836479663848877,\n        -0.7569569945335388\n    ],\n    \"TimeSinceLastDealCompleted\": 1000104,\n    \"TimeSinceLastDealOffered\": 1000104,\n    \"OfferedDeals\": 0,\n    \"CompletedDeals\": 0,\n    \"IsContractOffered\": false,\n    \"OfferedContract\": {\n        \"Payment\": 0.0,\n        \"Products\": {\n            \"entries\": []\n        },\n        \"DeliveryLocationGUID\": \"\",\n        \"DeliveryWindow\": {\n            \"IsEnabled\": false,\n            \"WindowStartTime\": 1200,\n            \"WindowEndTime\": 1800\n        },\n        \"Expires\": false,\n        \"ExpiresAfter\": 0,\n        \"PickupScheduleIndex\": 0,\n        \"IsCounterOffer\": false\n    },\n    \"OfferedContractTime\": {\n        \"elapsedDays\": 0,\n        \"time\": 0\n    },\n    \"TimeSincePlayerApproached\": 1000104,\n    \"TimeSinceInstantDealOffered\": 1000104,\n    \"HasBeenRecommended\": false\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "NPCData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"NPCData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"sherman_giles\"}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                },
+                {
+                    "Name": "CustomerData",
+                    "Contents": "{\n    \"DataType\": \"CustomerData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"Dependence\": 0.0,\n    \"ProductAffinities\": [\n        0.35457107424736025,\n        -0.6788179874420166,\n        -0.6359145641326904,\n        0.3648686110973358,\n        1.0,\n        0.7699999809265137\n    ],\n    \"TimeSinceLastDealCompleted\": 1000102,\n    \"TimeSinceLastDealOffered\": 1000102,\n    \"OfferedDeals\": 0,\n    \"CompletedDeals\": 0,\n    \"IsContractOffered\": false,\n    \"OfferedContract\": {\n        \"Payment\": 0.0,\n        \"Products\": {\n            \"entries\": []\n        },\n        \"DeliveryLocationGUID\": \"\",\n        \"DeliveryWindow\": {\n            \"IsEnabled\": false,\n            \"WindowStartTime\": 1200,\n            \"WindowEndTime\": 1800\n        },\n        \"Expires\": false,\n        \"ExpiresAfter\": 0,\n        \"PickupScheduleIndex\": 0,\n        \"IsCounterOffer\": false\n    },\n    \"OfferedContractTime\": {\n        \"elapsedDays\": 0,\n        \"time\": 0\n    },\n    \"TimeSincePlayerApproached\": 1000102,\n    \"TimeSinceInstantDealOffered\": 1000102,\n    \"HasBeenRecommended\": false\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "SupplierData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"SupplierData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"shirley_watts\",\"timeSinceMeetingStart\":-1,\"timeSinceLastMeetingEnd\":822,\"debt\":0.0,\"minsUntilDeadDropReady\":-1,\"deaddropItems\":[],\"debtReminderSent\":false}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "NPCData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"NPCData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"uncle_nelson\"}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                },
+                {
+                    "Name": "MessageConversation",
+                    "Contents": "{\n    \"DataType\": \"MSGConversationData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"ConversationIndex\": 0,\n    \"Read\": false,\n    \"MessageHistory\": [\n        {\n            \"Sender\": 1,\n            \"MessageID\": 1883703210,\n            \"Text\": \"I’ve heard you’re in some trouble. Best not to talk over your mobile phone. Go find a payphone.\\n- U.N.\",\n            \"EndOfChain\": true\n        }\n    ],\n    \"ActiveResponses\": [],\n    \"IsHidden\": false\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "NPCData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"NPCData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"oscar_holland\"}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "NPCData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"NPCData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"manny_oakfield\"}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "NPCData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"NPCData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"peter_file\"}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                },
+                {
+                    "Name": "CustomerData",
+                    "Contents": "{\n    \"DataType\": \"CustomerData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"Dependence\": 0.0,\n    \"ProductAffinities\": [\n        1.0,\n        0.4000000059604645,\n        0.7400000095367432,\n        0.2351928949356079\n    ],\n    \"TimeSinceLastDealCompleted\": 1000104,\n    \"TimeSinceLastDealOffered\": 1000104,\n    \"OfferedDeals\": 0,\n    \"CompletedDeals\": 0,\n    \"IsContractOffered\": false,\n    \"OfferedContract\": {\n        \"Payment\": 0.0,\n        \"Products\": {\n            \"entries\": []\n        },\n        \"DeliveryLocationGUID\": \"\",\n        \"DeliveryWindow\": {\n            \"IsEnabled\": false,\n            \"WindowStartTime\": 1200,\n            \"WindowEndTime\": 1800\n        },\n        \"Expires\": false,\n        \"ExpiresAfter\": 0,\n        \"PickupScheduleIndex\": 0,\n        \"IsCounterOffer\": false\n    },\n    \"OfferedContractTime\": {\n        \"elapsedDays\": 0,\n        \"time\": 0\n    },\n    \"TimeSincePlayerApproached\": 1000104,\n    \"TimeSinceInstantDealOffered\": 1000104,\n    \"HasBeenRecommended\": false\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "NPCData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"NPCData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"jennifer_rivera\"}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                },
+                {
+                    "Name": "CustomerData",
+                    "Contents": "{\n    \"DataType\": \"CustomerData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"Dependence\": 0.0,\n    \"ProductAffinities\": [\n        -0.8760068416595459,\n        0.418253630399704,\n        0.6501095294952393,\n        -0.9367663264274597\n    ],\n    \"TimeSinceLastDealCompleted\": 1000104,\n    \"TimeSinceLastDealOffered\": 1000104,\n    \"OfferedDeals\": 0,\n    \"CompletedDeals\": 0,\n    \"IsContractOffered\": false,\n    \"OfferedContract\": {\n        \"Payment\": 0.0,\n        \"Products\": {\n            \"entries\": []\n        },\n        \"DeliveryLocationGUID\": \"\",\n        \"DeliveryWindow\": {\n            \"IsEnabled\": false,\n            \"WindowStartTime\": 1200,\n            \"WindowEndTime\": 1800\n        },\n        \"Expires\": false,\n        \"ExpiresAfter\": 0,\n        \"PickupScheduleIndex\": 0,\n        \"IsCounterOffer\": false\n    },\n    \"OfferedContractTime\": {\n        \"elapsedDays\": 0,\n        \"time\": 0\n    },\n    \"TimeSincePlayerApproached\": 1000104,\n    \"TimeSinceInstantDealOffered\": 1000104,\n    \"HasBeenRecommended\": false\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "NPCData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"NPCData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"austin_steiner\"}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 3.0,\n    \"Unlocked\": true,\n    \"UnlockType\": 1\n}"
+                },
+                {
+                    "Name": "CustomerData",
+                    "Contents": "{\n    \"DataType\": \"CustomerData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"Dependence\": 0.20000000298023225,\n    \"ProductAffinities\": [\n        0.7799999713897705,\n        -0.6600000262260437,\n        0.15000000596046449,\n        0.39311251044273379\n    ],\n    \"TimeSinceLastDealCompleted\": 1001171,\n    \"TimeSinceLastDealOffered\": 104,\n    \"OfferedDeals\": 1,\n    \"CompletedDeals\": 0,\n    \"IsContractOffered\": false,\n    \"OfferedContract\": {\n        \"Payment\": 0.0,\n        \"Products\": {\n            \"entries\": []\n        },\n        \"DeliveryLocationGUID\": \"\",\n        \"DeliveryWindow\": {\n            \"IsEnabled\": false,\n            \"WindowStartTime\": 1200,\n            \"WindowEndTime\": 1800\n        },\n        \"Expires\": false,\n        \"ExpiresAfter\": 0,\n        \"PickupScheduleIndex\": 0,\n        \"IsCounterOffer\": false\n    },\n    \"OfferedContractTime\": {\n        \"elapsedDays\": 0,\n        \"time\": 0\n    },\n    \"TimeSincePlayerApproached\": 102,\n    \"TimeSinceInstantDealOffered\": 102,\n    \"HasBeenRecommended\": false\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "NPCData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"NPCData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"hank_stevenson\"}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                },
+                {
+                    "Name": "CustomerData",
+                    "Contents": "{\n    \"DataType\": \"CustomerData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"Dependence\": 0.0,\n    \"ProductAffinities\": [\n        -0.5758416652679443,\n        0.5571880340576172,\n        0.21460354328155518,\n        -0.09401494264602661\n    ],\n    \"TimeSinceLastDealCompleted\": 1000104,\n    \"TimeSinceLastDealOffered\": 1000104,\n    \"OfferedDeals\": 0,\n    \"CompletedDeals\": 0,\n    \"IsContractOffered\": false,\n    \"OfferedContract\": {\n        \"Payment\": 0.0,\n        \"Products\": {\n            \"entries\": []\n        },\n        \"DeliveryLocationGUID\": \"\",\n        \"DeliveryWindow\": {\n            \"IsEnabled\": false,\n            \"WindowStartTime\": 1200,\n            \"WindowEndTime\": 1800\n        },\n        \"Expires\": false,\n        \"ExpiresAfter\": 0,\n        \"PickupScheduleIndex\": 0,\n        \"IsCounterOffer\": false\n    },\n    \"OfferedContractTime\": {\n        \"elapsedDays\": 0,\n        \"time\": 0\n    },\n    \"TimeSincePlayerApproached\": 1000104,\n    \"TimeSinceInstantDealOffered\": 1000104,\n    \"HasBeenRecommended\": false\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "NPCData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"NPCData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"louis_fourier\"}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                },
+                {
+                    "Name": "CustomerData",
+                    "Contents": "{\n    \"DataType\": \"CustomerData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"Dependence\": 0.0,\n    \"ProductAffinities\": [\n        0.9418721199035645,\n        -0.9157676696777344,\n        -0.30247628688812258,\n        0.04230242967605591\n    ],\n    \"TimeSinceLastDealCompleted\": 1000104,\n    \"TimeSinceLastDealOffered\": 1000104,\n    \"OfferedDeals\": 0,\n    \"CompletedDeals\": 0,\n    \"IsContractOffered\": false,\n    \"OfferedContract\": {\n        \"Payment\": 0.0,\n        \"Products\": {\n            \"entries\": []\n        },\n        \"DeliveryLocationGUID\": \"\",\n        \"DeliveryWindow\": {\n            \"IsEnabled\": false,\n            \"WindowStartTime\": 1200,\n            \"WindowEndTime\": 1800\n        },\n        \"Expires\": false,\n        \"ExpiresAfter\": 0,\n        \"PickupScheduleIndex\": 0,\n        \"IsCounterOffer\": false\n    },\n    \"OfferedContractTime\": {\n        \"elapsedDays\": 0,\n        \"time\": 0\n    },\n    \"TimeSincePlayerApproached\": 1000104,\n    \"TimeSinceInstantDealOffered\": 1000104,\n    \"HasBeenRecommended\": false\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "NPCData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"NPCData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"ming\"}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                },
+                {
+                    "Name": "CustomerData",
+                    "Contents": "{\n    \"DataType\": \"CustomerData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"Dependence\": 0.0,\n    \"ProductAffinities\": [\n        0.609036922454834,\n        -0.24902546405792237,\n        -0.22300803661346436,\n        0.41880911588668826\n    ],\n    \"TimeSinceLastDealCompleted\": 1000102,\n    \"TimeSinceLastDealOffered\": 1000102,\n    \"OfferedDeals\": 0,\n    \"CompletedDeals\": 0,\n    \"IsContractOffered\": false,\n    \"OfferedContract\": {\n        \"Payment\": 0.0,\n        \"Products\": {\n            \"entries\": []\n        },\n        \"DeliveryLocationGUID\": \"\",\n        \"DeliveryWindow\": {\n            \"IsEnabled\": false,\n            \"WindowStartTime\": 1200,\n            \"WindowEndTime\": 1800\n        },\n        \"Expires\": false,\n        \"ExpiresAfter\": 0,\n        \"PickupScheduleIndex\": 0,\n        \"IsCounterOffer\": false\n    },\n    \"OfferedContractTime\": {\n        \"elapsedDays\": 0,\n        \"time\": 0\n    },\n    \"TimeSincePlayerApproached\": 1000102,\n    \"TimeSinceInstantDealOffered\": 1000102,\n    \"HasBeenRecommended\": false\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "NPCData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"NPCData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"melissa_wood\"}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                },
+                {
+                    "Name": "CustomerData",
+                    "Contents": "{\n    \"DataType\": \"CustomerData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"Dependence\": 0.0,\n    \"ProductAffinities\": [\n        -0.2562216520309448,\n        0.6726412773132324,\n        0.42113086581230166,\n        -0.9881661534309387\n    ],\n    \"TimeSinceLastDealCompleted\": 1000104,\n    \"TimeSinceLastDealOffered\": 1000104,\n    \"OfferedDeals\": 0,\n    \"CompletedDeals\": 0,\n    \"IsContractOffered\": false,\n    \"OfferedContract\": {\n        \"Payment\": 0.0,\n        \"Products\": {\n            \"entries\": []\n        },\n        \"DeliveryLocationGUID\": \"\",\n        \"DeliveryWindow\": {\n            \"IsEnabled\": false,\n            \"WindowStartTime\": 1200,\n            \"WindowEndTime\": 1800\n        },\n        \"Expires\": false,\n        \"ExpiresAfter\": 0,\n        \"PickupScheduleIndex\": 0,\n        \"IsCounterOffer\": false\n    },\n    \"OfferedContractTime\": {\n        \"elapsedDays\": 0,\n        \"time\": 0\n    },\n    \"TimeSincePlayerApproached\": 1000104,\n    \"TimeSinceInstantDealOffered\": 1000104,\n    \"HasBeenRecommended\": false\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "NPCData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"NPCData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"jackie_stevenson\"}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                },
+                {
+                    "Name": "CustomerData",
+                    "Contents": "{\n    \"DataType\": \"CustomerData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"Dependence\": 0.0,\n    \"ProductAffinities\": [\n        0.8820000290870667,\n        -0.5910000205039978,\n        0.2809999883174896,\n        -0.9815255403518677\n    ],\n    \"TimeSinceLastDealCompleted\": 1000104,\n    \"TimeSinceLastDealOffered\": 1000104,\n    \"OfferedDeals\": 0,\n    \"CompletedDeals\": 0,\n    \"IsContractOffered\": false,\n    \"OfferedContract\": {\n        \"Payment\": 0.0,\n        \"Products\": {\n            \"entries\": []\n        },\n        \"DeliveryLocationGUID\": \"\",\n        \"DeliveryWindow\": {\n            \"IsEnabled\": false,\n            \"WindowStartTime\": 1200,\n            \"WindowEndTime\": 1800\n        },\n        \"Expires\": false,\n        \"ExpiresAfter\": 0,\n        \"PickupScheduleIndex\": 0,\n        \"IsCounterOffer\": false\n    },\n    \"OfferedContractTime\": {\n        \"elapsedDays\": 0,\n        \"time\": 0\n    },\n    \"TimeSincePlayerApproached\": 1000104,\n    \"TimeSinceInstantDealOffered\": 1000104,\n    \"HasBeenRecommended\": false\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "NPCData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"NPCData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"charles_rowland\"}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                },
+                {
+                    "Name": "CustomerData",
+                    "Contents": "{\n    \"DataType\": \"CustomerData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"Dependence\": 0.0,\n    \"ProductAffinities\": [\n        0.550000011920929,\n        0.23999999463558198,\n        1.0,\n        0.65205979347229\n    ],\n    \"TimeSinceLastDealCompleted\": 1000104,\n    \"TimeSinceLastDealOffered\": 1000104,\n    \"OfferedDeals\": 0,\n    \"CompletedDeals\": 0,\n    \"IsContractOffered\": false,\n    \"OfferedContract\": {\n        \"Payment\": 0.0,\n        \"Products\": {\n            \"entries\": []\n        },\n        \"DeliveryLocationGUID\": \"\",\n        \"DeliveryWindow\": {\n            \"IsEnabled\": false,\n            \"WindowStartTime\": 1200,\n            \"WindowEndTime\": 1800\n        },\n        \"Expires\": false,\n        \"ExpiresAfter\": 0,\n        \"PickupScheduleIndex\": 0,\n        \"IsCounterOffer\": false\n    },\n    \"OfferedContractTime\": {\n        \"elapsedDays\": 0,\n        \"time\": 0\n    },\n    \"TimeSincePlayerApproached\": 1000104,\n    \"TimeSinceInstantDealOffered\": 1000104,\n    \"HasBeenRecommended\": false\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "NPCData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"NPCData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"kelly_reynolds\"}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                },
+                {
+                    "Name": "CustomerData",
+                    "Contents": "{\n    \"DataType\": \"CustomerData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"Dependence\": 0.0,\n    \"ProductAffinities\": [\n        0.3799999952316284,\n        -0.0724114179611206,\n        0.24628937244415284,\n        0.5099999904632568,\n        1.0,\n        -0.3219527006149292\n    ],\n    \"TimeSinceLastDealCompleted\": 1000104,\n    \"TimeSinceLastDealOffered\": 1000104,\n    \"OfferedDeals\": 0,\n    \"CompletedDeals\": 0,\n    \"IsContractOffered\": false,\n    \"OfferedContract\": {\n        \"Payment\": 0.0,\n        \"Products\": {\n            \"entries\": []\n        },\n        \"DeliveryLocationGUID\": \"\",\n        \"DeliveryWindow\": {\n            \"IsEnabled\": false,\n            \"WindowStartTime\": 1200,\n            \"WindowEndTime\": 1800\n        },\n        \"Expires\": false,\n        \"ExpiresAfter\": 0,\n        \"PickupScheduleIndex\": 0,\n        \"IsCounterOffer\": false\n    },\n    \"OfferedContractTime\": {\n        \"elapsedDays\": 0,\n        \"time\": 0\n    },\n    \"TimeSincePlayerApproached\": 1000104,\n    \"TimeSinceInstantDealOffered\": 1000104,\n    \"HasBeenRecommended\": false\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "NPCData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"NPCData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"thomas_benzies\"}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "NPCData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"NPCData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"cranky_frank\"}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                },
+                {
+                    "Name": "CustomerData",
+                    "Contents": "{\n    \"DataType\": \"CustomerData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"Dependence\": 0.0,\n    \"ProductAffinities\": [\n        0.6800000071525574,\n        1.0,\n        0.019999999552965165,\n        -0.13304030895233155\n    ],\n    \"TimeSinceLastDealCompleted\": 1000102,\n    \"TimeSinceLastDealOffered\": 1000102,\n    \"OfferedDeals\": 0,\n    \"CompletedDeals\": 0,\n    \"IsContractOffered\": false,\n    \"OfferedContract\": {\n        \"Payment\": 0.0,\n        \"Products\": {\n            \"entries\": []\n        },\n        \"DeliveryLocationGUID\": \"\",\n        \"DeliveryWindow\": {\n            \"IsEnabled\": false,\n            \"WindowStartTime\": 1200,\n            \"WindowEndTime\": 1800\n        },\n        \"Expires\": false,\n        \"ExpiresAfter\": 0,\n        \"PickupScheduleIndex\": 0,\n        \"IsCounterOffer\": false\n    },\n    \"OfferedContractTime\": {\n        \"elapsedDays\": 0,\n        \"time\": 0\n    },\n    \"TimeSincePlayerApproached\": 1000102,\n    \"TimeSinceInstantDealOffered\": 1000102,\n    \"HasBeenRecommended\": false\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "NPCData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"NPCData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"harold_colt\"}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                },
+                {
+                    "Name": "CustomerData",
+                    "Contents": "{\n    \"DataType\": \"CustomerData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"Dependence\": 0.0,\n    \"ProductAffinities\": [\n        -0.9472379684448242,\n        -0.782996416091919,\n        -0.6952059268951416,\n        -0.8807207345962524\n    ],\n    \"TimeSinceLastDealCompleted\": 1000104,\n    \"TimeSinceLastDealOffered\": 1000104,\n    \"OfferedDeals\": 0,\n    \"CompletedDeals\": 0,\n    \"IsContractOffered\": false,\n    \"OfferedContract\": {\n        \"Payment\": 0.0,\n        \"Products\": {\n            \"entries\": []\n        },\n        \"DeliveryLocationGUID\": \"\",\n        \"DeliveryWindow\": {\n            \"IsEnabled\": false,\n            \"WindowStartTime\": 1200,\n            \"WindowEndTime\": 1800\n        },\n        \"Expires\": false,\n        \"ExpiresAfter\": 0,\n        \"PickupScheduleIndex\": 0,\n        \"IsCounterOffer\": false\n    },\n    \"OfferedContractTime\": {\n        \"elapsedDays\": 0,\n        \"time\": 0\n    },\n    \"TimeSincePlayerApproached\": 1000104,\n    \"TimeSinceInstantDealOffered\": 1000104,\n    \"HasBeenRecommended\": false\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "NPCData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"NPCData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"kyle_cooley\"}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 3.0,\n    \"Unlocked\": true,\n    \"UnlockType\": 1\n}"
+                },
+                {
+                    "Name": "CustomerData",
+                    "Contents": "{\n    \"DataType\": \"CustomerData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"Dependence\": 0.10000000149011612,\n    \"ProductAffinities\": [\n        0.7239999771118164,\n        0.7049999833106995,\n        -0.40799999237060549,\n        0.16975337266921998\n    ],\n    \"TimeSinceLastDealCompleted\": 1001173,\n    \"TimeSinceLastDealOffered\": 1001173,\n    \"OfferedDeals\": 0,\n    \"CompletedDeals\": 0,\n    \"IsContractOffered\": false,\n    \"OfferedContract\": {\n        \"Payment\": 0.0,\n        \"Products\": {\n            \"entries\": []\n        },\n        \"DeliveryLocationGUID\": \"\",\n        \"DeliveryWindow\": {\n            \"IsEnabled\": false,\n            \"WindowStartTime\": 1200,\n            \"WindowEndTime\": 1800\n        },\n        \"Expires\": false,\n        \"ExpiresAfter\": 0,\n        \"PickupScheduleIndex\": 0,\n        \"IsCounterOffer\": false\n    },\n    \"OfferedContractTime\": {\n        \"elapsedDays\": 0,\n        \"time\": 0\n    },\n    \"TimeSincePlayerApproached\": 104,\n    \"TimeSinceInstantDealOffered\": 104,\n    \"HasBeenRecommended\": false\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "NPCData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"NPCData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"alison_knight\"}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                },
+                {
+                    "Name": "CustomerData",
+                    "Contents": "{\n    \"DataType\": \"CustomerData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"Dependence\": 0.0,\n    \"ProductAffinities\": [\n        -0.6299999952316284,\n        0.27000001072883608,\n        1.0,\n        0.534233808517456\n    ],\n    \"TimeSinceLastDealCompleted\": 1000102,\n    \"TimeSinceLastDealOffered\": 1000102,\n    \"OfferedDeals\": 0,\n    \"CompletedDeals\": 0,\n    \"IsContractOffered\": false,\n    \"OfferedContract\": {\n        \"Payment\": 0.0,\n        \"Products\": {\n            \"entries\": []\n        },\n        \"DeliveryLocationGUID\": \"\",\n        \"DeliveryWindow\": {\n            \"IsEnabled\": false,\n            \"WindowStartTime\": 1200,\n            \"WindowEndTime\": 1800\n        },\n        \"Expires\": false,\n        \"ExpiresAfter\": 0,\n        \"PickupScheduleIndex\": 0,\n        \"IsCounterOffer\": false\n    },\n    \"OfferedContractTime\": {\n        \"elapsedDays\": 0,\n        \"time\": 0\n    },\n    \"TimeSincePlayerApproached\": 1000102,\n    \"TimeSinceInstantDealOffered\": 1000102,\n    \"HasBeenRecommended\": false\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "DealerData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"DealerData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"wei_long\",\"Recruited\":false,\"AssignedCustomerIDs\":[],\"ActiveContractGUIDs\":[],\"Cash\":0.0,\"OverflowItems\":{\"Items\":[\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\"],\"SlotFilters\":[{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]}]},\"HasBeenRecommended\":false}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "NPCData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"NPCData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"walter_cussler\"}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                },
+                {
+                    "Name": "CustomerData",
+                    "Contents": "{\n    \"DataType\": \"CustomerData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"Dependence\": 0.0,\n    \"ProductAffinities\": [\n        -0.1370919942855835,\n        -0.29545843601226809,\n        -0.4415994882583618,\n        -0.7176734805107117\n    ],\n    \"TimeSinceLastDealCompleted\": 1000104,\n    \"TimeSinceLastDealOffered\": 1000104,\n    \"OfferedDeals\": 0,\n    \"CompletedDeals\": 0,\n    \"IsContractOffered\": false,\n    \"OfferedContract\": {\n        \"Payment\": 0.0,\n        \"Products\": {\n            \"entries\": []\n        },\n        \"DeliveryLocationGUID\": \"\",\n        \"DeliveryWindow\": {\n            \"IsEnabled\": false,\n            \"WindowStartTime\": 1200,\n            \"WindowEndTime\": 1800\n        },\n        \"Expires\": false,\n        \"ExpiresAfter\": 0,\n        \"PickupScheduleIndex\": 0,\n        \"IsCounterOffer\": false\n    },\n    \"OfferedContractTime\": {\n        \"elapsedDays\": 0,\n        \"time\": 0\n    },\n    \"TimeSincePlayerApproached\": 1000104,\n    \"TimeSinceInstantDealOffered\": 1000104,\n    \"HasBeenRecommended\": false\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "NPCData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"NPCData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"peggy_myers\"}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                },
+                {
+                    "Name": "CustomerData",
+                    "Contents": "{\n    \"DataType\": \"CustomerData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"Dependence\": 0.0,\n    \"ProductAffinities\": [\n        0.23000000417232514,\n        -0.6399999856948853,\n        1.0,\n        -0.09245216846466065\n    ],\n    \"TimeSinceLastDealCompleted\": 1000104,\n    \"TimeSinceLastDealOffered\": 1000104,\n    \"OfferedDeals\": 0,\n    \"CompletedDeals\": 0,\n    \"IsContractOffered\": false,\n    \"OfferedContract\": {\n        \"Payment\": 0.0,\n        \"Products\": {\n            \"entries\": []\n        },\n        \"DeliveryLocationGUID\": \"\",\n        \"DeliveryWindow\": {\n            \"IsEnabled\": false,\n            \"WindowStartTime\": 1200,\n            \"WindowEndTime\": 1800\n        },\n        \"Expires\": false,\n        \"ExpiresAfter\": 0,\n        \"PickupScheduleIndex\": 0,\n        \"IsCounterOffer\": false\n    },\n    \"OfferedContractTime\": {\n        \"elapsedDays\": 0,\n        \"time\": 0\n    },\n    \"TimeSincePlayerApproached\": 1000104,\n    \"TimeSinceInstantDealOffered\": 1000104,\n    \"HasBeenRecommended\": false\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "DealerData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"DealerData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"leo_rivers\",\"Recruited\":false,\"AssignedCustomerIDs\":[],\"ActiveContractGUIDs\":[],\"Cash\":0.0,\"OverflowItems\":{\"Items\":[\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\",\"{\\\"DataType\\\":\\\"ItemData\\\",\\\"DataVersion\\\":0,\\\"GameVersion\\\":\\\"0.4.7f12\\\",\\\"ID\\\":\\\"\\\",\\\"Quantity\\\":0}\"],\"SlotFilters\":[{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]},{\"Type\":0,\"ItemIDs\":[],\"AllowedQualities\":[0,1,2,3,4]}]},\"HasBeenRecommended\":false}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "NPCData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"NPCData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"anna_chesterfield\"}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                },
+                {
+                    "Name": "CustomerData",
+                    "Contents": "{\n    \"DataType\": \"CustomerData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"Dependence\": 0.0,\n    \"ProductAffinities\": [\n        1.0,\n        -0.8600000143051148,\n        0.5099999904632568,\n        0.7589335441589356\n    ],\n    \"TimeSinceLastDealCompleted\": 1000104,\n    \"TimeSinceLastDealOffered\": 1000104,\n    \"OfferedDeals\": 0,\n    \"CompletedDeals\": 0,\n    \"IsContractOffered\": false,\n    \"OfferedContract\": {\n        \"Payment\": 0.0,\n        \"Products\": {\n            \"entries\": []\n        },\n        \"DeliveryLocationGUID\": \"\",\n        \"DeliveryWindow\": {\n            \"IsEnabled\": false,\n            \"WindowStartTime\": 1200,\n            \"WindowEndTime\": 1800\n        },\n        \"Expires\": false,\n        \"ExpiresAfter\": 0,\n        \"PickupScheduleIndex\": 0,\n        \"IsCounterOffer\": false\n    },\n    \"OfferedContractTime\": {\n        \"elapsedDays\": 0,\n        \"time\": 0\n    },\n    \"TimeSincePlayerApproached\": 1000104,\n    \"TimeSinceInstantDealOffered\": 1000104,\n    \"HasBeenRecommended\": false\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "NPCData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"NPCData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"irene_meadows\"}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                },
+                {
+                    "Name": "CustomerData",
+                    "Contents": "{\n    \"DataType\": \"CustomerData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"Dependence\": 0.0,\n    \"ProductAffinities\": [\n        0.39128991961479189,\n        -0.2555891275405884,\n        0.8806285858154297,\n        -0.6616744995117188,\n        -0.6800000071525574,\n        0.30000001192092898\n    ],\n    \"TimeSinceLastDealCompleted\": 1000104,\n    \"TimeSinceLastDealOffered\": 1000104,\n    \"OfferedDeals\": 0,\n    \"CompletedDeals\": 0,\n    \"IsContractOffered\": false,\n    \"OfferedContract\": {\n        \"Payment\": 0.0,\n        \"Products\": {\n            \"entries\": []\n        },\n        \"DeliveryLocationGUID\": \"\",\n        \"DeliveryWindow\": {\n            \"IsEnabled\": false,\n            \"WindowStartTime\": 1200,\n            \"WindowEndTime\": 1800\n        },\n        \"Expires\": false,\n        \"ExpiresAfter\": 0,\n        \"PickupScheduleIndex\": 0,\n        \"IsCounterOffer\": false\n    },\n    \"OfferedContractTime\": {\n        \"elapsedDays\": 0,\n        \"time\": 0\n    },\n    \"TimeSincePlayerApproached\": 1000104,\n    \"TimeSinceInstantDealOffered\": 1000104,\n    \"HasBeenRecommended\": false\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "NPCData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"NPCData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"meg_cooley\"}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                },
+                {
+                    "Name": "CustomerData",
+                    "Contents": "{\n    \"DataType\": \"CustomerData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"Dependence\": 0.0,\n    \"ProductAffinities\": [\n        0.7928280830383301,\n        -0.036365389823913577,\n        0.7211346626281738,\n        -0.6643681526184082\n    ],\n    \"TimeSinceLastDealCompleted\": 1000104,\n    \"TimeSinceLastDealOffered\": 1000104,\n    \"OfferedDeals\": 0,\n    \"CompletedDeals\": 0,\n    \"IsContractOffered\": false,\n    \"OfferedContract\": {\n        \"Payment\": 0.0,\n        \"Products\": {\n            \"entries\": []\n        },\n        \"DeliveryLocationGUID\": \"\",\n        \"DeliveryWindow\": {\n            \"IsEnabled\": false,\n            \"WindowStartTime\": 1200,\n            \"WindowEndTime\": 1800\n        },\n        \"Expires\": false,\n        \"ExpiresAfter\": 0,\n        \"PickupScheduleIndex\": 0,\n        \"IsCounterOffer\": false\n    },\n    \"OfferedContractTime\": {\n        \"elapsedDays\": 0,\n        \"time\": 0\n    },\n    \"TimeSincePlayerApproached\": 1000104,\n    \"TimeSinceInstantDealOffered\": 1000104,\n    \"HasBeenRecommended\": false\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "NPCData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"NPCData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"bruce_norton\"}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                },
+                {
+                    "Name": "CustomerData",
+                    "Contents": "{\n    \"DataType\": \"CustomerData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"Dependence\": 0.0,\n    \"ProductAffinities\": [\n        -0.7580666542053223,\n        0.7592811584472656,\n        -0.32789599895477297,\n        0.02780163288116455,\n        1.0,\n        0.7355175018310547\n    ],\n    \"TimeSinceLastDealCompleted\": 1000104,\n    \"TimeSinceLastDealOffered\": 1000104,\n    \"OfferedDeals\": 0,\n    \"CompletedDeals\": 0,\n    \"IsContractOffered\": false,\n    \"OfferedContract\": {\n        \"Payment\": 0.0,\n        \"Products\": {\n            \"entries\": []\n        },\n        \"DeliveryLocationGUID\": \"\",\n        \"DeliveryWindow\": {\n            \"IsEnabled\": false,\n            \"WindowStartTime\": 1200,\n            \"WindowEndTime\": 1800\n        },\n        \"Expires\": false,\n        \"ExpiresAfter\": 0,\n        \"PickupScheduleIndex\": 0,\n        \"IsCounterOffer\": false\n    },\n    \"OfferedContractTime\": {\n        \"elapsedDays\": 0,\n        \"time\": 0\n    },\n    \"TimeSincePlayerApproached\": 1000104,\n    \"TimeSinceInstantDealOffered\": 1000104,\n    \"HasBeenRecommended\": false\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "NPCData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"NPCData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"dan_samwell\"}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "NPCData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"NPCData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"philip_wentworth\"}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                },
+                {
+                    "Name": "CustomerData",
+                    "Contents": "{\n    \"DataType\": \"CustomerData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"Dependence\": 0.0,\n    \"ProductAffinities\": [\n        0.9700911045074463,\n        0.7798223495483398,\n        -0.219307541847229,\n        0.38585177063941958\n    ],\n    \"TimeSinceLastDealCompleted\": 1000104,\n    \"TimeSinceLastDealOffered\": 1000104,\n    \"OfferedDeals\": 0,\n    \"CompletedDeals\": 0,\n    \"IsContractOffered\": false,\n    \"OfferedContract\": {\n        \"Payment\": 0.0,\n        \"Products\": {\n            \"entries\": []\n        },\n        \"DeliveryLocationGUID\": \"\",\n        \"DeliveryWindow\": {\n            \"IsEnabled\": false,\n            \"WindowStartTime\": 1200,\n            \"WindowEndTime\": 1800\n        },\n        \"Expires\": false,\n        \"ExpiresAfter\": 0,\n        \"PickupScheduleIndex\": 0,\n        \"IsCounterOffer\": false\n    },\n    \"OfferedContractTime\": {\n        \"elapsedDays\": 0,\n        \"time\": 0\n    },\n    \"TimeSincePlayerApproached\": 1000104,\n    \"TimeSinceInstantDealOffered\": 1000104,\n    \"HasBeenRecommended\": false\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "NPCData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"NPCData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"pearl_moore\"}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                },
+                {
+                    "Name": "CustomerData",
+                    "Contents": "{\n    \"DataType\": \"CustomerData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"Dependence\": 0.0,\n    \"ProductAffinities\": [\n        0.8908476829528809,\n        -0.8917253017425537,\n        0.6696105003356934,\n        0.4818252623081207\n    ],\n    \"TimeSinceLastDealCompleted\": 1000102,\n    \"TimeSinceLastDealOffered\": 1000102,\n    \"OfferedDeals\": 0,\n    \"CompletedDeals\": 0,\n    \"IsContractOffered\": false,\n    \"OfferedContract\": {\n        \"Payment\": 0.0,\n        \"Products\": {\n            \"entries\": []\n        },\n        \"DeliveryLocationGUID\": \"\",\n        \"DeliveryWindow\": {\n            \"IsEnabled\": false,\n            \"WindowStartTime\": 1200,\n            \"WindowEndTime\": 1800\n        },\n        \"Expires\": false,\n        \"ExpiresAfter\": 0,\n        \"PickupScheduleIndex\": 0,\n        \"IsCounterOffer\": false\n    },\n    \"OfferedContractTime\": {\n        \"elapsedDays\": 0,\n        \"time\": 0\n    },\n    \"TimeSincePlayerApproached\": 1000102,\n    \"TimeSinceInstantDealOffered\": 1000102,\n    \"HasBeenRecommended\": false\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "NPCData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"NPCData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"fiona_hancock\"}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                },
+                {
+                    "Name": "CustomerData",
+                    "Contents": "{\n    \"DataType\": \"CustomerData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"Dependence\": 0.0,\n    \"ProductAffinities\": [\n        0.025641560554504396,\n        0.07780826091766358,\n        -0.4993685483932495,\n        0.27300000190734866\n    ],\n    \"TimeSinceLastDealCompleted\": 1000104,\n    \"TimeSinceLastDealOffered\": 1000104,\n    \"OfferedDeals\": 0,\n    \"CompletedDeals\": 0,\n    \"IsContractOffered\": false,\n    \"OfferedContract\": {\n        \"Payment\": 0.0,\n        \"Products\": {\n            \"entries\": []\n        },\n        \"DeliveryLocationGUID\": \"\",\n        \"DeliveryWindow\": {\n            \"IsEnabled\": false,\n            \"WindowStartTime\": 1200,\n            \"WindowEndTime\": 1800\n        },\n        \"Expires\": false,\n        \"ExpiresAfter\": 0,\n        \"PickupScheduleIndex\": 0,\n        \"IsCounterOffer\": false\n    },\n    \"OfferedContractTime\": {\n        \"elapsedDays\": 0,\n        \"time\": 0\n    },\n    \"TimeSincePlayerApproached\": 1000104,\n    \"TimeSinceInstantDealOffered\": 1000104,\n    \"HasBeenRecommended\": false\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "NPCData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"NPCData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"dennis_kennedy\"}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                },
+                {
+                    "Name": "CustomerData",
+                    "Contents": "{\n    \"DataType\": \"CustomerData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"Dependence\": 0.0,\n    \"ProductAffinities\": [\n        0.25694963335990908,\n        0.07639110088348389,\n        -0.8910448551177979,\n        -0.46703600883483889\n    ],\n    \"TimeSinceLastDealCompleted\": 1000104,\n    \"TimeSinceLastDealOffered\": 1000104,\n    \"OfferedDeals\": 0,\n    \"CompletedDeals\": 0,\n    \"IsContractOffered\": false,\n    \"OfferedContract\": {\n        \"Payment\": 0.0,\n        \"Products\": {\n            \"entries\": []\n        },\n        \"DeliveryLocationGUID\": \"\",\n        \"DeliveryWindow\": {\n            \"IsEnabled\": false,\n            \"WindowStartTime\": 1200,\n            \"WindowEndTime\": 1800\n        },\n        \"Expires\": false,\n        \"ExpiresAfter\": 0,\n        \"PickupScheduleIndex\": 0,\n        \"IsCounterOffer\": false\n    },\n    \"OfferedContractTime\": {\n        \"elapsedDays\": 0,\n        \"time\": 0\n    },\n    \"TimeSincePlayerApproached\": 1000104,\n    \"TimeSinceInstantDealOffered\": 1000104,\n    \"HasBeenRecommended\": false\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "NPCData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"NPCData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"randy_caulfield\"}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                },
+                {
+                    "Name": "CustomerData",
+                    "Contents": "{\n    \"DataType\": \"CustomerData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"Dependence\": 0.0,\n    \"ProductAffinities\": [\n        0.8090000152587891,\n        -0.2800000011920929,\n        -0.4699999988079071,\n        1.0\n    ],\n    \"TimeSinceLastDealCompleted\": 1000104,\n    \"TimeSinceLastDealOffered\": 1000104,\n    \"OfferedDeals\": 0,\n    \"CompletedDeals\": 0,\n    \"IsContractOffered\": false,\n    \"OfferedContract\": {\n        \"Payment\": 0.0,\n        \"Products\": {\n            \"entries\": []\n        },\n        \"DeliveryLocationGUID\": \"\",\n        \"DeliveryWindow\": {\n            \"IsEnabled\": false,\n            \"WindowStartTime\": 1200,\n            \"WindowEndTime\": 1800\n        },\n        \"Expires\": false,\n        \"ExpiresAfter\": 0,\n        \"PickupScheduleIndex\": 0,\n        \"IsCounterOffer\": false\n    },\n    \"OfferedContractTime\": {\n        \"elapsedDays\": 0,\n        \"time\": 0\n    },\n    \"TimeSincePlayerApproached\": 1000104,\n    \"TimeSinceInstantDealOffered\": 1000104,\n    \"HasBeenRecommended\": false\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "NPCData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"NPCData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"ray_hoffman\"}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                },
+                {
+                    "Name": "CustomerData",
+                    "Contents": "{\n    \"DataType\": \"CustomerData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"Dependence\": 0.0,\n    \"ProductAffinities\": [\n        0.5600000023841858,\n        0.0,\n        1.0,\n        0.06535136699676514\n    ],\n    \"TimeSinceLastDealCompleted\": 1000104,\n    \"TimeSinceLastDealOffered\": 1000104,\n    \"OfferedDeals\": 0,\n    \"CompletedDeals\": 0,\n    \"IsContractOffered\": false,\n    \"OfferedContract\": {\n        \"Payment\": 0.0,\n        \"Products\": {\n            \"entries\": []\n        },\n        \"DeliveryLocationGUID\": \"\",\n        \"DeliveryWindow\": {\n            \"IsEnabled\": false,\n            \"WindowStartTime\": 1200,\n            \"WindowEndTime\": 1800\n        },\n        \"Expires\": false,\n        \"ExpiresAfter\": 0,\n        \"PickupScheduleIndex\": 0,\n        \"IsCounterOffer\": false\n    },\n    \"OfferedContractTime\": {\n        \"elapsedDays\": 0,\n        \"time\": 0\n    },\n    \"TimeSincePlayerApproached\": 1000104,\n    \"TimeSinceInstantDealOffered\": 1000104,\n    \"HasBeenRecommended\": false\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "NPCData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"NPCData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"sewergoblin\"}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "NPCData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"NPCData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"lily_turner\"}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                },
+                {
+                    "Name": "CustomerData",
+                    "Contents": "{\n    \"DataType\": \"CustomerData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"Dependence\": 0.0,\n    \"ProductAffinities\": [\n        0.32100000977516177,\n        -0.40400001406669619,\n        0.8420000076293945,\n        0.7593358159065247\n    ],\n    \"TimeSinceLastDealCompleted\": 1000102,\n    \"TimeSinceLastDealOffered\": 1000102,\n    \"OfferedDeals\": 0,\n    \"CompletedDeals\": 0,\n    \"IsContractOffered\": false,\n    \"OfferedContract\": {\n        \"Payment\": 0.0,\n        \"Products\": {\n            \"entries\": []\n        },\n        \"DeliveryLocationGUID\": \"\",\n        \"DeliveryWindow\": {\n            \"IsEnabled\": false,\n            \"WindowStartTime\": 1200,\n            \"WindowEndTime\": 1800\n        },\n        \"Expires\": false,\n        \"ExpiresAfter\": 0,\n        \"PickupScheduleIndex\": 0,\n        \"IsCounterOffer\": false\n    },\n    \"OfferedContractTime\": {\n        \"elapsedDays\": 0,\n        \"time\": 0\n    },\n    \"TimeSincePlayerApproached\": 1000102,\n    \"TimeSinceInstantDealOffered\": 1000102,\n    \"HasBeenRecommended\": false\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "NPCData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"NPCData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"jeremy_wilkinson\"}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                },
+                {
+                    "Name": "CustomerData",
+                    "Contents": "{\n    \"DataType\": \"CustomerData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"Dependence\": 0.0,\n    \"ProductAffinities\": [\n        0.5765674114227295,\n        0.5345077514648438,\n        0.8329503536224365,\n        -0.8878740668296814\n    ],\n    \"TimeSinceLastDealCompleted\": 1000102,\n    \"TimeSinceLastDealOffered\": 1000102,\n    \"OfferedDeals\": 0,\n    \"CompletedDeals\": 0,\n    \"IsContractOffered\": false,\n    \"OfferedContract\": {\n        \"Payment\": 0.0,\n        \"Products\": {\n            \"entries\": []\n        },\n        \"DeliveryLocationGUID\": \"\",\n        \"DeliveryWindow\": {\n            \"IsEnabled\": false,\n            \"WindowStartTime\": 1200,\n            \"WindowEndTime\": 1800\n        },\n        \"Expires\": false,\n        \"ExpiresAfter\": 0,\n        \"PickupScheduleIndex\": 0,\n        \"IsCounterOffer\": false\n    },\n    \"OfferedContractTime\": {\n        \"elapsedDays\": 0,\n        \"time\": 0\n    },\n    \"TimeSincePlayerApproached\": 1000102,\n    \"TimeSinceInstantDealOffered\": 1000102,\n    \"HasBeenRecommended\": false\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "SupplierData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"SupplierData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"fungal_phil\",\"timeSinceMeetingStart\":-1,\"timeSinceLastMeetingEnd\":822,\"debt\":0.0,\"minsUntilDeadDropReady\":-1,\"deaddropItems\":[],\"debtReminderSent\":false}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "NPCData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"NPCData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"doris_lubbin\"}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                },
+                {
+                    "Name": "CustomerData",
+                    "Contents": "{\n    \"DataType\": \"CustomerData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"Dependence\": 0.0,\n    \"ProductAffinities\": [\n        0.4608926475048065,\n        0.15726983547210694,\n        0.5780153274536133,\n        0.7490000128746033\n    ],\n    \"TimeSinceLastDealCompleted\": 1000102,\n    \"TimeSinceLastDealOffered\": 1000102,\n    \"OfferedDeals\": 0,\n    \"CompletedDeals\": 0,\n    \"IsContractOffered\": false,\n    \"OfferedContract\": {\n        \"Payment\": 0.0,\n        \"Products\": {\n            \"entries\": []\n        },\n        \"DeliveryLocationGUID\": \"\",\n        \"DeliveryWindow\": {\n            \"IsEnabled\": false,\n            \"WindowStartTime\": 1200,\n            \"WindowEndTime\": 1800\n        },\n        \"Expires\": false,\n        \"ExpiresAfter\": 0,\n        \"PickupScheduleIndex\": 0,\n        \"IsCounterOffer\": false\n    },\n    \"OfferedContractTime\": {\n        \"elapsedDays\": 0,\n        \"time\": 0\n    },\n    \"TimeSincePlayerApproached\": 1000102,\n    \"TimeSinceInstantDealOffered\": 1000102,\n    \"HasBeenRecommended\": false\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "NPCData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"NPCData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"hitman_unknown_caller\"}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                }
+            ]
+        },
+        {
+            "DataType": "NPCData",
+            "DataVersion": 0,
+            "GameVersion": "0.4.7f12",
+            "BaseData": "{\"DataType\":\"NPCData\",\"DataVersion\":0,\"GameVersion\":\"0.4.7f12\",\"ID\":\"taxi_driver\"}",
+            "AdditionalDatas": [
+                {
+                    "Name": "Relationship",
+                    "Contents": "{\n    \"DataType\": \"RelationshipData\",\n    \"DataVersion\": 0,\n    \"GameVersion\": \"0.4.7f12\",\n    \"RelationDelta\": 2.0,\n    \"Unlocked\": false,\n    \"UnlockType\": 0\n}"
+                }
+            ]
+        }
+    ]
+}

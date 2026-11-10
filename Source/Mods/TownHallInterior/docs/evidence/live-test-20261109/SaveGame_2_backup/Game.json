@@ -1,0 +1,11 @@
+{
+    "DataType": "GameData",
+    "DataVersion": 0,
+    "GameVersion": "0.4.7f12",
+    "OrganisationName": "TownHallTest",
+    "Seed": 1726567956,
+    "Settings": {
+        "ConsoleEnabled": true,
+        "UseRandomizedMixMaps": false
+    }
+}

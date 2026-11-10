@@ -1,0 +1,19 @@
+{
+  "schema": 1,
+  "checkedUtc": "2026-11-05T18:38:01.462941+00:00",
+  "sourceRevision": "b2c6c7e6c6ecc778da9624cdb68a6578b9db471a",
+  "sourceWorktree": "dirty",
+  "onlyProductionChangeIsOwnershipBlock": true,
+  "oldSourceBytesPreservedByRemovingBlock": true,
+  "sourceBeforeSha256": "8964512eeb94ae63acadbe5cd47caa7c36a325e10cd75af73cc5c1091c4db5d2",
+  "sourceAfterSha256": "e4bb1d13324a3d61419d26ba172e88ba2ea53e30b15d3c6b6f43fb3e72212f50",
+  "newTestSha256": "0f1f3109b58908431e1d8842cb9235411d933f7e08f02351bb4db42593049c1f",
+  "otherProtectedSourcesUnchanged": 40,
+  "priorArtifactsUnchangedExcludingManifests": 237,
+  "priorManifestsUnchanged": 3,
+  "originalNativeAuditDocumentsUnchanged": 2,
+  "productionFiles": 20,
+  "nativeSaveWriteAllowed": false,
+  "installedFilesOrSaveDataRead": false,
+  "status": "source-and-archive-integrity-pass-not-native-proof"
+}

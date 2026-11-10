@@ -1,0 +1,21 @@
+; ScheduleOne.Property.Property::Awake/0, token 0x0600141F, RVA 0x5545B0, next-pointer window 0x40 bytes
+; No target execution. Parser-pointer window can contain padding/cold fragments and is not exact/full function, EH or transitive coverage. Shared direct aliases are truncated to eight names.
+0x5545B0     40 53                           push rbx
+0x5545B2     48 83 EC 20                     sub rsp,20h
+0x5545B6     48 8B 01                        mov rax,[rcx]
+0x5545B9     48 8B D9                        mov rbx,rcx
+0x5545BC     48 8B 90 E0 04 00 00            mov rdx,[rax+4E0h]
+0x5545C3     FF 90 D8 04 00 00               call qword ptr [rax+4D8h]
+0x5545C9     33 D2                           xor edx,edx
+0x5545CB     48 8B CB                        mov rcx,rbx
+0x5545CE     E8 CD F2 FF FF                  call 00000001805538A0h ; ScheduleOne.Property.Property::Awake_UserLogic_ScheduleOne.Property.Property_Assembly-CSharp.dll/0
+0x5545D3     48 8B 03                        mov rax,[rbx]
+0x5545D6     48 8B CB                        mov rcx,rbx
+0x5545D9     48 8B 90 F0 04 00 00            mov rdx,[rax+4F0h]
+0x5545E0     48 83 C4 20                     add rsp,20h
+0x5545E4     5B                              pop rbx
+0x5545E5     48 FF A0 E8 04 00 00            jmp qword ptr [rax+4E8h]
+0x5545EC     CC                              int 3
+0x5545ED     CC                              int 3
+0x5545EE     CC                              int 3
+0x5545EF     CC                              int 3

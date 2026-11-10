@@ -1,0 +1,331 @@
+{
+  "schema": 1,
+  "capturedUtc": "2026-11-05T08:41:48.953334Z",
+  "reviewer": "GPT-6.1 Sol / OpenCode; unabhängiger Prüfer der eingefrorenen nativen v2-Aussagen und ihrer Managed-Grenze",
+  "status": "v2-local-native-claims-mostly-corroborated-no-global-completion-or-destroy-certificate",
+  "saveApproval": false,
+  "nativeDestroyOrUnregisterCertificate": false,
+  "evidenceRoot": ".scratch/townhall-native-save-audit-20261105/",
+  "pathConvention": "Kurze Artefaktpfade sind relativ zu evidenceRoot; Source-/ThirdParty-Pfade sind repository-relativ. Quellenkürzel wie save0:27-32 oder move:456-500 bezeichnen die Textdatei der entsprechenden methodEvidence-ID und deren 1-basierte Zeilen.",
+  "summary": [
+    "Die tatsächlichen v2-Instruktionsbytes, RVAs, primären .pdata-Grenzen und direkten relativen Sprungziele passen zur erneut gehashten aktuellen GameAssembly. Dies ist echte lokale Native-Evidenz, nicht die Auslegung leerer C#-Rümpfe.",
+    "Save()/0 springt am RVA 0x5AA87B zu Save(string)/1 am RVA 0x5AA890. Diese bisher offene einzelne Native-Verbindung ist damit für das gehashte Artefakt belegt; ein Laufzeit-Patchreadback folgt daraus nicht.",
+    "Der Coroutine-Loop läuft nur bei Completed.Count < Saveables.Count UND Queue.Count > 0 weiter. Sein Ende quittiert weder vollständige Teilnehmeridentität noch eine leere Queue.",
+    "Der positive Restqueue-Zweig leert +0x60/CompletedSaveables und nicht +0x68/QueuedSaveRequests. Der normale Queue-leer-Zweig überspringt diese Completed-Löschung.",
+    "IsSaving=false und SecondsSinceLastSave=0 liegen vor onSaveComplete.Invoke; die Prüfung des statischen SaveError und beide Ergebnislogs liegen dahinter. Completion ist deshalb kein Erfolgssignal.",
+    "SaveRequest.Complete ist in v2 erkennbar unvollständig. Ein vollständiger Methoden-, Fehlerpfad- oder letzter Referenznutzungsnachweis aus diesen v2-Daten wird ausdrücklich verworfen.",
+    "Besonders relevant bleiben reentrante Saves im Completion-Event, stale Startzustände, Completed-/Queue-/Snapshotreferenzen und die fehlende Request-/Weltkorrelation. Keine Freigabe für Registrierung, Save, Destroy oder Entregistrierung."
+  ],
+  "repository": {
+    "project": "schedule1-mod-only",
+    "directory": "C:/Users/pc/Schedule1-mod-only",
+    "baseRevision": "b2c6c7e6c6ecc778da9624cdb68a6578b9db471a",
+    "workingTree": "dirty; fremde und frühere Änderungen erhalten",
+    "productionAndTestSourceHashCheck": "41/41 protectedSources des input-manifest.json aktuell hashgleich; nur Bytehashprüfung, kein neuer Modell-/Testreview"
+  },
+  "scope": {
+    "included": [
+      "Kritik der vom Parent benannten konkreten v2-Behauptungen",
+      "Original-PE-Header, RVA-zu-Raw-Abbildung, primäre Exception-Directory/.pdata-Einträge und Vergleich der vorhandenen v2-Instruktionsbytes",
+      "Vier kurze, im vorhandenen MethodMap benannte Property-Accessors als unabhängige Offset-Gegenprobe",
+      "Abgleich mit dem unverändert gehaltenen Managed-Bericht und dessen weiterhin passenden Quellenhashes"
+    ],
+    "notDone": [
+      "Keine v3-Datei gelesen, erzeugt oder geändert; keine Expansion von Cold-/Sekundärfragmenten und keine Wiederholung der Parent-Parseranalyse",
+      "Keine Spiel-/Mod-/Targetassembly geladen oder ausgeführt, keine Analysebibliothek nachgeladen, keine Target-EXE gestartet",
+      "Keine neuen Disassemblies oder instrumentierten Laufzeitaufrufe",
+      "Kein Build, Testlauf, Deployment, Installieren, Download, Spiel, Bridge, Save oder nativer Save-Dateizugriff",
+      "Keine privaten UserData-Konfigurationen, Sidecars oder Saves gelesen; im Inputmanifest aufgeführte UserData-Dateien wurden nicht geöffnet",
+      "Keine Produktions-, Test-, Repository-Dokumentations-, Vault- oder vorherige Berichtsdatei geschrieben",
+      "Keine Subagents, Commits oder Pushes"
+    ],
+    "onlyAuthoredReport": ".scratch/townhall-native-save-audit-20261105/native-claims-review.json",
+    "ownToolOutputDirectory": ".scratch/townhall-native-save-audit-20261105/managed-review/native-check/",
+    "dotnetRoot": {"before": null, "changed": false}
+  },
+  "inputIdentity": {
+    "input-manifest.json": {"sha256": "c70e14bfcaac80f0d74edf2260a5a4966f197eab1c55382d686513ed648ac3a3", "sourceLines": "3-9,12-21,60-117"},
+    "native-map.json": {"sha256": "8261fa7322224c2e99175c3fd366ab4ad2e7c4c45615f8f7fccd13be5b52ff51", "sourceLines": "2-5,267-273,491-534,663-669,778-791,853-911,1003-1016"},
+    "native-metadata/SaveManager.stub.cs": {"sha256": "fe976524a657fbcebf713f8838e301e06ce80e559121b7ef60f581a653ea4d19", "use": "Nur Feld-, Token-, Signatur- und Adresszuordnung; keine Methodensemantik aus den leeren Rümpfen"},
+    "native-metadata/SaveRequest.stub.cs": {"sha256": "4af107b5a4df7b5d3d9197d10ce8b93bb10b1e7f14f8f2aa11f4ca4458fcfabc", "use": "Nur Felder/Signaturen/Adressen und Warnhinweis durch cached Length 0x15C"},
+    "native-metadata/ISaveable.stub.cs": {"sha256": "2fabe8c7a3c82d7ad09156acbfa299696feed25adcc4ce12b90793e2acb03337", "use": "Nur Typ-/Interfacezuordnung; default/null-Rückgaben sind keine Native-Implementierung"},
+    "managed-boundary-review.json": {"sha256": "3d48257c04fcc5d93de23f03db2432f4be87207b3fde5c533f1f0a5ba9b9ef19", "unchanged": true, "currentSourceSnapshotChecks": "8/8 der darin benannten Quellen unverändert"},
+    "gameAssembly": {
+      "relativeGamePath": "GameAssembly.dll",
+      "sha256": "61829050e56ca180d67be592e4bfe61ec97d2e9573f720d90a54e318a7e4381d",
+      "sha512": "872dfb646c9b866c53dae12d7a34e1f9df21a3e16fac6b7c6cd21bf5fc8e4b3f99932163c5de7e3798d37641712e82b914d46e1f023d56e77970be84fb74ec3a",
+      "bytes": 66477568,
+      "imageBase": "0x180000000",
+      "machine": "0x8664",
+      "generatorConfigLimit": "Der tatsächliche SHA-512 wurde unabhängig berechnet und stimmt mit dem genannten Präfix 872dfb64 überein. Die vollständige Gleichheit mit GeneratorConfig ist Parent-Evidenz; dessen Konfiguration wurde hier nicht gelesen."
+    },
+    "globalMetadata": {
+      "relativeGamePath": "Schedule I_Data/il2cpp_data/Metadata/global-metadata.dat",
+      "sha256": "e775c97da277da8eb1a90265478f3b65c9c3d6464aff4f7255d45280a1d1181f",
+      "bytes": 18689168,
+      "checkedHeaderMagic": "0xFAB11BAF",
+      "checkedIntegerHeaderVersion": 31,
+      "parserVersionInterpretation": "31.1 und 149349 globale Methoden sind frische Parserbefunde des Parent; hier nicht erneut geparst. 70 MethodMap-Einträge wurden aus dem eingefrorenen JSON selbst gezählt."
+    }
+  },
+  "independentByteVerification": {
+    "checkedUtc": "2026-11-05T08:38:26.209827Z",
+    "tool": "Vorhandenes Python 3.12 mit -B und ausschließlich Standardbibliothek: pathlib/json/hashlib/struct/bisect/re; Byte- und Datenlesen, kein Targetloader",
+    "immutableInputHashesCaptured": 52,
+    "v2PrimaryExtentsChecked": 23,
+    "instructionByteRowsChecked": 2978,
+    "relativeCallAndBranchTargetsRecomputed": 831,
+    "checks": [
+      "PE-Signatur, x64/PE32+, ImageBase und Section-Tabelle aus den tatsächlichen Bytes gelesen",
+      "Jede primäre v2-Bounds-Angabe gegen tatsächlichen .pdata-Eintrag einschließlich UnwindRva geprüft",
+      "Alle RawOffsets über die tatsächlichen Sections neu berechnet; hier liegen die relevanten Methoden in il2cpp, RawOffset=RVA-0xE00",
+      "Alle Instruktionsbytes, RVAs/VAs, Längen, fortlaufenden Adressen und verketteten Bytes gegen die tatsächliche GameAssembly geprüft",
+      "Alle BytesSha256 gegen JSON und native-map.json gegengeprüft",
+      "Instruktionszeilen aller 23 TXT-Dateien gegen die JSON-Bytezeilen geprüft; mehrzeilige Metadatenkommentare sind keine Instruktionen",
+      "831 E8/E9/0F8x/7x/EB-Ziele unabhängig aus signed rel32/rel8 berechnet"
+    ],
+    "output": "managed-review/native-check/byte-and-input-check.json",
+    "outputSha256": "b3daba3cfb911162c9520070487af8e224cf106d46bc93873c9574d9583be6d8",
+    "limits": [
+      "Bytegleichheit beweist die korrekte lokale Herkunft, nicht alle Dekodierungs-/Symbolsemantiken oder vollständige erreichbare Kontrollflüsse.",
+      "113 MetadataGlobal.ResolutionError-Einträge stehen in den 23 v2-JSONs, überwiegend ungelöste MethodRef-Zuordnungen. Shared-Target-Aliaslisten sind keine eindeutigen Callee-Identitäten.",
+      "Generische Contains/Remove/Add-Hilfsroutinen, UnityEvent.Invoke, StartCoroutine, ClearBaseLevelOutdatedSaves und Exception-Dispatch wurden nicht transitiv neu analysiert."
+    ]
+  },
+  "methodEvidence": [
+    {"id": "save0", "token": "0x06001828", "rva": "0x5AA800", "rawOffset": "0x5A9A00", "primaryByteLength": 134, "bytesSha256": "01903d197ce740ce7647585e4f821b2d12e6c882f500d31952d047722d91b2ef", "text": "native-disassembly-v2/0x06001828-Save.txt", "textSha256": "0ca6a29a6dcbb10bda3d387a1cfebc5af466ed86c425635587dedf08a5e8518e"},
+    {"id": "save1", "token": "0x06001829", "rva": "0x5AA890", "rawOffset": "0x5A9A90", "primaryByteLength": 1045, "bytesSha256": "4aeb99c0050f5b26cabbedf0c2ff285e5218fc56c425615126a0309e04a77ce7", "text": "native-disassembly-v2/0x06001829-Save.txt", "textSha256": "98f3603e98a7a7c27cb3a71a0b6cce23d9a4c479c57f1778324ecb214e6a9259"},
+    {"id": "move", "token": "0x0600183C", "rva": "0x5B0C20", "rawOffset": "0x5AFE20", "primaryByteLength": 2236, "bytesSha256": "f777ad8d87880c40744ae8f77f48ba1f82328b5eabb82d28c1b89e6c382ec277", "text": "native-disassembly-v2/0x0600183C-MoveNext.txt", "textSha256": "68b816b3be023048377fae7b7c7ce6cc239d7f9bb8679b9eac6f2efddb40979c"},
+    {"id": "request-complete", "token": "0x0600184B", "rva": "0x5ABA60", "rawOffset": "0x5AAC60", "primaryByteLength": 209, "bytesSha256": "03270d2542e5f39fb1e83ac374798f6682ea7604b05f6f3a0c2b3770d1243cba", "text": "native-disassembly-v2/0x0600184B-Complete.txt", "textSha256": "6757d5e1061d560a71f94c1fe356405ec37e18090facfba1692bce59e360544d"},
+    {"id": "complete-saveable", "token": "0x0600182B", "rva": "0x5A9AA0", "primaryByteLength": 196, "bytesSha256": "d8d6ea11183021a81d159eb259bcda134f2f27af66b19680556f8c90ae52b0b9", "text": "native-disassembly-v2/0x0600182B-CompleteSaveable.txt", "textSha256": "7cc9064e70fb287dcf68e97f13f22b3a89b8204a50346c9c1318185080545289"},
+    {"id": "clear-completed", "token": "0x0600182C", "rva": "0x5A9A40", "primaryByteLength": 84, "bytesSha256": "a855115b16cbf979ad5508bb9019f96bdfd0a2f56e2512aa7badec327e3c887b", "text": "native-disassembly-v2/0x0600182C-ClearCompletedSaveable.txt", "textSha256": "488669e2dc439a6d41b93facaa384a7f3feddb5c8380a81b5283c4297917318e"},
+    {"id": "dequeue", "token": "0x06001830", "rva": "0x5A9FA0", "primaryByteLength": 84, "bytesSha256": "f05bb581210e36628023c9750498766474ce0a3b54b09875a241d24cb1d9ebdb", "text": "native-disassembly-v2/0x06001830-DequeueSaveRequest.txt", "textSha256": "865d90de9a5be724ea231e13809d036cf8a8d4dbc3ee03404609964ef364d976"},
+    {"id": "clean", "token": "0x06001834", "rva": "0x5A94E0", "primaryByteLength": 150, "bytesSha256": "2959d639e0f90653dfbc4a1cd125aea6e502a3a16fa412d6bdd1a32566f7d65c", "text": "native-disassembly-v2/0x06001834-Clean.txt", "textSha256": "2c48c8b26517a0373c1f06e211c9845eccc36b779e2145c11c6175290172511d"},
+    {"id": "report-error", "token": "0x06001815", "rva": "0x5AA710", "primaryByteLength": 54, "bytesSha256": "bcf3dfad4470e88d2f1a4e19e82523f91473f03414026f49e30fea3259bf3979", "text": "native-disassembly-v2/0x06001815-ReportSaveError.txt", "textSha256": "035162886eae6d0d944840421b38a69f5eac5b8ec1362aa19c3ded2c8618902b"},
+    {"id": "manager-ctor", "token": "0x06001837", "rva": "0x5AAEE0", "primaryByteLength": 507, "bytesSha256": "6b58762ff29ce9f536841c6f5b0db8d4023dca4bb8fd6d03d58261f4e6272d7b", "text": "native-disassembly-v2/0x06001837-_ctor.txt", "textSha256": "2e3c8bc8a776b2dcaa554eddec77d48c4a0d6944016a0b3d0e21e21bad11e985"},
+    {"id": "request-ctor", "token": "0x0600184A", "rva": "0x5ABBC0", "primaryByteLength": 812, "bytesSha256": "e8d702a093eb8ecd0ef53eed3dcb0158fd0e54451fff83a107f795e7ed1ba541", "text": "native-disassembly-v2/0x0600184A-_ctor.txt", "textSha256": "8a868a1def57571dd0b3e51e671cb6cf3ca1666177a6678b316e6727a5874ccb"}
+  ],
+  "fieldAssociationChecks": [
+    {
+      "field": "SaveManager.IsSaving backing field +0x29",
+      "mapping": "native-metadata/SaveManager.stub.cs:94-104; native-map.json:348-363",
+      "independentBytes": [
+        {"rva": "0x589FE0", "bytes": "0F B6 41 29 C3", "meaning": "movzx eax,byte ptr [rcx+0x29]; ret", "bytesSha256": "9be18fa0c68800d126a11d3b9ead6206603acda186612d2d40f66fba01e7553e"},
+        {"rva": "0x58A0F0", "bytes": "88 51 29 C3", "meaning": "mov byte ptr [rcx+0x29],dl; ret", "bytesSha256": "b65185fbbb37e7b78dc2aed5275170ec013aa1ba5cb7f39a660708b1dd11995b"}
+      ],
+      "association": "Direkte Gegenprobe an den bereits gemappten Getter-/Setterbytes bestätigt den Offset; keine Abhängigkeit von einem leeren C#-Rumpf."
+    },
+    {
+      "field": "SaveManager.SecondsSinceLastSave backing field +0x2C",
+      "mapping": "native-metadata/SaveManager.stub.cs:107-117; native-map.json:365-381",
+      "independentBytes": [
+        {"rva": "0x463B00", "bytes": "F3 0F 10 41 2C C3", "meaning": "movss xmm0,[rcx+0x2C]; ret", "bytesSha256": "e82153c42551f50ff7afe1bb56a483b5b0fee3b9a0b0ff6e03ec5d9b49f52769"},
+        {"rva": "0x58A110", "bytes": "F3 0F 11 49 2C C3", "meaning": "movss [rcx+0x2C],xmm1; ret", "bytesSha256": "c35ca6b30da4330cd0412fb91eaa8676441509817c2f7916ab21cc606efc7b2f"}
+      ],
+      "association": "Die Nullschreiboperation am RVA 0x5B1415 betrifft dieses Feld."
+    },
+    {
+      "fields": {"0x48": "Saveables", "0x50": "BaseSaveables", "0x58": "ApprovedBaseLevelPaths", "0x60": "CompletedSaveables", "0x68": "QueuedSaveRequests"},
+      "mapping": "native-metadata/SaveManager.stub.cs:42-61",
+      "codeCrossChecks": [
+        "manager-ctor:49-98 alloziert die zugeordneten List-Typen und speichert sie an genau +0x48/+0x50/+0x58/+0x60/+0x68; besonders 0x5AB088 versus 0x5AB0B6",
+        "clear-completed:13-21 liest +0x60; dequeue:13-21 liest +0x68; beide transferieren an dieselbe generisch geteilte Remove-Hilfsadresse mit verschiedenen MethodInfo-Zeilen",
+        "complete-saveable:19-35 und move:364-394 verwenden +0x60 für Completed-Buchhaltung; move:234-245 und 334-360 verwenden +0x68 für die Requestliste"
+      ],
+      "limit": "Feldnamen kommen aus der eingefrorenen Cpp2IL-Metadatenzuordnung und werden durch unabhängige Byte-/Callsitekonsistenz gestützt. Die Native-Fieldoffsettabellen wurden nicht erneut mit LibCpp2IL rekonstruiert; das ist nicht der neue v3-Offsetreview des Parent."
+    },
+    {
+      "fields": {"0x78": "onSaveStart", "0x80": "onSaveComplete"},
+      "mapping": "native-metadata/SaveManager.stub.cs:68-75",
+      "codeCrossChecks": ["save1:159-164 lädt +0x78 und ruft am RVA 0x5AAB78 UnityEvent.Invoke", "move:467-471 lädt +0x80 und ruft am RVA 0x5B1439 dieselbe Invoke-Adresse 0x182BA6EF0"],
+      "limit": "Belegt die zugeordnete Callsite, nicht UnityEvents vollständige Listener-/Exceptionsemantik."
+    },
+    {
+      "field": "SaveManager.SaveError; statischer Byte-Slot im selben SaveManager-TypeInfo",
+      "mapping": "native-metadata/SaveManager.stub.cs:39-40",
+      "codeCrossChecks": ["report-error:9-11 schreibt 1", "save1:189-192 schreibt 0 nach dem Start-Event", "move:191-194,319-322 schreibt 1; move:472-476 liest denselben TypeInfo/static-field-Zugriff nach Completion"],
+      "limit": "Statische Feldassoziation über dieselbe TypeInfo-Adresse und den benannten ReportSaveError-Pfad; kein neu berechnetes vollständiges statisches Layout."
+    },
+    {
+      "field": "SaveRequest.Saveable +0x10",
+      "mapping": "native-metadata/SaveRequest.stub.cs:8-14",
+      "codeCrossChecks": ["request-ctor:12-14,27-34 speichert die Saveable-/ParentFolderPath-Konstruktorargumente an +0x10/+0x18", "request-complete:41-46 liest nach dem Queue-Remove-Aufruf +0x10", "move:374,392 liest Saveable aus dem Request für Completed-Buchhaltung"],
+      "limit": "Keine Aussage über den in v2 fehlenden Rest von SaveRequest.Complete."
+    }
+  ],
+  "claimChecks": [
+    {
+      "id": "NC-01",
+      "claim": "Save()/0 0x06001828 verbindet sich per Tailjump mit Save(string)/1.",
+      "verdict": "agree",
+      "methodEvidence": ["save0", "save1"],
+      "locations": ["native-map.json:491-507", "save0:27-32"],
+      "decisiveBytes": "RVA 0x5AA87B: E9 10 00 00 00; rel32 ergibt 0x5AA890",
+      "assessment": "Im sichtbaren Save()/0 wird this in RBX gehalten, das Stringargument aus einem Singletonfeld +0x38 in RDX geholt, RCX wieder auf this gesetzt und direkt nach Save/1 transferiert.",
+      "limit": "Gültiger lokaler Native-Pfad, keine Quittung seines Erfolgs und kein Beweis der aktuellen Harmony-Hook-/Trampolininstallation. Der historische Managed-Bericht bleibt unverändert; sein N-01-Teilproblem ist durch diesen Nachtrag enger beantwortet."
+    },
+    {
+      "id": "NC-02",
+      "claim": "Save(string) besitzt Host-/Load-/Tutorial-/Busy-Gates.",
+      "verdict": "limited",
+      "methodEvidence": ["save1"],
+      "locations": ["save1:60-119,120-145,216-231"],
+      "rvas": ["0x5AA9BD: get_IsServer und früher Returnzweig", "0x5AAA2D-0x5AAA34: String-Empty-Vergleich zum No-game-loaded-Zweig", "0x5AAA3A-0x5AAA3D: +0x29/Busy-Prüfung", "0x5AAA5D-0x5AAAA7: Tutorialprüfung mit isEditor-Ausnahme"],
+      "assessment": "Die benannten Sperrzweige sind sichtbar. Tutorial ist aber nicht uneingeschränkt gesperrt: der Editor-Pfad darf weiterlaufen und der folgende Tutorialpfad ersetzt das Ziel durch Path.Combine(..., DevSave). Das Load-Gate ist hier ein Stringvergleich mit leerem String, kein sichtbarer Test von LoadManager.IsGameLoaded.",
+      "limit": "Die genaue Zuordnung des verwendeten fremden Singletonfelds +0x38 zu LoadedGameFolderPath wurde aus den drei vorhandenen Stubs nicht unabhängig neu abgeleitet. Warntexte/Callsites stützen einen Load-/Pfadgate, nicht bestätigte Welt-/Slotidentität. Kalte/Exceptionpfade und die transitiven Gate-Getter sind nicht vollständig geprüft."
+    },
+    {
+      "id": "NC-03",
+      "claim": "IsSaving wird vor onSaveStart gesetzt; danach werden Completed/Approved geleert und StartCoroutine aufgerufen, ohne eigenen Completion-Wait.",
+      "verdict": "agree",
+      "methodEvidence": ["save1"],
+      "locations": ["save1:159-215"],
+      "decisiveBytes": ["0x5AAB6C: C6 47 29 01", "0x5AAB78: E8 73 C3 5F 02", "0x5AAB7D: 48 8B 4F 60", "0x5AABAB: 48 8B 4F 58", "0x5AABEE: C6 01 00", "0x5AAC4E: E9 BD EB 5C 02 -> 0x2B79810"],
+      "assessment": "Die lineare Reihenfolge ist belegt: Busy=true -> optionaler Start-Invoke -> Completed.Clear -> Approved.Clear -> SaveError=0 -> Iteratoraufbau -> Tailtransfer an StartCoroutine.",
+      "limit": "Im Save/1-Rumpf gibt es keinen zusätzlichen Completion-Wait. Das beweist nicht, dass Completion zwingend erst nach Save-Rückkehr kommt: StartCoroutine könnte den Iterator vor seiner eigenen Rückkehr bereits bis zu einem Yield oder Ende vorantreiben. Dessen Unity-Implementierung wurde nicht untersucht."
+    },
+    {
+      "id": "NC-04",
+      "claim": "MoveNext setzt den Queuezyklus nur bei Completed.Count < Saveables.Count UND Queue.Count > 0 fort.",
+      "verdict": "agree",
+      "methodEvidence": ["move"],
+      "locations": ["move:221-245"],
+      "decisiveBytes": ["0x5B1044: 39 41 18; 0x5B1047: jge 0x5B1360", "0x5B105E: 83 79 18 00; 0x5B1062: jle 0x5B1360"],
+      "assessment": "Completed>=Saveables ODER Queue<=0 erreicht den terminalen Block. Die Saveables-Anzahl wird aus der aktuellen Liste gelesen, nicht aus einer zum Save-Start eingefrorenen Teilnehmermenge.",
+      "consequence": "Queueleerheit kann bei unvollständiger Completed-Anzahl beenden; eine verkleinerte Saveables-Anzahl kann trotz verbleibender Queue zum Ende führen. Counts beweisen weder Mengenidentität noch per-Request-Erfolg. Keine Aussage, dass ein solcher Zustand in einer tatsächlichen Sitzung vorlag."
+    },
+    {
+      "id": "NC-05",
+      "claim": "GetRange bildet einen Batch von maximal 15, ruft SaveRequest.Complete und nimmt anschließend eigene Queue-/Completed-Buchhaltung vor.",
+      "verdict": "limited",
+      "methodEvidence": ["move", "request-complete", "complete-saveable", "dequeue"],
+      "locations": ["move:239-265,319-397", "request-complete:35-46", "complete-saveable:19-35", "dequeue:13-21"],
+      "rvas": ["0x5B106C: 15; 0x5B1074: cmova; 0x5B1081: GetRange mit Startindex 0", "0x5B10CD: call 0x5ABA60", "0x5B1237/0x5B1278: Queue-Contains-/Remove-Muster", "0x5B12BF/0x5B130A: Completed-Contains-/Add-Muster"],
+      "assessment": "Batchgrenze, Request-Aufruf und anschließende separate Buchhaltungsaufrufe sind direkt bestätigt. Der sichtbare Block mit Error-completing-Text setzt SaveError=1 bei 0x5B11D4 und fällt danach ebenfalls in die Buchhaltung bei 0x5B11EC. CompleteSaveable hat selbst keinen ausgewerteten Schreib-Erfolgsparameter.",
+      "limit": "Generische Contains/Remove/Add-Zuordnungen sind durch Callsite-/MethodInfo-/Typkonsistenz gestützt, nicht durch neuen transitiven Rumpfreview. Der echte Exception-Dispatcherzugang zu den sichtbaren Fehlerblöcken ist in v2 nicht vollständig belegt. Vor allem ist der aufgerufene Complete-Rumpf selbst abgeschnitten. Kein Nachweis, dass jeder Exceptionpfad weiterläuft oder diese Buchhaltung native Schreibdurchführung bedeutet."
+    },
+    {
+      "id": "NC-06",
+      "claim": "Der terminale Restqueue-Zweig warnt und leert Completed(+0x60), nicht Queue(+0x68).",
+      "verdict": "agree",
+      "methodEvidence": ["move"],
+      "locations": ["move:419-455"],
+      "decisiveBytes": ["0x5B1386: 48 8B 40 68; 0x5B1397: 7E 5E -> 0x5B13F7", "0x5B13CC: 48 8B 49 60", "0x5B13E0: 44 89 79 18; 0x5B13F2: Array.Clear-Aufruf"],
+      "assessment": "Nach ClearBaseLevelOutdatedSaves wird Queue.Count gelesen. Bei >0 folgt Warning und eine inline List-Clear-Sequenz auf dem an +0x60 geladenen Objekt. Für Queue.Count<=0 überspringt der Sprung die gesamte Sequenz.",
+      "limit": "Belegt den direkt sichtbaren Codezweig. Kein Beweis, dass die Queue bei späterem Event tatsächlich noch >0 ist: aufgerufene Helfer/Logger/Listener können weitere Wirkung haben. Umgekehrt besitzt dieser Zweig keinen direkten Queue-Clear und keine erneute Queue-leer-Voraussetzung vor Completion. Daher liefert Completion keine garantierte Queueleerheit."
+    },
+    {
+      "id": "NC-07",
+      "claim": "Native Completion kann trotz SaveError erfolgen und liegt vor der Erfolg-/Fehlerklassifikation.",
+      "verdict": "agree",
+      "methodEvidence": ["move", "report-error", "save1"],
+      "locations": ["move:456-500", "report-error:9-13", "move:191-194,319-322"],
+      "decisiveBytes": ["0x5B1404: C6 40 29 00", "0x5B1415: 44 89 78 2C", "0x5B1439: E8 B2 5A 5F 02", "0x5B144C: 80 39 00"],
+      "assessment": "IsSaving=false -> Seconds=0 -> optionaler onSaveComplete.Invoke -> erst danach SaveError-Prüfung. Fehlerlog bei 0x5B1472, Erfolgslog bei 0x5B14A3. Kein SaveError==0-Gate verhindert vorher den Eventaufruf; gesetzte Fehler sind damit mit dem Completionpfad vereinbar.",
+      "limit": "Kein universelles Versprechen, dass jeder Fehler Completion erreicht. Frühere Ausnahmen, leeres/ungültiges Event oder eine Ausnahme im Invoke können den späteren Ablauf verhindern. Errorflag, Loggeraufruf und Ereignis sind keine Durabilitäts-/Wiederherstellungsquittung."
+    },
+    {
+      "id": "NC-08",
+      "claim": "Der normale Queue-leer-Terminalpfad behält vorhandene CompletedSaveables-Referenzen bis zu einer späteren Mutation, etwa nächstem Save oder ClearCompletedSaveable.",
+      "verdict": "limited",
+      "methodEvidence": ["move", "save1", "clear-completed", "clean"],
+      "locations": ["move:428-471", "save1:165-176", "clear-completed:13-21", "clean:13-41"],
+      "assessment": "Lokal bestätigt: bei Queue.Count<=0 springt 0x5B1397 direkt zu 0x5B13F7 und überspringt den Clear auf +0x60. Bereits enthaltene ISaveable-Referenzen werden in diesem normalen Terminalblock nicht entfernt. Der nächste Save leert +0x60 erst nach seinem Start-Event; ClearCompletedSaveable adressiert +0x60 ausdrücklich. Clean leert im sichtbaren Rumpf nur +0x48/+0x50, nicht +0x60/+0x68.",
+      "limit": "Keine globale zeitliche 'nur bis'-Garantie: Eventteilnehmer, aufgerufene Helfer, andere Managerpfade oder Objekt-/Listenersatz könnten mutieren. Es ist auch nicht bewiesen, dass der eigene Teilnehmer auf jedem realen Pfad in Completed steht. Der belastbare Befund ist die fehlende lokale Entfernung im beschriebenen Zweig, nicht vollständige Referenzbesitzanalyse.",
+      "consequence": "Entfernen nur aus Saveables(+0x48) oder ein erfolgreicher Clean-Szenenmarker genügt nicht als Nachweis, dass der eigene Teilnehmer nirgendwo mehr gehalten oder später benutzt wird."
+    },
+    {
+      "id": "NC-09",
+      "claim": "v2 enthalte den vollständigen SaveRequest.Complete-Rumpf und rechtfertige dessen vollständige Save-/Fehler-/Freigabesemantik.",
+      "verdict": "reject",
+      "methodEvidence": ["request-complete"],
+      "locations": ["request-complete:1,29,37,43-46", "native-metadata/SaveRequest.stub.cs:35-39", "native-map.json:1003-1016"],
+      "decisiveBytes": ["0x5ABADA: 0F 84 D7 00 00 00 -> 0x5ABBB7", "0x5ABB03: 0F 84 AE 00 00 00 -> 0x5ABBB7", "0x5ABB1F: 0F 84 92 00 00 00 -> 0x5ABBB7"],
+      "assessment": "Die tatsächliche primäre .pdata-Spanne ist [0x5ABA60,0x5ABB31), 0xD1 Bytes. Letzte v2-Instruktion beginnt 0x5ABB2A und endet 0x5ABB31. Sichtbare Conditional-Branches führen zu 0x5ABBB7 außerhalb der Ausgabe; im primären Ausschnitt ist kein Methodenreturn enthalten. Cached Length 0x15C würde bis 0x5ABBBC reichen, ist selbst aber ebenfalls kein vollständiger Abdeckungsbeweis.",
+      "consequence": "Weder fehlende Calls noch fehlende Fehler-/Abmeldepfade dürfen aus diesem Ausschnitt abgeleitet werden. Der Parent erweitert separat; hier wurden keine fehlenden Bytes oder v3-Fragmente ausgewertet."
+    },
+    {
+      "id": "NC-10",
+      "claim": "Ein passender .pdata-primary-extent-Hash oder primärer MoveNext-Rumpf sei vollständige Methoden-/Transitiv-/Exceptionabdeckung.",
+      "verdict": "reject",
+      "methodEvidence": ["move", "request-complete"],
+      "locations": ["native-disassembly-v2/*.txt: jeweilige Kopfzeile 2", "request-complete:29,37,43", "managed-review/native-check/byte-and-input-check.json: branchesOutsidePrimaryExtent"],
+      "additionalConcreteExamples": [
+        "Awake 0x06001823: Conditional-Branches 0x5A9056/0x5A90C3 -> 0x5A91D4 außerhalb seiner primären v2-Spanne",
+        "Update 0x06001827: 0x5AAE9A -> 0x5AAED4 und 0x5AAEA0 -> 0x5AAEAF außerhalb seiner primären v2-Spanne"
+      ],
+      "assessment": "Der Reviewer bestätigt exakte lokale Bytes und Bounds. Das deckt weder Cold-/EH-Fragmente noch dynamischen Interface-/Virtualdispatch oder alle aufgerufenen Helfer ab. Normale Tailtransfers zu anderen Methoden sind davon zu unterscheiden und werden nicht pauschal als abgeschnittener eigener Rumpf gewertet.",
+      "limit": "Keine Expansion oder Diagnose der genannten ausgelagerten Bereiche; ausdrücklich Parent-Zuständigkeit."
+    },
+    {
+      "id": "NC-11",
+      "claim": "Completion + IsSaving=false + Queue leer + Folgeframe oder Completed-Zähler genügten jetzt für einen globalen Native-Abschluss-/Destroy-/Unregistervertrag.",
+      "verdict": "reject",
+      "methodEvidence": ["move", "save1", "request-complete", "clean"],
+      "locations": ["move:221-265,364-471", "save1:159-215", "managed-boundary-review.json: findings MB-01 bis MB-09 und requirementsForFutureNativeEvidence"],
+      "assessment": "Die neuen Native-Bytes präzisieren reale Reihenfolgen, schließen aber weder den unbekannten Complete-Rest, native/transitive Letztnutzung, Completed-/Snapshotreferenzen, Fehler/Teilwirkung, reentrante neue Saves noch Welt-/Requestkorrelation. Der parameterlose Managed-Relay aggregiert weiterhin keine Teilnehmererfolge; sein separater Postfix und OnSaved erhalten durch die Native-Analyse keine atomare Erfolgsbedeutung.",
+      "consequence": "Kein globales Freigabezertifikat und keine Runtime-Aktivierung. Ein künftiger enger Last-Use-Nachweis ist von erfolgreichem native Save, Erfolg aller Mod-Nacharbeiten und Checkpointkonsistenz separat zu entscheiden."
+    }
+  ],
+  "additionalSemanticHazards": [
+    {
+      "id": "NH-01",
+      "title": "Completion-Reentranz vor alter Fehlerklassifikation",
+      "evidence": "move:459-474, RVA 0x5B1404/0x5B1439/0x5B144C; save1:88-89,165-192",
+      "deduction": "Beim Completion-Invoke ist Busy bereits false. Ein früher Listener könnte bei weiterhin passenden Gates einen neuen Save starten. Dieser leert Completed und setzt den gemeinsamen SaveError=0, bevor spätere Listener des alten Events und die alte Routine ihre Fehlerklassifikation ausführen. Spätere Beobachter können daher Zustände der neuen Operation im Ereignis der alten Operation sehen; der alte Fehlerlog kann den nun geänderten globalen Status auswerten.",
+      "classification": "Konkrete aus der Reihenfolge abgeleitete Möglichkeit, keine beobachtete verschachtelte Sitzung; tatsächliche Listener/Hooks und Unity-Scheduling nicht ausgeführt."
+    },
+    {
+      "id": "NH-02",
+      "title": "Start-Listener sehen alte Buchhaltung und können später überschrieben werden",
+      "evidence": "save1:159-192, RVA 0x5AAB78 vor 0x5AAB7D/0x5AABAB/0x5AABEE; report-error:9-11",
+      "deduction": "OnSaveStart läuft vor dem Leeren der alten Completed-/Approved-Listen und vor SaveError=0. Ein dort gesetzter ReportSaveError-Status kann anschließend auf dem normalen Fortsetzungspfad gelöscht werden. Ein dort eingetragener Approved-Pfad kann ebenfalls durch das folgende Clear verloren gehen. Ein Startmarker bedeutet somit nicht, dass die neue Zähl-/Whitelistgeneration bereits initialisiert ist.",
+      "classification": "Bedingte Reihenfolgengefahr; kein Nachweis, dass ein aktueller Mod dies tatsächlich tut."
+    },
+    {
+      "id": "NH-03",
+      "title": "Abgewiesener nativer Save kann für RequestGameSave normal zurückkehren",
+      "evidence": "save1:60-119,216-231; ThirdParty/S1API/S1API/Internal/Abstraction/Saveable.cs:92-111; ThirdParty/S1API/S1API/Internal/Patches/GenericSaveables.Patches.cs:40-71",
+      "deduction": "Server-/Busy-/Load-/Tutorial-Abweisung liefert auf den gezeigten Pfaden normalen void-Return. RequestGameSave wertet dies trotzdem als true. Bei wirksamem regulärem Harmony-Postfix kann auch auf solch einem normal zurückkehrenden Save(string)-Pfad zusätzliche Moddateiarbeit folgen, weil der Postfix keine native Annahme prüft. Ein reentranter Start-Listener trifft Busy=true, ohne dass der Wrapper diese Ablehnung quittieren könnte.",
+      "classification": "Native Return-/Managed-Bool-Konflikt ist statisch belegt; tatsächliches Postfixverhalten auf installierten nativen Detours bleibt ohne Patchreadback bedingt."
+    },
+    {
+      "id": "NH-04",
+      "title": "Live-Counts, Restqueue und weitere Einreihung sind keine feste Teilnehmermenge",
+      "evidence": "move:221-245,428-455; native-disassembly-v2/0x0600182F-QueueSaveRequest.txt:13-43",
+      "deduction": "Die äußere Schleife vergleicht aktuelle Listenlängen. Teilnehmerentfernung kann die Schwelle verändern. QueueSaveRequest zeigt im primären Rumpf eine Listenaufnahme ohne eigenen IsSaving-Gate. Der positive Restqueue-Zweig drainiert die Queue nicht selbst. Das stützt keine Isolation gegenüber späteren Anfragen oder einer späteren Welt.",
+      "classification": "Lokale Semantik und bedingte Folgerung, kein Allzustands-/Reachabilitybeweis einer konkreten Sitzung."
+    },
+    {
+      "id": "NH-05",
+      "title": "Registrierungsliste, Completed-Liste und Batchsnapshot sind verschiedene Referenzhalter",
+      "evidence": "move:245-263,327-397,428-455; request-complete:35-46; clean:13-41",
+      "deduction": "Der GetRange-Batch wird in R14 und einem Stackslot gehalten und enthält SaveRequest-Objekte mit Saveable(+0x10). Der innere Loop kann solche Referenzen weiterverwenden, auch wenn die Live-Queue bereits verändert wurde. Im Complete-Ausschnitt liegt der Queue-Remove-Aufruf bereits vor einer weiteren Saveable-Referenzvorbereitung. Der normale Terminalzweig entfernt keine vorhandenen Completed-Einträge, und Clean leert nur Saveables/BaseSaveables. Eine Entfernung allein aus Saveables ist daher kein Beleg fehlender anderer Referenzen oder letzter Benutzung.",
+      "classification": "Unterschiedliche sichtbare Referenzpfade sind belegt; genaue Root-/GC-/Unityobjekt-Lifetime und künftige Zugriffsmöglichkeiten bleiben unbelegt."
+    },
+    {
+      "id": "NH-06",
+      "title": "Callbackverlust und späteres Handlerverhalten bleiben an der Managed-Grenze offen",
+      "evidence": "ThirdParty/S1API/S1API/Lifecycle/GameLifecycle.cs:201-218,270-291; ThirdParty/S1API/S1API/S1API.cs:79-96; move:467-476",
+      "deduction": "Main-Reset entfernt den nativen Relay ohne Drainquittung. Ein früher werfender verwalteter Teilnehmer überspringt spätere Actions. Ein früher erfolgreicher Completionbeobachter ist noch nicht hinter späteren Listenern. Die sichtbare native Eventposition beseitigt keine dieser Zustellungs-/Reihenfolgengrenzen.",
+      "classification": "Aktuelle Managed-Quellenhashes erneut bestätigt; keine neuen Callbacktests und keine neue Native-UnityEvent-Exceptionbehauptung."
+    },
+    {
+      "id": "NH-07",
+      "title": "Coroutine-Start legt Postfix-versus-Completion nicht universell fest",
+      "evidence": "save1:197-215; move:221-245,398-418,419-471; ThirdParty/S1API/S1API/Internal/Patches/GenericSaveables.Patches.cs:40-71",
+      "deduction": "MoveNext besitzt einen Terminalpfad ohne den Batch-Yield und einen Batchpfad mit WaitForEndOfFrame/true-Return. Falls Unity beim Start sofort vorantreibt, kann Completion im ersten Fall noch innerhalb des Save-Aufrufstacks liegen; beim Yield kann der separate Save(string)-Postfix bereits vor späterer Completion laufen. Weder 'Coroutine' noch 'Postfix' allein erlaubt eine feste globale Reihenfolge.",
+      "classification": "Bedingte Kombination aus sichtbaren Pfaden; tatsächliches StartCoroutine-Scheduling und konkrete Teilnehmerdaten wurden nicht geprüft."
+    }
+  ],
+  "remainingProofGaps": [
+    "SaveRequest.Complete-Rest und zugehörige Cold-/EH-/Dispatcher-/Transitivpfade; ausdrücklich kein v2-Completebodyclaim.",
+    "Konkrete Semantik/Fehlerwirkung von ClearBaseLevelOutdatedSaves, generischen Hilfsaufrufen, Dateioperationen und dynamischen Interface-/Virtualzielen; Methodensymbole allein reichen nicht.",
+    "Letzte mögliche Nutzung des eigenen Teilnehmers aus sämtlichen nativen und verwalteten Haltern, nicht nur eine momentan leere Queue oder Registrierungsliste.",
+    "Bindung eines einmaligen eigenen Versuchs an Manager-/Listenidentität, Weltgeneration und Zielpfad unter Autosave, Reentranz, Main-Unload und späterer Wiedereinreihung.",
+    "Native Fehlerklassifikation ist global und nach dem Event; keine Erfolgsaggregation des separaten Managed-Postfixes, keine per-Request-Durabilitäts-/Rollbackquittung.",
+    "Keine Behauptung über aktuell laufenden Spielprozess, ausgeführte Saves, geladene Nativebytes, neue Live-Ergebnisse oder Erfolg der tatsächlichen Business-Registrierung."
+  ],
+  "unchangedAcceptedWork": "Die 681 abgeschlossenen Offline-Modelltests sowie die geschlossenen BSA-Modellbefunde und der bestandene Start-/Lade-/Handy-Basistest bleiben unberührt. Keine Wiedereröffnung, kein Testnachlauf, keine Codekorrektur.",
+  "conclusion": "Die lokalen Native-Behauptungen sind überwiegend belastbar präzisiert und unabhängig auf tatsächliche Bytes zurückgeführt. Besonders Completed-versus-Queue und Completion-vor-Fehlerprüfung sind echte neue Evidenz. Nicht gedeckt sind vollständiger Complete-Rumpf, globale Fehler-/Abschlussabdeckung oder sichere Teilnehmerfreigabe. Schreibsperre beibehalten; v3 des Parent separat prüfen lassen, ohne diesen v2-Bericht oder den Managed-Bericht umzudeuten."
+}

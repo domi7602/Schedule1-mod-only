@@ -1,0 +1,13 @@
+; ScheduleOne.Property.PropertyContentsContainer::.ctor/0, token 0x06001476, RVA 0x41D490, next-pointer window 0x10 bytes
+; No target execution. Parser-pointer window can contain padding/cold fragments and is not exact/full function, EH or transitive coverage. Shared direct aliases are truncated to eight names.
+0x41D490     33 D2                           xor edx,edx
+0x41D492     E9 29 66 75 02                  jmp near ptr 0000000182B73AC0h ; UnityEngine.Behaviour::.ctor/0 | UnityEngine.Component::.ctor/0 | UnityEngine.MonoBehaviour::.ctor/0 | UnityEngine.RectTransform::.ctor/0 | UnityEngine.Transform::.ctor/0 | UnityEngine.U2D.Light2DBase::.ctor/0
+0x41D497     CC                              int 3
+0x41D498     CC                              int 3
+0x41D499     CC                              int 3
+0x41D49A     CC                              int 3
+0x41D49B     CC                              int 3
+0x41D49C     CC                              int 3
+0x41D49D     CC                              int 3
+0x41D49E     CC                              int 3
+0x41D49F     CC                              int 3

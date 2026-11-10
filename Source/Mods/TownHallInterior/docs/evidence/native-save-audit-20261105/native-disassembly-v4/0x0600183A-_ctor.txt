@@ -1,0 +1,26 @@
+; ScheduleOne.Persistence.SaveManager+<>c__DisplayClass52_0+<<Save>g__SaveRoutine|0>d::.ctor/1, token 0x0600183A, RVA 0x52D2B0, metadata-pointer window 0x30 bytes
+; Raw native bytes only. Window ends at next distinct managed-method pointer, includes padding/cold fragments; not proof of full transitive/exception coverage. Shared target names show at most eight aliases; total count is recorded.
+0x52D2B0     48 89 5C 24 08                  mov [rsp+8],rbx
+0x52D2B5     57                              push rdi
+0x52D2B6     48 83 EC 20                     sub rsp,20h
+0x52D2BA     8B FA                           mov edi,edx
+0x52D2BC     48 8B D9                        mov rbx,rcx
+0x52D2BF     33 D2                           xor edx,edx
+0x52D2C1     E8 FA 2B F1 FF                  call 000000018043FEC0h ; VFXRainPass::Dispose/0 | LightningLightController+<DoStrikeRoutine>d__7::System.IDisposable.Dispose/0 | ActionList+<<InvokeAllStaggered>g__StaggeredInvoke|6_0>d::System.IDisposable.Dispose/0 | CameraCaptureToPNG+<CaptureCameraView>d__5::System.IDisposable.Dispose/0 | DeveloperManager+<DoDeveloperRoutine>d__9::System.IDisposable.Dispose/0 | UnityServicesManager::Start/0 | UnityServicesManager::Update/0 | EntityConfigurationData::Start/0 | ... SHARED TARGET: 1731 method aliases total
+0x52D2C6     89 7B 10                        mov [rbx+10h],edi
+0x52D2C9     48 8B 5C 24 30                  mov rbx,[rsp+30h]
+0x52D2CE     48 83 C4 20                     add rsp,20h
+0x52D2D2     5F                              pop rdi
+0x52D2D3     C3                              ret
+0x52D2D4     CC                              int 3
+0x52D2D5     CC                              int 3
+0x52D2D6     CC                              int 3
+0x52D2D7     CC                              int 3
+0x52D2D8     CC                              int 3
+0x52D2D9     CC                              int 3
+0x52D2DA     CC                              int 3
+0x52D2DB     CC                              int 3
+0x52D2DC     CC                              int 3
+0x52D2DD     CC                              int 3
+0x52D2DE     CC                              int 3
+0x52D2DF     CC                              int 3

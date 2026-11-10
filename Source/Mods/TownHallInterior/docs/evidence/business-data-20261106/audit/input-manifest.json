@@ -1,0 +1,130 @@
+{
+  "gameDirectory": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Schedule I",
+  "analysisToolDirectory": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-native-save-audit-20261105\\tool-bundle",
+  "analysisTools": [
+    {
+      "path": "AssetRipper.Primitives.dll",
+      "sha256": "da98be48de99a938b661d6582a50cf2a36ff9022a8dfa0a487ee7860965cb78f",
+      "identity": "AssetRipper.Primitives, Version=3.2.0.0, Culture=neutral, PublicKeyToken=null"
+    },
+    {
+      "path": "WasmDisassembler.dll",
+      "sha256": "87bd7557beeb7f65f3de6ef07581a18a5669f389ecdc2319c1b01687eee5127b",
+      "identity": "WasmDisassembler, Version=2022.1.0.0, Culture=neutral, PublicKeyToken=null"
+    },
+    {
+      "path": "Disarm.dll",
+      "sha256": "40e804c35369825884534734725d06831a534759478c8d9f3f908d80779a1a93",
+      "identity": "Disarm, Version=2022.1.0.0, Culture=neutral, PublicKeyToken=null"
+    },
+    {
+      "path": "Iced.dll",
+      "sha256": "f058c01321b4cdfc9b9151879e88e59571c8d0ba176fbcf95bc936a8f3d073ed",
+      "identity": "Iced, Version=1.21.0.0, Culture=neutral, PublicKeyToken=5baba79f4264913b"
+    },
+    {
+      "path": "LibCpp2IL.dll",
+      "sha256": "acc85f105ef788ee2a0e1d6ab824013029f9f580de0f7494e3793e1e55afddf6",
+      "identity": "LibCpp2IL, Version=2022.1.0.0, Culture=neutral, PublicKeyToken=null"
+    }
+  ],
+  "inputs": [
+    {
+      "path": "GameAssembly.dll",
+      "sha256": "61829050e56ca180d67be592e4bfe61ec97d2e9573f720d90a54e318a7e4381d",
+      "bytes": 66477568
+    },
+    {
+      "path": "Schedule I_Data/il2cpp_data/Metadata/global-metadata.dat",
+      "sha256": "e775c97da277da8eb1a90265478f3b65c9c3d6464aff4f7255d45280a1d1181f",
+      "bytes": 18689168
+    },
+    {
+      "path": "MelonLoader/Il2CppAssemblies/Assembly-CSharp.dll",
+      "sha256": "346205306273805a78b01a917f14b94518498af1361595c4c417baa0b32b4bd8",
+      "bytes": 14168576
+    },
+    {
+      "path": "Mods/S1API.Il2Cpp.MelonLoader.dll",
+      "sha256": "d751a3cb66003f7a616eb9f8054daf34da0d9d7f23416a5005a586738a680852",
+      "bytes": 1590784
+    },
+    {
+      "path": "MelonLoader/Il2CppAssemblies/Il2CppFishNet.Runtime.dll",
+      "sha256": "0acb5c70078f5be6e88574be17b675657fc50898eb3dd264a3b98a54545e24ec",
+      "bytes": 1996800
+    },
+    {
+      "path": "MelonLoader/Il2CppAssemblies/Il2Cppmscorlib.dll",
+      "sha256": "820cb71f117b91bd7d87112e553753f5ae566dbc4a44ab8c21f00c5d6d6a362d",
+      "bytes": 6147072
+    },
+    {
+      "path": "MelonLoader/Il2CppAssemblies/UnityEngine.CoreModule.dll",
+      "sha256": "0f21732b5693777f1171376fbe0abe20ea486c513850a3593492e28e535f96b1",
+      "bytes": 3350016
+    },
+    {
+      "path": "MelonLoader/Il2CppAssemblies/UnityEngine.PhysicsModule.dll",
+      "sha256": "29a3f4e6d609a82f65c582dbbf31c8f91359a21c506bd2d021e5d6d8baa9cb44",
+      "bytes": 327168
+    }
+  ],
+  "pe": {
+    "imageBase": "0x180000000",
+    "sections": [
+      {
+        "name": ".text",
+        "rva": "0x1000",
+        "virtualBytes": 4304060,
+        "rawBytes": 4304384,
+        "rawOffset": "0x400"
+      },
+      {
+        "name": "il2cpp",
+        "rva": "0x41c000",
+        "virtualBytes": 44300460,
+        "rawBytes": 44300800,
+        "rawOffset": "0x41b200"
+      },
+      {
+        "name": ".rdata",
+        "rva": "0x2e5c000",
+        "virtualBytes": 10787522,
+        "rawBytes": 10787840,
+        "rawOffset": "0x2e5ac00"
+      },
+      {
+        "name": ".data",
+        "rva": "0x38a6000",
+        "virtualBytes": 6370380,
+        "rawBytes": 3493376,
+        "rawOffset": "0x38a4800"
+      },
+      {
+        "name": ".pdata",
+        "rva": "0x3eba000",
+        "virtualBytes": 2543400,
+        "rawBytes": 2543616,
+        "rawOffset": "0x3bf9600"
+      },
+      {
+        "name": ".fptable",
+        "rva": "0x4127000",
+        "virtualBytes": 256,
+        "rawBytes": 512,
+        "rawOffset": "0x3e66600"
+      },
+      {
+        "name": ".reloc",
+        "rva": "0x4128000",
+        "virtualBytes": 1045560,
+        "rawBytes": 1046016,
+        "rawOffset": "0x3e66800"
+      }
+    ]
+  },
+  "capturedUtc": "2026-11-06T12:21:55.676458+00:00",
+  "scope": "Fresh read-only native Business/Property initialization audit; no target execution, saves, builds or deployment.",
+  "provenance": "Fresh hashes; prior PE section map and tool selection reused after hash equality checks; binaries remain read-only data."
+}

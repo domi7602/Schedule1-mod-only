@@ -1,0 +1,126 @@
+; ScheduleOne.Property.BusinessManager::LoadBusiness/2, token 0x060013CB, RVA 0x54B760, next-pointer window 0x210 bytes
+; No target execution. Parser-pointer window can contain padding/cold fragments and is not exact/full function, EH or transitive coverage. Shared direct aliases are truncated to eight names.
+0x54B760     48 89 5C 24 10                  mov [rsp+10h],rbx
+0x54B765     48 89 6C 24 18                  mov [rsp+18h],rbp
+0x54B76A     56                              push rsi
+0x54B76B     48 83 EC 20                     sub rsp,20h
+0x54B76F     80 3D C2 FD 6A 03 00            cmp byte ptr [183BFB538h],0
+0x54B776     49 8B E8                        mov rbp,r8
+0x54B779     48 8B DA                        mov rbx,rdx
+0x54B77C     75 73                           jne short 000000018054B7F1h
+0x54B77E     48 8D 0D F3 C5 49 03            lea rcx,[1839E7D78h] ; TypeInfo: ScheduleOne.Property.Business
+0x54B785     E8 16 C1 DC FF                  call 00000001803178A0h
+0x54B78A     48 8D 0D 7F E4 4B 03            lea rcx,[183A09C10h] ; TypeInfo: UnityEngine.Debug
+0x54B791     E8 0A C1 DC FF                  call 00000001803178A0h
+0x54B796     48 8D 0D 4B 46 4B 03            lea rcx,[1839FFDE8h] ; MethodRef: TSource System.Linq.Enumerable.FirstOrDefault<ScheduleOne.Property.Business>
+0x54B79D     E8 FE C0 DC FF                  call 00000001803178A0h
+0x54B7A2     48 8D 0D BF BD 46 03            lea rcx,[1839B7568h] ; TypeInfo: System.Func`2<ScheduleOne.Property.Business, System.Boolean>
+0x54B7A9     E8 F2 C0 DC FF                  call 00000001803178A0h
+0x54B7AE     48 8D 0D 43 48 4A 03            lea rcx,[1839EFFF8h] ; TypeInfo: UnityEngine.Object
+0x54B7B5     E8 E6 C0 DC FF                  call 00000001803178A0h
+0x54B7BA     48 8D 0D D7 87 46 03            lea rcx,[1839B3F98h] ; MethodDef: ScheduleOne.Property.BusinessManager+<>c__DisplayClass29_0::<LoadBusiness>b__0/1
+0x54B7C1     E8 DA C0 DC FF                  call 00000001803178A0h
+0x54B7C6     48 8D 0D FB 65 4A 03            lea rcx,[1839F1DC8h] ; TypeInfo: ScheduleOne.Property.BusinessManager+<>c__DisplayClass29_0
+0x54B7CD     E8 CE C0 DC FF                  call 00000001803178A0h
+0x54B7D2     48 8D 0D 07 A9 46 03            lea rcx,[1839B60E0h] ; StringLiteral: Business data is null!
+0x54B7D9     E8 C2 C0 DC FF                  call 00000001803178A0h
+0x54B7DE     48 8D 0D DB A9 46 03            lea rcx,[1839B61C0h] ; StringLiteral: Business not found: 
+0x54B7E5     E8 B6 C0 DC FF                  call 00000001803178A0h
+0x54B7EA     C6 05 47 FD 6A 03 01            mov byte ptr [183BFB538h],1
+0x54B7F1     48 8B 0D D0 65 4A 03            mov rcx,[1839F1DC8h] ; TypeInfo: ScheduleOne.Property.BusinessManager+<>c__DisplayClass29_0
+0x54B7F8     E8 23 C3 DC FF                  call 0000000180317B20h
+0x54B7FD     33 D2                           xor edx,edx
+0x54B7FF     48 8B C8                        mov rcx,rax
+0x54B802     48 8B F0                        mov rsi,rax
+0x54B805     E8 B6 46 EF FF                  call 000000018043FEC0h ; VFXRainPass::Dispose/0 | LightningLightController+<DoStrikeRoutine>d__7::System.IDisposable.Dispose/0 | ActionList+<<InvokeAllStaggered>g__StaggeredInvoke|6_0>d::System.IDisposable.Dispose/0 | CameraCaptureToPNG+<CaptureCameraView>d__5::System.IDisposable.Dispose/0 | DeveloperManager+<DoDeveloperRoutine>d__9::System.IDisposable.Dispose/0 | UnityServicesManager::Start/0 | UnityServicesManager::Update/0 | EntityConfigurationData::Start/0 | ... SHARED TARGET: 1731 aliases
+0x54B80A     48 85 F6                        test rsi,rsi
+0x54B80D     0F 84 4D 01 00 00               je near ptr 000000018054B960h
+0x54B813     48 8D 4E 10                     lea rcx,[rsi+10h]
+0x54B817     48 89 5E 10                     mov [rsi+10h],rbx
+0x54B81B     48 8B D3                        mov rdx,rbx
+0x54B81E     E8 8D B2 DC FF                  call 0000000180316AB0h
+0x54B823     48 83 7E 10 00                  cmp qword ptr [rsi+10h],0
+0x54B828     0F 84 12 01 00 00               je near ptr 000000018054B940h
+0x54B82E     48 89 7C 24 30                  mov [rsp+30h],rdi
+0x54B833     48 8B 05 3E C5 49 03            mov rax,[1839E7D78h] ; TypeInfo: ScheduleOne.Property.Business
+0x54B83A     83 B8 E0 00 00 00 00            cmp dword ptr [rax+0E0h],0
+0x54B841     75 0F                           jne short 000000018054B852h
+0x54B843     48 8B C8                        mov rcx,rax
+0x54B846     E8 E5 C3 DC FF                  call 0000000180317C30h
+0x54B84B     48 8B 05 26 C5 49 03            mov rax,[1839E7D78h] ; TypeInfo: ScheduleOne.Property.Business
+0x54B852     48 8B 80 B8 00 00 00            mov rax,[rax+0B8h]
+0x54B859     48 8B 0D 08 BD 46 03            mov rcx,[1839B7568h] ; TypeInfo: System.Func`2<ScheduleOne.Property.Business, System.Boolean>
+0x54B860     48 8B 38                        mov rdi,[rax]
+0x54B863     E8 B8 C2 DC FF                  call 0000000180317B20h
+0x54B868     4C 8B 05 29 87 46 03            mov r8,[1839B3F98h] ; MethodDef: ScheduleOne.Property.BusinessManager+<>c__DisplayClass29_0::<LoadBusiness>b__0/1
+0x54B86F     45 33 C9                        xor r9d,r9d
+0x54B872     48 8B D6                        mov rdx,rsi
+0x54B875     48 8B C8                        mov rcx,rax
+0x54B878     48 8B D8                        mov rbx,rax
+0x54B87B     E8 10 FC 21 01                  call 000000018176B490h ; System.Data.Listeners`1+Func`2::.ctor/2
+0x54B880     4C 8B 05 61 45 4B 03            mov r8,[1839FFDE8h] ; MethodRef: TSource System.Linq.Enumerable.FirstOrDefault<ScheduleOne.Property.Business>
+0x54B887     48 8B D3                        mov rdx,rbx
+0x54B88A     48 8B CF                        mov rcx,rdi
+0x54B88D     E8 4E F6 8C 00                  call 0000000180E1AEE0h ; System.Linq.Enumerable::FirstOrDefault/2
+0x54B892     48 8B 0D 5F 47 4A 03            mov rcx,[1839EFFF8h] ; TypeInfo: UnityEngine.Object
+0x54B899     48 8B D8                        mov rbx,rax
+0x54B89C     48 8B 7C 24 30                  mov rdi,[rsp+30h]
+0x54B8A1     83 B9 E0 00 00 00 00            cmp dword ptr [rcx+0E0h],0
+0x54B8A8     75 05                           jne short 000000018054B8AFh
+0x54B8AA     E8 81 C3 DC FF                  call 0000000180317C30h
+0x54B8AF     45 33 C0                        xor r8d,r8d
+0x54B8B2     33 D2                           xor edx,edx
+0x54B8B4     48 8B CB                        mov rcx,rbx
+0x54B8B7     E8 E4 07 63 02                  call 0000000182B7C0A0h ; UnityEngine.Object::op_Equality/2
+0x54B8BC     84 C0                           test al,al
+0x54B8BE     75 33                           jne short 000000018054B8F3h
+0x54B8C0     48 85 DB                        test rbx,rbx
+0x54B8C3     0F 84 97 00 00 00               je near ptr 000000018054B960h
+0x54B8C9     48 8B 03                        mov rax,[rbx]
+0x54B8CC     4C 8B C5                        mov r8,rbp
+0x54B8CF     48 8B 56 10                     mov rdx,[rsi+10h]
+0x54B8D3     48 8B CB                        mov rcx,rbx
+0x54B8D6     4C 8B 88 B0 04 00 00            mov r9,[rax+4B0h]
+0x54B8DD     48 8B 5C 24 38                  mov rbx,[rsp+38h]
+0x54B8E2     48 8B 6C 24 40                  mov rbp,[rsp+40h]
+0x54B8E7     48 83 C4 20                     add rsp,20h
+0x54B8EB     5E                              pop rsi
+0x54B8EC     48 FF A0 A8 04 00 00            jmp qword ptr [rax+4A8h]
+0x54B8F3     48 8B 56 10                     mov rdx,[rsi+10h]
+0x54B8F7     48 85 D2                        test rdx,rdx
+0x54B8FA     74 64                           je short 000000018054B960h
+0x54B8FC     48 8B 52 28                     mov rdx,[rdx+28h]
+0x54B900     45 33 C0                        xor r8d,r8d
+0x54B903     48 8B 0D B6 A8 46 03            mov rcx,[1839B61C0h] ; StringLiteral: Business not found: 
+0x54B90A     E8 11 82 49 01                  call 00000001819E3B20h ; System.String::Concat/2
+0x54B90F     48 8B 0D FA E2 4B 03            mov rcx,[183A09C10h] ; TypeInfo: UnityEngine.Debug
+0x54B916     48 8B D8                        mov rbx,rax
+0x54B919     83 B9 E0 00 00 00 00            cmp dword ptr [rcx+0E0h],0
+0x54B920     75 05                           jne short 000000018054B927h
+0x54B922     E8 09 C3 DC FF                  call 0000000180317C30h
+0x54B927     33 D2                           xor edx,edx
+0x54B929     48 8B CB                        mov rcx,rbx
+0x54B92C     48 8B 5C 24 38                  mov rbx,[rsp+38h]
+0x54B931     48 8B 6C 24 40                  mov rbp,[rsp+40h]
+0x54B936     48 83 C4 20                     add rsp,20h
+0x54B93A     5E                              pop rsi
+0x54B93B     E9 E0 69 5F 02                  jmp near ptr 0000000182B42320h ; UnityEngine.Debug::LogWarning/1
+0x54B940     48 8B 0D C9 E2 4B 03            mov rcx,[183A09C10h] ; TypeInfo: UnityEngine.Debug
+0x54B947     83 B9 E0 00 00 00 00            cmp dword ptr [rcx+0E0h],0
+0x54B94E     75 05                           jne short 000000018054B955h
+0x54B950     E8 DB C2 DC FF                  call 0000000180317C30h
+0x54B955     48 8B 0D 84 A7 46 03            mov rcx,[1839B60E0h] ; StringLiteral: Business data is null!
+0x54B95C     33 D2                           xor edx,edx
+0x54B95E     EB CC                           jmp short 000000018054B92Ch
+0x54B960     E8 1B C2 DC FF                  call 0000000180317B80h
+0x54B965     CC                              int 3
+0x54B966     CC                              int 3
+0x54B967     CC                              int 3
+0x54B968     CC                              int 3
+0x54B969     CC                              int 3
+0x54B96A     CC                              int 3
+0x54B96B     CC                              int 3
+0x54B96C     CC                              int 3
+0x54B96D     CC                              int 3
+0x54B96E     CC                              int 3
+0x54B96F     CC                              int 3

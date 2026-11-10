@@ -1,0 +1,46 @@
+{
+  "schema": 1,
+  "checkedUtc": "2026-11-05T17:34:00.9447759Z",
+  "kind": "Read-only report JSON and selected file-integrity validation; no testsuite or native analysis",
+  "status": "pass",
+  "report": ".scratch/townhall-save-operation-owner-design-20261105/owner-design-review.json",
+  "reportSha256": "a4f6292cac3a03c8f066fba5e7c1b36bdcc1e13a40ec93a3902df33371652f5e",
+  "reportJsonParsed": true,
+  "head": "b2c6c7e6c6ecc778da9624cdb68a6578b9db471a",
+  "dirty": true,
+  "gitStatusScope": "tracked and normal untracked; submodules ignored",
+  "criterionVerdicts": {
+    "accepted": 9,
+    "limited": 1,
+    "needsCorrection": 0
+  },
+  "requiredCorrections": 0,
+  "sourceGroups": [
+    {
+      "group": "protectedSourceHashes",
+      "count": 41,
+      "currentAndFreezeMatches": 41
+    },
+    {
+      "group": "designSourceHashes",
+      "count": 14,
+      "currentAndFreezeMatches": 14
+    }
+  ],
+  "originalAuditMarkdownsCurrentAndFreezeMatched": 2,
+  "archiveManifestsUnchanged": 2,
+  "selectedArchivedReviewJsonsCurrentAndArchiveMatched": 3,
+  "oldArchivePayloadsNotRehashed": 223,
+  "primaryInputManifestUnchanged": true,
+  "designFreezeUnchanged": true,
+  "frozenDraftUnchanged": true,
+  "maintainedDraftUnchanged": true,
+  "draftSha256": "cd9517772af6c65a21968f812bed7d371420a1f13b674196663f4503287a58cb",
+  "draftBytes": 19290,
+  "draftLineCount": 233,
+  "nativeSaveWriteAllowed": false,
+  "implementationPerformed": false,
+  "nativeAnalysisPerformed": false,
+  "buildsOrTestsuitesPerformed": false,
+  "installedOrSaveFilesRead": false
+}

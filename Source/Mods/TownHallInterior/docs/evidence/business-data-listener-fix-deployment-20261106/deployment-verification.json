@@ -1,0 +1,66 @@
+{
+  "schema": 1,
+  "checkedUtc": "2026-11-06T14:24:43.060821+00:00",
+  "deployedAtUtc": "2026-11-06T14:23:34.7943602Z",
+  "sourceRevision": "b2c6c7e6c6ecc778da9624cdb68a6578b9db471a",
+  "sourceWorktree": "dirty",
+  "authorization": "User approved installation: 'Ja, installieren (Empfohlen)'",
+  "codeHashes": {
+    "Source/Mods/TownHallInterior/src/BusinessConstruction.cs": "d54ab55edfa7dd369e0711855885288a019e8e0b41f1581afb75fe75c520c979",
+    "Source/Mods/TownHallInterior/src/TownHallInterior.csproj": "9ca3fa493371986cad141d9096d2d1751630586417943b1673f70136c8ec0132",
+    "Source/Tests/TownHallInterior.Tests/BusinessDataTests.cs": "93b64e5730232dc9c62e8546c241fd8a418339e799682de46a5d0941b60e2854"
+  },
+  "attemptId": "20261106T142334591Z-19dacae3daeb",
+  "backupId": "20261106T142334631Z-TownHallInterior-46a362d4",
+  "baselineCheckpointId": "20261106T132157195259Z-af2660f4",
+  "candidateRelativePath": ".backups/townhall-business-data-prepared/20261106T141106231Z",
+  "candidateSha256": "4ae6509a2d8501176ee8b9dca7e3c8b6481382d0f6f30fa73857506c9cf304f6",
+  "candidatePdbSha256": "47592f81d0471844256ae91cd521a715f76a96c9fe27f7ffdc2bfa5567bc0a3d",
+  "installedHashes": {
+    "Mods/TownHallInterior.dll": "4ae6509a2d8501176ee8b9dca7e3c8b6481382d0f6f30fa73857506c9cf304f6",
+    "UserData/TownHallInterior/TownHallInterior.pdb": "47592f81d0471844256ae91cd521a715f76a96c9fe27f7ffdc2bfa5567bc0a3d",
+    "UserData/TownHallInterior/mod.json": "65938002b7273ef77dedbadf9092a186e6742f1e40fe404ef91576d3e4f81660",
+    "UserData/.deploy/receipts/TownHallInterior.json": "c41fa2a3e3c5fcacff08307f8a42d3152593c60ef9209676e27fbc2a1e08acdb"
+  },
+  "deployedCandidate": true,
+  "copied": 2,
+  "unchanged": 1,
+  "stale": [],
+  "normalBuildRestored": false,
+  "rollbackPayload": {
+    "relativePath": ".backups/townhall-launch-prep/20261106T131324751812Z-55471840/payload",
+    "hashes": {
+      "Mods/TownHallInterior.dll": "614b81fd584040d4cebe7a18929bca09eabae478a6487ec6d846ea01d6062003",
+      "UserData/TownHallInterior/TownHallInterior.pdb": "8126ae65f5c12f6e8261af0a1734e622d8c0ab5522a91e6653c7b1ffd7d8c497",
+      "UserData/TownHallInterior/mod.json": "65938002b7273ef77dedbadf9092a186e6742f1e40fe404ef91576d3e4f81660"
+    }
+  },
+  "gameClosedBeforeAndAfter": true,
+  "buildPerformed": false,
+  "gameLaunched": false,
+  "nativeFiles": 39,
+  "nativeFilesByteIdentical": true,
+  "nativeSlot1Accessed": false,
+  "modsFiles": 38,
+  "modsChanged": [
+    "TownHallInterior.dll"
+  ],
+  "userDataFilesExcludingDeploy": 181,
+  "userDataChangedExcludingDeploy": [
+    "TownHallInterior/TownHallInterior.pdb"
+  ],
+  "preexistingDataReports": [
+    "TownHallInterior/BusinessData/20261106T131816973Z.json"
+  ],
+  "nativeDataQueriesObserved": false,
+  "nativeSaveWriteAllowed": false,
+  "independentReview": "not performed for this deployment; verification is a scripted file and hash comparison",
+  "nextStep": "User starts through Steam, explicitly loads TownHallTest / Slot 2, waits at least ten seconds and reports 'geladen'. Inspect the fresh BusinessData report, especially Native.DataListenerDiagnostics['minute-list']. After regular exit compare the 39 native files and restore the normal payload.",
+  "limits": [
+    "Installation verifies file delivery only, not native listener capture, data queries or a functioning purchasable Business.",
+    "No new builds, tests, game launch or save invocation occurred in this deployment turn.",
+    "File equality is not proof of no filesystem operations; empty-directory baselines were not recorded.",
+    "The UserData comparison uses the post-trial checkpoint from 13:21:58 UTC and excludes .deploy.",
+    "Local Steam Cloud was left unchanged; remote state and existing conflict markers were not resolved."
+  ]
+}

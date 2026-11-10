@@ -1,0 +1,94 @@
+; ScheduleOne.Money.MoneyManager::GetSaveString/0, token 0x06001CC0, RVA 0x5E4F10, next-pointer window 0x190 bytes
+; No target execution. Parser-pointer window can contain padding/cold fragments and is not exact/full function, EH or transitive coverage. Shared direct aliases are truncated to eight names.
+0x5E4F10     40 53                           push rbx
+0x5E4F12     48 83 EC 70                     sub rsp,70h
+0x5E4F16     80 3D 46 6A 61 03 00            cmp byte ptr [183BFB963h],0
+0x5E4F1D     48 8B D9                        mov rbx,rcx
+0x5E4F20     0F 29 7C 24 50                  movaps [rsp+50h],xmm7
+0x5E4F25     44 0F 29 4C 24 30               movaps [rsp+30h],xmm9
+0x5E4F2B     75 1F                           jne short 00000001805E4F4Ch
+0x5E4F2D     48 8D 0D 6C C5 3E 03            lea rcx,[1839D14A0h] ; TypeInfo: ScheduleOne.Money.ATM
+0x5E4F34     E8 67 29 D3 FF                  call 00000001803178A0h
+0x5E4F39     48 8D 0D B8 BF 3F 03            lea rcx,[1839E0EF8h] ; TypeInfo: ScheduleOne.Persistence.Datas.MoneyData
+0x5E4F40     E8 5B 29 D3 FF                  call 00000001803178A0h
+0x5E4F45     C6 05 17 6A 61 03 01            mov byte ptr [183BFB963h],1
+0x5E4F4C     80 3D 13 6A 61 03 00            cmp byte ptr [183BFB966h],0
+0x5E4F53     F3 44 0F 10 8B 28 01 00 00      movss xmm9,dword ptr [rbx+128h]
+0x5E4F5C     75 13                           jne short 00000001805E4F71h
+0x5E4F5E     48 8D 0D 1B 4A 3C 03            lea rcx,[1839A9980h] ; TypeInfo: ScheduleOne.Money.MoneyManager+FloatContainer
+0x5E4F65     E8 36 29 D3 FF                  call 00000001803178A0h
+0x5E4F6A     C6 05 F5 69 61 03 01            mov byte ptr [183BFB966h],1
+0x5E4F71     48 83 BB 58 01 00 00 00         cmp qword ptr [rbx+158h],0
+0x5E4F79     0F 57 C0                        xorps xmm0,xmm0
+0x5E4F7C     F3 0F 10 BB 28 01 00 00         movss xmm7,dword ptr [rbx+128h]
+0x5E4F84     F3 0F 58 F8                     addss xmm7,xmm0
+0x5E4F88     48 89 BC 24 80 00 00 00         mov [rsp+80h],rdi
+0x5E4F90     74 45                           je short 00000001805E4FD7h
+0x5E4F92     48 8B 0D E7 49 3C 03            mov rcx,[1839A9980h] ; TypeInfo: ScheduleOne.Money.MoneyManager+FloatContainer
+0x5E4F99     E8 82 2B D3 FF                  call 0000000180317B20h
+0x5E4F9E     33 D2                           xor edx,edx
+0x5E4FA0     48 8B C8                        mov rcx,rax
+0x5E4FA3     48 8B F8                        mov rdi,rax
+0x5E4FA6     E8 15 AF E5 FF                  call 000000018043FEC0h ; VFXRainPass::Dispose/0 | LightningLightController+<DoStrikeRoutine>d__7::System.IDisposable.Dispose/0 | ActionList+<<InvokeAllStaggered>g__StaggeredInvoke|6_0>d::System.IDisposable.Dispose/0 | CameraCaptureToPNG+<CaptureCameraView>d__5::System.IDisposable.Dispose/0 | DeveloperManager+<DoDeveloperRoutine>d__9::System.IDisposable.Dispose/0 | UnityServicesManager::Start/0 | UnityServicesManager::Update/0 | EntityConfigurationData::Start/0 | ... SHARED TARGET: 1731 aliases
+0x5E4FAB     48 8B 83 58 01 00 00            mov rax,[rbx+158h]
+0x5E4FB2     48 85 C0                        test rax,rax
+0x5E4FB5     0F 84 D1 00 00 00               je near ptr 00000001805E508Ch
+0x5E4FBB     4C 8B 40 28                     mov r8,[rax+28h]
+0x5E4FBF     48 8B D7                        mov rdx,rdi
+0x5E4FC2     48 8B 48 40                     mov rcx,[rax+40h]
+0x5E4FC6     FF 50 18                        call qword ptr [rax+18h]
+0x5E4FC9     48 85 FF                        test rdi,rdi
+0x5E4FCC     0F 84 BA 00 00 00               je near ptr 00000001805E508Ch
+0x5E4FD2     F3 0F 58 7F 10                  addss xmm7,dword ptr [rdi+10h]
+0x5E4FD7     F3 0F 11 BB 30 01 00 00         movss dword ptr [rbx+130h],xmm7
+0x5E4FDF     48 8B 05 BA C4 3E 03            mov rax,[1839D14A0h] ; TypeInfo: ScheduleOne.Money.ATM
+0x5E4FE6     0F 29 74 24 60                  movaps [rsp+60h],xmm6
+0x5E4FEB     44 0F 29 44 24 40               movaps [rsp+40h],xmm8
+0x5E4FF1     F3 44 0F 10 83 2C 01 00 00      movss xmm8,dword ptr [rbx+12Ch]
+0x5E4FFA     83 B8 E0 00 00 00 00            cmp dword ptr [rax+0E0h],0
+0x5E5001     75 0F                           jne short 00000001805E5012h
+0x5E5003     48 8B C8                        mov rcx,rax
+0x5E5006     E8 25 2C D3 FF                  call 0000000180317C30h
+0x5E500B     48 8B 05 8E C4 3E 03            mov rax,[1839D14A0h] ; TypeInfo: ScheduleOne.Money.ATM
+0x5E5012     48 8B 80 B8 00 00 00            mov rax,[rax+0B8h]
+0x5E5019     48 8B 0D D8 BE 3F 03            mov rcx,[1839E0EF8h] ; TypeInfo: ScheduleOne.Persistence.Datas.MoneyData
+0x5E5020     F3 0F 10 30                     movss xmm6,dword ptr [rax]
+0x5E5024     E8 F7 2A D3 FF                  call 0000000180317B20h
+0x5E5029     41 0F 28 D8                     movaps xmm3,xmm8
+0x5E502D     48 C7 44 24 28 00 00 00 00      mov qword ptr [rsp+28h],0
+0x5E5036     0F 28 D7                        movaps xmm2,xmm7
+0x5E5039     F3 0F 11 74 24 20               movss dword ptr [rsp+20h],xmm6
+0x5E503F     41 0F 28 C9                     movaps xmm1,xmm9
+0x5E5043     48 8B C8                        mov rcx,rax
+0x5E5046     48 8B D8                        mov rbx,rax
+0x5E5049     E8 82 DF FD FF                  call 00000001805C2FD0h ; ScheduleOne.Persistence.Datas.MoneyData::.ctor/4
+0x5E504E     44 0F 28 44 24 40               movaps xmm8,[rsp+40h]
+0x5E5054     0F 28 74 24 60                  movaps xmm6,[rsp+60h]
+0x5E5059     48 85 DB                        test rbx,rbx
+0x5E505C     74 2E                           je short 00000001805E508Ch
+0x5E505E     4C 8B 0B                        mov r9,[rbx]
+0x5E5061     B2 01                           mov dl,1
+0x5E5063     48 8B CB                        mov rcx,rbx
+0x5E5066     4D 8B 81 90 01 00 00            mov r8,[r9+190h]
+0x5E506D     48 8B BC 24 80 00 00 00         mov rdi,[rsp+80h]
+0x5E5075     0F 28 7C 24 50                  movaps xmm7,[rsp+50h]
+0x5E507A     44 0F 28 4C 24 30               movaps xmm9,[rsp+30h]
+0x5E5080     48 83 C4 70                     add rsp,70h
+0x5E5084     5B                              pop rbx
+0x5E5085     49 FF A1 88 01 00 00            jmp qword ptr [r9+188h]
+0x5E508C     E8 EF 2A D3 FF                  call 0000000180317B80h
+0x5E5091     CC                              int 3
+0x5E5092     CC                              int 3
+0x5E5093     CC                              int 3
+0x5E5094     CC                              int 3
+0x5E5095     CC                              int 3
+0x5E5096     CC                              int 3
+0x5E5097     CC                              int 3
+0x5E5098     CC                              int 3
+0x5E5099     CC                              int 3
+0x5E509A     CC                              int 3
+0x5E509B     CC                              int 3
+0x5E509C     CC                              int 3
+0x5E509D     CC                              int 3
+0x5E509E     CC                              int 3
+0x5E509F     CC                              int 3

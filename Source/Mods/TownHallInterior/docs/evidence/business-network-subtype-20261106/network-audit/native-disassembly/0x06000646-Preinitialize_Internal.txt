@@ -1,0 +1,34 @@
+; FishNet.Object.NetworkBehaviour::Preinitialize_Internal/2, token 0x06000646, RVA 0xCC7E40, .pdata primary extent 0x6C bytes
+; Raw native bytes decoded without invoking the game. .pdata primary extent is not a proof of full transitive/exception-path coverage.
+0xCC7E40     48 89 5C 24 08                  mov [rsp+8],rbx
+0xCC7E45     57                              push rdi
+0xCC7E46     48 83 EC 20                     sub rsp,20h
+0xCC7E4A     41 0F B6 F8                     movzx edi,r8b
+0xCC7E4E     48 8B D9                        mov rbx,rcx
+0xCC7E51     48 85 D2                        test rdx,rdx
+0xCC7E54     74 50                           je short 0000000180CC7EA6h
+0xCC7E56     48 8B 92 30 01 00 00            mov rdx,[rdx+130h]
+0xCC7E5D     48 89 51 28                     mov [rcx+28h],rdx
+0xCC7E61     48 83 C1 28                     add rcx,28h
+0xCC7E65     E8 46 EC 64 FF                  call 0000000180316AB0h
+0xCC7E6A     45 33 C0                        xor r8d,r8d
+0xCC7E6D     40 0F B6 D7                     movzx edx,dil
+0xCC7E71     48 8B CB                        mov rcx,rbx
+0xCC7E74     E8 B7 D3 FF FF                  call 0000000180CC5230h ; FishNet.Object.NetworkBehaviour::InitializeOnceSyncTypes/1
+0xCC7E79     40 84 FF                        test dil,dil
+0xCC7E7C     75 0F                           jne short 0000000180CC7E8Dh
+0xCC7E7E     C6 43 39 01                     mov byte ptr [rbx+39h],1
+0xCC7E82     48 8B 5C 24 30                  mov rbx,[rsp+30h]
+0xCC7E87     48 83 C4 20                     add rsp,20h
+0xCC7E8B     5F                              pop rdi
+0xCC7E8C     C3                              ret
+0xCC7E8D     33 D2                           xor edx,edx
+0xCC7E8F     48 8B CB                        mov rcx,rbx
+0xCC7E92     E8 09 DC FF FF                  call 0000000180CC5AA0h ; FishNet.Object.NetworkBehaviour::InitializeRpcLinks/0
+0xCC7E97     C6 43 38 01                     mov byte ptr [rbx+38h],1
+0xCC7E9B     48 8B 5C 24 30                  mov rbx,[rsp+30h]
+0xCC7EA0     48 83 C4 20                     add rsp,20h
+0xCC7EA4     5F                              pop rdi
+0xCC7EA5     C3                              ret
+0xCC7EA6     E8 D5 FC 64 FF                  call 0000000180317B80h
+0xCC7EAB     CC                              int 3

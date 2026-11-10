@@ -1,0 +1,110 @@
+; ScheduleOne.Property.Property::NetworkInitialize___Early/0, token 0x06001449, RVA 0x5552E0, next-pointer window 0x1B0 bytes
+; No target execution. Parser-pointer window can contain padding/cold fragments and is not exact/full function, EH or transitive coverage. Shared direct aliases are truncated to eight names.
+0x5552E0     40 57                           push rdi
+0x5552E2     48 83 EC 20                     sub rsp,20h
+0x5552E6     80 3D 7F 62 6A 03 00            cmp byte ptr [183BFB56Ch],0
+0x5552ED     48 8B F9                        mov rdi,rcx
+0x5552F0     75 5B                           jne short 000000018055534Dh
+0x5552F2     48 8D 0D B7 D7 49 03            lea rcx,[1839F2AB0h] ; TypeInfo: FishNet.Object.Delegating.ClientRpcDelegate
+0x5552F9     E8 A2 25 DC FF                  call 00000001803178A0h
+0x5552FE     48 8D 0D 1B FE 4A 03            lea rcx,[183A05120h] ; MethodDef: ScheduleOne.Property.Property::RpcReader___Observers_ReceiveOwned_Networked_2166136261/2
+0x555305     E8 96 25 DC FF                  call 00000001803178A0h
+0x55530A     48 8D 0D E7 FE 4A 03            lea rcx,[183A051F8h] ; MethodDef: ScheduleOne.Property.Property::RpcReader___Observers_SetToggleableState_338960014/2
+0x555311     E8 8A 25 DC FF                  call 00000001803178A0h
+0x555316     48 8D 0D B3 FF 4A 03            lea rcx,[183A052D0h] ; MethodDef: ScheduleOne.Property.Property::RpcReader___Server_SendToggleableState_3658436649/3
+0x55531D     E8 7E 25 DC FF                  call 00000001803178A0h
+0x555322     48 8D 0D 7F 00 4B 03            lea rcx,[183A053A8h] ; MethodDef: ScheduleOne.Property.Property::RpcReader___Server_SetOwned_Server_2166136261/3
+0x555329     E8 72 25 DC FF                  call 00000001803178A0h
+0x55532E     48 8D 0D 4B 01 4B 03            lea rcx,[183A05480h] ; MethodDef: ScheduleOne.Property.Property::RpcReader___Target_SetToggleableState_338960014/2
+0x555335     E8 66 25 DC FF                  call 00000001803178A0h
+0x55533A     48 8D 0D 47 72 43 03            lea rcx,[18398C588h] ; TypeInfo: FishNet.Object.Delegating.ServerRpcDelegate
+0x555341     E8 5A 25 DC FF                  call 00000001803178A0h
+0x555346     C6 05 1F 62 6A 03 01            mov byte ptr [183BFB56Ch],1
+0x55534D     80 BF 60 02 00 00 00            cmp byte ptr [rdi+260h],0
+0x555354     0F 85 21 01 00 00               jne near ptr 000000018055547Bh
+0x55535A     48 89 5C 24 30                  mov [rsp+30h],rbx
+0x55535F     C6 87 60 02 00 00 01            mov byte ptr [rdi+260h],1
+0x555366     48 8B 0D 1B 72 43 03            mov rcx,[18398C588h] ; TypeInfo: FishNet.Object.Delegating.ServerRpcDelegate
+0x55536D     E8 AE 27 DC FF                  call 0000000180317B20h
+0x555372     4C 8B 05 2F 00 4B 03            mov r8,[183A053A8h] ; MethodDef: ScheduleOne.Property.Property::RpcReader___Server_SetOwned_Server_2166136261/3
+0x555379     45 33 C9                        xor r9d,r9d
+0x55537C     48 8B D7                        mov rdx,rdi
+0x55537F     48 8B C8                        mov rcx,rax
+0x555382     48 8B D8                        mov rbx,rax
+0x555385     E8 66 C8 77 00                  call 0000000180CD1BF0h ; FishNet.Object.Delegating.ServerRpcDelegate::.ctor/2
+0x55538A     45 33 C9                        xor r9d,r9d
+0x55538D     4C 8B C3                        mov r8,rbx
+0x555390     33 D2                           xor edx,edx
+0x555392     48 8B CF                        mov rcx,rdi
+0x555395     E8 26 1B FF FF                  call 0000000180546EC0h
+0x55539A     48 8B 0D 0F D7 49 03            mov rcx,[1839F2AB0h] ; TypeInfo: FishNet.Object.Delegating.ClientRpcDelegate
+0x5553A1     E8 7A 27 DC FF                  call 0000000180317B20h
+0x5553A6     4C 8B 05 73 FD 4A 03            mov r8,[183A05120h] ; MethodDef: ScheduleOne.Property.Property::RpcReader___Observers_ReceiveOwned_Networked_2166136261/2
+0x5553AD     45 33 C9                        xor r9d,r9d
+0x5553B0     48 8B D7                        mov rdx,rdi
+0x5553B3     48 8B C8                        mov rcx,rax
+0x5553B6     48 8B D8                        mov rbx,rax
+0x5553B9     E8 C2 7D 76 00                  call 0000000180CBD180h ; FishNet.Object.Prediction.Delegating.ReconcileRpcDelegate::.ctor/2 | FishNet.Object.Delegating.ClientRpcDelegate::.ctor/2
+0x5553BE     45 33 C9                        xor r9d,r9d
+0x5553C1     4C 8B C3                        mov r8,rbx
+0x5553C4     BA 01 00 00 00                  mov edx,1
+0x5553C9     48 8B CF                        mov rcx,rdi
+0x5553CC     E8 0F 19 FF FF                  call 0000000180546CE0h
+0x5553D1     48 8B 0D B0 71 43 03            mov rcx,[18398C588h] ; TypeInfo: FishNet.Object.Delegating.ServerRpcDelegate
+0x5553D8     E8 43 27 DC FF                  call 0000000180317B20h
+0x5553DD     4C 8B 05 EC FE 4A 03            mov r8,[183A052D0h] ; MethodDef: ScheduleOne.Property.Property::RpcReader___Server_SendToggleableState_3658436649/3
+0x5553E4     45 33 C9                        xor r9d,r9d
+0x5553E7     48 8B D7                        mov rdx,rdi
+0x5553EA     48 8B C8                        mov rcx,rax
+0x5553ED     48 8B D8                        mov rbx,rax
+0x5553F0     E8 FB C7 77 00                  call 0000000180CD1BF0h ; FishNet.Object.Delegating.ServerRpcDelegate::.ctor/2
+0x5553F5     45 33 C9                        xor r9d,r9d
+0x5553F8     4C 8B C3                        mov r8,rbx
+0x5553FB     BA 02 00 00 00                  mov edx,2
+0x555400     48 8B CF                        mov rcx,rdi
+0x555403     E8 B8 1A FF FF                  call 0000000180546EC0h
+0x555408     48 8B 0D A1 D6 49 03            mov rcx,[1839F2AB0h] ; TypeInfo: FishNet.Object.Delegating.ClientRpcDelegate
+0x55540F     E8 0C 27 DC FF                  call 0000000180317B20h
+0x555414     4C 8B 05 DD FD 4A 03            mov r8,[183A051F8h] ; MethodDef: ScheduleOne.Property.Property::RpcReader___Observers_SetToggleableState_338960014/2
+0x55541B     45 33 C9                        xor r9d,r9d
+0x55541E     48 8B D7                        mov rdx,rdi
+0x555421     48 8B C8                        mov rcx,rax
+0x555424     48 8B D8                        mov rbx,rax
+0x555427     E8 54 7D 76 00                  call 0000000180CBD180h ; FishNet.Object.Prediction.Delegating.ReconcileRpcDelegate::.ctor/2 | FishNet.Object.Delegating.ClientRpcDelegate::.ctor/2
+0x55542C     45 33 C9                        xor r9d,r9d
+0x55542F     4C 8B C3                        mov r8,rbx
+0x555432     BA 03 00 00 00                  mov edx,3
+0x555437     48 8B CF                        mov rcx,rdi
+0x55543A     E8 A1 18 FF FF                  call 0000000180546CE0h
+0x55543F     48 8B 0D 6A D6 49 03            mov rcx,[1839F2AB0h] ; TypeInfo: FishNet.Object.Delegating.ClientRpcDelegate
+0x555446     E8 D5 26 DC FF                  call 0000000180317B20h
+0x55544B     4C 8B 05 2E 00 4B 03            mov r8,[183A05480h] ; MethodDef: ScheduleOne.Property.Property::RpcReader___Target_SetToggleableState_338960014/2
+0x555452     45 33 C9                        xor r9d,r9d
+0x555455     48 8B D7                        mov rdx,rdi
+0x555458     48 8B C8                        mov rcx,rax
+0x55545B     48 8B D8                        mov rbx,rax
+0x55545E     E8 1D 7D 76 00                  call 0000000180CBD180h ; FishNet.Object.Prediction.Delegating.ReconcileRpcDelegate::.ctor/2 | FishNet.Object.Delegating.ClientRpcDelegate::.ctor/2
+0x555463     45 33 C9                        xor r9d,r9d
+0x555466     4C 8B C3                        mov r8,rbx
+0x555469     BA 04 00 00 00                  mov edx,4
+0x55546E     48 8B CF                        mov rcx,rdi
+0x555471     E8 2A 1C FF FF                  call 00000001805470A0h
+0x555476     48 8B 5C 24 30                  mov rbx,[rsp+30h]
+0x55547B     48 83 C4 20                     add rsp,20h
+0x55547F     5F                              pop rdi
+0x555480     C3                              ret
+0x555481     CC                              int 3
+0x555482     CC                              int 3
+0x555483     CC                              int 3
+0x555484     CC                              int 3
+0x555485     CC                              int 3
+0x555486     CC                              int 3
+0x555487     CC                              int 3
+0x555488     CC                              int 3
+0x555489     CC                              int 3
+0x55548A     CC                              int 3
+0x55548B     CC                              int 3
+0x55548C     CC                              int 3
+0x55548D     CC                              int 3
+0x55548E     CC                              int 3
+0x55548F     CC                              int 3

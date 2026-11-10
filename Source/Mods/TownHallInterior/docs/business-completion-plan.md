@@ -1,6 +1,83 @@
 # TownHall Business Fertigstellungsplan
 
-Stand: 2026-11-04. Status: Business-Integration in diagnostischen Teilschritten.
+Stand: 2026-11-06. Status: Business-Integration in diagnostischen Teilschritten.
+
+**Aktueller Stand, 2026-11-06, 15:50 CET:** Die kapazitätsgebundene Datenprobe
+bestand den dritten Slot-2-Lauf: **`observed`, keine Findings**. Der
+Listener-Snapshot zeigt `size=889`, `capacity=1024`, `nodes=889`,
+`maxChildren=0`; Datenvorbereitung und `SetProperty` sind bestätigt, die nativen
+Abfragen liefern **0/0/true/false**. Cleanup bestätigt, Root zerstört;
+Vorher-/Nachher-Snapshots identisch (32 Register, 19 fremde VTables).
+39/39 native Slot-2-Dateien nach regulärem Alt+F4 bytegleich; Normalbuild
+`614b81fd…` / PDB `8126ae65…` um **15:50:44 CET** wiederhergestellt und geprüft.
+Das ist der technische Erfolg der eigenen leeren Daten-/Abfrageprobe, nicht die
+vollständige Business-Initialisierung. Offen bleiben Originalinitialisierung,
+Kauf, echte Geldwäsche und Persistenz/Reload.
+[Live-Beleg](evidence/business-data-capacity-live-20261106/observation.json),
+[Savevergleich](evidence/business-data-capacity-live-20261106/save-verification.json),
+[Rollback](evidence/business-data-capacity-live-20261106/rollback-verification.json).
+
+Der gescheiterte Lauf bleibt historisch dokumentiert: 39/39 native
+Slot-2-Dateien nach regulärem Spielende bytegleich; Normalbuild seit 14:22:17 CET
+wiederhergestellt und unabhängig geprüft. Der vorherige Offline-Schritt bestand
+1.166/1.166 TownHall-Tests, sieben No-Deploy-Builds und unabhängigen
+Quellenreview. Die Listener-Korrektur wurde erneut mit diesem Umfang geprüft.
+
+**Vorangegangener Live-Stand:** Eigene no-base NetworkObject-Unterklasse und
+Business-Bindung implementiert, mit frischen Halter-/Identitätsprüfungen und
+bestätigungsabhängigem Rückbau. 104 neue Fälle, 1.077/1.077 TownHall-Tests bestanden.
+Kandidat `beb088f2…` um 13:05:17 CET in TownHallTest / Slot 2 erfolgreich im
+begrenzten Bindungs-/Lifecycle-Umfang beobachtet. 28 Fingerprints/15 fremde VTables
+unverändert, beide Callbackketten/Rückbau bestätigt, 39 native Testdateien bytegleich.
+Normalbuild seit 13:09:54 CET wiederhergestellt. Dieser Lauf prüfte noch keine
+eigenen Daten oder nativen Business-Abfragen; Originalinitialisierung offen.
+[Bindungsbaustein und native Initialisierungsbefunde](business-network-subtype-probe.md).
+
+**Vorangegangene technische Teilabnahme, 11:55:28 CET:** Kandidat `c07ada69…` bestand
+auf TownHallTest / SaveGame_2 die begrenzte aktive Untertyp-Probe mit `observed`
+und leeren Findings. Echte Unity-Frames 2243 → 2244, eigene Lifecycle-Callbacks
+und Rückbau bestätigt; zehn Register und 14 fremde VTables unverändert.
+Kein NetworkObject, keine Weltpublikation und kein Save-Aufruf. Nach Spielende
+39/39 native Testdateien bytegleich, keine Dateien hinzugefügt oder gelöscht;
+leere Baseline-Verzeichnisse waren nicht inventarisiert. Um **11:57:33 CET
+wurde Normalbuild `614b81fd…` / PDB `8126ae65…` wiederhergestellt**, unabhängig geprüft.
+973/973 Tests, fünf No-Deploy-Builds und Code-/Testreview bleiben die vorherigen
+Offline-Nachweise; für den Liveabschluss wurden keine neuen Tests oder Builds
+ausgeführt. [Aktiver Untertyp: Vertrag und Grenzen](business-active-subtype-probe.md),
+[Laufzeitbeleg](evidence/business-active-subtype-live-20261106/observation.json),
+[Save-Abgleich](evidence/business-active-subtype-live-20261106/save-verification.json),
+[Rollback](evidence/business-active-subtype-live-20261106/rollback-verification.json).
+
+**Nächster offener Schritt in Phase 1:** Die eigene leere Daten-/Abfrageprobe ist
+bestanden; Normalbuild 614b81fd… ist wiederhergestellt. Der technische Entwurf
+für die anschließende Welt- und Listenanbindung ist im [Plan zur Weltregistrierung](business-world-registration-plan.md)
+ausgearbeitet. Als Nächstes folgen
+getrennt: Originalinitialisierung, rechtzeitige Weltregistrierung, Kauf, echte
+Geldwäsche und Persistenz/Reload. Die Diagnosegrenzen bleiben bestehen; keine
+unbelegte Erhöhung oder Umgehung.
+Originale Business-/FishNet-Initialisierung, rechtzeitige Weltregistrierung vor
+abhängiger Wiederherstellung und stabiler nativer Save-/Load-Weg bleiben offen.
+Eigene no-base Lifecycle-Methoden ersetzen diese Verträge nicht; Kauf und
+Geldwäsche folgen erst auf die erfolgreiche Business-Anbindung.
+
+**Vorherige technische Teilabnahme:** Kandidat `38bd7da3…` bestand am 6. November
+um 09:56:01 CET (08:56:01 UTC) auf `TownHallTest / SaveGame_2` genau einen eigenen
+synchronen `ISaveable.Save`-Aufruf ohne Dateischreiben einschließlich Completion,
+Entfernung eigener Listenreferenzen und bestätigtem Rückbau. Register und fremde
+VTables unverändert, 39/39 native Testdateien bytegleich. Anschließend wurde
+Normalbuild `614b81fd…` / PDB `8126ae65…` wiederhergestellt.
+[Laufzeitbeleg](evidence/business-save-live-success-20261106/observation.json),
+[Save-Abgleich](evidence/business-save-live-success-20261106/save-verification.json),
+[Rollback](evidence/business-save-live-success-20261106/rollback-verification.json).
+
+Der vorausgehende Offline-Stand bestand 884/884 Tests, vier No-Deploy-Builds und
+unabhängigen Review. `NativeSaveWriteAllowed=false` bleibt bestehen. Der begrenzte
+Lauf ersetzt weder einen vollständigen `SaveManager.Save` noch Persistenz/Reload,
+Kauf, Geldwäsche oder einen Weltwechsel-/Last-Use-Vertrag. **Phase 1 bleibt offen.**
+[Aktueller Vertrag, historische Schritte und Prüfgrenzen](business-manager-save-probe.md).
+
+Die folgende Chronologie bewahrt den jeweiligen damaligen Nachweisstand;
+damals ungerufene Save-Methoden sind keine Aussage über den jüngsten Lauf.
 
 Das vorhandene Rathaus erhält ein kaufbares Business mit nativer Geldwäsche und
 zuverlässiger Speicherung. Eingang, Erdgeschoss und Obergeschoss bleiben die
@@ -38,6 +115,19 @@ unverändert. [Bericht](evidence/business-manager-live-register-saveable-2026110
 [Vertrag und Herkunft](business-manager-registration-probe.md). Das ist eine umkehrbare Speicherlisten-Registrierung, kein
 Save-/Load-Nachweis. `Save`, `WriteData`, `GetSaveString` und die originale
 Manager-Initialisierung bleiben ungerufen. Phase 1 ist nicht erfüllt.
+
+Am 2026-11-05 wurde die vorbereitete Save-Probe offline abgesichert: Ziel nur
+TownHallTest / SaveGame_2, alte Sofort-Abmeldung und Doppel-Save entfernt.
+Der native Schreibpfad bleibt vor Registrierung gesperrt, bis ein belastbarer
+Abschluss-/Freigabevertrag vorhanden ist. Eine reine Zustandsmaschine behandelt
+Einzelversuch, verzögerten Abschluss und unbekannte Wirkung; sie ist kein nativer
+Abschlussbeleg. [Arbeitsstand und Offline-Prüfung](business-manager-save-probe.md).
+
+Der nachfolgende [Native-Audit vom 5. November](native-save-completion-audit.md)
+belegt echte Maschinencode-Teilfolgen: Queueentnahme vor Schreibdispatch,
+Completion vor Fehlerauswertung und mögliche verbleibende Completed-/Request-
+Referenzen. Ein sicherer eigener Last-Use-/Weltwechselvertrag ist weiterhin
+nicht bewiesen. Kein Speicheradapter, Build, Deployment oder Live-Save in diesem Audit.
 
 ## Ausgangspunkt
 
@@ -210,26 +300,25 @@ aufgelöst: **TownHallTest / SaveGame_2 ist der verbindliche Live-Testslot für
 alle Business-Proben.** Slot 1 (Dominik / SaveGame_1) bleibt ausschließlich für
 eine ausdrücklich freigegebene Probe mit frischer, geprüfter Sicherung zulässig
 (wie am 2026-11-04 um 07:11:05 UTC für `inactive-saveable-registration`
-freigegeben). Hinweis auf den Arbeitsbaum: `BusinessConstruction.cs` (Stand
-2026-11-04, uncommitted) verdrahtet `TOWNHALL_BUSINESS_MANAGER` fest mit
-`ExpectedOrganisation="Dominik"`, `ExpectedSlot="SaveGame_1"`,
-`ProbeSave=true` und `ProbeMode="inactive-saveable-save"` — das ist die
-vorbereitete **Save-Probe** (tatsächlicher `Save()`-Aufruf auf dem echten
-Slot 1), nicht der Build des beobachteten Registrierungslaufs (`473064e0…`).
-Dieser Stand ist nicht gebaut, installiert oder ausgeführt worden und darf ohne
-ausdrücklichen Go und frische Sicherung nicht gebaut oder gestartet werden.
-Statische Arbeit kann weitergehen.
+freigegeben). **Die neue Save-Probe weist Slot 1 auch mit expliziten Argumenten
+ab.** Die am 2026-11-04 vorbereitete Slot-1-/Doppel-Save-Route ist am
+2026-11-05 entfernt worden, nicht mehr eine startbare Alternative. Der Manager-
+Build ist nun auf TownHallTest / SaveGame_2 festgelegt und meldet vor jeder
+Registrierung `blocked / native-save-completion-contract-unverified`.
+Die [Offline-Sicherheitsarbeit](business-manager-save-probe.md) erlaubt weder
+eine Installation der Speicherprobe noch einen Live-Save. Die anschließend
+identifizierte alte installierte `cff67a85…` war tatsächlich verdrahtet; am
+5. November wurde sie auf ausdrückliche Auswahl durch Normalbuild `614b81fd…`
+ohne Business-Proben ersetzt. [Identität und Grenzen](launch-preparation.md).
 
-Der konkrete Ausgangstest vor dem nächsten Live-Schritt (Dominik): 1) Spiel über
-Steam starten (nie `Schedule I.exe` direkt), 2) TownHallTest / SaveGame_2
-unverändert laden, 3) Handytest, 4) ohne weitere Eingriffe beenden, Befund an den
-nächsten Agenten melden. Vor Builds und Deployment ist das Spiel gemäß
-Projektregeln geschlossen.
-
-Der [S1API-3.2.2-Nachweis](../../../../docs/s1api-upgrade-3.2.2.md) dokumentiert
-Installation und Offline-Prüfungen, aber noch keinen Spielstart mit dieser Fassung.
-Ein unveränderter Start-/Lade-/Handytest bildet deshalb die Ausgangslage für spätere
-TownHall-Tests. Vor Builds und Deployment ist das Spiel gemäß Projektregeln geschlossen.
+**Ausgangstest abgeschlossen, 2026-11-05:** Das Log bestätigt Normalbuild,
+S1API 3.2.2 und TownHallTest / SaveGame_2. Dominik bestätigt anschließend
+problemloses Handy-Öffnen/-Schließen. [Start-/Lade-/Handy-Nachweis](launch-preparation.md).
+Kein erneuter Basistest als offene Voraussetzung; keine Business-Save-/Load-
+oder breite API-Abnahme daraus ableiten. Der frühere
+[S1API-Upgradebericht](../../../../docs/s1api-upgrade-3.2.2.md) bleibt seinem
+damaligen Offline-/Installationsumfang zugeordnet. Vor Builds und Deployment
+ist das Spiel gemäß Projektregeln geschlossen.
 
 ## Wann das Rathaus lokal fertig ist
 
@@ -271,20 +360,132 @@ Offline-Prüfungen und Nachweise zusammen. Ein unabhängiger Prüfer kontrollier
 Installation die geänderten Verträge und Fehlerfälle. Dominik bewertet das Gameplay.
 Bestehende fremde Änderungen werden erhalten; je Datei schreibt nur ein Agent.
 
-**Nächster Nachweis:** Die inaktive native Business-Shell im bestätigten Testslot
-(TownHallTest / SaveGame_2) konstruieren, ihre eigene Serialisierung und
-vollständige Bereinigung beobachten — als [Konstruktionsprobe](business-construction-probe.md)
-bereits am 2026-11-03 um 14:04:58 CET bestanden. Stand 2026-11-04: Der inaktive
-ISaveable-Aufruf ist beobachtet (`a8d45f2a…`, 06:58:38 UTC,
-[Bericht](evidence/business-interface-live-observed-20261104.json)), die
-Einmalversuchsperre im Menü-Reload um 07:00:49 UTC bestätigt (`skipped /
-attempt-already-consumed`,
-[Bericht](evidence/business-interface-live-reload-20261104.json)), und eine
-umkehrbare `SaveManager.RegisterSaveable`-Registrierung ist beobachtet
-(`473064e0…`, 07:11:05 UTC, Slot 1 „Dominik“ / SaveGame_1; `Save()` unaufgerufen,
-[Bericht](evidence/business-manager-live-register-saveable-20261104.json)). Danach
-gezielt Awake/Start, die frühe Registrierung vor dem nativen Wiederherstellen und
-native Speicherung (Save/WriteData) entwickeln; der Managerpfad-Nachweis und die
-Persistenz bleiben Phasen-1-Kriterien. Ein eigener Adapter bleibt der untersuchte
-Weg; keine zusätzliche Framework-Abhängigkeit und kein Abschluss von Phase 1
-allein durch diese Proben.
+**Weltwechselaudit abgeschlossen:** Clean ist ein PreSceneChange-Listener, aber
+kein Drain; Exit verwirft die aktive Identität vorher und wartet nicht auf einen
+belegten eigenen Last-Use. Der SaveManager folgt dem persistenten Singleton-Pfad.
+Eigene Leaving-/Stop-Aufrufer quittieren keine Altauftragfreigabe.
+[Belege und begrenzte Architekturentscheidung](native-world-exit-audit.md).
+
+**Besitzentwurf und nachfolgender reiner Datenbaustein abgeschlossen:**
+[Vertrag für einen Speicherauftrag](business-save-operation-owner.md) mit
+unveränderlicher Bindung, Intent vor Teilwirkung, monotoner Widerrufsordnung,
+Prozessslot und unabhängiger Verwaltungsreichweite. Unabhängiger Entwurfsreview:
+neun `accepted`, ein `limited`, keine Pflichtkorrektur; optionale Präzisierungen
+übernommen. Konkrete native Effekt-/Widerrufssynchronisation weiterhin nachzuweisen.
+
+**Reine Implementierung:** Datenbesitzer mit künstlichen Nachrichten/Identitäten,
+einem gemeinsamen Slot je synthetischem Prozessmodell und Modell-Lock umgesetzt.
+128 neue Fälle und abschließend 809 TownHall-Offlinetests bestanden, Semantik
+unabhängig akzeptiert; 33 eigene Probegruppen des Prüfers bestanden. Einzige
+Pflichtkorrektur Testformat separat token-/assertionsgleich behoben. Isoliertes
+Pure nicht insgesamt bestanden (Formatstelle inzwischen korrigiert, fremder
+Versionsdrift bleibt). Kein globaler OS-Prozessbesitz oder nativer Lockvertrag.
+Keine Runtime-Ports, Unity-Objekte, Dateioperationen, alte Save-Trial-Aufrufe oder
+Mod-/Lifecycleverdrahtung; kein Deployment oder Modbuild mit Spielreferenzen.
+
+**Phase 1 Schritt 1 (2026-11-06) — Vor-Konstruktions-Teilnehmerbindung & 23-Slot-`ISaveable`-Vertragsinventar:**
+- `BusinessSaveProcessModel` und `BusinessSaveOperationOwner` um Vor-Konstruktions-
+  Armierung (`TryArmParticipantConstruction`), Konstruktor-Callback-Bindung
+  (`EnterConstructorCallback`) und instanzgebundene Teilnehmer-Callbacks
+  (`EnterParticipantCallback`) erweitert; Rückkehr von `Construction` ohne
+  beobachteten Konstruktoreintritt widerruft mit
+  `construction-returned-without-constructor-bind`.
+- Vollständiges 23-Slot-`ISaveable`-Dispatch- und Save-Completion-Vertragsinventar
+  (`BusinessSaveableContractInventory`, Slots `0..22`, Tokens `0x06001778`..`0x0600178E`,
+  Klassen-Vtable-Slots `23..45`) samt deterministischem Gefahrenevaluator
+  (`Evaluate`) implementiert: erfasst u. a. den `SaveRoutine.MoveNext`-Deadlock
+  (`0x0600183C`, RVA `0x5B0C20`) bei `SaveManager.RegisterSaveable` (`0x0600182E`,
+  RVA `0x5AA5C0`) in `Saveables` ohne `BaseSaveables`/`Business.Businesses`-Treiber,
+  den synchronen Tail-Jump aus `SaveRequest..ctor` (`0x0600184A`, RVA `0x5ABBC0`,
+  `op_Inequality` bei `0x5ABD7B`, Tail-Jump bei `0x5ABDDC`) nach
+  `ISaveable.CompleteSave(parentFolderPath, false)` bei leerem `GetSaveString()`,
+  die Null-Backing-Field-Gefahr von `LocalExtraFiles` (`0x583010–0x583190`) und
+  `LocalExtraFolders` (`0x583195–0x5831D8`) sowie Ordneranlage und Datei-/Ordnerlöschung
+  durch Default-`CompleteSave` (`0x06001787`, RVA `0x582F00`, `0x5833D8–0x583795`)
+  und `GetContainerFolder` (`0x0600178A`, RVA `0x583840`) vor `DeleteUnapprovedFiles`
+  (`0x583778–0x583795`).
+- `ProbeBusinessSubtype` und `NativeSubtypePort` prüfen nun die bewaffnete
+  Konstruktion (`ArmNextConstruction`/`ConstructedWhileArmed`), binden alle 15
+  überschriebenen virtuellen Methoden (einschließlich `GetSaveString`,
+  `WriteData(string)` und `DeleteUnapprovedFiles(string)`) und initialisieren
+  `propertyName = "Hyland Town Hall"`, `_LocalExtraFiles_k__BackingField` sowie
+  `_LocalExtraFolders_k__BackingField`.
+
+**Phase 1 Schritt 2 (2026-11-06) — 16. Virtueller Slot (`ShouldSaveUnderFolder`), non-IO Save-Completion-Pfad & `IBusinessSavePort`-Implementierung:**
+- `ProbeBusinessSubtype.ShouldSaveUnderFolder` überschrieben (liefert `false`, erfasst
+  `get_ShouldSaveUnderFolder`-Aufrufe); schließt Ordneranlage (`GetContainerFolder`)
+  sowie rekursive Datei- und Ordnerlöschschleifen in nativem `CompleteSave` (`0x582F00`)
+  zuverlässig aus.
+- `NativeSubtypePort.RegisterType()` bindet `get_ShouldSaveUnderFolder` auf
+  `Il2CppScheduleOne.Property.Property` (Gesamtzahl gebundener virtueller Methoden:
+  exakt **16**); `NativeSubtypePort.Inspect()` validiert alle 16 Slots.
+- `BusinessSaveableContractInventory`: Slot 3 (`get_ShouldSaveUnderFolder`) auf
+  `OverriddenOnProbeSubtype = true` gesetzt, `ExpectedProbeSubtypeBoundVirtualSlots = 16`,
+  Gefahrenevaluator `Evaluate` validiert die 16 Slots deterministisch.
+- `NativeSubtypePort` implementiert `IBusinessSavePort`:
+  - `ReadSaveState()`: berechnet `CompletionContractVerified` deterministisch aus
+    vollständiger 16-Slot-Bindung, armed Konstruktion, leeren Extra-Listen und
+    `!ShouldSaveUnderFolder`.
+  - `RegisterSaveable()`: registriert den Teilnehmer typsicher in `SaveManager.Saveables`.
+  - `SaveOnce()`: führt den synchronen No-IO-Tail-Jump über `ISaveable.Save(folder)` aus.
+  - `RemoveSaveable()`: bereinigt `Saveables`, ruft `ClearCompletedSaveable` auf und
+    bereinigt Restreferenzen in `CompletedSaveables`.
+- 4 neue dedizierte Unittests in `BusinessSaveOperationOwnerTests.cs`, Suite wächst
+  auf **850/850 bestandene Tests** (0 failed, 0 skipped); alle 4 No-Deploy-Build-
+  Konfigurationen (Normal, Subtype, Interface, Manager) fehler- und warnungsfrei.
+
+**Phase 1 Schritt 3 (2026-11-06) — `BusinessSubtypeTrial.Run`-Verknüpfung mit `IBusinessSavePort`, atomare Frame-Progression & Save-Probe-Absicherung:**
+- `BusinessSubtypeTrial.Run` um die Save-Probe-Ausführung erweitert:
+  - Gate-Schutz: Ports ohne `IBusinessSavePort` werden sofort vor jeglichem Zugriff mit
+    `blocked / native-save-completion-contract-unverified` abgewiesen (0 Port-Zugriffe).
+  - Wenn `probeSave == true` und `port is IBusinessSavePort`: Prüfung von
+    `preflight.CompletionContractVerified`, Ausführung des Save-Prozesses über
+    `BusinessManagerSaveTrial.Begin`, deterministisches Vorantreiben der Ticks bis
+    `save.SafeToDestroy && save.CompletionConfirmed` und Snapshot-Readback-Verifikation.
+  - `SubtypeResult` um optionales `ManagerSaveResult? Save = null` erweitert;
+    `BusinessSubtypeRuntime.Tick()` setzt `SaveCompletionContractVerified = result.Save?.CompletionConfirmed == true`.
+- `NativeSubtypePort`: Atomare CAS-Frame-Progression (`NextFrame()`) implementiert,
+  wodurch mehrfache Aufrufe innerhalb desselben Unity-Frames strikt um +1 inkrementieren
+  und bei fortschreitenden Unity-Frames synchron nachführen (`Frame > _dispatchFrame && Frame > _completionFrame`).
+- 4 neue Unittests (3 in `BusinessSubtypeTests.cs` für positiven No-IO-Ablauf, unverified-Vertragsabbruch
+  und Context-Loss; 1 in `BusinessSaveOperationOwnerTests.cs` für atomare Frame-Progression).
+  Suite wächst auf **854/854 bestandene Tests** (0 failed, 0 skipped). Alle 4 No-Deploy-Builds grün.
+
+**Nächste Grenze nach der begrenzten No-IO-Teilabnahme:**
+Der einzelne synchrone eigene Save-/Completion-Pfad und sein Rückbau wurden im
+Lauf um 08:56:01 UTC beobachtet. Die native Schreibanbindung bleibt bis zu belegter
+Teilnehmer-/Codelebensdauer über Weltwechsel/Shutdown und einem korrelierten
+Last-Use-Vertrag für die tatsächliche Schreibroute gesperrt
+(`NativeSaveWriteAllowed=false`). Retain oder eine persistente Shell ist kein
+Ersatz. Der beobachtete begrenzte Rückbau gibt keine allgemeine transiente
+Entfernung während fremder Saves oder Weltwechsel frei. Phase 1 bleibt offen.
+
+Queueentnahme, Completion, Idle, leere Queue und Folgeframe ersetzen den eigenen
+Vertrag nicht; [vorheriger Speicherabschlussaudit](native-save-completion-audit.md).
+Native Referenzfreigabe, erfolgreicher Save und Konsistenz zusätzlicher Moddaten
+getrennt entscheiden. Die vorhandene begrenzte No-IO-Verdrahtung erteilt keine
+Freigabe für native Dateischreibpfade oder deren Save-/Destroy-Lebensdauer;
+globale Saves anderer Systeme werden nicht abgefangen.
+
+Die Konstruktion/Serialisierung vom 3. November, der inaktive Interface-Aufruf
+mit Reloadsperre und die umkehrbare Registrierung vom 4. November bleiben
+bestanden; ihre datierten Belege oben werden nicht erneut geöffnet. Anschließend
+stehen die originale native Business-Initialisierung, frühe Registrierung vor
+nativer Wiederherstellung und echte Speicherung/Wiederherstellung an. Der
+eigene no-base Awake-/Start-Lifecycle ist inzwischen begrenzt beobachtet, siehe
+jüngste Teilabnahme oben. Keine zusätzliche Framework-
+Abhängigkeit und kein Abschluss von Phase 1 allein durch Offline-Tests.
+
+**Übergang zum kontrollierten Ingame-Test vorbereitet und durchgeführt (2026-11-06):**
+Für die Verifikation der No-IO Save-Completion im echten Spiel wurde der
+[Übergangsplan](business-save-transition-plan.md) aufgesetzt und auf Dominiks Freigabe
+durchgeführt (Stufen 1–4). Der Testslot `TownHallTest / SaveGame_2` und `UserData` wurden
+in `20261106T054537590245Z-9fbfdbeb` gesichert, der Test-Kandidat (`F11DBF50…`) bereitgestellt
+und im Spiel ausgeführt (`20261106T054820764Z.json`). Die Probe brach sicher fail-closed
+vor Save-Aufrufen bei `Inspect()` mit `subtype-readback-invalid` ab: Grund ist, dass
+`Property.get_ShouldSaveUnderFolder` das IL2CPP-Attribut `METHOD_ATTRIBUTE_FINAL` trägt,
+wodurch `il2cpp_object_get_virtual_method` die Basismethode statt des abgeleiteten
+VTable-Slots zurückgibt (obwohl native Aufrufe direkt über `[vtable + 0xB0]` die
+Überschreibung ansteuern). Keine nativen Dateien wurden hinzugefügt oder gelöscht;
+fünf Dateien änderten sich durch regulären Autosave. Normalbuild (`614b81fd…`)
+wurde damals unmittelbar wiederhergestellt; der jüngere Stand steht oben.

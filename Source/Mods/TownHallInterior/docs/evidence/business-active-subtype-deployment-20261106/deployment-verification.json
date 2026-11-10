@@ -1,0 +1,64 @@
+{
+  "schema": 1,
+  "checkedUtc": "2026-11-06T10:01:48.983603+00:00",
+  "deployedAtUtc": "2026-11-06T10:00:03.1679217Z",
+  "sourceRevision": "b2c6c7e6c6ecc778da9624cdb68a6578b9db471a",
+  "sourceWorktree": "dirty",
+  "codeHashes": {
+    "Source/Mods/TownHallInterior/src/BusinessConstruction.cs": "32724b5085d1d6ca6bb34340e6b95198f450c4f67a2c5e5bbb187b68286ad708",
+    "Source/Mods/TownHallInterior/src/TownHallInterior.csproj": "1ea10486e850372e3faeed9fb3491066de1c8ac027a17f46bcfe9a746bfb1dfd",
+    "Source/Tests/TownHallInterior.Tests/BusinessActiveSubtypeTests.cs": "2a9124617fe1494ce08f73361b8bc0b24be89df4c8b69258ad17142876899221"
+  },
+  "authorization": "User: installiere die neue version",
+  "attemptId": "20261106T100002932Z-77c756180c8f",
+  "backupId": "20261106T100002974Z-TownHallInterior-905551cc",
+  "preDeploymentCheckpointId": "20261106T095942344997Z-c3eb0025",
+  "installedHashes": {
+    "Mods/TownHallInterior.dll": "c07ada69d74f7491528efff2f4518319a9404ccd3a8e5ba948e876f8eaf38b34",
+    "UserData/TownHallInterior/TownHallInterior.pdb": "711863c0c5833c69c6680fcb181804b26b0adb8837b16f34ed7f348d43417a5f",
+    "UserData/TownHallInterior/mod.json": "65938002b7273ef77dedbadf9092a186e6742f1e40fe404ef91576d3e4f81660"
+  },
+  "activeSubtypeInstalled": true,
+  "normalBuildRestored": false,
+  "rollbackPayloadRelativePath": ".backups/townhall-launch-prep/20261106T095942344997Z-c3eb0025/payload",
+  "rollbackPayloadHashes": {
+    "Mods/TownHallInterior.dll": "614b81fd584040d4cebe7a18929bca09eabae478a6487ec6d846ea01d6062003",
+    "UserData/TownHallInterior/TownHallInterior.pdb": "8126ae65f5c12f6e8261af0a1734e622d8c0ab5522a91e6653c7b1ffd7d8c497",
+    "UserData/TownHallInterior/mod.json": "65938002b7273ef77dedbadf9092a186e6742f1e40fe404ef91576d3e4f81660"
+  },
+  "copied": 2,
+  "unchanged": 1,
+  "stale": [],
+  "gameClosedBeforeAndAfter": true,
+  "buildPerformed": false,
+  "gameLaunched": false,
+  "nativeFilesUnchangedByDeployment": true,
+  "nativeFiles": 39,
+  "organisation": "TownHallTest",
+  "slot": "SaveGame_2",
+  "nativeSlot1Accessed": false,
+  "modsFiles": 38,
+  "modsChanged": [
+    "TownHallInterior.dll"
+  ],
+  "userDataFiles": 172,
+  "userDataChangedExcludingDeployReceipts": [
+    "TownHallInterior/TownHallInterior.pdb"
+  ],
+  "preexistingActiveSubtypeReports": [],
+  "independentReview": {
+    "reviewer": "townhall_deploy_check",
+    "status": "passed",
+    "scope": "Eight offline source hashes before status edits; prepared and installed payload hashes; exact receipt entries; predecessor helper backup; closed game"
+  },
+  "runtimeActivationVerified": false,
+  "nativeSaveWriteAllowed": false,
+  "nextStep": "User starts through Steam, explicitly loads TownHallTest / Slot 2, waits 20 seconds and reports geladen. Inspect fresh BusinessActiveSubtype report and game log. After regular exit compare Save 2 and restore audited normal payload with official helper.",
+  "limits": [
+    "Installation verifies file delivery only, not native activation or a functioning purchasable Business.",
+    "No new builds, tests, game launch or save invocation in this deployment turn.",
+    "Private checkpoint contents are not knowledge imports.",
+    "Local Steam Cloud disabled at preparation; remote state and existing conflict markers not resolved.",
+    "Earlier offline verification remains historical and immutable; status documentation changes after installation are not part of its source hashes."
+  ]
+}

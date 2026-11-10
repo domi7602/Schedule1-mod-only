@@ -1,0 +1,31 @@
+{
+  "capturedUtc": "2026-11-06T12:31:14.486791+00:00",
+  "reviewer": "/root/active_lifetime_review",
+  "status": "accepted-pure-slice-native-review-pending",
+  "sourcePath": "Source\\Mods\\TownHallInterior\\src\\BusinessConstruction.cs",
+  "sourceSha256AtRead": "213483c409f101179b7fe4beae38162fd2d45f7db1e68e5cdce9f0495130dd39",
+  "reviewedSlice": "File start through BusinessActiveSubtypeTrial, before ManagerRegistration; UTF-8 decoded exact newline-preserving prefix",
+  "reviewedSliceSha256": "031a61b7ef2e7f8e64440ba3eb8ae606ae4878675d180dd220f98ea45ba2cb1c",
+  "findings": [],
+  "checks": [
+    "requireData requires network mode and IBusinessDataPort before consuming attempt",
+    "Exact15 collection keys/counts; copied read-only dictionary snapshots; nonzero distinct identities stable across state reads",
+    "Four named listener fingerprints mandatory in data snapshots",
+    "Native query attempt consumed before call; current-context checks and fresh state/counter/listener comparison before and after call",
+    "Returned business/container/collider/wrapper identity and finite zero total/limit plus inside-true/outside-false required before activation",
+    "DataCleanupVerified is required in addition to original own-root cleanup; any failure resets CleanupComplete in quarantine",
+    "Existing process-attempt, revocation, frame/counter monotonicity and no-retry owner remain in use"
+  ],
+  "nativeFollowup": [
+    "Pin and read both actual S1API InnerProperty/InnerBusiness fields",
+    "Check every native query substep against fresh data/manager/listener identity",
+    "Validate mutable ActionList and bounded multicast delegate graphs without calling listeners",
+    "Read exact Unity own-object absence after destruction only while context is valid",
+    "Distinguish own GC handle release from immediate native memory-free claims"
+  ],
+  "limits": [
+    "No tests/builds executed by reviewer",
+    "Native adapter is still being implemented and is not accepted by this interim report",
+    "Static source review does not establish native method invocation or live query results"
+  ]
+}

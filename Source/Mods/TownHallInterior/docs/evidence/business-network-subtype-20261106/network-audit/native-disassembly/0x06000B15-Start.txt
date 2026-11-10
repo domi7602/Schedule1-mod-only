@@ -1,0 +1,9 @@
+; FishNet.Managing.NetworkManager::Start/0, token 0x06000B15, RVA 0xCF8600, .pdata primary extent 0x16 bytes
+; Raw native bytes decoded without invoking the game. .pdata primary extent is not a proof of full transitive/exception-path coverage.
+0xCF8600     48 83 EC 28                     sub rsp,28h
+0xCF8604     48 83 79 30 00                  cmp qword ptr [rcx+30h],0
+0xCF8609     74 05                           je short 0000000180CF8610h
+0xCF860B     48 83 C4 28                     add rsp,28h
+0xCF860F     C3                              ret
+0xCF8610     E8 6B F5 61 FF                  call 0000000180317B80h
+0xCF8615     CC                              int 3

@@ -1,0 +1,134 @@
+{
+  "Method": {
+    "Type": "FishNet.Object.NetworkObject",
+    "Name": "Start",
+    "Token": "0x060006E9",
+    "ParameterCount": 0,
+    "Va": "0x180CCED00",
+    "Rva": "0xCCED00",
+    "NativePointerPresent": true
+  },
+  "Bounds": {
+    "BeginRva": 13430016,
+    "EndRva": 13430066,
+    "UnwindRva": 57295328
+  },
+  "RawOffset": "0xCCDF00",
+  "ByteLength": 50,
+  "BytesSha256": "ae59201544dfd4195adfd7aef8bb6c942d7d11fad99d2ca169c038a3677aef46",
+  "Instructions": [
+    {
+      "Va": "0x180CCED00",
+      "Rva": "0xCCED00",
+      "Bytes": "40 53",
+      "Text": "push rbx",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CCED02",
+      "Rva": "0xCCED02",
+      "Bytes": "48 83 EC 20",
+      "Text": "sub rsp,20h",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CCED06",
+      "Rva": "0xCCED06",
+      "Bytes": "80 3D 65 1F F3 02 00",
+      "Text": "cmp byte ptr [183C00C72h],0",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": "0x183C00C72",
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CCED0D",
+      "Rva": "0xCCED0D",
+      "Bytes": "48 8B D9",
+      "Text": "mov rbx,rcx",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CCED10",
+      "Rva": "0xCCED10",
+      "Bytes": "75 13",
+      "Text": "jne short 0000000180CCED25h",
+      "FlowControl": "ConditionalBranch",
+      "DirectTarget": "0x180CCED25",
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CCED12",
+      "Rva": "0xCCED12",
+      "Bytes": "48 8D 0D DF 12 D2 02",
+      "Text": "lea rcx,[1839EFFF8h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": "0x1839EFFF8",
+      "MetadataGlobal": {
+        "Kind": "TypeInfo",
+        "Value": "UnityEngine.Object"
+      }
+    },
+    {
+      "Va": "0x180CCED19",
+      "Rva": "0xCCED19",
+      "Bytes": "E8 82 8B 64 FF",
+      "Text": "call 00000001803178A0h",
+      "FlowControl": "Call",
+      "DirectTarget": "0x1803178A0",
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CCED1E",
+      "Rva": "0xCCED1E",
+      "Bytes": "C6 05 4D 1F F3 02 01",
+      "Text": "mov byte ptr [183C00C72h],1",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": "0x183C00C72",
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CCED25",
+      "Rva": "0xCCED25",
+      "Bytes": "80 BB A1 00 00 00 00",
+      "Text": "cmp byte ptr [rbx+0A1h],0",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CCED2C",
+      "Rva": "0xCCED2C",
+      "Bytes": "0F 84 D9 00 00 00",
+      "Text": "je near ptr 0000000180CCEE0Bh",
+      "FlowControl": "ConditionalBranch",
+      "DirectTarget": "0x180CCEE0B",
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    }
+  ]
+}

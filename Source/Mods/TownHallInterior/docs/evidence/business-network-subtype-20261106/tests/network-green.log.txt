@@ -1,0 +1,9 @@
+  TownHallInterior.Tests -> C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\bin\Release\net6.0\TownHallInterior.Tests.dll
+Test run for C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\bin\Release\net6.0\TownHallInterior.Tests.dll (.NETCoreApp,Version=v6.0)
+VSTest version 17.11.1 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+Results File: C:\Users\pc\Schedule1-mod-only\.scratch\townhall-business-bind-20261106\tests\network-green.trx
+
+Passed!  - Failed:     0, Passed:   104, Skipped:     0, Total:   104, Duration: 79 ms - TownHallInterior.Tests.dll (net6.0)

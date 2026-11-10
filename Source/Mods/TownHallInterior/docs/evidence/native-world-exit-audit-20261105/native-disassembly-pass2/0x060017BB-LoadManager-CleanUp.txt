@@ -1,0 +1,358 @@
+; ScheduleOne.Persistence.LoadManager::CleanUp/0, token 0x060017BB, RVA 0x586250, next-pointer window 0x640 bytes
+; No target execution. Parser-pointer window can contain padding/cold fragments and is not exact/full function, EH or transitive coverage. Shared direct aliases are truncated to eight names.
+0x586250     48 83 EC 28                     sub rsp,28h
+0x586254     80 3D C1 54 67 03 00            cmp byte ptr [183BFB71Ch],0
+0x58625B     0F 85 1B 01 00 00               jne near ptr 000000018058637Ch
+0x586261     48 8D 0D 38 B2 44 03            lea rcx,[1839D14A0h] ; TypeInfo: ScheduleOne.Money.ATM
+0x586268     E8 33 16 D9 FF                  call 00000001803178A0h
+0x58626D     48 8D 0D 04 1B 46 03            lea rcx,[1839E7D78h] ; TypeInfo: ScheduleOne.Property.Business
+0x586274     E8 27 16 D9 FF                  call 00000001803178A0h
+0x586279     48 8D 0D 80 B8 47 03            lea rcx,[183A01B00h] ; TypeInfo: ScheduleOne.Economy.Customer
+0x586280     E8 1B 16 D9 FF                  call 00000001803178A0h
+0x586285     48 8D 0D 84 39 48 03            lea rcx,[183A09C10h] ; TypeInfo: UnityEngine.Debug
+0x58628C     E8 0F 16 D9 FF                  call 00000001803178A0h
+0x586291     48 8D 0D 68 19 41 03            lea rcx,[183997C00h] ; TypeInfo: GUIDManager
+0x586298     E8 03 16 D9 FF                  call 00000001803178A0h
+0x58629D     48 8D 0D E4 8E 44 03            lea rcx,[1839CF188h] ; MethodRef: System.Void System.Collections.Generic.List`1<ScheduleOne.Economy.Customer>.Clear
+0x5862A4     E8 F7 15 D9 FF                  call 00000001803178A0h
+0x5862A9     48 8D 0D 08 26 41 03            lea rcx,[1839988B8h] ; MethodRef: System.Void System.Collections.Generic.List`1<ScheduleOne.PlayerScripts.Player>.Clear
+0x5862B0     E8 EB 15 D9 FF                  call 00000001803178A0h
+0x5862B5     48 8D 0D A4 05 44 03            lea rcx,[1839C6860h] ; MethodRef: System.Void System.Collections.Generic.List`1<ScheduleOne.Economy.SupplierLocation>.Clear
+0x5862BC     E8 DF 15 D9 FF                  call 00000001803178A0h
+0x5862C1     48 8D 0D 60 AE 41 03            lea rcx,[1839A1128h] ; MethodRef: System.Void System.Collections.Generic.List`1<ScheduleOne.Property.Property>.Clear
+0x5862C8     E8 D3 15 D9 FF                  call 00000001803178A0h
+0x5862CD     48 8D 0D 84 CD 41 03            lea rcx,[1839A3058h] ; MethodRef: System.Void System.Collections.Generic.List`1<ScheduleOne.Quests.Quest>.Clear
+0x5862D4     E8 C7 15 D9 FF                  call 00000001803178A0h
+0x5862D9     48 8D 0D 88 0A 47 03            lea rcx,[1839F6D68h] ; MethodRef: System.Void System.Collections.Generic.List`1<ScheduleOne.Networking.IStaggeredReplicator>.Clear
+0x5862E0     E8 BB 15 D9 FF                  call 00000001803178A0h
+0x5862E5     48 8D 0D 34 7E 40 03            lea rcx,[18398E120h] ; MethodRef: System.Void System.Collections.Generic.List`1<Pathfinding.NodeLink>.Clear
+0x5862EC     E8 AF 15 D9 FF                  call 00000001803178A0h
+0x5862F1     48 8D 0D E8 1E 43 03            lea rcx,[1839B81E0h] ; MethodRef: System.Void System.Collections.Generic.List`1<ScheduleOne.Property.Business>.Clear
+0x5862F8     E8 A3 15 D9 FF                  call 00000001803178A0h
+0x5862FD     48 8D 0D 94 DE 44 03            lea rcx,[1839D4198h] ; TypeInfo: ScheduleOne.Persistence.LoadManager
+0x586304     E8 97 15 D9 FF                  call 00000001803178A0h
+0x586309     48 8D 0D 40 42 46 03            lea rcx,[1839EA550h] ; TypeInfo: ScheduleOne.DevUtilities.NavMeshUtility
+0x586310     E8 8B 15 D9 FF                  call 00000001803178A0h
+0x586315     48 8D 0D 14 76 46 03            lea rcx,[1839ED930h] ; TypeInfo: Pathfinding.NodeLink
+0x58631C     E8 7F 15 D9 FF                  call 00000001803178A0h
+0x586321     48 8D 0D 38 2C 47 03            lea rcx,[1839F8F60h] ; TypeInfo: ScheduleOne.UI.Phone.Phone
+0x586328     E8 73 15 D9 FF                  call 00000001803178A0h
+0x58632D     48 8D 0D DC 58 47 03            lea rcx,[1839FBC10h] ; TypeInfo: ScheduleOne.PlayerScripts.PlayerMovement
+0x586334     E8 67 15 D9 FF                  call 00000001803178A0h
+0x586339     48 8D 0D 90 4F 47 03            lea rcx,[1839FB2D0h] ; TypeInfo: ScheduleOne.PlayerScripts.Player
+0x586340     E8 5B 15 D9 FF                  call 00000001803178A0h
+0x586345     48 8D 0D 44 CC 47 03            lea rcx,[183A02F90h] ; TypeInfo: ScheduleOne.Property.Property
+0x58634C     E8 4F 15 D9 FF                  call 00000001803178A0h
+0x586351     48 8D 0D 68 F6 47 03            lea rcx,[183A059C0h] ; TypeInfo: ScheduleOne.Quests.Quest
+0x586358     E8 43 15 D9 FF                  call 00000001803178A0h
+0x58635D     48 8D 0D EC 88 41 03            lea rcx,[18399EC50h] ; TypeInfo: ScheduleOne.Economy.SupplierLocation
+0x586364     E8 37 15 D9 FF                  call 00000001803178A0h
+0x586369     48 8D 0D D0 E5 45 03            lea rcx,[1839E4940h] ; StringLiteral: Cleaning up...
+0x586370     E8 2B 15 D9 FF                  call 00000001803178A0h
+0x586375     C6 05 A0 53 67 03 01            mov byte ptr [183BFB71Ch],1
+0x58637C     48 8B 0D 8D 38 48 03            mov rcx,[183A09C10h] ; TypeInfo: UnityEngine.Debug
+0x586383     83 B9 E0 00 00 00 00            cmp dword ptr [rcx+0E0h],0
+0x58638A     75 05                           jne short 0000000180586391h
+0x58638C     E8 9F 18 D9 FF                  call 0000000180317C30h
+0x586391     48 8B 0D A8 E5 45 03            mov rcx,[1839E4940h] ; StringLiteral: Cleaning up...
+0x586398     33 D2                           xor edx,edx
+0x58639A     E8 11 C1 5B 02                  call 0000000182B424B0h ; UnityEngine.Debug::Log/1
+0x58639F     48 8B 0D 5A 18 41 03            mov rcx,[183997C00h] ; TypeInfo: GUIDManager
+0x5863A6     83 B9 E0 00 00 00 00            cmp dword ptr [rcx+0E0h],0
+0x5863AD     75 05                           jne short 00000001805863B4h
+0x5863AF     E8 7C 18 D9 FF                  call 0000000180317C30h
+0x5863B4     33 C9                           xor ecx,ecx
+0x5863B6     E8 E5 F2 F9 FF                  call 00000001805256A0h ; GUIDManager::Clear/0
+0x5863BB     48 8B 05 FE F5 47 03            mov rax,[183A059C0h] ; TypeInfo: ScheduleOne.Quests.Quest
+0x5863C2     83 B8 E0 00 00 00 00            cmp dword ptr [rax+0E0h],0
+0x5863C9     75 0F                           jne short 00000001805863DAh
+0x5863CB     48 8B C8                        mov rcx,rax
+0x5863CE     E8 5D 18 D9 FF                  call 0000000180317C30h
+0x5863D3     48 8B 05 E6 F5 47 03            mov rax,[183A059C0h] ; TypeInfo: ScheduleOne.Quests.Quest
+0x5863DA     48 8B 80 B8 00 00 00            mov rax,[rax+0B8h]
+0x5863E1     48 89 5C 24 20                  mov [rsp+20h],rbx
+0x5863E6     48 8B 08                        mov rcx,[rax]
+0x5863E9     48 85 C9                        test rcx,rcx
+0x5863EC     0F 84 8E 04 00 00               je near ptr 0000000180586880h
+0x5863F2     44 8B 41 18                     mov r8d,[rcx+18h]
+0x5863F6     33 DB                           xor ebx,ebx
+0x5863F8     FF 41 1C                        inc dword ptr [rcx+1Ch]
+0x5863FB     89 59 18                        mov [rcx+18h],ebx
+0x5863FE     45 85 C0                        test r8d,r8d
+0x586401     7E 0E                           jle short 0000000180586411h
+0x586403     48 8B 49 10                     mov rcx,[rcx+10h]
+0x586407     45 33 C9                        xor r9d,r9d
+0x58640A     33 D2                           xor edx,edx
+0x58640C     E8 EF 80 62 01                  call 0000000181BAE500h ; System.Array::Clear/3
+0x586411     48 8B 05 A8 F5 47 03            mov rax,[183A059C0h] ; TypeInfo: ScheduleOne.Quests.Quest
+0x586418     48 8B 88 B8 00 00 00            mov rcx,[rax+0B8h]
+0x58641F     48 8B 49 10                     mov rcx,[rcx+10h]
+0x586423     48 85 C9                        test rcx,rcx
+0x586426     0F 84 54 04 00 00               je near ptr 0000000180586880h
+0x58642C     44 8B 41 18                     mov r8d,[rcx+18h]
+0x586430     FF 41 1C                        inc dword ptr [rcx+1Ch]
+0x586433     89 59 18                        mov [rcx+18h],ebx
+0x586436     45 85 C0                        test r8d,r8d
+0x586439     7E 0E                           jle short 0000000180586449h
+0x58643B     48 8B 49 10                     mov rcx,[rcx+10h]
+0x58643F     45 33 C9                        xor r9d,r9d
+0x586442     33 D2                           xor edx,edx
+0x586444     E8 B7 80 62 01                  call 0000000181BAE500h ; System.Array::Clear/3
+0x586449     48 8B 05 E0 74 46 03            mov rax,[1839ED930h] ; TypeInfo: Pathfinding.NodeLink
+0x586450     39 98 E0 00 00 00               cmp [rax+0E0h],ebx
+0x586456     75 0F                           jne short 0000000180586467h
+0x586458     48 8B C8                        mov rcx,rax
+0x58645B     E8 D0 17 D9 FF                  call 0000000180317C30h
+0x586460     48 8B 05 C9 74 46 03            mov rax,[1839ED930h] ; TypeInfo: Pathfinding.NodeLink
+0x586467     48 8B 80 B8 00 00 00            mov rax,[rax+0B8h]
+0x58646E     48 8B 08                        mov rcx,[rax]
+0x586471     48 85 C9                        test rcx,rcx
+0x586474     0F 84 06 04 00 00               je near ptr 0000000180586880h
+0x58647A     44 8B 41 18                     mov r8d,[rcx+18h]
+0x58647E     FF 41 1C                        inc dword ptr [rcx+1Ch]
+0x586481     89 59 18                        mov [rcx+18h],ebx
+0x586484     45 85 C0                        test r8d,r8d
+0x586487     7E 0E                           jle short 0000000180586497h
+0x586489     48 8B 49 10                     mov rcx,[rcx+10h]
+0x58648D     45 33 C9                        xor r9d,r9d
+0x586490     33 D2                           xor edx,edx
+0x586492     E8 69 80 62 01                  call 0000000181BAE500h ; System.Array::Clear/3
+0x586497     48 8B 05 32 4E 47 03            mov rax,[1839FB2D0h] ; TypeInfo: ScheduleOne.PlayerScripts.Player
+0x58649E     39 98 E0 00 00 00               cmp [rax+0E0h],ebx
+0x5864A4     75 0F                           jne short 00000001805864B5h
+0x5864A6     48 8B C8                        mov rcx,rax
+0x5864A9     E8 82 17 D9 FF                  call 0000000180317C30h
+0x5864AE     48 8B 05 1B 4E 47 03            mov rax,[1839FB2D0h] ; TypeInfo: ScheduleOne.PlayerScripts.Player
+0x5864B5     48 8B 80 B8 00 00 00            mov rax,[rax+0B8h]
+0x5864BC     33 D2                           xor edx,edx
+0x5864BE     48 89 18                        mov [rax],rbx
+0x5864C1     48 8B 0D 08 4E 47 03            mov rcx,[1839FB2D0h] ; TypeInfo: ScheduleOne.PlayerScripts.Player
+0x5864C8     48 8B 89 B8 00 00 00            mov rcx,[rcx+0B8h]
+0x5864CF     E8 DC 05 D9 FF                  call 0000000180316AB0h
+0x5864D4     48 8B 05 F5 4D 47 03            mov rax,[1839FB2D0h] ; TypeInfo: ScheduleOne.PlayerScripts.Player
+0x5864DB     48 8B 88 B8 00 00 00            mov rcx,[rax+0B8h]
+0x5864E2     48 8B 49 20                     mov rcx,[rcx+20h]
+0x5864E6     48 85 C9                        test rcx,rcx
+0x5864E9     0F 84 91 03 00 00               je near ptr 0000000180586880h
+0x5864EF     44 8B 41 18                     mov r8d,[rcx+18h]
+0x5864F3     FF 41 1C                        inc dword ptr [rcx+1Ch]
+0x5864F6     89 59 18                        mov [rcx+18h],ebx
+0x5864F9     45 85 C0                        test r8d,r8d
+0x5864FC     7E 0E                           jle short 000000018058650Ch
+0x5864FE     48 8B 49 10                     mov rcx,[rcx+10h]
+0x586502     45 33 C9                        xor r9d,r9d
+0x586505     33 D2                           xor edx,edx
+0x586507     E8 F4 7F 62 01                  call 0000000181BAE500h ; System.Array::Clear/3
+0x58650C     48 8B 05 3D 87 41 03            mov rax,[18399EC50h] ; TypeInfo: ScheduleOne.Economy.SupplierLocation
+0x586513     39 98 E0 00 00 00               cmp [rax+0E0h],ebx
+0x586519     75 0F                           jne short 000000018058652Ah
+0x58651B     48 8B C8                        mov rcx,rax
+0x58651E     E8 0D 17 D9 FF                  call 0000000180317C30h
+0x586523     48 8B 05 26 87 41 03            mov rax,[18399EC50h] ; TypeInfo: ScheduleOne.Economy.SupplierLocation
+0x58652A     48 8B 80 B8 00 00 00            mov rax,[rax+0B8h]
+0x586531     48 8B 08                        mov rcx,[rax]
+0x586534     48 85 C9                        test rcx,rcx
+0x586537     0F 84 43 03 00 00               je near ptr 0000000180586880h
+0x58653D     44 8B 41 18                     mov r8d,[rcx+18h]
+0x586541     FF 41 1C                        inc dword ptr [rcx+1Ch]
+0x586544     89 59 18                        mov [rcx+18h],ebx
+0x586547     45 85 C0                        test r8d,r8d
+0x58654A     7E 0E                           jle short 000000018058655Ah
+0x58654C     48 8B 49 10                     mov rcx,[rcx+10h]
+0x586550     45 33 C9                        xor r9d,r9d
+0x586553     33 D2                           xor edx,edx
+0x586555     E8 A6 7F 62 01                  call 0000000181BAE500h ; System.Array::Clear/3
+0x58655A     48 8B 05 FF 29 47 03            mov rax,[1839F8F60h] ; TypeInfo: ScheduleOne.UI.Phone.Phone
+0x586561     33 D2                           xor edx,edx
+0x586563     48 8B 88 B8 00 00 00            mov rcx,[rax+0B8h]
+0x58656A     48 89 19                        mov [rcx],rbx
+0x58656D     48 8B 0D EC 29 47 03            mov rcx,[1839F8F60h] ; TypeInfo: ScheduleOne.UI.Phone.Phone
+0x586574     48 8B 89 B8 00 00 00            mov rcx,[rcx+0B8h]
+0x58657B     E8 30 05 D9 FF                  call 0000000180316AB0h
+0x586580     48 8B 05 19 AF 44 03            mov rax,[1839D14A0h] ; TypeInfo: ScheduleOne.Money.ATM
+0x586587     39 98 E0 00 00 00               cmp [rax+0E0h],ebx
+0x58658D     75 0F                           jne short 000000018058659Eh
+0x58658F     48 8B C8                        mov rcx,rax
+0x586592     E8 99 16 D9 FF                  call 0000000180317C30h
+0x586597     48 8B 05 02 AF 44 03            mov rax,[1839D14A0h] ; TypeInfo: ScheduleOne.Money.ATM
+0x58659E     48 8B 80 B8 00 00 00            mov rax,[rax+0B8h]
+0x5865A5     89 18                           mov [rax],ebx
+0x5865A7     48 8B 0D A2 3F 46 03            mov rcx,[1839EA550h] ; TypeInfo: ScheduleOne.DevUtilities.NavMeshUtility
+0x5865AE     39 99 E0 00 00 00               cmp [rcx+0E0h],ebx
+0x5865B4     75 05                           jne short 00000001805865BBh
+0x5865B6     E8 75 16 D9 FF                  call 0000000180317C30h
+0x5865BB     33 C9                           xor ecx,ecx
+0x5865BD     E8 0E 08 19 00                  call 0000000180716DD0h ; ScheduleOne.DevUtilities.NavMeshUtility::ClearCache/0
+0x5865C2     48 8B 05 AF 17 46 03            mov rax,[1839E7D78h] ; TypeInfo: ScheduleOne.Property.Business
+0x5865C9     39 98 E0 00 00 00               cmp [rax+0E0h],ebx
+0x5865CF     75 0F                           jne short 00000001805865E0h
+0x5865D1     48 8B C8                        mov rcx,rax
+0x5865D4     E8 57 16 D9 FF                  call 0000000180317C30h
+0x5865D9     48 8B 05 98 17 46 03            mov rax,[1839E7D78h] ; TypeInfo: ScheduleOne.Property.Business
+0x5865E0     48 8B 80 B8 00 00 00            mov rax,[rax+0B8h]
+0x5865E7     48 8B 48 10                     mov rcx,[rax+10h]
+0x5865EB     48 85 C9                        test rcx,rcx
+0x5865EE     0F 84 8C 02 00 00               je near ptr 0000000180586880h
+0x5865F4     44 8B 41 18                     mov r8d,[rcx+18h]
+0x5865F8     FF 41 1C                        inc dword ptr [rcx+1Ch]
+0x5865FB     89 59 18                        mov [rcx+18h],ebx
+0x5865FE     45 85 C0                        test r8d,r8d
+0x586601     7E 0E                           jle short 0000000180586611h
+0x586603     48 8B 49 10                     mov rcx,[rcx+10h]
+0x586607     45 33 C9                        xor r9d,r9d
+0x58660A     33 D2                           xor edx,edx
+0x58660C     E8 EF 7E 62 01                  call 0000000181BAE500h ; System.Array::Clear/3
+0x586611     48 8B 05 60 17 46 03            mov rax,[1839E7D78h] ; TypeInfo: ScheduleOne.Property.Business
+0x586618     48 8B 88 B8 00 00 00            mov rcx,[rax+0B8h]
+0x58661F     48 8B 49 08                     mov rcx,[rcx+8]
+0x586623     48 85 C9                        test rcx,rcx
+0x586626     0F 84 54 02 00 00               je near ptr 0000000180586880h
+0x58662C     44 8B 41 18                     mov r8d,[rcx+18h]
+0x586630     FF 41 1C                        inc dword ptr [rcx+1Ch]
+0x586633     89 59 18                        mov [rcx+18h],ebx
+0x586636     45 85 C0                        test r8d,r8d
+0x586639     7E 0E                           jle short 0000000180586649h
+0x58663B     48 8B 49 10                     mov rcx,[rcx+10h]
+0x58663F     45 33 C9                        xor r9d,r9d
+0x586642     33 D2                           xor edx,edx
+0x586644     E8 B7 7E 62 01                  call 0000000181BAE500h ; System.Array::Clear/3
+0x586649     48 8B 05 28 17 46 03            mov rax,[1839E7D78h] ; TypeInfo: ScheduleOne.Property.Business
+0x586650     33 D2                           xor edx,edx
+0x586652     48 8B 88 B8 00 00 00            mov rcx,[rax+0B8h]
+0x586659     48 89 59 20                     mov [rcx+20h],rbx
+0x58665D     48 8B 05 14 17 46 03            mov rax,[1839E7D78h] ; TypeInfo: ScheduleOne.Property.Business
+0x586664     48 8B 88 B8 00 00 00            mov rcx,[rax+0B8h]
+0x58666B     48 83 C1 20                     add rcx,20h
+0x58666F     E8 3C 04 D9 FF                  call 0000000180316AB0h
+0x586674     48 8B 05 FD 16 46 03            mov rax,[1839E7D78h] ; TypeInfo: ScheduleOne.Property.Business
+0x58667B     33 D2                           xor edx,edx
+0x58667D     48 8B 88 B8 00 00 00            mov rcx,[rax+0B8h]
+0x586684     48 89 59 18                     mov [rcx+18h],rbx
+0x586688     48 8B 05 E9 16 46 03            mov rax,[1839E7D78h] ; TypeInfo: ScheduleOne.Property.Business
+0x58668F     48 8B 88 B8 00 00 00            mov rcx,[rax+0B8h]
+0x586696     48 83 C1 18                     add rcx,18h
+0x58669A     E8 11 04 D9 FF                  call 0000000180316AB0h
+0x58669F     48 8B 05 EA C8 47 03            mov rax,[183A02F90h] ; TypeInfo: ScheduleOne.Property.Property
+0x5866A6     39 98 E0 00 00 00               cmp [rax+0E0h],ebx
+0x5866AC     75 0F                           jne short 00000001805866BDh
+0x5866AE     48 8B C8                        mov rcx,rax
+0x5866B1     E8 7A 15 D9 FF                  call 0000000180317C30h
+0x5866B6     48 8B 05 D3 C8 47 03            mov rax,[183A02F90h] ; TypeInfo: ScheduleOne.Property.Property
+0x5866BD     48 8B 80 B8 00 00 00            mov rax,[rax+0B8h]
+0x5866C4     33 D2                           xor edx,edx
+0x5866C6     48 89 58 18                     mov [rax+18h],rbx
+0x5866CA     48 8B 05 BF C8 47 03            mov rax,[183A02F90h] ; TypeInfo: ScheduleOne.Property.Property
+0x5866D1     48 8B 88 B8 00 00 00            mov rcx,[rax+0B8h]
+0x5866D8     48 83 C1 18                     add rcx,18h
+0x5866DC     E8 CF 03 D9 FF                  call 0000000180316AB0h
+0x5866E1     48 8B 05 A8 C8 47 03            mov rax,[183A02F90h] ; TypeInfo: ScheduleOne.Property.Property
+0x5866E8     48 8B 88 B8 00 00 00            mov rcx,[rax+0B8h]
+0x5866EF     48 8B 49 10                     mov rcx,[rcx+10h]
+0x5866F3     48 85 C9                        test rcx,rcx
+0x5866F6     0F 84 84 01 00 00               je near ptr 0000000180586880h
+0x5866FC     44 8B 41 18                     mov r8d,[rcx+18h]
+0x586700     FF 41 1C                        inc dword ptr [rcx+1Ch]
+0x586703     89 59 18                        mov [rcx+18h],ebx
+0x586706     45 85 C0                        test r8d,r8d
+0x586709     7E 0E                           jle short 0000000180586719h
+0x58670B     48 8B 49 10                     mov rcx,[rcx+10h]
+0x58670F     45 33 C9                        xor r9d,r9d
+0x586712     33 D2                           xor edx,edx
+0x586714     E8 E7 7D 62 01                  call 0000000181BAE500h ; System.Array::Clear/3
+0x586719     48 8B 05 70 C8 47 03            mov rax,[183A02F90h] ; TypeInfo: ScheduleOne.Property.Property
+0x586720     48 8B 88 B8 00 00 00            mov rcx,[rax+0B8h]
+0x586727     48 8B 49 08                     mov rcx,[rcx+8]
+0x58672B     48 85 C9                        test rcx,rcx
+0x58672E     0F 84 4C 01 00 00               je near ptr 0000000180586880h
+0x586734     44 8B 41 18                     mov r8d,[rcx+18h]
+0x586738     FF 41 1C                        inc dword ptr [rcx+1Ch]
+0x58673B     89 59 18                        mov [rcx+18h],ebx
+0x58673E     45 85 C0                        test r8d,r8d
+0x586741     7E 0E                           jle short 0000000180586751h
+0x586743     48 8B 49 10                     mov rcx,[rcx+10h]
+0x586747     45 33 C9                        xor r9d,r9d
+0x58674A     33 D2                           xor edx,edx
+0x58674C     E8 AF 7D 62 01                  call 0000000181BAE500h ; System.Array::Clear/3
+0x586751     48 8B 05 B8 54 47 03            mov rax,[1839FBC10h] ; TypeInfo: ScheduleOne.PlayerScripts.PlayerMovement
+0x586758     39 98 E0 00 00 00               cmp [rax+0E0h],ebx
+0x58675E     75 0F                           jne short 000000018058676Fh
+0x586760     48 8B C8                        mov rcx,rax
+0x586763     E8 C8 14 D9 FF                  call 0000000180317C30h
+0x586768     48 8B 05 A1 54 47 03            mov rax,[1839FBC10h] ; TypeInfo: ScheduleOne.PlayerScripts.PlayerMovement
+0x58676F     48 8B 80 B8 00 00 00            mov rax,[rax+0B8h]
+0x586776     C7 00 00 00 80 3F               mov dword ptr [rax],3F800000h
+0x58677C     48 8B 05 7D B3 47 03            mov rax,[183A01B00h] ; TypeInfo: ScheduleOne.Economy.Customer
+0x586783     39 98 E0 00 00 00               cmp [rax+0E0h],ebx
+0x586789     75 0F                           jne short 000000018058679Ah
+0x58678B     48 8B C8                        mov rcx,rax
+0x58678E     E8 9D 14 D9 FF                  call 0000000180317C30h
+0x586793     48 8B 05 66 B3 47 03            mov rax,[183A01B00h] ; TypeInfo: ScheduleOne.Economy.Customer
+0x58679A     48 8B 80 B8 00 00 00            mov rax,[rax+0B8h]
+0x5867A1     33 D2                           xor edx,edx
+0x5867A3     48 89 18                        mov [rax],rbx
+0x5867A6     48 8B 0D 53 B3 47 03            mov rcx,[183A01B00h] ; TypeInfo: ScheduleOne.Economy.Customer
+0x5867AD     48 8B 89 B8 00 00 00            mov rcx,[rcx+0B8h]
+0x5867B4     E8 F7 02 D9 FF                  call 0000000180316AB0h
+0x5867B9     48 8B 05 40 B3 47 03            mov rax,[183A01B00h] ; TypeInfo: ScheduleOne.Economy.Customer
+0x5867C0     48 8B 88 B8 00 00 00            mov rcx,[rax+0B8h]
+0x5867C7     48 8B 49 10                     mov rcx,[rcx+10h]
+0x5867CB     48 85 C9                        test rcx,rcx
+0x5867CE     0F 84 AC 00 00 00               je near ptr 0000000180586880h
+0x5867D4     44 8B 41 18                     mov r8d,[rcx+18h]
+0x5867D8     FF 41 1C                        inc dword ptr [rcx+1Ch]
+0x5867DB     89 59 18                        mov [rcx+18h],ebx
+0x5867DE     45 85 C0                        test r8d,r8d
+0x5867E1     7E 0E                           jle short 00000001805867F1h
+0x5867E3     48 8B 49 10                     mov rcx,[rcx+10h]
+0x5867E7     45 33 C9                        xor r9d,r9d
+0x5867EA     33 D2                           xor edx,edx
+0x5867EC     E8 0F 7D 62 01                  call 0000000181BAE500h ; System.Array::Clear/3
+0x5867F1     48 8B 05 08 B3 47 03            mov rax,[183A01B00h] ; TypeInfo: ScheduleOne.Economy.Customer
+0x5867F8     48 8B 88 B8 00 00 00            mov rcx,[rax+0B8h]
+0x5867FF     48 8B 49 08                     mov rcx,[rcx+8]
+0x586803     48 85 C9                        test rcx,rcx
+0x586806     74 78                           je short 0000000180586880h
+0x586808     44 8B 41 18                     mov r8d,[rcx+18h]
+0x58680C     FF 41 1C                        inc dword ptr [rcx+1Ch]
+0x58680F     89 59 18                        mov [rcx+18h],ebx
+0x586812     45 85 C0                        test r8d,r8d
+0x586815     7E 0E                           jle short 0000000180586825h
+0x586817     48 8B 49 10                     mov rcx,[rcx+10h]
+0x58681B     45 33 C9                        xor r9d,r9d
+0x58681E     33 D2                           xor edx,edx
+0x586820     E8 DB 7C 62 01                  call 0000000181BAE500h ; System.Array::Clear/3
+0x586825     48 8B 05 6C D9 44 03            mov rax,[1839D4198h] ; TypeInfo: ScheduleOne.Persistence.LoadManager
+0x58682C     39 98 E0 00 00 00               cmp [rax+0E0h],ebx
+0x586832     75 0F                           jne short 0000000180586843h
+0x586834     48 8B C8                        mov rcx,rax
+0x586837     E8 F4 13 D9 FF                  call 0000000180317C30h
+0x58683C     48 8B 05 55 D9 44 03            mov rax,[1839D4198h] ; TypeInfo: ScheduleOne.Persistence.LoadManager
+0x586843     48 8B 80 B8 00 00 00            mov rax,[rax+0B8h]
+0x58684A     48 8B 48 20                     mov rcx,[rax+20h]
+0x58684E     48 85 C9                        test rcx,rcx
+0x586851     74 2D                           je short 0000000180586880h
+0x586853     44 8B 41 18                     mov r8d,[rcx+18h]
+0x586857     FF 41 1C                        inc dword ptr [rcx+1Ch]
+0x58685A     89 59 18                        mov [rcx+18h],ebx
+0x58685D     45 85 C0                        test r8d,r8d
+0x586860     7E 0E                           jle short 0000000180586870h
+0x586862     48 8B 49 10                     mov rcx,[rcx+10h]
+0x586866     45 33 C9                        xor r9d,r9d
+0x586869     33 D2                           xor edx,edx
+0x58686B     E8 90 7C 62 01                  call 0000000181BAE500h ; System.Array::Clear/3
+0x586870     33 C9                           xor ecx,ecx
+0x586872     48 8B 5C 24 20                  mov rbx,[rsp+20h]
+0x586877     48 83 C4 28                     add rsp,28h
+0x58687B     E9 60 01 25 00                  jmp near ptr 00000001807D69E0h ; ScheduleOne.Tools.ManagementClipboard_Equippable::ResetHeatmapToggle/0
+0x586880     E8 FB 12 D9 FF                  call 0000000180317B80h
+0x586885     CC                              int 3
+0x586886     CC                              int 3
+0x586887     CC                              int 3
+0x586888     CC                              int 3
+0x586889     CC                              int 3
+0x58688A     CC                              int 3
+0x58688B     CC                              int 3
+0x58688C     CC                              int 3
+0x58688D     CC                              int 3
+0x58688E     CC                              int 3
+0x58688F     CC                              int 3

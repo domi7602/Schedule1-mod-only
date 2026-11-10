@@ -1,0 +1,187 @@
+{
+  "CapturedUtc": "2026-11-06T12:21:57.7112975Z",
+  "NativeSha256": "61829050e56ca180d67be592e4bfe61ec97d2e9573f720d90a54e318a7e4381d",
+  "MetadataVersion": 31.1,
+  "GlobalMethodCount": 149349,
+  "Method": "Fresh LibCpp2IL mapping + Iced native-byte decode, target assemblies never loaded/invoked",
+  "FieldMap": [],
+  "MethodMap": [
+    {
+      "Type": "ScheduleOne.Persistence.Loaders.BusinessLoader",
+      "Name": ".ctor",
+      "Token": "0x06001862",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18041D580",
+      "Rva": "0x41D580",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.Loaders.BusinessLoader",
+      "Name": "Load",
+      "Token": "0x06001863",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 4,
+      "Va": "0x18059C640",
+      "Rva": "0x59C640",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.Loaders.Loader",
+      "Name": ".ctor",
+      "Token": "0x0600187A",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18041D580",
+      "Rva": "0x41D580",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.Loaders.Loader",
+      "Name": "Load",
+      "Token": "0x0600187B",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 4,
+      "Va": "0x18043FEC0",
+      "Rva": "0x43FEC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.Loaders.Loader",
+      "Name": "TryLoadFile",
+      "Token": "0x0600187C",
+      "ParameterCount": 3,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805A33C0",
+      "Rva": "0x5A33C0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.Loaders.Loader",
+      "Name": "TryLoadFile",
+      "Token": "0x0600187D",
+      "ParameterCount": 3,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805A3440",
+      "Rva": "0x5A3440",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.Loaders.Loader",
+      "Name": "GetDirectories",
+      "Token": "0x0600187E",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805A3080",
+      "Rva": "0x5A3080",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.Loaders.Loader",
+      "Name": "GetFiles",
+      "Token": "0x0600187F",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805A3220",
+      "Rva": "0x5A3220",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.Loaders.Loader",
+      "Name": "TryDeserialize",
+      "Token": "0x06001880",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180E88830",
+      "Rva": "0xE88830",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.Loaders.PropertyLoader",
+      "Name": ".ctor",
+      "Token": "0x06001899",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18041D580",
+      "Rva": "0x41D580",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.Loaders.PropertyLoader",
+      "Name": "Load",
+      "Token": "0x0600189A",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 4,
+      "Va": "0x1805A6900",
+      "Rva": "0x5A6900",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.Loaders.PropertyLoader",
+      "Name": "Load",
+      "Token": "0x0600189B",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 5,
+      "Va": "0x1805A7400",
+      "Rva": "0x5A7400",
+      "NativePointerPresent": true
+    }
+  ],
+  "RawReferenceOwnerCandidates": [],
+  "Disassembled": [
+    {
+      "Method": {
+        "Type": "ScheduleOne.Persistence.Loaders.BusinessLoader",
+        "Name": ".ctor",
+        "Token": "0x06001862",
+        "ParameterCount": 0,
+        "InterfaceOrVirtualSlot": 65535,
+        "Va": "0x18041D580",
+        "Rva": "0x41D580",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 16,
+      "BytesSha256": "fdb8a65fbd563428552c98b3b2214f65ee6116a13f1be137e8c990c66426ad07",
+      "File": "0x06001862-BusinessLoader-_ctor",
+      "Instructions": 11,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Persistence.Loaders.Loader",
+        "Name": ".ctor",
+        "Token": "0x0600187A",
+        "ParameterCount": 0,
+        "InterfaceOrVirtualSlot": 65535,
+        "Va": "0x18041D580",
+        "Rva": "0x41D580",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 16,
+      "BytesSha256": "fdb8a65fbd563428552c98b3b2214f65ee6116a13f1be137e8c990c66426ad07",
+      "File": "0x0600187A-Loader-_ctor",
+      "Instructions": 11,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Persistence.Loaders.PropertyLoader",
+        "Name": ".ctor",
+        "Token": "0x06001899",
+        "ParameterCount": 0,
+        "InterfaceOrVirtualSlot": 65535,
+        "Va": "0x18041D580",
+        "Rva": "0x41D580",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 16,
+      "BytesSha256": "fdb8a65fbd563428552c98b3b2214f65ee6116a13f1be137e8c990c66426ad07",
+      "File": "0x06001899-PropertyLoader-_ctor",
+      "Instructions": 11,
+      "HasUndecodedTail": false
+    }
+  ],
+  "NativeSaveWriteAllowed": false,
+  "GameInvoked": false,
+  "NativeSaveFilesRead": false
+}

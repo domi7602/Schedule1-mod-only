@@ -1,0 +1,56 @@
+{
+  "capturedUtc": "2026-11-06T11:24:29.020291+00:00",
+  "runs": {
+    "network-green": {
+      "counters": {
+        "total": "104",
+        "executed": "104",
+        "passed": "104",
+        "failed": "0",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      },
+      "trxSha256": "223567ab4560e34c7ad0125c8358ec55cb12c70a15b3312966ba8015073fb044",
+      "logSha256": "e63ea3380b8b36aff3ecfefbb1833590a28a67f2ff6db0cff5de0332bd5a47d7"
+    },
+    "townhall-green": {
+      "counters": {
+        "total": "1077",
+        "executed": "1077",
+        "passed": "1077",
+        "failed": "0",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      },
+      "trxSha256": "9223952917078637bf6d5200d93ea06d6d12c769e0e705dde9f35f707e7d968a",
+      "logSha256": "c11e67ff65379e32a1695f16be5bb172a5c1e0185854e78e34183de7fd8e7b25"
+    }
+  },
+  "newTestFile": "Source/Tests/TownHallInterior.Tests/BusinessNetworkSubtypeTests.cs",
+  "newTestSha256": "c2c72a993992a867a887ac8e7b7735484b0177a265f7b37ad44ef9530a97c29c",
+  "preexistingTownHallTestFilesChanged": [],
+  "installedTownHallChanges": [],
+  "gameProcessClosedAfterRuns": true,
+  "nativeSaveFilesAccessed": false,
+  "scope": "Game-free production BusinessActiveSubtypeTrial(requireNetwork:true) with fake environment; no native Unity/FishNet execution. Native conditional blocks were under concurrent development; Parent owns final source freeze/build verification."
+}

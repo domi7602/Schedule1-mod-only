@@ -1,6 +1,15 @@
 #if TOWNHALL_BUSINESS_ACTIVATION
 #error TownHall activation probe withdrawn after native shared-code detour crash. See docs/business-activation-probe.md. Use the verified inactive construction candidate until isolated instance dispatch is proven.
 #endif
+#if TOWNHALL_BUSINESS_ACTIVE_SUBTYPE && (TOWNHALL_BUSINESS_MANAGER || TOWNHALL_BUSINESS_INTERFACE || TOWNHALL_BUSINESS_CONSTRUCTION)
+#error Active subtype lifecycle must be built alone; it cannot run a manager, interface or legacy construction probe.
+#endif
+#if TOWNHALL_BUSINESS_NETWORK_CONFLICT
+#error Select either the active Business shell or the NetworkObject binding probe, not both.
+#endif
+#if TOWNHALL_BUSINESS_DATA_CONFLICT
+#error Business data must be built alone; do not combine it with another probe mode.
+#endif
 #if TOWNHALL_BUSINESS_CONSTRUCTION || TOWNHALL_BUSINESS_SUBTYPE
 extern alias il2cpp;
 #endif
@@ -110,18 +119,1150 @@ public interface IBusinessSubtypePort
     void Cleanup();
     bool IsClean { get; }
 }
+
+public sealed record ActiveSubtypeState(ConstructionContext Context, long Generation, long UnityFrame,
+    long Root, long Business, long OwnClass, long Manager, bool ActiveSelf, bool ActiveInHierarchy,
+    bool ExactComponents, bool Unowned, bool OwnVirtualTargets, bool OwnUnityMessages,
+    bool ReferencesAbsent, bool SaveIdle, IReadOnlyDictionary<string, int> Counters, NetworkSubtypeState? Network = null,
+    BusinessDataState? Data = null);
+public sealed record NetworkSubtypeState(long Network, long OwnClass, long BusinessNetworkObject,
+    int BusinessComponentIndex, long BehaviourArray, int BehaviourCount, long FirstBehaviour,
+    bool OwnNativeClass, bool OwnVirtualTargets, bool OwnUnityMessages, bool Unspawned,
+    bool Detached, bool ReferencesAbsent, IReadOnlyDictionary<string, int> Counters);
+public interface IBusinessActiveSubtypePort : IBusinessSubtypePort
+{
+    ActiveSubtypeState ReadActiveState();
+    void SetActive(bool active);
+    IReadOnlyDictionary<string, int> ReadFinalCounters();
+}
+public interface IBusinessNetworkSubtypePort : IBusinessActiveSubtypePort
+{
+    IReadOnlyDictionary<string, int> ReadFinalNetworkCounters();
+}
+public sealed record BusinessDataState(long ContainerRoot, long Container, long ContainerProperty,
+    long BoundsRoot, long BoundsCollider, long BusinessLoader, long PropertyLoader,
+    bool OwnedHierarchy, bool NeutralDefaults, bool QueryTargetsVerified,
+    IReadOnlyDictionary<string, long> Collections, IReadOnlyDictionary<string, int> CollectionCounts);
+public sealed record BusinessDataQuery(long Business, long Container, long BoundsCollider, long WrapperBusiness,
+    float CurrentLaunderTotal, float AppliedLaunderLimit, bool Inside, bool Outside);
+public interface IBusinessDataPort : IBusinessNetworkSubtypePort
+{
+    BusinessDataQuery ReadNativeDataQueries();
+    bool DataCleanupVerified { get; }
+}
+public sealed record ActiveSubtypeResult(string Status, string[] Findings, bool AttemptConsumed,
+    bool ActivationAttempted, bool ActivationReturned, bool DeactivationAttempted,
+    bool CleanupAttempted, bool CleanupComplete, ActiveSubtypeState? Before,
+    ActiveSubtypeState? Activated, ActiveSubtypeState? Last,
+    SubtypeSnapshot? BeforeSnapshot, SubtypeSnapshot? AfterSnapshot,
+    bool DataQueryAttempted = false, BusinessDataQuery? DataQuery = null);
+
+// This owner is wired only to an unregistered, no-base shell. It does not certify a
+// writing Business or a world-exit drain. Uncertain effects consume the attempt and
+// retain the port; later callbacks cannot cause a retry or target the next world.
+public sealed class BusinessActiveSubtypeTrial
+{
+    public const double TimeoutSeconds = 5;
+    private static readonly string[] RegistryNames = { "properties", "properties-owned", "properties-unowned",
+        "businesses", "businesses-owned", "businesses-unowned", "saveables", "base-saveables", "completed-saveables", "save-requests" };
+    private static readonly string[] LifecycleNames = { "Awake", "Start", "FixedUpdate", "OnEnable", "OnDisable", "OnDestroy" };
+    private static readonly string[] DataCollections = { "laundering", "employees", "buildables", "configurables", "grids", "switches", "toggleables",
+        "saved-objects", "saved-employees", "extra-files", "extra-folders", "bounds", "objects-to-cull", "employee-idle", "loading-docks" };
+    private static readonly string[] DataRegistries = { "data-time-listeners", "data-money-listeners", "data-property-listeners", "data-business-listeners" };
+    private readonly object _sync = new();
+    private readonly bool _requireNetwork, _requireData;
+    private bool _dataQueryAttempted;
+    private BusinessDataQuery? _dataQuery;
+    private readonly List<string> _findings = new();
+    private IBusinessActiveSubtypePort? _port;
+    private Func<bool>? _contextCurrent;
+    private ConstructionContext? _context;
+    private ActiveSubtypeState? _before, _activated, _last, _readFloor;
+    private SubtypeSnapshot? _beforeSnapshot, _afterSnapshot;
+    private string _status = "idle";
+    private int _used, _revoked, _thread;
+    private bool _busy, _terminal, _activationAttempted, _activationReturned, _deactivationAttempted, _cleanupAttempted, _clean;
+    private double _startedAt, _lastTime;
+    public BusinessActiveSubtypeTrial(bool requireNetwork = false, bool requireData = false)
+    {
+        _requireNetwork = requireNetwork || requireData;
+        _requireData = requireData;
+    }
+    public bool AttemptConsumed => Volatile.Read(ref _used) != 0;
+    public bool Pending { get { lock (_sync) return AttemptConsumed && !_terminal; } }
+    public ActiveSubtypeResult Result
+    {
+        get
+        {
+            lock (_sync) return new(_status, _findings.ToArray(), AttemptConsumed,
+                _activationAttempted, _activationReturned, _deactivationAttempted, _cleanupAttempted,
+                _clean, _before, _activated, _last, _beforeSnapshot, _afterSnapshot, _dataQueryAttempted, _dataQuery);
+        }
+    }
+    public ActiveSubtypeResult Begin(ConstructionContext context, IBusinessActiveSubtypePort port,
+        Func<bool> contextStillValid, double now)
+    {
+        ArgumentNullException.ThrowIfNull(port);
+        ArgumentNullException.ThrowIfNull(contextStillValid);
+        lock (_sync)
+        {
+            if (_busy) { Revoke("reentrant-begin"); return Result; }
+            if (AttemptConsumed) return Result;
+            string? denial = ConstructionGate.Check(context);
+            if (_requireNetwork && port is not IBusinessNetworkSubtypePort) denial ??= "network-port-required";
+            if (_requireData && port is not IBusinessDataPort) denial ??= "data-port-required";
+            if (denial != null || !double.IsFinite(now) || now < 0)
+            {
+                _status = "skipped"; Add(denial ?? "invalid-clock"); return Result;
+            }
+            Interlocked.Exchange(ref _used, 1);
+            _thread = Environment.CurrentManagedThreadId; _port = port; _contextCurrent = contextStillValid;
+            _context = context; _startedAt = _lastTime = now; _findings.Clear(); _busy = true;
+            try
+            {
+                RequireCurrent(); _beforeSnapshot = Freeze(port.Capture());
+                RequireCurrent(); port.RegisterType();
+                RequireCurrent(); RequireUnchanged(port.Capture());
+                RequireCurrent(); port.Prepare();
+                RequireCurrent(); var readback = port.Inspect();
+                if (readback == null || !readback.Inactive || !readback.ExactComponents || !readback.Unowned ||
+                    !readback.OwnNativeClass || !readback.OwnVirtualTargets || readback.UnexpectedLifecycleCalls != 0 ||
+                    readback.InitializeSaveableCalls != 0) throw new InvalidOperationException("active-preparation-invalid");
+                RequireCurrent(); var dispatch = port.InvokeThroughNativeBase();
+                if (dispatch == null || dispatch.ShouldSave || dispatch.CanBePurchased || dispatch.SaveCalls != 1 || dispatch.PurchaseCalls != 1)
+                    throw new InvalidOperationException("active-native-dispatch-invalid");
+                _before = ReadCurrent(); RequireInactive(_before); RequireCounters(_before.Counters, false);
+                if (LifecycleNames.Any(n => Count(_before.Counters, n) != 0)) throw new InvalidOperationException("lifecycle-before-activation");
+                if (_requireNetwork && LifecycleNames.Any(n => Count(_before.Network!.Counters, n) != 0)) throw new InvalidOperationException("network-lifecycle-before-activation");
+                if (_requireData)
+                {
+                    RequireCurrent(); RequireUnchanged(port.Capture());
+                    var queryBefore = ReadCurrent(); RequireInactive(queryBefore);
+                    RequireSameCounters(_before.Counters, queryBefore.Counters); RequireSameNetworkCounters(_before, queryBefore);
+                    RequireCurrent(); _dataQueryAttempted = true;
+                    var query = ((IBusinessDataPort)port).ReadNativeDataQueries();
+                    RequireCurrent();
+                    var queryAfter = ReadCurrent(); RequireInactive(queryAfter);
+                    RequireSameCounters(queryBefore.Counters, queryAfter.Counters); RequireSameNetworkCounters(queryBefore, queryAfter);
+                    RequireCurrent(); RequireUnchanged(port.Capture());
+                    if (query == null || query.Business != queryAfter.Business || query.WrapperBusiness != queryAfter.Business ||
+                        query.Container != queryAfter.Data!.Container || query.BoundsCollider != queryAfter.Data.BoundsCollider ||
+                        !float.IsFinite(query.CurrentLaunderTotal) || !float.IsFinite(query.AppliedLaunderLimit) ||
+                        query.CurrentLaunderTotal != 0 || query.AppliedLaunderLimit != 0 || !query.Inside || query.Outside)
+                        throw new InvalidOperationException("data-query-unconfirmed");
+                    _dataQuery = query;
+                }
+                RequireCurrent(); RequireUnchanged(port.Capture());
+                var immediate = ReadCurrent(); RequireInactive(immediate); RequireSameCounters(_before.Counters, immediate.Counters);
+                RequireSameNetworkCounters(_before, immediate);
+                RequireCurrent(); _activationAttempted = true; port.SetActive(true); _activationReturned = true;
+                _activated = _last = ReadCurrent(); RequireActive(_activated); RequireCounters(_activated.Counters, false);
+                RequireCurrent(); RequireUnchanged(port.Capture()); _status = "waiting";
+            }
+            catch (Exception ex) { Quarantine(ex.Message); }
+            finally { _busy = false; }
+            return Result;
+        }
+    }
+    public ActiveSubtypeResult Tick(double now)
+    {
+        if (AttemptConsumed && Environment.CurrentManagedThreadId != _thread) Interlocked.Exchange(ref _revoked, 1);
+        lock (_sync)
+        {
+            if (_busy) { Revoke("reentrant-tick"); return Result; }
+            if (!AttemptConsumed || _terminal) return Result;
+            _busy = true;
+            try
+            {
+                RequireCurrent();
+                if (!double.IsFinite(now) || now < _lastTime) throw new InvalidOperationException("clock-regressed-or-invalid");
+                _lastTime = now;
+                var previous = _last!;
+                _last = ReadCurrent(); RequireActive(_last); RequireCounters(_last.Counters, false);
+                if (_last.UnityFrame < previous.UnityFrame) throw new InvalidOperationException("unity-frame-regressed");
+                foreach (string name in LifecycleNames)
+                    if (Count(_last.Counters, name) < Count(previous.Counters, name)) throw new InvalidOperationException("callback-count-regressed");
+                RequireCurrent(); RequireUnchanged(_port!.Capture());
+                bool observed = _last.UnityFrame > _activated!.UnityFrame && Count(_last.Counters, "Awake") == 1 &&
+                    Count(_last.Counters, "Start") == 1 && Count(_last.Counters, "OnEnable") == 1 && Count(_last.Counters, "FixedUpdate") > 0;
+                if (_requireNetwork) observed &= Count(_last.Network!.Counters, "Awake") == 1 && Count(_last.Network.Counters, "Start") == 1 &&
+                    Count(_last.Network.Counters, "OnEnable") == 1 && Count(_last.Network.Counters, "FixedUpdate") > 0;
+                if (now - _startedAt >= TimeoutSeconds) { Add("lifecycle-timeout"); Retire(false); }
+                else if (observed) Retire(true);
+            }
+            catch (Exception ex) { Quarantine(ex.Message); }
+            finally { _busy = false; }
+            return Result;
+        }
+    }
+    public ActiveSubtypeResult Leave()
+    {
+        if (!AttemptConsumed) return Result;
+        Interlocked.Exchange(ref _revoked, 1);
+        lock (_sync)
+        {
+            if (AttemptConsumed && !_terminal)
+            {
+                Add("world-leaving-or-stopped");
+                if (!_busy) Quarantine("active-cleanup-deferred");
+            }
+            return Result;
+        }
+    }
+    private void Retire(bool observed)
+    {
+        var active = ReadCurrent(); RequireActive(active); RequireCounters(active.Counters, false);
+        RequireCurrent(); RequireUnchanged(_port!.Capture());
+        active = ReadCurrent(); RequireActive(active); RequireCounters(active.Counters, false);
+        RequireCurrent(); _deactivationAttempted = true; _port.SetActive(false);
+        _last = ReadCurrent(); RequireInactive(_last); RequireCounters(_last.Counters, true);
+        RequireSameCounters(active.Counters, _last.Counters, "OnDisable", 1);
+        RequireSameNetworkCounters(active, _last, "OnDisable", 1);
+        var beforeCleanup = Freeze(_port.Capture()); RequireUnchanged(beforeCleanup);
+        var immediate = ReadCurrent(); RequireInactive(immediate); RequireSameCounters(_last.Counters, immediate.Counters);
+        RequireSameNetworkCounters(_last, immediate);
+        RequireCurrent(); _cleanupAttempted = true; _port.Cleanup();
+        RequireCurrent(); _clean = _port.IsClean;
+        if (!_clean) throw new InvalidOperationException("active-cleanup-unconfirmed");
+        if (_requireData)
+        {
+            RequireCurrent(); bool dataClean = ((IBusinessDataPort)_port).DataCleanupVerified; RequireCurrent();
+            if (!dataClean) throw new InvalidOperationException("data-cleanup-unconfirmed");
+        }
+        var final = FreezeCounters(_port.ReadFinalCounters());
+        RequireCurrent();
+        RequireSameCounters(immediate.Counters, final, "OnDestroy", Count(immediate.Counters, "Awake") == 1 ? 1 : 0);
+        if (_requireNetwork)
+        {
+            var networkFinal = FreezeCounters(((IBusinessNetworkSubtypePort)_port).ReadFinalNetworkCounters());
+            RequireCurrent();
+            RequireSameCounters(immediate.Network!.Counters, networkFinal, "OnDestroy", Count(immediate.Network.Counters, "Awake") == 1 ? 1 : 0);
+        }
+        RequireCurrent(); _afterSnapshot = Freeze(_port.Capture());
+        if (!Equal(beforeCleanup, _afterSnapshot)) throw new InvalidOperationException("foreign-state-changed-during-cleanup");
+        RequireCurrent(); _terminal = true; _status = observed ? "observed" : "failed";
+    }
+    private ActiveSubtypeState ReadCurrent()
+    {
+        RequireCurrent();
+        var state = _port!.ReadActiveState() ?? throw new InvalidOperationException("active-state-missing");
+        state = state with
+        {
+            Counters = FreezeCounters(state.Counters),
+            Network = state.Network == null ? null :
+            state.Network with { Counters = FreezeCounters(state.Network.Counters) },
+            Data = FreezeData(state.Data)
+        };
+        RequireCurrent();
+        if (ConstructionGate.Check(state.Context) != null || _context == null ||
+            !SamePath(_context.ActiveSavePath, state.Context.ActiveSavePath) || !SamePath(_context.LoadedSavePath, state.Context.LoadedSavePath) ||
+            state.Generation <= 0 || state.UnityFrame < 0 || state.Root == 0 || state.Business == 0 || state.OwnClass == 0 || state.Manager == 0 ||
+            !state.ExactComponents || !state.Unowned || !state.OwnVirtualTargets || !state.OwnUnityMessages || !state.ReferencesAbsent || !state.SaveIdle)
+            throw new InvalidOperationException("active-boundary-unconfirmed");
+        if (_before != null && (state.Generation != _before.Generation || state.Root != _before.Root || state.Business != _before.Business ||
+            state.OwnClass != _before.OwnClass || state.Manager != _before.Manager || state.UnityFrame < _before.UnityFrame))
+            throw new InvalidOperationException("active-identity-changed");
+        RequireNetworkState(state);
+        RequireDataState(state);
+        if (_readFloor != null && (state.UnityFrame < _readFloor.UnityFrame ||
+            _readFloor.Counters.Any(p => Count(state.Counters, p.Key) < p.Value)))
+            throw new InvalidOperationException("active-observation-regressed");
+        _readFloor = state;
+        return state;
+    }
+    private void RequireCurrent()
+    {
+        if (Volatile.Read(ref _revoked) != 0 || Environment.CurrentManagedThreadId != _thread ||
+            _contextCurrent?.Invoke() != true || Volatile.Read(ref _revoked) != 0)
+            throw new InvalidOperationException("active-context-expired");
+    }
+    private static bool SamePath(string? a, string? b) => a != null && b != null &&
+        string.Equals(Path.TrimEndingDirectorySeparator(Path.GetFullPath(a)), Path.TrimEndingDirectorySeparator(Path.GetFullPath(b)), StringComparison.OrdinalIgnoreCase);
+    private static void RequireActive(ActiveSubtypeState state)
+    {
+        if (!state.ActiveSelf || !state.ActiveInHierarchy) throw new InvalidOperationException("active-root-not-active");
+    }
+    private static void RequireInactive(ActiveSubtypeState state)
+    {
+        if (state.ActiveSelf || state.ActiveInHierarchy) throw new InvalidOperationException("active-root-not-inactive");
+    }
+    private static int Count(IReadOnlyDictionary<string, int> counters, string name) => counters.TryGetValue(name, out int count) ? count : 0;
+    private static void RequireCounters(IReadOnlyDictionary<string, int> counters, bool disabled)
+    {
+        if (Count(counters, "ShouldSave") != 1 || Count(counters, "CanBePurchased") != 1 ||
+            Count(counters, "Awake") > 1 || Count(counters, "Start") > 1 || Count(counters, "OnEnable") > 1 ||
+            Count(counters, "OnDisable") != (disabled ? 1 : 0) || Count(counters, "OnDestroy") != 0 ||
+            counters.Any(p => p.Value != 0 && p.Key != "ShouldSave" && p.Key != "CanBePurchased" && !LifecycleNames.Contains(p.Key)))
+            throw new InvalidOperationException("active-unexpected-callback");
+    }
+    private void RequireNetworkState(ActiveSubtypeState state)
+    {
+        var network = state.Network;
+        if (!_requireNetwork)
+        {
+            if (network != null) throw new InvalidOperationException("unexpected-network-participant");
+            return;
+        }
+        if (network == null || network.Network == 0 || network.OwnClass == 0 || network.BehaviourArray == 0 ||
+            network.BusinessNetworkObject != network.Network || network.BusinessComponentIndex != 0 ||
+            network.BehaviourCount != 1 || network.FirstBehaviour != state.Business || !network.OwnNativeClass ||
+            !network.OwnVirtualTargets || !network.OwnUnityMessages || !network.Unspawned || !network.Detached || !network.ReferencesAbsent)
+            throw new InvalidOperationException("network-binding-unconfirmed");
+        if (new[] { state.Root, state.Business, state.OwnClass, state.Manager, network.Network, network.OwnClass, network.BehaviourArray }.Distinct().Count() != 7)
+            throw new InvalidOperationException("network-native-identity-alias");
+        if (_before?.Network is { } initial && (network.Network != initial.Network || network.OwnClass != initial.OwnClass ||
+            network.BehaviourArray != initial.BehaviourArray)) throw new InvalidOperationException("network-identity-changed");
+        var calls = network.Counters;
+        if (Count(calls, "Awake") > 1 || Count(calls, "Start") > 1 || Count(calls, "OnEnable") > 1 || Count(calls, "OnDestroy") != 0 ||
+            Count(calls, "OnDisable") != (_deactivationAttempted ? 1 : 0) || calls.Any(p => p.Value != 0 && !LifecycleNames.Contains(p.Key)))
+            throw new InvalidOperationException("network-unexpected-callback");
+        if (_readFloor?.Network is { } prior && prior.Counters.Any(p => Count(calls, p.Key) < p.Value))
+            throw new InvalidOperationException("network-callback-regressed");
+    }
+    private void RequireSameNetworkCounters(ActiveSubtypeState before, ActiveSubtypeState after, string? changed = null, int delta = 0)
+    {
+        if (_requireNetwork) RequireSameCounters(before.Network!.Counters, after.Network!.Counters, changed, delta);
+    }
+    private static BusinessDataState? FreezeData(BusinessDataState? data)
+    {
+        if (data == null) return null;
+        if (data.Collections == null || data.CollectionCounts == null || data.Collections.Count != DataCollections.Length ||
+            data.CollectionCounts.Count != DataCollections.Length || !DataCollections.All(data.Collections.ContainsKey) ||
+            !DataCollections.All(data.CollectionCounts.ContainsKey) || data.Collections.Values.Any(p => p <= 0) ||
+            data.CollectionCounts.Any(p => p.Value != (p.Key == "bounds" ? 1 : 0)))
+            throw new InvalidOperationException("data-collections-unconfirmed");
+        return data with
+        {
+            Collections = new ReadOnlyDictionary<string, long>(new Dictionary<string, long>(data.Collections, StringComparer.Ordinal)),
+            CollectionCounts = new ReadOnlyDictionary<string, int>(new Dictionary<string, int>(data.CollectionCounts, StringComparer.Ordinal))
+        };
+    }
+    private void RequireDataState(ActiveSubtypeState state)
+    {
+        var data = state.Data;
+        if (!_requireData)
+        {
+            if (data != null) throw new InvalidOperationException("unexpected-data-participant");
+            return;
+        }
+        if (data == null || data.ContainerProperty != state.Business || !data.OwnedHierarchy || !data.NeutralDefaults || !data.QueryTargetsVerified)
+            throw new InvalidOperationException("data-state-unconfirmed");
+        var resources = new[] { data.ContainerRoot, data.Container, data.BoundsRoot, data.BoundsCollider, data.BusinessLoader, data.PropertyLoader };
+        var identities = resources.Concat(data.Collections.Values).Concat(new[] { state.Root, state.Business, state.OwnClass, state.Manager,
+            state.Network!.Network, state.Network.OwnClass, state.Network.BehaviourArray }).ToArray();
+        if (identities.Any(p => p <= 0) || identities.Distinct().Count() != identities.Length)
+            throw new InvalidOperationException("data-native-identity-alias");
+        if ((_before?.Data ?? _readFloor?.Data) is { } initial &&
+            (data.ContainerRoot != initial.ContainerRoot || data.Container != initial.Container || data.BoundsRoot != initial.BoundsRoot ||
+             data.BoundsCollider != initial.BoundsCollider || data.BusinessLoader != initial.BusinessLoader || data.PropertyLoader != initial.PropertyLoader ||
+             data.Collections.Any(p => !initial.Collections.TryGetValue(p.Key, out long prior) || prior != p.Value)))
+            throw new InvalidOperationException("data-identity-changed");
+    }
+    private static void RequireSameCounters(IReadOnlyDictionary<string, int> before, IReadOnlyDictionary<string, int> after, string? changed = null, int delta = 0)
+    {
+        foreach (string name in before.Keys.Union(after.Keys))
+            if (Count(after, name) != Count(before, name) + (name == changed ? delta : 0)) throw new InvalidOperationException("active-cleanup-callback-mismatch:" + name);
+        if (changed != null && Count(after, changed) != Count(before, changed) + delta) throw new InvalidOperationException("active-cleanup-callback-missing:" + changed);
+    }
+    private static IReadOnlyDictionary<string, int> FreezeCounters(IReadOnlyDictionary<string, int> values)
+    {
+        if (values == null || values.Count > 32 || values.Any(p => string.IsNullOrEmpty(p.Key) || p.Key.Length > 64 || p.Value < 0 || p.Value > 10000))
+            throw new InvalidOperationException("active-counters-unreadable");
+        return new ReadOnlyDictionary<string, int>(new Dictionary<string, int>(values, StringComparer.Ordinal));
+    }
+    private SubtypeSnapshot Freeze(SubtypeSnapshot source)
+    {
+        if (source == null || source.Registries == null || source.ForeignVtables == null ||
+            (_requireNetwork ? source.Registries.Count is < 10 or > 48 : source.Registries.Count != 10) ||
+            !RegistryNames.All(source.Registries.ContainsKey) || source.ForeignVtables.Count is < 1 or > 256 ||
+            (_requireData && !DataRegistries.All(source.Registries.ContainsKey)) ||
+            source.Registries.Concat(source.ForeignVtables).Any(p => string.IsNullOrEmpty(p.Key) || string.IsNullOrEmpty(p.Value) || p.Key.Length > 128 || p.Value.Length > 4096))
+            throw new InvalidOperationException("active-snapshot-unreadable");
+        return new(new ReadOnlyDictionary<string, string>(new Dictionary<string, string>(source.Registries, StringComparer.Ordinal)),
+            new ReadOnlyDictionary<string, string>(new Dictionary<string, string>(source.ForeignVtables, StringComparer.Ordinal)));
+    }
+    private static bool Equal(SubtypeSnapshot a, SubtypeSnapshot b) => Equal(a.Registries, b.Registries) && Equal(a.ForeignVtables, b.ForeignVtables);
+    private static bool Equal(IReadOnlyDictionary<string, string> a, IReadOnlyDictionary<string, string> b) => a.Count == b.Count && a.All(p => b.TryGetValue(p.Key, out string? value) && p.Value == value);
+    private void RequireUnchanged(SubtypeSnapshot value)
+    {
+        if (_beforeSnapshot == null || !Equal(_beforeSnapshot, Freeze(value))) throw new InvalidOperationException("active-foreign-state-changed");
+    }
+    private void Add(string value) { if (_findings.Count < 16 && !_findings.Contains(value)) _findings.Add(value.Length > 180 ? value[..180] : value); }
+    private void Revoke(string reason) { Interlocked.Exchange(ref _revoked, 1); Add(reason); }
+    private void Quarantine(string reason) { Add(reason); _clean = false; _status = "quarantined"; _terminal = true; }
+}
+
 public sealed record ManagerRegistration(int SaveablesBefore, int Added, int Remaining, bool Removed, bool SaveCalled,
     int WriteCalls = 0, int DeleteCalls = 0, int GetSaveStringCalls = 0, bool SavingAfter = false);
 public interface IBusinessManagerPort
 {
     ManagerRegistration RegisterOnce();
-    ManagerRegistration SaveRegistered();
 }
+
+public sealed record ManagerSaveState(ConstructionContext Context, long Generation, long Manager,
+    long Saveables, long Frame, bool IsSaving, int PendingRequests, int OwnEntries, int ActiveCallbacks,
+    int Started, int Completed, string ForeignSaveables, bool CompletionContractVerified);
+public interface IBusinessSavePort
+{
+    ManagerSaveState ReadSaveState();
+    void RegisterSaveable();
+    void SaveOnce();
+    void RemoveSaveable();
+}
+public sealed record ManagerSaveResult(string Status, string[] Findings, bool AttemptConsumed,
+    bool RegistrationAttempted, bool SaveAttempted, bool SaveReturned, bool CompletionConfirmed,
+    bool SafeToDestroy, ManagerSaveState? Before, ManagerSaveState? Last,
+    long? DispatchFrame = null, long? CompletionObservedFrame = null);
+
+// The folder getter is also read during contract inspection. Preserve its diagnostic
+// count without treating that read as evidence of a native save dispatch.
+public sealed class BusinessSaveCallbackLedger
+{
+    private readonly Dictionary<string, int> _calls = new(StringComparer.Ordinal);
+    public bool SaveCallbackObserved { get; private set; }
+    public void Record(string name)
+    {
+        _calls[name] = _calls.TryGetValue(name, out int count) ? count + 1 : 1;
+        if (name is "GetSaveString" or "WriteData") SaveCallbackObserved = true;
+    }
+    public int Calls(string name) => _calls.TryGetValue(name, out int count) ? count : 0;
+    public Dictionary<string, int> Snapshot() => new(_calls, StringComparer.Ordinal);
+}
+
+// An idle flag is not a completion certificate. The native adapter must explicitly
+// establish the completion contract before this state machine can register or save.
+// An uncertain save retains ownership; it is never retried or cleaned up speculatively.
+public sealed class BusinessManagerSaveTrial
+{
+    public const double TimeoutSeconds = 60;
+    private IBusinessSavePort? _port;
+    private Func<bool>? _contextCurrent;
+    private ManagerSaveState? _before, _last;
+    private readonly List<string> _findings = new();
+    private bool _used, _registered, _saveAttempted, _saveReturned, _complete, _safe, _terminal, _busy;
+    private double _startedAt, _lastTime;
+    private long _dispatchFrame, _observedFrame, _completionFrame = -1;
+    private int _observedStarts, _observedCompletes;
+    private string _status = "skipped";
+    public ManagerSaveState? Preflight { get; private set; }
+    public ManagerSaveResult Result => new(_status, _findings.ToArray(), _used, _registered,
+        _saveAttempted, _saveReturned, _complete, _safe, _before, _last,
+        _saveAttempted ? _dispatchFrame : null, _completionFrame >= 0 ? _completionFrame : null);
+
+    public ManagerSaveResult Begin(IBusinessSavePort port, double now, Func<bool>? contextCurrent = null)
+    {
+        ArgumentNullException.ThrowIfNull(port);
+        if (_used || _terminal || _busy) return Result;
+        _busy = true;
+        try
+        {
+            Preflight = null; // A failed fresh read must not reuse an earlier clean observation.
+            var before = port.ReadSaveState();
+            Preflight = before;
+            string? denial = ConstructionGate.Check(before.Context);
+            if (denial != null) { _status = "skipped"; Add(denial); return Result; }
+            if (!before.CompletionContractVerified) { _status = "blocked"; Add("native-save-completion-contract-unverified"); return Result; }
+            if (!double.IsFinite(now) || now < 0 || before.Manager == 0 || before.Saveables == 0 || before.Generation <= 0 ||
+                before.Frame < 0 || before.IsSaving || before.PendingRequests != 0 || before.OwnEntries != 0 ||
+                before.ActiveCallbacks != 0 || before.Started != 0 || before.Completed != 0 || string.IsNullOrEmpty(before.ForeignSaveables))
+            { _status = "blocked"; Add("manager-save-preflight-invalid"); return Result; }
+            if (contextCurrent?.Invoke() == false) { _status = "skipped"; Add("context-expired"); return Result; }
+            _used = true; _port = port; _contextCurrent = contextCurrent; _before = _last = before;
+            _findings.Clear(); _startedAt = _lastTime = now; _observedFrame = before.Frame;
+            _registered = true; _safe = false; // Registration itself may have a partial effect.
+            port.RegisterSaveable();
+            _last = port.ReadSaveState();
+            RequireIdentity(_last);
+            if (_last.IsSaving || _last.PendingRequests != 0 || _last.OwnEntries != 1 || _last.ActiveCallbacks != 0 ||
+                _last.Started != 0 || _last.Completed != 0) throw new InvalidOperationException("manager-registration-readback-invalid");
+            RequireContext();
+            _dispatchFrame = _last.Frame;
+            _saveAttempted = true; // Set before native entry, including exceptions with unknown effects.
+            port.SaveOnce();
+            _saveReturned = true;
+            RequireContext();
+            _status = "pending";
+        }
+        catch (Exception ex)
+        {
+            Add("manager-save:" + Describe(ex));
+            _status = _registered ? "quarantined" : "failed";
+            _terminal = true; // An unreadable preflight is terminal too, even before a native attempt was consumed.
+        }
+        finally { _busy = false; }
+        return Result;
+    }
+
+    public ManagerSaveResult Tick(double now)
+    {
+        if (!_used || _terminal || _busy) return Result;
+        _busy = true;
+        try
+        {
+            if (!double.IsFinite(now) || now < _lastTime) throw new InvalidOperationException("manager-save-clock-invalid");
+            _lastTime = now;
+            if (now - _startedAt >= TimeoutSeconds) throw new TimeoutException("manager-save-completion-unconfirmed");
+            RequireContext();
+            _last = _port!.ReadSaveState();
+            RequireIdentity(_last);
+            if (_last.Started is < 0 or > 1 || _last.Completed is < 0 or > 1 || _last.Completed > _last.Started ||
+                _last.OwnEntries != 1 || _last.PendingRequests < 0 || _last.ActiveCallbacks < 0)
+                throw new InvalidOperationException("manager-save-observation-invalid");
+            if (_last.Completed == 1 && _completionFrame < 0) _completionFrame = _last.Frame;
+            if (_last.Started == 1 && _last.Completed == 1 && !_last.IsSaving && _last.PendingRequests == 0 &&
+                _last.ActiveCallbacks == 0 && _last.Frame > _dispatchFrame && _last.Frame > _completionFrame)
+            {
+                RequireContext();
+                _complete = true;
+                _port.RemoveSaveable(); // Never retry an unknown-effect removal.
+                _last = _port.ReadSaveState();
+                RequireIdentity(_last);
+                if (_last.IsSaving || _last.PendingRequests != 0 || _last.OwnEntries != 0 || _last.ActiveCallbacks != 0 ||
+                    _last.Started != 1 || _last.Completed != 1) throw new InvalidOperationException("manager-save-removal-unconfirmed");
+                RequireContext();
+                _safe = true; _terminal = true; _status = "observed";
+            }
+        }
+        catch (Exception ex) { Add("manager-save:" + Describe(ex)); _status = "quarantined"; _terminal = true; }
+        finally { _busy = false; }
+        return Result;
+    }
+    private void RequireContext()
+    {
+        if (_contextCurrent?.Invoke() == false) throw new InvalidOperationException("context-expired");
+    }
+    private void RequireIdentity(ManagerSaveState state)
+    {
+        if (_before == null || ConstructionGate.Check(state.Context) != null ||
+            state.Generation != _before.Generation || state.Manager != _before.Manager || state.Saveables != _before.Saveables ||
+            state.Frame < _observedFrame || state.Started < _observedStarts || state.Completed < _observedCompletes || !state.CompletionContractVerified ||
+            !string.Equals(Normalize(state.Context.ActiveSavePath!), Normalize(_before.Context.ActiveSavePath!), StringComparison.OrdinalIgnoreCase) ||
+            !string.Equals(Normalize(state.Context.LoadedSavePath!), Normalize(_before.Context.LoadedSavePath!), StringComparison.OrdinalIgnoreCase) ||
+            state.ForeignSaveables != _before.ForeignSaveables)
+            throw new InvalidOperationException("manager-save-identity-changed");
+        RequireContext();
+        _observedFrame = state.Frame; _observedStarts = state.Started; _observedCompletes = state.Completed;
+    }
+    private static string Normalize(string path) => Path.TrimEndingDirectorySeparator(Path.GetFullPath(path));
+    private void Add(string value) { if (_findings.Count < 16) _findings.Add(value); }
+    private static string Describe(Exception ex) => ex.GetType().Name + ":" + ex.Message.Replace('\r', ' ').Replace('\n', ' ')[..Math.Min(ex.Message.Length, 160)];
+}
+#region DataOnlySaveOperationOwnership
+public readonly record struct BusinessSaveModelKey(Guid ProcessId, long Operation);
+public sealed record BusinessSaveModelBinding(ConstructionContext Context, long Epoch,
+    string LoadManager, string SaveManager, string Saveables, string BaseSaveables,
+    string Completed, string Requests, string Participant);
+public sealed record BusinessSaveModelStamp(BusinessSaveModelKey Key,
+    BusinessSaveModelBinding Binding, long Sequence, double Time, string Source = "synthetic");
+public enum BusinessSaveModelEffect { TypeRegistration, Construction, Registration, Save, Removal, Destroy }
+public enum BusinessSaveModelOutcome { Returned, Failed }
+public sealed record BusinessSaveModelEffectState(bool Intent, bool Returned, bool ReadbackConfirmed, bool Failure);
+public sealed record BusinessSaveModelDiagnostic(long Sequence, string Kind, string Detail);
+public sealed record BusinessSaveModelSnapshot(Guid ProcessId, BusinessSaveModelKey? Key,
+    BusinessSaveModelBinding? Binding, string Status, bool SlotConsumed, bool Revoked,
+    string? FirstRevocationReason, long LastSequence, double? LastTime, int ActiveCallbacks,
+    bool CallbacksUncertain, bool DiagnosticsIncomplete,
+    IReadOnlyDictionary<BusinessSaveModelEffect, BusinessSaveModelEffectState> Effects,
+    IReadOnlyList<BusinessSaveModelDiagnostic> Diagnostics)
+{
+    public bool ConstructionArmed { get; init; }
+    public string? ConstructedParticipant { get; init; }
+    public bool SimulationOnly => true;
+    public bool NativeSaveWriteAllowed => false;
+    public bool SafeToUnregister => false;
+    public bool SafeToDestroy => false;
+    public string ReferenceProof => "unknown";
+    public string NativeWriteProof => "unknown";
+    public string ModDataProof => "unknown";
+}
+
+// One explicitly artificial process per model, not a singleton or an OS-process budget.
+// The private lock orders only synthetic messages against revocation. It does not
+// establish a native adapter's entry, callback lifetime, dispatch or last-use contract.
+public sealed class BusinessSaveProcessModel
+{
+    public const int DiagnosticCapacity = 64, MaxTextLength = 160;
+    public const double TimeoutSeconds = 60;
+    private const int EffectCount = 6, MaximumPathLength = 32767;
+    private readonly object _sync = new();
+    private readonly int _thread = Environment.CurrentManagedThreadId;
+    private readonly BusinessSaveModelEffectState[] _effects = new BusinessSaveModelEffectState[EffectCount];
+    private readonly bool[] _failedOutcomes = new bool[EffectCount], _readbacks = new bool[EffectCount];
+    private readonly HashSet<long> _callbacks = new();
+    private readonly Queue<BusinessSaveModelDiagnostic> _diagnostics = new(DiagnosticCapacity);
+    private BusinessSaveModelBinding? _binding;
+    private bool _revoked, _callbacksUncertain, _diagnosticsIncomplete, _constructionArmed, _constructionReservationUsed;
+    private string? _firstRevocationReason, _constructedParticipant;
+    private long _lastSequence, _lastTicket, _diagnosticSequence;
+    private double _startedAt;
+    private double? _lastTime;
+    public Guid ProcessId { get; } = Guid.NewGuid();
+
+    public BusinessSaveProcessModel()
+    {
+        for (int i = 0; i < EffectCount; i++) _effects[i] = new(false, false, false, false);
+    }
+
+    public BusinessSaveOperationOwner CreateOwner()
+    {
+        lock (_sync)
+        {
+            RequireModelThread();
+            return new(this); // Even an off-thread facade inherits the same revoked tombstone.
+        }
+    }
+
+    internal BusinessSaveModelSnapshot CaptureSnapshot()
+    {
+        lock (_sync)
+        {
+            var effects = new Dictionary<BusinessSaveModelEffect, BusinessSaveModelEffectState>(EffectCount);
+            for (int i = 0; i < EffectCount; i++) effects.Add((BusinessSaveModelEffect)i, _effects[i]);
+            return new(ProcessId, _binding == null ? null : new BusinessSaveModelKey(ProcessId, 1), _binding,
+                _revoked ? "quarantined" : _binding == null ? "empty" : "bound-data-only",
+                _binding != null, _revoked, _firstRevocationReason, _lastSequence, _lastTime,
+                _callbacks.Count, _callbacksUncertain, _diagnosticsIncomplete,
+                new ReadOnlyDictionary<BusinessSaveModelEffect, BusinessSaveModelEffectState>(effects),
+                Array.AsReadOnly(_diagnostics.ToArray()))
+            {
+                ConstructionArmed = _constructionArmed,
+                ConstructedParticipant = _constructedParticipant
+            };
+        }
+    }
+
+    internal bool Bind(BusinessSaveModelBinding? candidate, double now)
+    {
+        lock (_sync)
+        {
+            if (!RequireModelThread() || !AcceptClock(now)) return false;
+            if (_revoked) return false;
+            if (_binding != null) return Reject("slot-already-consumed");
+            if (!TryFreezeBinding(candidate, out var frozen, out string denial))
+            {
+                AddDiagnostic("bind-rejected", denial);
+                return false; // No slot or possible effect was consumed by a rejected candidate.
+            }
+            AddDiagnostic("bind", "synthetic-process-slot-1");
+            if (_revoked) return false;
+            _binding = frozen;
+            _startedAt = now;
+            _lastTime = now;
+            return true;
+        }
+    }
+
+    internal bool Intent(BusinessSaveModelEffect effect, BusinessSaveModelStamp stamp)
+    {
+        lock (_sync)
+        {
+            if (!RequireModelThread() || !AcceptStamp(stamp)) return false;
+            if (!Defined(effect)) return Reject("effect-undefined");
+            if (_revoked) return false;
+            int index = (int)effect;
+            if (_callbacks.Count != 0 || _callbacksUncertain) return Reject("callback-active-or-uncertain");
+            if (_effects[index].Intent) return Reject("duplicate-intent");
+            for (int i = 0; i < index; i++)
+                if (!_effects[i].Returned || !_effects[i].ReadbackConfirmed || _effects[i].Failure)
+                    return Reject("effect-intent-order");
+            AddDiagnostic("intent", effect + ":" + Source(stamp));
+            if (_revoked) return false;
+            _effects[index] = _effects[index] with { Intent = true };
+            return true; // The only admission transition; all named effects are data bits, never calls.
+        }
+    }
+
+    internal bool ArmConstruction(BusinessSaveModelStamp stamp)
+    {
+        lock (_sync)
+        {
+            if (!RequireModelThread() || !AcceptStamp(stamp)) return false;
+            if (_revoked) return false;
+            var construction = _effects[(int)BusinessSaveModelEffect.Construction];
+            if (_callbacks.Count != 0 || _callbacksUncertain ||
+                !construction.Intent || construction.Returned || construction.ReadbackConfirmed || construction.Failure ||
+                _constructionArmed || _constructionReservationUsed || _constructedParticipant != null)
+                return Reject("construction-arm-invalid");
+            AddDiagnostic("construction-armed", Source(stamp));
+            if (_revoked) return false;
+            _constructionArmed = true;
+            _constructionReservationUsed = true;
+            return true;
+        }
+    }
+
+    internal long EnterConstructor(string? runtimeParticipant, BusinessSaveModelStamp stamp)
+    {
+        lock (_sync)
+        {
+            if (!RequireModelThread(callback: true) || !AcceptStamp(stamp, callback: true))
+            {
+                _constructionArmed = false;
+                return 0;
+            }
+            if (_revoked || !_constructionArmed || _constructedParticipant != null ||
+                _effects[(int)BusinessSaveModelEffect.Construction] is not { Intent: true, Returned: false, Failure: false } ||
+                !IdentityLabel(runtimeParticipant) || !string.Equals(runtimeParticipant, _binding!.Participant, StringComparison.Ordinal))
+            {
+                _constructionArmed = false;
+                Reject("constructor-callback-invalid", callback: true);
+                return 0;
+            }
+            if (_callbacks.Count >= DiagnosticCapacity)
+            {
+                _constructionArmed = false;
+                Reject("callback-capacity-exhausted", callback: true);
+                return 0;
+            }
+            if (_lastTicket == long.MaxValue)
+            {
+                _constructionArmed = false;
+                Reject("callback-ticket-exhausted", incomplete: true, callback: true);
+                return 0;
+            }
+            _constructionArmed = false;
+            _constructedParticipant = runtimeParticipant;
+            long ticket = ++_lastTicket;
+            _callbacks.Add(ticket);
+            if (ticket == long.MaxValue) Reject("callback-ticket-exhausted", incomplete: true);
+            AddDiagnostic("constructor-enter", runtimeParticipant + ":" + Source(stamp));
+            return ticket;
+        }
+    }
+
+    internal long EnterParticipant(string? runtimeParticipant, string? callbackName, BusinessSaveModelStamp stamp)
+    {
+        lock (_sync)
+        {
+            if (!RequireModelThread(callback: true) || !AcceptStamp(stamp, callback: true)) return 0;
+            if (_constructedParticipant == null || _constructionArmed ||
+                !IdentityLabel(runtimeParticipant) || !string.Equals(runtimeParticipant, _constructedParticipant, StringComparison.Ordinal) ||
+                !IdentityLabel(callbackName))
+            {
+                Reject("participant-callback-invalid", callback: true);
+                return 0;
+            }
+            if (_callbacks.Count >= DiagnosticCapacity)
+            {
+                Reject("callback-capacity-exhausted", callback: true);
+                return 0;
+            }
+            if (_lastTicket == long.MaxValue)
+            {
+                Reject("callback-ticket-exhausted", incomplete: true, callback: true);
+                return 0;
+            }
+            long ticket = ++_lastTicket;
+            _callbacks.Add(ticket);
+            if (ticket == long.MaxValue) Reject("callback-ticket-exhausted", incomplete: true);
+            AddDiagnostic("participant-enter", callbackName + ":" + Source(stamp));
+            return ticket;
+        }
+    }
+
+    // Observation returns indicate accepted bookkeeping, not native success or permission.
+    // Valid observations for existing intents remain recordable after any revocation.
+    internal bool Outcome(BusinessSaveModelEffect effect, BusinessSaveModelOutcome outcome, BusinessSaveModelStamp stamp)
+    {
+        lock (_sync)
+        {
+            if (!RequireModelThread() || !AcceptStamp(stamp)) return false;
+            if (!Defined(effect)) return Reject("effect-undefined");
+            if (outcome is not (BusinessSaveModelOutcome.Returned or BusinessSaveModelOutcome.Failed))
+                return Reject("outcome-undefined");
+            int index = (int)effect;
+            if (!_effects[index].Intent) return Reject("outcome-without-intent");
+            if (outcome == BusinessSaveModelOutcome.Returned)
+            {
+                if (_effects[index].Returned) return Reject("duplicate-outcome");
+                _effects[index] = _effects[index] with { Returned = true };
+                if (effect == BusinessSaveModelEffect.Construction && (_constructionArmed || (_constructionReservationUsed && _constructedParticipant == null)))
+                {
+                    _constructionArmed = false;
+                    AddDiagnostic("outcome", effect + ":" + outcome + ":" + Source(stamp));
+                    return Reject("construction-returned-without-constructor-bind", callback: true);
+                }
+            }
+            else
+            {
+                // Failure also covers readback errors; outcome failure needs its own once-only mark.
+                if (_failedOutcomes[index]) return Reject("duplicate-outcome");
+                _failedOutcomes[index] = true;
+                if (effect == BusinessSaveModelEffect.Construction) _constructionArmed = false;
+                _effects[index] = _effects[index] with { Failure = true };
+                RevokeCore("effect-outcome-failed");
+            }
+            AddDiagnostic("outcome", effect + ":" + outcome + ":" + Source(stamp));
+            return true;
+        }
+    }
+
+    internal bool Readback(BusinessSaveModelEffect effect, bool confirmed, BusinessSaveModelStamp stamp)
+    {
+        lock (_sync)
+        {
+            if (!RequireModelThread() || !AcceptStamp(stamp)) return false;
+            if (!Defined(effect)) return Reject("effect-undefined");
+            int index = (int)effect;
+            if (!_effects[index].Intent) return Reject("readback-without-intent");
+            if (_readbacks[index]) return Reject("duplicate-readback");
+            if (confirmed && !_effects[index].Returned) return Reject("readback-without-return");
+            _readbacks[index] = true;
+            if (confirmed) _effects[index] = _effects[index] with { ReadbackConfirmed = true };
+            else
+            {
+                _effects[index] = _effects[index] with { Failure = true };
+                RevokeCore("effect-readback-failed");
+            }
+            AddDiagnostic("readback", effect + ":" + (confirmed ? "confirmed:" : "failed:") + Source(stamp));
+            return true;
+        }
+    }
+
+    internal long Enter(BusinessSaveModelStamp stamp)
+    {
+        lock (_sync)
+        {
+            if (!RequireModelThread(callback: true) || !AcceptStamp(stamp, callback: true)) return 0;
+            if (_callbacks.Count >= DiagnosticCapacity)
+            {
+                Reject("callback-capacity-exhausted", callback: true);
+                return 0;
+            }
+            if (_lastTicket == long.MaxValue)
+            {
+                Reject("callback-ticket-exhausted", incomplete: true, callback: true);
+                return 0;
+            }
+            long ticket = ++_lastTicket;
+            _callbacks.Add(ticket);
+            if (ticket == long.MaxValue) Reject("callback-ticket-exhausted", incomplete: true);
+            AddDiagnostic("callback-enter", Source(stamp));
+            return ticket; // Counting a late message does not reopen admission or prove dispatch safety.
+        }
+    }
+
+    internal bool Exit(long ticket, BusinessSaveModelStamp stamp)
+    {
+        lock (_sync)
+        {
+            if (!RequireModelThread(callback: true) || !AcceptStamp(stamp, callback: true)) return false;
+            if (ticket <= 0 || !_callbacks.Remove(ticket)) return Reject("callback-ticket-untracked", callback: true);
+            AddDiagnostic("callback-exit", Source(stamp));
+            return true; // Zero tracked callbacks never establishes native quiescence.
+        }
+    }
+
+    internal bool Telemetry(string detail, BusinessSaveModelStamp stamp)
+    {
+        lock (_sync)
+        {
+            if (!RequireModelThread() || !AcceptStamp(stamp)) return false;
+            AddDiagnostic("telemetry:" + Source(stamp), detail);
+            return true; // Completion, Idle and queue-empty text have no effect/proof authority.
+        }
+    }
+
+    internal bool ObserveBinding(BusinessSaveModelBinding? current, BusinessSaveModelStamp stamp)
+    {
+        lock (_sync)
+        {
+            if (!RequireModelThread() || !AcceptStamp(stamp)) return false;
+            if (!TryFreezeBinding(current, out var frozen, out _) || !SameBinding(_binding!, frozen!))
+                return Reject("context-changed-or-lost");
+            AddDiagnostic("context-unchanged", Source(stamp));
+            return true;
+        }
+    }
+
+    internal bool UnexpectedSave(BusinessSaveModelStamp stamp)
+    {
+        lock (_sync)
+        {
+            if (!RequireModelThread() || !AcceptStamp(stamp)) return false;
+            RevokeCore("unexpected-save");
+            return true; // No save is issued and no foreign subscriber or callback is invoked.
+        }
+    }
+
+    internal void Revoke(string reason)
+    {
+        lock (_sync) RevokeCore(reason);
+    }
+
+    internal bool Tick(double now)
+    {
+        lock (_sync)
+        {
+            if (!RequireModelThread() || !AcceptClock(now) || _binding == null || _revoked) return false;
+            AddDiagnostic("tick", "synthetic-clock-observation");
+            return !_revoked;
+        }
+    }
+
+    // Helpers below are called only under _sync; none calls outside code or performs IO.
+    private bool RequireModelThread(bool callback = false) =>
+        Environment.CurrentManagedThreadId == _thread || Reject("off-model-thread", callback: callback);
+
+    private bool AcceptStamp(BusinessSaveModelStamp? stamp, bool callback = false)
+    {
+        if (_binding == null) return Reject("observation-unbound", callback: callback);
+        if (stamp == null) return Reject("stamp-missing", callback: callback);
+        if (stamp.Key != new BusinessSaveModelKey(ProcessId, 1)) return Reject("stamp-key-mismatch", callback: callback);
+        if (!TryFreezeBinding(stamp.Binding, out var frozen, out _) || !SameBinding(_binding, frozen!))
+            return Reject("stamp-binding-mismatch", callback: callback);
+        if (stamp.Sequence <= 0 || stamp.Sequence <= _lastSequence)
+            return Reject("stamp-sequence-invalid", incomplete: true, callback: callback);
+        if (!AcceptClock(stamp.Time))
+        {
+            if (callback) _callbacksUncertain = true;
+            return false;
+        }
+        _lastSequence = stamp.Sequence;
+        // The last representable message is observable but closes new intent admission.
+        if (_lastSequence == long.MaxValue) Reject("stamp-sequence-exhausted", incomplete: true);
+        return true;
+    }
+
+    private bool AcceptClock(double now)
+    {
+        if (!double.IsFinite(now) || now < 0 || (_lastTime is { } last && now < last))
+            return Reject("clock-invalid", incomplete: true);
+        if (_binding != null)
+        {
+            _lastTime = now;
+            if (!_revoked && now - _startedAt >= TimeoutSeconds) RevokeCore("diagnostic-timeout");
+        }
+        return true;
+    }
+
+    private bool Reject(string reason, bool incomplete = false, bool callback = false)
+    {
+        if (incomplete) _diagnosticsIncomplete = true;
+        if (callback) _callbacksUncertain = true;
+        RevokeCore(reason);
+        return false;
+    }
+
+    private void RevokeCore(string? reason)
+    {
+        LatchRevocation(reason);
+        AddDiagnostic("revoke", BoundText(reason, "revoked"));
+    }
+
+    private void LatchRevocation(string? reason)
+    {
+        _revoked = true;
+        _constructionArmed = false;
+        _firstRevocationReason ??= BoundText(reason, "revoked");
+    }
+
+    private void AddDiagnostic(string kind, string? detail)
+    {
+        if (_diagnosticSequence == long.MaxValue)
+        {
+            _diagnosticsIncomplete = true;
+            LatchRevocation("diagnostic-sequence-exhausted");
+            return;
+        }
+        if (_diagnostics.Count == DiagnosticCapacity)
+        {
+            _diagnosticsIncomplete = true;
+            LatchRevocation("diagnostic-ring-overflow");
+            _diagnostics.Dequeue();
+        }
+        _diagnostics.Enqueue(new(++_diagnosticSequence, BoundText(kind, "diagnostic"), BoundText(detail, "unspecified")));
+        if (_diagnosticSequence == long.MaxValue)
+        {
+            _diagnosticsIncomplete = true;
+            LatchRevocation("diagnostic-sequence-exhausted");
+        }
+    }
+
+    private static bool Defined(BusinessSaveModelEffect effect) => (uint)effect < EffectCount;
+    private static string Source(BusinessSaveModelStamp stamp) => BoundText(stamp.Source, "unspecified");
+
+    private static string BoundText(string? value, string fallback)
+    {
+        if (string.IsNullOrWhiteSpace(value)) return fallback;
+        var chars = new char[Math.Min(value.Length, MaxTextLength)];
+        for (int i = 0; i < chars.Length; i++) chars[i] = char.IsControl(value[i]) ? ' ' : value[i];
+        return new string(chars);
+    }
+
+    private static bool IdentityLabel(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value) || value.Length > MaxTextLength) return false;
+        foreach (char character in value) if (char.IsControl(character)) return false;
+        return true;
+    }
+
+    private static bool TryPathValue(string? value, out string canonical)
+    {
+        canonical = "";
+        if (string.IsNullOrWhiteSpace(value) || value.Length > MaximumPathLength) return false;
+        foreach (char character in value) if (char.IsControl(character)) return false;
+        try
+        {
+            if (!Path.IsPathFullyQualified(value)) return false;
+            canonical = Path.TrimEndingDirectorySeparator(Path.GetFullPath(value));
+            return canonical.Length <= MaximumPathLength;
+        }
+        catch (Exception ex) when (ex is ArgumentException or IOException or NotSupportedException or System.Security.SecurityException)
+        {
+            return false;
+        }
+    }
+
+    private static bool TryFreezeBinding(BusinessSaveModelBinding? value, out BusinessSaveModelBinding? frozen, out string denial)
+    {
+        frozen = null;
+        denial = "binding-invalid";
+        if (value?.Context is not { } context || value.Epoch <= 0 ||
+            !IdentityLabel(value.LoadManager) || !IdentityLabel(value.SaveManager) ||
+            !IdentityLabel(value.Saveables) || !IdentityLabel(value.BaseSaveables) ||
+            !IdentityLabel(value.Completed) || !IdentityLabel(value.Requests) || !IdentityLabel(value.Participant)) return false;
+        if (!TryPathValue(context.ActiveSavePath, out string active) ||
+            !TryPathValue(context.LoadedSavePath, out string loaded))
+        {
+            denial = "binding-path-invalid";
+            return false;
+        }
+        // Canonicalization is limited to path values. Identity labels/epoch are never normalized.
+        var canonical = context with { ActiveSavePath = active, LoadedSavePath = loaded };
+        string? gate = ConstructionGate.CheckSave(canonical, "TownHallTest", "SaveGame_2");
+        if (gate != null) { denial = gate; return false; }
+        frozen = value with { Context = canonical };
+        return true;
+    }
+
+    private static bool SameBinding(BusinessSaveModelBinding left, BusinessSaveModelBinding right) =>
+        left.Epoch == right.Epoch && left.LoadManager == right.LoadManager && left.SaveManager == right.SaveManager &&
+        left.Saveables == right.Saveables && left.BaseSaveables == right.BaseSaveables &&
+        left.Completed == right.Completed && left.Requests == right.Requests && left.Participant == right.Participant &&
+        left.Context.LoadComplete == right.Context.LoadComplete && left.Context.Singleplayer == right.Context.Singleplayer &&
+        left.Context.HallReady == right.Context.HallReady && left.Context.DependenciesMatch == right.Context.DependenciesMatch &&
+        left.Context.OrganisationName == right.Context.OrganisationName &&
+        string.Equals(left.Context.ActiveSavePath, right.Context.ActiveSavePath, StringComparison.OrdinalIgnoreCase) &&
+        string.Equals(left.Context.LoadedSavePath, right.Context.LoadedSavePath, StringComparison.OrdinalIgnoreCase);
+}
+
+public sealed class BusinessSaveOperationOwner
+{
+    private readonly BusinessSaveProcessModel _model;
+    internal BusinessSaveOperationOwner(BusinessSaveProcessModel model) { _model = model; }
+    public BusinessSaveModelSnapshot Snapshot => _model.CaptureSnapshot();
+    public bool TryBind(BusinessSaveModelBinding? binding, double now) => _model.Bind(binding, now);
+    public bool TryRecordIntent(BusinessSaveModelEffect effect, BusinessSaveModelStamp stamp) => _model.Intent(effect, stamp);
+    public bool TryArmParticipantConstruction(BusinessSaveModelStamp stamp) => _model.ArmConstruction(stamp);
+    public long EnterConstructorCallback(string? runtimeParticipant, BusinessSaveModelStamp stamp) => _model.EnterConstructor(runtimeParticipant, stamp);
+    public long EnterParticipantCallback(string? runtimeParticipant, string? callbackName, BusinessSaveModelStamp stamp) =>
+        _model.EnterParticipant(runtimeParticipant, callbackName, stamp);
+    public bool RecordOutcome(BusinessSaveModelEffect effect, BusinessSaveModelOutcome outcome, BusinessSaveModelStamp stamp) =>
+        _model.Outcome(effect, outcome, stamp);
+    public bool RecordReadback(BusinessSaveModelEffect effect, bool confirmed, BusinessSaveModelStamp stamp) =>
+        _model.Readback(effect, confirmed, stamp);
+    public long EnterCallback(BusinessSaveModelStamp stamp) => _model.Enter(stamp);
+    public bool ExitCallback(long ticket, BusinessSaveModelStamp stamp) => _model.Exit(ticket, stamp);
+    public bool ObserveTelemetry(string detail, BusinessSaveModelStamp stamp) => _model.Telemetry(detail, stamp);
+    public bool ObserveContext(BusinessSaveModelBinding? current, BusinessSaveModelStamp stamp) => _model.ObserveBinding(current, stamp);
+    public bool ObserveUnexpectedSave(BusinessSaveModelStamp stamp) => _model.UnexpectedSave(stamp);
+    public void Revoke(string reason) => _model.Revoke(reason);
+    public bool Tick(double now) => _model.Tick(now);
+}
+
+public sealed record BusinessSaveableSlotContract(
+    int Slot,
+    int ClassVtableSlot,
+    string Name,
+    int Token,
+    int ParameterCount,
+    bool HasDefaultInterfaceBody,
+    string DefaultRva,
+    bool DefaultPerformsDiskIo,
+    bool ImplementedByPropertyOrBusiness,
+    bool OverriddenOnProbeSubtype,
+    string DispatchHazard);
+
+public sealed record BusinessSaveableEvaluationInput(
+    bool RegisteredInSaveables,
+    bool RegisteredInBaseSaveables,
+    bool RegisteredInBusinessOrPropertyList,
+    bool LocalExtraFilesInitialized,
+    bool LocalExtraFoldersInitialized,
+    bool SaveFolderNameInitialized,
+    bool ShouldSaveUnderFolder,
+    bool CompleteSaveOverridden,
+    bool GetContainerFolderOverridden,
+    bool WholeWorldSaveRequested,
+    int BoundSubtypeVirtualSlotCount,
+    int VerifiedInterfaceSlotCount);
+
+public sealed record BusinessSaveableEvaluation(
+    bool Admissible,
+    bool NativeSaveWriteAllowed,
+    IReadOnlyList<string> Findings);
+
+public static class BusinessSaveableContractInventory
+{
+    public const int InterfaceOffsetOnBusiness = 23;
+    public const int TotalInterfaceSlots = 23;
+    public const int ExpectedProbeSubtypeBoundVirtualSlots = 16;
+    public static IReadOnlyList<BusinessSaveableSlotContract> Slots { get; } = Array.AsReadOnly(new BusinessSaveableSlotContract[]
+    {
+        new(0, 23, "get_SaveFolderName", 0x06001778, 0, false, "0x0", false, true, false, "returns-property-name-null-if-uninitialized"),
+        new(1, 24, "get_SaveFileName", 0x06001779, 0, false, "0x0", false, true, false, "returns-business-literal"),
+        new(2, 25, "get_Loader", 0x0600177A, 0, false, "0x0", false, true, false, "returns-loader-field"),
+        new(3, 26, "get_ShouldSaveUnderFolder", 0x0600177B, 0, false, "0x0", false, true, true, "overridden-false-safely-bypasses-completesave-folder-creation-and-file-deletion"),
+        new(4, 27, "get_LocalExtraFiles", 0x0600177C, 0, false, "0x0", false, true, false, "null-backing-field-throws-nre-in-completesave"),
+        new(5, 28, "set_LocalExtraFiles", 0x0600177D, 1, false, "0x0", false, true, false, "mutates-extra-files-backing-field"),
+        new(6, 29, "get_LocalExtraFolders", 0x0600177E, 0, false, "0x0", false, true, false, "null-backing-field-throws-nre-in-completesave"),
+        new(7, 30, "set_LocalExtraFolders", 0x0600177F, 1, false, "0x0", false, true, false, "mutates-extra-folders-backing-field"),
+        new(8, 31, "get_HasChanged", 0x06001780, 0, false, "0x0", false, true, false, "reads-has-changed-flag"),
+        new(9, 32, "set_HasChanged", 0x06001781, 1, false, "0x0", false, true, false, "mutates-has-changed-flag"),
+        new(10, 33, "InitializeSaveable", 0x06001782, 0, false, "0x0", false, true, true, "base-registers-in-savemanager-saveables-overridden-on-probe"),
+        new(11, 34, "GetSaveString", 0x06001783, 0, false, "0x0", false, true, true, "empty-return-causes-saverequest-ctor-to-tailcall-completesave-synchronously"),
+        new(12, 35, "Save", 0x06001784, 1, true, "0x583A50", true, false, false, "default-method-probes-filesystem-and-allocates-saverequest"),
+        new(13, 36, "WriteBaseData", 0x06001785, 2, true, "0x583E70", true, false, false, "default-method-writes-base-file-or-logs-error-then-tailcalls-completesave"),
+        new(14, 37, "GetLocalPath", 0x06001786, 1, true, "0x583990", false, false, false, "default-method-combines-save-folder-and-file-names"),
+        new(15, 38, "CompleteSave", 0x06001787, 2, true, "0x582F00", true, false, false, "default-method-creates-container-folder-and-deletes-unapproved-files-before-deleteunapprovedfiles"),
+        new(16, 39, "WriteData", 0x06001788, 1, true, "0x584200", true, true, true, "base-writes-property-and-business-subfiles-overridden-on-probe"),
+        new(17, 40, "DeleteUnapprovedFiles", 0x06001789, 1, true, "0x43FEC0", false, true, true, "called-only-after-default-completesave-folder-deletion-loop"),
+        new(18, 41, "GetContainerFolder", 0x0600178A, 1, true, "0x583840", true, false, false, "default-method-calls-directory-createdirectory"),
+        new(19, 42, "WriteSubfile", 0x0600178B, 3, true, "0x5846A0", true, false, false, "default-method-writes-subfile-to-disk"),
+        new(20, 43, "WriteFolder", 0x0600178C, 2, true, "0x584260", true, false, false, "default-method-creates-folder-on-disk"),
+        new(21, 44, "TryLoadFile", 0x0600178D, 3, true, "0x583D80", true, false, false, "default-method-reads-file-from-disk"),
+        new(22, 45, "TryLoadFile", 0x0600178E, 3, true, "0x583BB0", true, false, false, "default-method-reads-file-from-disk")
+    });
+
+    public static BusinessSaveableEvaluation Evaluate(BusinessSaveableEvaluationInput? input)
+    {
+        if (input == null) return new(false, false, Array.AsReadOnly(new[] { "evaluation-input-missing" }));
+        var findings = new List<string>();
+        if (input.BoundSubtypeVirtualSlotCount != ExpectedProbeSubtypeBoundVirtualSlots)
+            findings.Add("subtype-virtual-slot-binding-incomplete");
+        if (input.VerifiedInterfaceSlotCount != TotalInterfaceSlots)
+            findings.Add("interface-slot-verification-incomplete");
+        if (input.RegisteredInSaveables && !input.RegisteredInBaseSaveables && !input.RegisteredInBusinessOrPropertyList)
+            findings.Add("saveables-without-driver-deadlocks-saveroutine");
+        if (!input.LocalExtraFilesInitialized || !input.LocalExtraFoldersInitialized)
+            findings.Add("uninitialized-extra-lists-nre-in-completesave");
+        if (!input.SaveFolderNameInitialized)
+            findings.Add("uninitialized-save-folder-name-in-local-path");
+        if (input.ShouldSaveUnderFolder && (!input.CompleteSaveOverridden || !input.GetContainerFolderOverridden))
+            findings.Add("default-completesave-creates-container-folder-and-deletes-unapproved-entries");
+        if (input.WholeWorldSaveRequested)
+            findings.Add("whole-world-save-writes-foreign-saveables");
+        return new(findings.Count == 0, false, Array.AsReadOnly(findings.ToArray()));
+    }
+}
+#endregion
+
 public sealed record SubtypeResult(string Status, string[] Findings, bool AttemptConsumed,
     bool RegistrationAttempted, bool RegistrationCompleted, bool CleanupComplete,
     SubtypeSnapshot? Before, SubtypeSnapshot? Registered, SubtypeSnapshot? Constructed,
     SubtypeSnapshot? Dispatched, SubtypeSnapshot? After, SubtypeReadback? Readback, SubtypeDispatch? Dispatch,
-    InterfaceProbeResult? Interface = null, ManagerRegistration? Manager = null);
+    InterfaceProbeResult? Interface = null, ManagerRegistration? Manager = null, ManagerSaveResult? Save = null);
 
 // Exactly one process-lifetime instance. Type registration cannot be undone, including
 // partial failure; cleanup confirms only ownership of the transient Unity object.
@@ -136,7 +1277,10 @@ public sealed class BusinessSubtypeTrial
         ArgumentNullException.ThrowIfNull(port);
         if ((probeManager || probeSave) && probeInterface) throw new InvalidOperationException("manager-and-interface");
         if (probeSave && probeManager) throw new InvalidOperationException("save-and-register");
-        string? denial = ConstructionGate.Check(context, organisation, slot);
+        string? denial = probeSave ? ConstructionGate.CheckSave(context, organisation, slot) : ConstructionGate.Check(context, organisation, slot);
+        if (denial == null && probeSave && port is not IBusinessSavePort)
+            return new("blocked", new[] { "native-save-completion-contract-unverified" }, AttemptConsumed,
+                false, false, false, null, null, null, null, null, null, null);
         if (denial != null || Interlocked.CompareExchange(ref _attempted, 1, 0) != 0)
             return new("skipped", new[] { denial ?? "attempt-already-consumed" }, AttemptConsumed,
                 false, false, false, null, null, null, null, null, null, null);
@@ -148,6 +1292,10 @@ public sealed class BusinessSubtypeTrial
         SubtypeSnapshot? interfaceBeforeSnapshot = null, interfaceAfterSnapshot = null;
         bool interfaceAttempted = false;
         ManagerRegistration? manager = null;
+        ManagerSaveResult? save = null;
+        BusinessManagerSaveTrial? saveTrial = null;
+        ManagerSaveState? savePreflight = null;
+        bool savePreflightReadStarted = false;
         bool registrationAttempted = false, registrationCompleted = false, clean = false;
         string phase = "baseline";
         void Fail(string value) { if (findings.Count < 16) findings.Add(value); }
@@ -157,6 +1305,27 @@ public sealed class BusinessSubtypeTrial
             if (before == null || !Equal(before.Registries, snapshot.Registries) ||
                 !Equal(before.ForeignVtables, snapshot.ForeignVtables))
                 throw new InvalidOperationException("foreign-state-changed");
+        }
+        bool CanCleanupSaveParticipant()
+        {
+            RequireContext();
+            if (saveTrial != null)
+            {
+                save = saveTrial.Result;
+                // Registration intent is recorded before native entry: even a throwing
+                // registration can leave a reference, without ever attempting Save().
+                if (save.RegistrationAttempted || save.SaveAttempted)
+                    return save.SafeToDestroy && save.CompletionConfirmed;
+            }
+            if (!savePreflightReadStarted) return true;
+            var state = saveTrial != null ? saveTrial.Preflight : savePreflight;
+            // An unregistered/blocked result is not a release certificate when its
+            // preflight was unreadable or already showed a referenced participant.
+            return state != null && ConstructionGate.CheckSave(state.Context, organisation, slot) == null &&
+                state.Manager != 0 && state.Saveables != 0 && state.Generation > 0 && state.Frame >= 0 &&
+                !state.IsSaving && state.PendingRequests == 0 && state.OwnEntries == 0 &&
+                state.ActiveCallbacks == 0 && state.Started == 0 && state.Completed == 0 &&
+                !string.IsNullOrEmpty(state.ForeignSaveables);
         }
         try
         {
@@ -176,13 +1345,13 @@ public sealed class BusinessSubtypeTrial
             phase = "dispatched-inspect"; var finalInspection = port.Inspect();
             if (finalInspection != readback) throw new InvalidOperationException("subtype-changed-during-dispatch");
             phase = "dispatched-readback"; dispatched = Freeze(port.Capture()); RequireUnchanged(dispatched);
-            if (probeSave || probeManager)
+            if (probeManager)
             {
-                phase = probeSave ? "manager-save" : "manager-register"; RequireContext();
+                phase = "manager-register"; RequireContext();
                 var nativeManager = port as IBusinessManagerPort ?? throw new InvalidOperationException("manager-port-missing");
-                manager = probeSave ? nativeManager.SaveRegistered() : nativeManager.RegisterOnce();
-                if (manager == null || manager.SaveCalled != probeSave || manager.SavingAfter || manager.Added != 1 || manager.Remaining != 0 || !manager.Removed)
-                    throw new InvalidOperationException(probeSave ? "manager-save-not-settled" : "manager-registration-not-reversed");
+                manager = nativeManager.RegisterOnce();
+                if (manager == null || manager.SaveCalled || manager.SavingAfter || manager.Added != 1 || manager.Remaining != 0 || !manager.Removed)
+                    throw new InvalidOperationException("manager-registration-not-reversed");
                 phase = "manager-readback"; var afterManager = Freeze(port.Capture()); RequireUnchanged(afterManager);
             }
             if (probeInterface)
@@ -200,6 +1369,40 @@ public sealed class BusinessSubtypeTrial
                     throw new InvalidOperationException("interface-target-or-state-changed");
                 interfaceAfterSnapshot = Freeze(port.Capture()); RequireUnchanged(interfaceAfterSnapshot);
             }
+            if (probeSave)
+            {
+                phase = "save-preflight"; RequireContext();
+                var nativeSave = port as IBusinessSavePort ?? throw new InvalidOperationException("save-port-missing");
+                savePreflightReadStarted = true;
+                savePreflight = nativeSave.ReadSaveState();
+                if (!savePreflight.CompletionContractVerified)
+                {
+                    Fail("native-save-completion-contract-unverified");
+                    throw new InvalidOperationException("save-contract-unverified");
+                }
+                phase = "save-begin"; RequireContext();
+                saveTrial = new BusinessManagerSaveTrial();
+                double now = 0;
+                save = saveTrial.Begin(nativeSave, now, contextStillValid);
+                if (save.Status is "blocked" or "failed" or "quarantined")
+                {
+                    foreach (var finding in save.Findings) Fail("save-begin:" + finding);
+                    throw new InvalidOperationException("save-begin-" + save.Status);
+                }
+                if (save.SaveAttempted)
+                {
+                    phase = "save-tick"; RequireContext();
+                    save = saveTrial.Tick(now + 1.0);
+                    if (save.Status == "pending" && (!save.SafeToDestroy || !save.CompletionConfirmed))
+                        save = saveTrial.Tick(now + 2.0);
+                    if (!save.SafeToDestroy || !save.CompletionConfirmed)
+                    {
+                        foreach (var finding in save.Findings) Fail("save-tick:" + finding);
+                        throw new InvalidOperationException("save-completion-unconfirmed");
+                    }
+                }
+                phase = "save-readback"; var afterSave = Freeze(port.Capture()); RequireUnchanged(afterSave);
+            }
         }
         catch (Exception ex) { Fail(phase + ":" + Describe(ex)); }
         finally
@@ -208,6 +1411,14 @@ public sealed class BusinessSubtypeTrial
             {
                 for (int attempt = 1; attempt <= 2 && !clean; attempt++)
                 {
+                    if (probeSave)
+                    {
+                        try
+                        {
+                            if (!CanCleanupSaveParticipant()) { Fail("save-cleanup-deferred"); break; }
+                        }
+                        catch (Exception ex) { Fail("save-cleanup-deferred:" + Describe(ex)); break; }
+                    }
                     try { port.Cleanup(); clean = port.IsClean; if (!clean) Fail("cleanup-incomplete:" + attempt); }
                     catch (Exception ex) { Fail("cleanup:" + Describe(ex)); }
                 }
@@ -219,7 +1430,8 @@ public sealed class BusinessSubtypeTrial
         return new(findings.Count == 0 && clean ? "observed" : "failed", findings.ToArray(), true,
             registrationAttempted, registrationCompleted, clean, before, registered, constructed,
             dispatched, after, readback, dispatch, probeInterface ? new(interfaceBefore, interfaceAfter,
-                interfaceBeforeSnapshot, interfaceAfterSnapshot, interfaceAttempted) : null, manager);
+                interfaceBeforeSnapshot, interfaceAfterSnapshot, interfaceAttempted) : null,
+            Manager: manager, Save: save);
     }
 
     private static SubtypeSnapshot Freeze(SubtypeSnapshot source)
@@ -394,6 +1606,9 @@ public sealed record ConstructionContext(bool LoadComplete, bool Singleplayer, b
 
 public static class ConstructionGate
 {
+    public static string? CheckSave(ConstructionContext? context, string organisation = "TownHallTest", string slot = "SaveGame_2") =>
+        organisation != "TownHallTest" || slot != "SaveGame_2" ? "save-target-not-allowed" : Check(context);
+
     public static string? Check(ConstructionContext? context, string organisation = "TownHallTest", string slot = "SaveGame_2")
     {
         if (context == null) return "context-missing";
@@ -1643,23 +2858,77 @@ internal sealed partial class NativeConstructionPort : IBusinessActivationPort
 #endif
 
 #if TOWNHALL_BUSINESS_SUBTYPE
+#if TOWNHALL_BUSINESS_NETWORK_SUBTYPE
+// Only the injected class's named Unity messages are replaced. Direct native base
+// calls (notably nonvirtual OnDisable/OnDestroy) are not intercepted by this shell.
+public sealed class ProbeNetworkSubtype : Il2CppFishNet.Object.NetworkObject
+{
+    private static int _armedConstructs, _unarmedConstructs;
+    private readonly bool _constructedWhileArmed;
+    private readonly BusinessSaveCallbackLedger _calls = new();
+    public ProbeNetworkSubtype(IntPtr pointer) : base(pointer)
+    {
+        if (Interlocked.CompareExchange(ref _armedConstructs, 0, 1) == 1) _constructedWhileArmed = true;
+        else Interlocked.Increment(ref _unarmedConstructs);
+    }
+    [Il2CppInterop.Runtime.Attributes.HideFromIl2Cpp]
+    internal static void ArmNextConstruction() => Interlocked.Exchange(ref _armedConstructs, 1);
+    [Il2CppInterop.Runtime.Attributes.HideFromIl2Cpp]
+    internal static void DisarmConstruction() => Interlocked.Exchange(ref _armedConstructs, 0);
+    internal static int UnarmedConstructs { [Il2CppInterop.Runtime.Attributes.HideFromIl2Cpp] get => Volatile.Read(ref _unarmedConstructs); }
+    internal bool ConstructedWhileArmed { [Il2CppInterop.Runtime.Attributes.HideFromIl2Cpp] get => _constructedWhileArmed; }
+    [Il2CppInterop.Runtime.Attributes.HideFromIl2Cpp]
+    internal Dictionary<string, int> Counters() => _calls.Snapshot();
+    public override void Awake() => _calls.Record(nameof(Awake));
+    public override void Start() => _calls.Record(nameof(Start));
+    public void OnEnable() => _calls.Record(nameof(OnEnable));
+    public new void OnDisable() => _calls.Record(nameof(OnDisable));
+    public new void OnDestroy() => _calls.Record(nameof(OnDestroy));
+    public void FixedUpdate() => _calls.Record(nameof(FixedUpdate));
+}
+#endif
 // Intentionally no RegisterTypeInIl2Cpp attribute: registration belongs to the gated trial.
 public sealed class ProbeBusinessSubtype : Il2CppScheduleOne.Property.Business
 {
-    private readonly Dictionary<string, int> _calls = new(StringComparer.Ordinal);
-    public ProbeBusinessSubtype(IntPtr pointer) : base(pointer) { }
+    private static int _armedConstructs, _unarmedConstructs;
+    private readonly bool _constructedWhileArmed;
+    private readonly BusinessSaveCallbackLedger _calls = new();
+    public ProbeBusinessSubtype(IntPtr pointer) : base(pointer)
+    {
+        if (Interlocked.CompareExchange(ref _armedConstructs, 0, 1) == 1) _constructedWhileArmed = true;
+        else Interlocked.Increment(ref _unarmedConstructs);
+    }
     [Il2CppInterop.Runtime.Attributes.HideFromIl2Cpp]
-    private void Count(string name) => _calls[name] = _calls.TryGetValue(name, out int count) ? count + 1 : 1;
+    internal static void ArmNextConstruction() => Interlocked.Exchange(ref _armedConstructs, 1);
     [Il2CppInterop.Runtime.Attributes.HideFromIl2Cpp]
-    internal Dictionary<string, int> Counters() => new(_calls, StringComparer.Ordinal);
+    internal static void DisarmConstruction() => Interlocked.Exchange(ref _armedConstructs, 0);
+    internal static int UnarmedConstructs { [Il2CppInterop.Runtime.Attributes.HideFromIl2Cpp] get => Volatile.Read(ref _unarmedConstructs); }
+    internal bool ConstructedWhileArmed { [Il2CppInterop.Runtime.Attributes.HideFromIl2Cpp] get => _constructedWhileArmed; }
     [Il2CppInterop.Runtime.Attributes.HideFromIl2Cpp]
-    internal int Calls(string name) => _calls.TryGetValue(name, out int count) ? count : 0;
+    private void Count(string name) => _calls.Record(name);
+    [Il2CppInterop.Runtime.Attributes.HideFromIl2Cpp]
+    internal Dictionary<string, int> Counters() => _calls.Snapshot();
+    [Il2CppInterop.Runtime.Attributes.HideFromIl2Cpp]
+    internal int Calls(string name) => _calls.Calls(name);
+    internal bool SaveCallbackObserved { [Il2CppInterop.Runtime.Attributes.HideFromIl2Cpp] get => _calls.SaveCallbackObserved; }
     public override bool ShouldSave() { Count(nameof(ShouldSave)); return false; }
     public override bool CanBePurchased() { Count(nameof(CanBePurchased)); return false; }
+    public override bool ShouldSaveUnderFolder
+    {
+        get
+        {
+            Count("get_ShouldSaveUnderFolder");
+            return false;
+        }
+    }
     public override void Awake() => Count(nameof(Awake));
     public override void Start() => Count(nameof(Start));
     public override void OnDestroy() => Count(nameof(OnDestroy));
     public override void FixedUpdate() => Count(nameof(FixedUpdate));
+#if TOWNHALL_BUSINESS_ACTIVE_SUBTYPE
+    public void OnEnable() => Count(nameof(OnEnable));
+    public void OnDisable() => Count(nameof(OnDisable));
+#endif
     public override void InitializeSaveable() => Count(nameof(InitializeSaveable));
     public override string GetSaveString() { Count(nameof(GetSaveString)); return ""; }
     public override il2cpp::Il2CppSystem.Collections.Generic.List<string> WriteData(string parentFolderPath)
@@ -1677,9 +2946,25 @@ public sealed class ProbeBusinessSubtype : Il2CppScheduleOne.Property.Business
 
 internal static class BusinessSubtypeRuntime
 {
-#if TOWNHALL_BUSINESS_MANAGER
+#if TOWNHALL_BUSINESS_ACTIVE_SUBTYPE
+    private const bool ProbeInterface = false, ProbeManager = false, ProbeSave = false;
+    private const string ExpectedOrganisation = "TownHallTest", ExpectedSlot = "SaveGame_2";
+#if TOWNHALL_BUSINESS_DATA
+    private const string ProbeMode = "own-business-data-queries-no-io", ReportFolder = "BusinessData";
+    private static readonly BusinessActiveSubtypeTrial ActiveTrial = new(requireData: true);
+#elif TOWNHALL_BUSINESS_NETWORK_SUBTYPE
+    private const string ProbeMode = "own-network-business-binding-no-io", ReportFolder = "BusinessNetworkSubtype";
+    private static readonly BusinessActiveSubtypeTrial ActiveTrial = new(requireNetwork: true);
+#else
+    private const string ProbeMode = "active-own-business-lifecycle-no-io", ReportFolder = "BusinessActiveSubtype";
+    private static readonly BusinessActiveSubtypeTrial ActiveTrial = new();
+#endif
+    private static ConstructionContext? _activeContext;
+    private static long _activeGeneration;
+    private static bool _activeReportWritten;
+#elif TOWNHALL_BUSINESS_MANAGER
     private const bool ProbeInterface = false, ProbeManager = false, ProbeSave = true;
-    private const string ExpectedOrganisation = "Dominik", ExpectedSlot = "SaveGame_1";
+    private const string ExpectedOrganisation = "TownHallTest", ExpectedSlot = "SaveGame_2";
     private const string ProbeMode = "inactive-saveable-save", ReportFolder = "BusinessManager";
 #elif TOWNHALL_BUSINESS_INTERFACE
     private const bool ProbeInterface = true, ProbeManager = false, ProbeSave = false;
@@ -1695,11 +2980,17 @@ internal static class BusinessSubtypeRuntime
     internal const string ApiHash = "d751a3cb66003f7a616eb9f8054daf34da0d9d7f23416a5005a586738a680852";
     internal const string InteropHash = "3878ce0ba0c60385f76f2ba37e07ad0ee3649d019703aec8695db3402abeedd7";
     internal const string HarmonyHash = "6c898933b52149e8bcf6722305c7e4d94add47c9e53b364096f91721624c0877";
+#if TOWNHALL_BUSINESS_DATA
+    private const string DataGameAssemblyHash = "61829050e56ca180d67be592e4bfe61ec97d2e9573f720d90a54e318a7e4381d";
+    private const string DataMetadataHash = "e775c97da277da8eb1a90265478f3b65c9c3d6464aff4f7255d45280a1d1181f";
+    private static string? _dataGameAssemblyHash, _dataMetadataHash;
+#endif
     private static readonly BusinessSubtypeTrial Trial = new();
     private static Func<bool>? _hallReady;
     private static bool _ready, _loaded;
     private static int _thread;
     private static long _generation;
+    internal static long Generation => _generation;
     private static NativeSubtypePort? _port;
     private static float _due = -1;
     private static string _directory = "", _assemblyHash = "";
@@ -1716,26 +3007,64 @@ internal static class BusinessSubtypeRuntime
                 Hash(typeof(Il2CppInterop.Runtime.Injection.ClassInjector).Assembly.Location) != InteropHash ||
                 Hash(typeof(HarmonyLib.Harmony).Assembly.Location) != HarmonyHash)
                 throw new InvalidOperationException("subtype-dependency-hash-mismatch");
+#if TOWNHALL_BUSINESS_DATA
+            using (var process = System.Diagnostics.Process.GetCurrentProcess())
+            {
+                var modules = process.Modules.Cast<System.Diagnostics.ProcessModule>()
+                    .Where(m => string.Equals(m.ModuleName, "GameAssembly.dll", StringComparison.OrdinalIgnoreCase)).ToArray();
+                if (modules.Length != 1) throw new InvalidOperationException("data-native-module-unconfirmed");
+                string? nativePath = modules[0].FileName;
+                if (string.IsNullOrWhiteSpace(nativePath)) throw new InvalidOperationException("data-native-module-path-unconfirmed");
+                _dataGameAssemblyHash = Hash(nativePath);
+                _dataMetadataHash = Hash(Path.Combine(Path.GetDirectoryName(nativePath)!, "Schedule I_Data", "il2cpp_data", "Metadata", "global-metadata.dat"));
+                if (_dataGameAssemblyHash != DataGameAssemblyHash || _dataMetadataHash != DataMetadataHash)
+                    throw new InvalidOperationException("data-native-body-input-hash-mismatch");
+            }
+#endif
             _directory = Path.Combine(MelonLoader.Utils.MelonEnvironment.UserDataDirectory, "TownHallInterior", ReportFolder);
             Directory.CreateDirectory(_directory);
             S1API.Lifecycle.GameLifecycle.OnLoadComplete += Loaded;
             S1API.Lifecycle.GameLifecycle.OnPreSceneChange += Leaving;
             S1API.Lifecycle.GameLifecycle.OnPreLoad += Leaving;
             _ready = true;
+#if TOWNHALL_BUSINESS_ACTIVE_SUBTYPE
+#if TOWNHALL_BUSINESS_DATA
+            MelonLoader.MelonLogger.Msg("TownHall business data: own empty data/container/bounds and native queries armed for TownHallTest / SaveGame_2; no native initialization or publication.");
+#elif TOWNHALL_BUSINESS_NETWORK_SUBTYPE
+            MelonLoader.MelonLogger.Msg("TownHall network subtype: own no-base NetworkObject/Business binding probe armed for TownHallTest / SaveGame_2; no native initialization or publication.");
+#else
+            MelonLoader.MelonLogger.Msg("TownHall active subtype: own no-IO shell lifecycle probe armed for TownHallTest / SaveGame_2; no registry publication or NetworkObject.");
+#endif
+#else
             MelonLoader.MelonLogger.Msg(ProbeSave
-                ? "TownHall save probe armed for Dominik / SaveGame_1 only; one register, two Save() calls, own writes do not call base."
+                ? "TownHall save probe restricted to TownHallTest / SaveGame_2; native writes blocked until the completion contract is verified."
                 : "TownHall subtype: gated inactive native-dispatch test armed; no game-method detours.");
+#endif
         }
         catch (Exception ex) { _ready = false; MelonLoader.MelonLogger.Warning("TownHall subtype unavailable: " + ex.GetType().Name); }
     }
     private static void Loaded()
     {
         if (!_ready || Environment.CurrentManagedThreadId != _thread) return;
+#if TOWNHALL_BUSINESS_ACTIVE_SUBTYPE
+        if (_loaded || ActiveTrial.AttemptConsumed) return;
+        _activeReportWritten = false;
+#endif
         _generation++; _loaded = true; _due = UnityEngine.Time.realtimeSinceStartup + 6;
     }
-    internal static void Leaving() { _generation++; _loaded = false; _due = -1; }
+    internal static void Leaving()
+    {
+#if TOWNHALL_BUSINESS_ACTIVE_SUBTYPE
+        ActiveTrial.Leave();
+        if (ActiveTrial.AttemptConsumed && !ActiveTrial.Pending) WriteActiveReport();
+#endif
+        _generation++; _loaded = false; _due = -1;
+    }
     internal static void Tick()
     {
+#if TOWNHALL_BUSINESS_ACTIVE_SUBTYPE
+        TickActive();
+#else
         if (!_ready || !_loaded || _due < 0 || UnityEngine.Time.realtimeSinceStartup < _due) return;
         _due = -1;
         try
@@ -1758,15 +3087,15 @@ internal static class BusinessSubtypeRuntime
             var result = Trial.Run(context, port, ContextValid, ProbeInterface, ProbeManager, ExpectedOrganisation, ExpectedSlot, ProbeSave);
             var report = new
             {
-                Schema = 2, Mode = ProbeMode, CapturedUtc = DateTime.UtcNow,
+                Schema = 3, Mode = ProbeMode, CapturedUtc = DateTime.UtcNow,
                 AssemblySha256 = _assemblyHash, NativeProxySha256 = NativeHash, FishNetSha256 = FishNetHash,
                 S1ApiSha256 = ApiHash, InteropRuntimeSha256 = InteropHash, HarmonySha256 = HarmonyHash, Target = ExpectedOrganisation + " / " + ExpectedSlot,
-                WorldPublicationAllowed = false, NativeSaveWriteAllowed = ProbeSave, GameMethodDetoursAdded = false,
+                WorldPublicationAllowed = false, NativeSaveWriteAllowed = false, SaveCompletionContractVerified = result.Save?.CompletionConfirmed == true, GameMethodDetoursAdded = false,
                 Context = context, Generation = generation, Result = result, Native = port.Details,
                 NativeEvidenceFromThisAttempt = result.RegistrationAttempted,
                 Limitation = "Type registration persists until process exit. CleanupComplete covers the own Unity root and acquired Business component. " +
                     "Own callback counters and class/vtable snapshots are bounded observations, not a proof of every native side effect. " +
-                    (ProbeSave ? "The added route registers one inactive object, calls Save() once, removes it, then calls Save() again if the first call has returned and saving is idle. Own GetSaveString, WriteData and DeleteUnapprovedFiles do not call base. " :
+                    (ProbeSave ? "The legacy immediate-removal/double-Save route has been removed. This mode is blocked before registration or a native save until a verified completion adapter exists. The pure completion state machine is offline-tested, not a native completion proof. " :
                     ProbeInterface ? "The added route is only ISaveable.InitializeSaveable to the own no-base callback. Other interface methods and native manager call paths remain untested. " :
                     "Dispatch proves the Property proxy/class virtual route only; ISaveable/interface dispatch and native manager call paths remain untested. ") +
                     "A skipped result retains historical Native details; it performs no new cleanup or readback. " +
@@ -1779,7 +3108,120 @@ internal static class BusinessSubtypeRuntime
             MelonLoader.MelonLogger.Msg("TownHall subtype " + result.Status + ": " + path);
         }
         catch (Exception ex) { _ready = false; MelonLoader.MelonLogger.Warning("TownHall subtype stopped: " + ex.GetType().Name); }
+#endif
     }
+#if TOWNHALL_BUSINESS_ACTIVE_SUBTYPE
+    private static void TickActive()
+    {
+        if (!_ready) return;
+        try
+        {
+            if (Environment.CurrentManagedThreadId != _thread) throw new InvalidOperationException("wrong-thread");
+            if (ActiveTrial.Pending)
+            {
+                ActiveTrial.Tick(UnityEngine.Time.realtimeSinceStartup);
+                if (!ActiveTrial.Pending) WriteActiveReport();
+                return;
+            }
+            if (ActiveTrial.AttemptConsumed || !_loaded || _due < 0 || UnityEngine.Time.realtimeSinceStartup < _due) return;
+            _due = -1; _activeContext = CurrentContext(); _activeGeneration = _generation;
+            long generation = _generation;
+#if TOWNHALL_BUSINESS_DATA
+            var originalContext = _activeContext;
+            var originalManager = Il2CppScheduleOne.DevUtilities.PersistentSingleton<Il2CppScheduleOne.Persistence.SaveManager>.Instance;
+            IntPtr originalManagerPointer = S1Mods.Shared.NetworkGuard.IsAlive(originalManager) ? originalManager.Pointer : IntPtr.Zero;
+            bool Current()
+            {
+                if (!_ready || !_loaded || generation != _generation || Environment.CurrentManagedThreadId != _thread ||
+                    ConstructionGate.Check(originalContext) != null) return false;
+                var current = CurrentContext();
+                if (ConstructionGate.Check(current) != null) return false;
+                var manager = Il2CppScheduleOne.DevUtilities.PersistentSingleton<Il2CppScheduleOne.Persistence.SaveManager>.Instance;
+                return S1Mods.Shared.NetworkGuard.IsAlive(manager) && manager.Pointer == originalManagerPointer &&
+                    string.Equals(current.OrganisationName, originalContext.OrganisationName, StringComparison.Ordinal) &&
+                    string.Equals(Path.TrimEndingDirectorySeparator(Path.GetFullPath(current.ActiveSavePath!)), Path.TrimEndingDirectorySeparator(Path.GetFullPath(originalContext.ActiveSavePath!)), StringComparison.OrdinalIgnoreCase) &&
+                    string.Equals(Path.TrimEndingDirectorySeparator(Path.GetFullPath(current.LoadedSavePath!)), Path.TrimEndingDirectorySeparator(Path.GetFullPath(originalContext.LoadedSavePath!)), StringComparison.OrdinalIgnoreCase);
+            }
+#else
+            bool Current() => _ready && _loaded && generation == _generation && Environment.CurrentManagedThreadId == _thread &&
+                ConstructionGate.Check(CurrentContext()) == null;
+#endif
+            _port = new NativeSubtypePort(Current);
+            ActiveTrial.Begin(_activeContext, _port, Current, UnityEngine.Time.realtimeSinceStartup);
+            if (!ActiveTrial.Pending) WriteActiveReport();
+        }
+        catch (Exception ex)
+        {
+            ActiveTrial.Leave(); _ready = false;
+            MelonLoader.MelonLogger.Warning("TownHall active subtype stopped: " + ex.GetType().Name);
+            WriteActiveReport();
+        }
+    }
+    private static void WriteActiveReport()
+    {
+        if (_activeReportWritten || _activeContext == null || string.IsNullOrEmpty(_directory)) return;
+        try
+        {
+            var result = ActiveTrial.Result;
+            var report = new
+            {
+                Schema = 1,
+                Mode = ProbeMode,
+                CapturedUtc = DateTime.UtcNow,
+                AssemblySha256 = _assemblyHash,
+                NativeProxySha256 = NativeHash,
+                FishNetSha256 = FishNetHash,
+                S1ApiSha256 = ApiHash,
+                InteropRuntimeSha256 = InteropHash,
+                HarmonySha256 = HarmonyHash,
+                Target = ExpectedOrganisation + " / " + ExpectedSlot,
+                Context = _activeContext,
+                Generation = _activeGeneration,
+                WorldPublicationAllowed = false,
+                NativeSaveWriteAllowed = false,
+#if TOWNHALL_BUSINESS_DATA
+                BusinessDataProbeEnabled = true,
+                GameAssemblySha256 = _dataGameAssemblyHash,
+                NativeMetadataSha256 = _dataMetadataHash,
+#endif
+#if TOWNHALL_BUSINESS_NETWORK_SUBTYPE
+                NetworkObjectProbeEnabled = true,
+                NetworkObjectConstructionAttempted = _port?.NetworkObjectConstructionAttempted == true,
+                NetworkObjectHandleAcquired = _port?.NetworkObjectHandleAcquired == true,
+                OriginalNetworkLifecycleAllowed = false,
+#else
+                NetworkObjectAdded = false,
+#endif
+                GameMethodDetoursAdded = false,
+                FrameSource = "UnityEngine.Time.frameCount; no synthetic advancement",
+                Result = result,
+                Native = _port?.Details,
+                NativeEvidenceFromThisAttempt = result.AttemptConsumed,
+                Limitation =
+#if TOWNHALL_BUSINESS_DATA
+                    "Own diagnostic empty collections, separate loaders, container SetProperty and S1API/native zero laundering and inside/outside queries only. " +
+                    "Listener fingerprints read the ActionList backing fields _size/_items/_version; the entry bound follows the observed container capacity (<=4096), and the separate generic Count getter plus node/max-children counts are recorded diagnostically. " +
+                    "Native metadata and the cached LINQ selector can initialize; unchanged known registries/listeners do not imply all global state is unchanged. " +
+                    "Unity cleanup confirms retained own object absence; GC collection/loader/wrapper handle release does not prove immediate native memory reclamation. " +
+                    "No complete Business initialization, production bounds, balancing, nonempty laundering, purchase, Save or publication is established. " +
+#elif TOWNHALL_BUSINESS_NETWORK_SUBTYPE
+                    "Own no-base NetworkObject and Business cache binding only; no original native initialization, spawn, registry publication, Save, purchase or writing. " +
+                    "Own OnDisable/OnDestroy names shadow nonvirtual base methods; direct calls to native base bodies are not intercepted. Known holder scans are bounded, not a proof about every delegate or native reference. " +
+#else
+                    "Own active no-base shell only; no NetworkObject, registry publication, Save, purchase or writing. " +
+#endif
+                    "Named-method metadata is a prerequisite, not proof of Unity message delivery; only observed own counters describe this attempt. " +
+                    "Type registration persists until process exit. Unknown effects or world leave consume the attempt and retain handles without speculative cleanup. " +
+                    "This does not establish native Business initialization, persistence/reload, a world-exit drain, native last-use or code-unload safety."
+            };
+            string path = Path.Combine(_directory, DateTime.UtcNow.ToString("yyyyMMddTHHmmssfffZ") + ".json");
+            File.WriteAllText(path + ".tmp", JsonSerializer.Serialize(report, new JsonSerializerOptions { WriteIndented = true }));
+            File.Move(path + ".tmp", path, true); _activeReportWritten = true;
+            MelonLoader.MelonLogger.Msg("TownHall active subtype " + result.Status + ": " + path);
+        }
+        catch (Exception ex) { MelonLoader.MelonLogger.Warning("TownHall active subtype report unavailable: " + ex.GetType().Name); }
+    }
+#endif
     internal static void Stop()
     {
         Leaving(); _ready = false;
@@ -1787,7 +3229,7 @@ internal static class BusinessSubtypeRuntime
         S1API.Lifecycle.GameLifecycle.OnPreSceneChange -= Leaving;
         S1API.Lifecycle.GameLifecycle.OnPreLoad -= Leaving;
     }
-    private static ConstructionContext CurrentContext()
+    internal static ConstructionContext CurrentContext()
     {
         var load = Il2CppScheduleOne.DevUtilities.PersistentSingleton<Il2CppScheduleOne.Persistence.LoadManager>.Instance;
         var save = Il2CppScheduleOne.DevUtilities.PersistentSingleton<Il2CppScheduleOne.Persistence.SaveManager>.Instance;
@@ -1815,10 +3257,20 @@ internal sealed unsafe class ManagedSubtypeTypeResolution : ITypeResolutionPatch
     private IntPtr _networkClass, _networkType;
     private bool _originalResolved, _postScopeReadback, _preflightComplete;
     private string? _postScopeFailure, _qualifiedProxy;
-    public object Details => new { Mapping = SubtypeTypeNamePolicy.NativeName, NativeClass = _networkClass.ToInt64().ToString("X"),
-        ProxyQualifiedName = _qualifiedProxy, ManagedPatchOwner = Owner, ManagedTargets = new[] { _nameHelper.ToString(), _registrar.ToString() },
-        ParameterInventory = _inventory.ToArray(), PreflightComplete = _preflightComplete, OriginalResolverAlreadyResolves = _originalResolved,
-        PostScopeOriginalResolutionConfirmed = _postScopeReadback, PostScopeFailure = _postScopeFailure, Outcome = _lease.Outcome };
+    public object Details => new
+    {
+        Mapping = SubtypeTypeNamePolicy.NativeName,
+        NativeClass = _networkClass.ToInt64().ToString("X"),
+        ProxyQualifiedName = _qualifiedProxy,
+        ManagedPatchOwner = Owner,
+        ManagedTargets = new[] { _nameHelper.ToString(), _registrar.ToString() },
+        ParameterInventory = _inventory.ToArray(),
+        PreflightComplete = _preflightComplete,
+        OriginalResolverAlreadyResolves = _originalResolved,
+        PostScopeOriginalResolutionConfirmed = _postScopeReadback,
+        PostScopeFailure = _postScopeFailure,
+        Outcome = _lease.Outcome
+    };
 
     internal ManagedSubtypeTypeResolution()
     {
@@ -1949,9 +3401,17 @@ internal sealed unsafe class ManagedSubtypeTypeResolution : ITypeResolutionPatch
             void Add(string kind, IEnumerable<HarmonyLib.Patch> patches)
             {
                 foreach (var patch in patches.Where(p => p.owner != Owner))
-                    result.Add(JsonSerializer.Serialize(new { Target = target.Name, Kind = kind, Owner = patch.owner,
+                    result.Add(JsonSerializer.Serialize(new
+                    {
+                        Target = target.Name,
+                        Kind = kind,
+                        Owner = patch.owner,
                         Method = patch.PatchMethod.Module.ModuleVersionId + ":" + patch.PatchMethod.MetadataToken,
-                        Priority = patch.priority, Index = patch.index, Before = patch.before, After = patch.after }));
+                        Priority = patch.priority,
+                        Index = patch.index,
+                        Before = patch.before,
+                        After = patch.after
+                    }));
             }
             Add("prefix", info.Prefixes); Add("postfix", info.Postfixes); Add("transpiler", info.Transpilers); Add("finalizer", info.Finalizers);
         }
@@ -1979,35 +3439,154 @@ internal sealed unsafe class ManagedSubtypeTypeResolution : ITypeResolutionPatch
         HarmonyLib.Harmony.GetPatchInfo(_registrar)?.Finalizers.Count(p => p.owner == Owner && p.PatchMethod == _entryFinalizer) == 1;
 }
 
-internal sealed unsafe class NativeSubtypePort : IBusinessSubtypePort, IBusinessInterfacePort, IBusinessManagerPort
+internal sealed unsafe class NativeSubtypePort : IBusinessSubtypePort, IBusinessInterfacePort, IBusinessManagerPort, IBusinessSavePort
+#if TOWNHALL_BUSINESS_DATA
+    , IBusinessDataPort
+#elif TOWNHALL_BUSINESS_NETWORK_SUBTYPE
+    , IBusinessNetworkSubtypePort
+#elif TOWNHALL_BUSINESS_ACTIVE_SUBTYPE
+    , IBusinessActiveSubtypePort
+#endif
 {
     private readonly Func<bool> _contextValid;
     private readonly bool _probeInterface;
     internal NativeSubtypePort(Func<bool> contextValid, bool probeInterface = false) { _contextValid = contextValid; _probeInterface = probeInterface; }
-    private void RequireContext() { if (!_contextValid()) throw new InvalidOperationException("context-expired"); }
+    private void RequireContext()
+    {
+        if (!_contextValid()) throw new InvalidOperationException("context-expired");
+#if TOWNHALL_BUSINESS_DATA
+        if (_dataWorld != null)
+        {
+            var save = Il2CppScheduleOne.DevUtilities.PersistentSingleton<Il2CppScheduleOne.Persistence.SaveManager>.Instance;
+            if (BusinessSubtypeRuntime.Generation != _dataGeneration || !SameNativeWorld(BusinessSubtypeRuntime.CurrentContext(), _dataWorld) ||
+                !S1Mods.Shared.NetworkGuard.IsAlive(save) || save.Pointer != _dataSaveManager || save.IsSaving)
+                throw new InvalidOperationException("data-world-or-save-manager-changed");
+            var queue = save.QueuedSaveRequests;
+            if (ReferenceEquals(queue, null) || queue.WasCollected || queue.Count != 0) throw new InvalidOperationException("data-save-queue-not-idle");
+        }
+#endif
+    }
     private UnityEngine.GameObject? _root;
     private ProbeBusinessSubtype? _business;
     private IntPtr _rootPointer, _businessPointer, _ownClass;
     private bool _registrationReturned, _registered, _destroyed, _cleanupVerified;
+#if TOWNHALL_BUSINESS_DATA
+    private readonly Dictionary<string, Il2CppInterop.Runtime.InteropTypes.Il2CppObjectBase> _dataHandles = new(StringComparer.Ordinal);
+    private readonly List<Il2CppInterop.Runtime.InteropTypes.Il2CppObjectBase> _dataPendingHandles = new();
+    private readonly Dictionary<string, (UnityEngine.Object Handle, IntPtr Pointer)> _dataUnity = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, string> _dataMethods = new(StringComparer.Ordinal);
+    private readonly List<object> _dataCalls = new();
+    private SubtypeSnapshot? _dataForeignBaseline;
+    private ConstructionContext? _dataWorld;
+    private long _dataGeneration;
+    private IntPtr _dataSaveManager;
+    private S1API.Property.BusinessWrapper? _dataWrapper;
+    private UnityEngine.GameObject? _dataContainerRoot, _dataBoundsRoot;
+    private Il2CppScheduleOne.Property.PropertyContentsContainer? _dataContainer;
+    private UnityEngine.BoxCollider? _dataBounds;
+    private BusinessDataState? _dataLastRead;
+    private Dictionary<string, string>? _dataListenerDiagnostics;
+    private bool _dataPreparationAttempted, _dataPrepared, _dataSetPropertyAttempted, _dataSetPropertyReturned, _dataQueryAttempted, _dataCleanupVerified;
+    public bool DataCleanupVerified => _dataCleanupVerified; // Cached only: never reread native objects after context revocation.
+#endif
+#if TOWNHALL_BUSINESS_NETWORK_SUBTYPE
+    private ProbeNetworkSubtype? _network;
+    private IntPtr _networkPointer, _networkClass, _behaviourArrayPointer;
+    private bool _networkRegistrationAttempted, _networkRegistrationReturned;
+    internal bool NetworkObjectConstructionAttempted { get; private set; }
+    internal bool NetworkObjectHandleAcquired => _networkPointer != IntPtr.Zero;
+    private readonly Dictionary<string, (IntPtr Method, IntPtr Pointer, IntPtr Invoker, IntPtr Virtual)> _networkUnityMessages = new(StringComparer.Ordinal);
+    private readonly List<object> _networkUnityEvidence = new();
+    private Dictionary<string, int>? _networkBeforeCleanup;
+    private object? _networkBindingDetails;
+    private Dictionary<string, string>? _networkHolderBaseline;
+    private ActiveSubtypeState? _nativeNetworkBinding;
+    private ActiveSubtypeState? _nativeNetworkLastRead;
+#endif
+    private int _saveStarted, _saveCompleted;
+    private long _lastFrame = -1;
+    private long NextFrame()
+    {
+        long currentUnity = UnityEngine.Time.frameCount;
+        while (true)
+        {
+            long last = Volatile.Read(ref _lastFrame);
+            long target = Math.Max(currentUnity, last + 1);
+            if (Interlocked.CompareExchange(ref _lastFrame, target, last) == last)
+                return target;
+        }
+    }
     private Dictionary<string, int>? _beforeCleanup;
     private readonly List<object> _components = new();
     private readonly List<object> _targets = new();
     private readonly Dictionary<string, IntPtr> _baseMethods = new(StringComparer.Ordinal);
     private readonly Dictionary<string, IntPtr> _ownMethods = new(StringComparer.Ordinal);
     private readonly Dictionary<string, IntPtr> _ownMethodPointers = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, int> _baseSlots = new(StringComparer.Ordinal);
     private readonly List<object> _interfaceStages = new();
+#if TOWNHALL_BUSINESS_ACTIVE_SUBTYPE
+    private static readonly string[] UnityMessageNames = { "Awake", "Start", "FixedUpdate", "OnEnable", "OnDisable", "OnDestroy" };
+    private readonly Dictionary<string, (IntPtr Method, IntPtr Pointer, IntPtr Invoker, IntPtr Virtual)> _unityMessages = new(StringComparer.Ordinal);
+    private readonly List<object> _unityMessageEvidence = new();
+    private bool _activeSetAttempted, _inactiveSetAttempted, _activeCleanupAttempted;
+    private long? _lastObservedUnityFrame;
+#endif
     private int _expectedInterfaceCallbacks;
     private bool _interfaceAttempted;
     private ManagedSubtypeTypeResolution? _resolution;
     public object Details => new
     {
-        RootPointer = Hex(_rootPointer), BusinessPointer = Hex(_businessPointer), OwnClassPointer = Hex(_ownClass),
-        ClassInjectorReturned = _registrationReturned, TypeSlotsValidated = _registered, TypeRegistrationReversible = false,
-        RootDestroyed = _destroyed, CleanupVerified = _cleanupVerified,
-        Components = _components.ToArray(), NativeTargets = _targets.ToArray(), LifecycleBeforeCleanup = _beforeCleanup,
-        CountersAfterCleanup = _business?.Counters(), TypeResolution = _resolution?.Details,
-        InterfaceEnabled = _probeInterface, InterfaceInvocationAttempted = _interfaceAttempted,
-        InterfaceStages = _interfaceStages.ToArray(), ExpectedInterfaceCallbacks = _expectedInterfaceCallbacks
+        RootPointer = Hex(_rootPointer),
+        BusinessPointer = Hex(_businessPointer),
+        OwnClassPointer = Hex(_ownClass),
+        ClassInjectorReturned = _registrationReturned,
+        TypeSlotsValidated = _registered,
+        TypeRegistrationReversible = false,
+        RootDestroyed = _destroyed,
+        CleanupVerified = _cleanupVerified,
+        Components = _components.ToArray(),
+        NativeTargets = _targets.ToArray(),
+        LifecycleBeforeCleanup = _beforeCleanup,
+        CountersAfterCleanup = _business?.Counters(),
+        TypeResolution = _resolution?.Details,
+        InterfaceEnabled = _probeInterface,
+        InterfaceInvocationAttempted = _interfaceAttempted,
+        InterfaceStages = _interfaceStages.ToArray(),
+        ExpectedInterfaceCallbacks = _expectedInterfaceCallbacks
+#if TOWNHALL_BUSINESS_ACTIVE_SUBTYPE
+        ,
+        UnityMessages = _unityMessageEvidence.ToArray(),
+        LastObservedUnityFrame = _lastObservedUnityFrame
+#endif
+#if TOWNHALL_BUSINESS_NETWORK_SUBTYPE
+        ,
+        NetworkPointer = Hex(_networkPointer),
+        NetworkClass = Hex(_networkClass),
+        BehaviourArray = Hex(_behaviourArrayPointer),
+        NetworkTypeRegistrationAttempted = _networkRegistrationAttempted,
+        NetworkTypeRegistrationReturned = _networkRegistrationReturned,
+        NetworkUnityMessages = _networkUnityEvidence.ToArray(),
+        NetworkBinding = _networkBindingDetails,
+        NetworkCountersBeforeCleanup = _networkBeforeCleanup,
+        NetworkCountersAfterCleanup = _network?.Counters()
+#endif
+#if TOWNHALL_BUSINESS_DATA
+        ,
+        DataPreparationAttempted = _dataPreparationAttempted,
+        DataPreparationConfirmed = _dataPrepared,
+        SetPropertyAttempted = _dataSetPropertyAttempted,
+        SetPropertyReturned = _dataSetPropertyReturned,
+        DataQueryAttempted = _dataQueryAttempted,
+        DataCalls = _dataCalls.ToArray(),
+        DataLastRead = _dataLastRead,
+        DataNativeMethods = new Dictionary<string, string>(_dataMethods),
+        DataCleanupVerified = _dataCleanupVerified,
+        DataUnityResources = _dataUnity.ToDictionary(p => p.Key, p => Hex(p.Value.Pointer)),
+        DataGcHandlesReleased = _dataCleanupVerified && _dataHandles.Count == 0 && _dataWrapper == null,
+        DataUnconfirmedHandlesRetained = _dataPendingHandles.Count,
+        DataGcMemoryReclamationConfirmed = false,
+        DataListenerDiagnostics = _dataListenerDiagnostics == null ? null : new Dictionary<string, string>(_dataListenerDiagnostics, StringComparer.Ordinal)
+#endif
     };
     public SubtypeSnapshot Capture()
     {
@@ -2022,6 +3601,21 @@ internal sealed unsafe class NativeSubtypePort : IBusinessSubtypePort, IBusiness
             Class<Il2CppFishNet.Connection.NetworkConnection>()
         };
         if (_probeInterface) classes.Add(Class<Il2CppScheduleOne.Persistence.ISaveable>());
+#if TOWNHALL_BUSINESS_NETWORK_SUBTYPE
+        classes.Add(Class<Il2CppFishNet.Object.NetworkObject>());
+#endif
+#if TOWNHALL_BUSINESS_DATA
+        var dataWorld = BusinessSubtypeRuntime.CurrentContext();
+        if (_dataWorld == null)
+        { _dataWorld = dataWorld; _dataGeneration = BusinessSubtypeRuntime.Generation; _dataSaveManager = save.Pointer; }
+        if (BusinessSubtypeRuntime.Generation != _dataGeneration || !SameNativeWorld(dataWorld, _dataWorld) || save.Pointer != _dataSaveManager)
+            throw new InvalidOperationException("data-world-or-save-manager-changed");
+        ValidateDataMethods();
+        classes.Add(Class<Il2CppScheduleOne.Property.PropertyContentsContainer>());
+        classes.Add(Class<Il2CppScheduleOne.Persistence.Loaders.PropertyLoader>());
+        classes.Add(Class<Il2CppScheduleOne.Persistence.Loaders.BusinessLoader>());
+        classes.Add(Class<UnityEngine.BoxCollider>());
+#endif
         var registries = new Dictionary<string, string>(StringComparer.Ordinal)
         {
             ["properties"] = Fingerprint(Il2CppScheduleOne.Property.Property.Properties, classes),
@@ -2030,11 +3624,23 @@ internal sealed unsafe class NativeSubtypePort : IBusinessSubtypePort, IBusiness
             ["businesses"] = Fingerprint(Il2CppScheduleOne.Property.Business.Businesses, classes),
             ["businesses-owned"] = Fingerprint(Il2CppScheduleOne.Property.Business.OwnedBusinesses, classes),
             ["businesses-unowned"] = Fingerprint(Il2CppScheduleOne.Property.Business.UnownedBusinesses, classes),
-            ["saveables"] = Fingerprint(save.Saveables), ["base-saveables"] = Fingerprint(save.BaseSaveables),
-            ["completed-saveables"] = Fingerprint(save.CompletedSaveables), ["save-requests"] = Fingerprint(save.QueuedSaveRequests)
+            ["saveables"] = Fingerprint(save.Saveables),
+            ["base-saveables"] = Fingerprint(save.BaseSaveables),
+            ["completed-saveables"] = Fingerprint(save.CompletedSaveables),
+            ["save-requests"] = Fingerprint(save.QueuedSaveRequests)
         };
+#if TOWNHALL_BUSINESS_NETWORK_SUBTYPE
+        foreach (var item in CaptureNetworkHolders(out _)) registries.Add(item.Key, item.Value);
+#endif
+#if TOWNHALL_BUSINESS_DATA
+        foreach (var item in CaptureDataListeners()) registries.Add(item.Key, item.Value);
+#endif
         if (classes.Count > 256) throw new InvalidOperationException("foreign-class-over-budget");
-        return new(registries, classes.ToDictionary(Hex, VtableFingerprint, StringComparer.Ordinal));
+        var snapshot = new SubtypeSnapshot(registries, classes.ToDictionary(Hex, VtableFingerprint, StringComparer.Ordinal));
+#if TOWNHALL_BUSINESS_DATA
+        _dataForeignBaseline ??= snapshot;
+#endif
+        return snapshot;
     }
     public void RegisterType()
     {
@@ -2051,17 +3657,30 @@ internal sealed unsafe class NativeSubtypePort : IBusinessSubtypePort, IBusiness
         _ownClass = Il2CppInterop.Runtime.Il2CppClassPointerStore<ProbeBusinessSubtype>.NativeClassPtr;
         if (_ownClass == IntPtr.Zero || Il2CppInterop.Runtime.IL2CPP.il2cpp_class_get_parent(_ownClass) != Class<Il2CppScheduleOne.Property.Business>())
             throw new InvalidOperationException("native-parent-mismatch");
-        Bind<Il2CppScheduleOne.Property.Property>("ShouldSave", "CanBePurchased", "FixedUpdate", "InitializeSaveable");
-        Bind<Il2CppScheduleOne.Property.Business>("Awake", "Start", "OnDestroy", "NetworkInitialize___Early", "NetworkInitialize__Late", "NetworkInitializeIfDisabled");
+        Bind<Il2CppScheduleOne.Property.Property>("ShouldSave", "CanBePurchased", "FixedUpdate", "InitializeSaveable", "get_ShouldSaveUnderFolder");
+        Bind<Il2CppScheduleOne.Property.Property>(1, "DeleteUnapprovedFiles");
+        Bind<Il2CppScheduleOne.Property.Business>("Awake", "Start", "OnDestroy", "GetSaveString", "NetworkInitialize___Early", "NetworkInitialize__Late", "NetworkInitializeIfDisabled");
+        Bind<Il2CppScheduleOne.Property.Business>(1, "WriteData");
         Bind<Il2CppFishNet.Object.NetworkBehaviour>("Reset", "OnValidate");
+#if TOWNHALL_BUSINESS_NETWORK_SUBTYPE
+        RequireContext(); _networkRegistrationAttempted = true;
+        Il2CppInterop.Runtime.Injection.ClassInjector.RegisterTypeInIl2Cpp<ProbeNetworkSubtype>(
+            new Il2CppInterop.Runtime.Injection.RegisterTypeOptions { Interfaces = Array.Empty<Type>(), LogSuccess = false });
+        _networkRegistrationReturned = true;
+        _networkClass = Il2CppInterop.Runtime.Il2CppClassPointerStore<ProbeNetworkSubtype>.NativeClassPtr;
+        if (_networkClass == IntPtr.Zero || Il2CppInterop.Runtime.IL2CPP.il2cpp_class_get_parent(_networkClass) != Class<Il2CppFishNet.Object.NetworkObject>())
+            throw new InvalidOperationException("network-native-parent-mismatch");
+        ValidateNetworkUnityMessages();
+#endif
         _registered = true;
     }
-    private void Bind<T>(params string[] names) where T : Il2CppInterop.Runtime.InteropTypes.Il2CppObjectBase
+    private void Bind<T>(params string[] names) where T : Il2CppInterop.Runtime.InteropTypes.Il2CppObjectBase => Bind<T>(0, names);
+    private void Bind<T>(int parameterCount, params string[] names) where T : Il2CppInterop.Runtime.InteropTypes.Il2CppObjectBase
     {
         var own = Il2CppInterop.Runtime.Runtime.UnityVersionHandler.Wrap((Il2CppInterop.Runtime.Runtime.Il2CppClass*)_ownClass);
         foreach (string name in names)
         {
-            IntPtr source = Il2CppInterop.Runtime.IL2CPP.il2cpp_class_get_method_from_name(Class<T>(), name, 0);
+            IntPtr source = Il2CppInterop.Runtime.IL2CPP.il2cpp_class_get_method_from_name(Class<T>(), name, parameterCount);
             if (source == IntPtr.Zero) throw new MissingMethodException(typeof(T).FullName, name);
             var original = Il2CppInterop.Runtime.Runtime.UnityVersionHandler.Wrap((Il2CppInterop.Runtime.Runtime.Il2CppMethodInfo*)source);
             if (original.Slot >= own.VtableCount || own.VTable == IntPtr.Zero) throw new InvalidOperationException("base-slot-invalid");
@@ -2071,8 +3690,17 @@ internal sealed unsafe class NativeSubtypePort : IBusinessSubtypePort, IBusiness
                 slot.methodPtr == IntPtr.Zero || slot.methodPtr == original.MethodPointer || MethodPointer(candidate) != slot.methodPtr)
                 throw new InvalidOperationException("own-slot-mismatch:" + name);
             _baseMethods.Add(name, source); _ownMethods.Add(name, candidate); _ownMethodPointers.Add(name, slot.methodPtr);
-            _targets.Add(new { Name = name, BaseMethod = Hex(source), BasePointer = Hex(original.MethodPointer),
-                BaseSlot = original.Slot, OwnMethod = Hex(candidate), OwnPointer = Hex(slot.methodPtr), DeclaringClass = Hex(_ownClass) });
+            _baseSlots.Add(name, original.Slot);
+            _targets.Add(new
+            {
+                Name = name,
+                BaseMethod = Hex(source),
+                BasePointer = Hex(original.MethodPointer),
+                BaseSlot = original.Slot,
+                OwnMethod = Hex(candidate),
+                OwnPointer = Hex(slot.methodPtr),
+                DeclaringClass = Hex(_ownClass)
+            });
         }
     }
     public void Prepare()
@@ -2083,11 +3711,399 @@ internal sealed unsafe class NativeSubtypePort : IBusinessSubtypePort, IBusiness
         _rootPointer = _root.Pointer; // Record ownership before any following operation can fail.
         _root.SetActive(false);
         if (_root.activeSelf || _root.activeInHierarchy) throw new InvalidOperationException("root-not-inactive");
+#if TOWNHALL_BUSINESS_NETWORK_SUBTYPE
+        RequireContext(); ProbeNetworkSubtype.ArmNextConstruction();
+        NetworkObjectConstructionAttempted = true;
+        try { _network = _root.AddComponent<ProbeNetworkSubtype>(); }
+        finally { ProbeNetworkSubtype.DisarmConstruction(); }
+        _networkPointer = _network.Pointer;
+#endif
         RequireContext();
-        _business = _root.AddComponent<ProbeBusinessSubtype>();
+        ProbeBusinessSubtype.ArmNextConstruction();
+        try { _business = _root.AddComponent<ProbeBusinessSubtype>(); }
+        finally { ProbeBusinessSubtype.DisarmConstruction(); }
         _businessPointer = _business.Pointer;
         _business.propertyCode = BusinessConstructionTrial.PropertyCode;
+        _business.propertyName = "Hyland Town Hall";
+        _business._LocalExtraFiles_k__BackingField = new il2cpp::Il2CppSystem.Collections.Generic.List<string>();
+        _business._LocalExtraFolders_k__BackingField = new il2cpp::Il2CppSystem.Collections.Generic.List<string>();
+#if TOWNHALL_BUSINESS_NETWORK_SUBTYPE
+        PrepareNetworkBinding();
+#endif
+#if TOWNHALL_BUSINESS_DATA
+        PrepareBusinessData();
+#endif
     }
+#if TOWNHALL_BUSINESS_DATA
+    private T KeepData<T>(string name, T value) where T : Il2CppInterop.Runtime.InteropTypes.Il2CppObjectBase
+    {
+        if (!ReferenceEquals(value, null)) _dataPendingHandles.Add(value); // Managed retention precedes every fallible post-allocation guard.
+        RequireContext();
+        if (ReferenceEquals(value, null) || value.WasCollected || value.Pointer == IntPtr.Zero ||
+            _dataHandles.Values.Any(p => p.Pointer == value.Pointer)) throw new InvalidOperationException("data-allocation-unconfirmed:" + name);
+        _dataHandles.Add(name, value); _dataPendingHandles.RemoveAt(_dataPendingHandles.Count - 1); return value;
+    }
+    private T KeepDataUnity<T>(string name, T value) where T : UnityEngine.Object
+    {
+        if (!ReferenceEquals(value, null)) _dataPendingHandles.Add(value);
+        RequireContext();
+        if (value == null || value.WasCollected || value.Pointer == IntPtr.Zero ||
+            _dataUnity.Values.Any(p => p.Pointer == value.Pointer)) throw new InvalidOperationException("data-unity-allocation-unconfirmed:" + name);
+        _dataUnity.Add(name, (value, value.Pointer)); _dataPendingHandles.RemoveAt(_dataPendingHandles.Count - 1); return value;
+    }
+    private UnityEngine.GameObject DataChild(string name)
+    {
+        RequireContext();
+        var child = KeepDataUnity(name, new UnityEngine.GameObject("TownHallInterior.Data." + name));
+        child.SetActive(false);
+        var transform = KeepDataUnity(name + "-transform", child.transform);
+        transform.SetParent(_root!.transform, false);
+        transform.localPosition = UnityEngine.Vector3.zero; transform.localRotation = UnityEngine.Quaternion.identity;
+        transform.localScale = UnityEngine.Vector3.one;
+        RequireContext(); return child;
+    }
+    private void PrepareBusinessData()
+    {
+        RequireContext();
+        if (_dataPreparationAttempted || _business == null || _root == null || _root.activeSelf) throw new InvalidOperationException("data-prepare-state");
+        _dataPreparationAttempted = true;
+        KeepDataUnity("root-transform", _root.transform);
+        var b = _business;
+        b.Price = 0; b.EmployeeCapacity = 0; b.LaunderCapacity = 0;
+        b._IsOwned_k__BackingField = false; b.OwnedByDefault = false;
+        b.ContentCullingEnabled = false; b._hasBeenLoaded = false; b._HasChanged_k__BackingField = false;
+        b.LaunderingOperations = KeepData("laundering", new il2cpp::Il2CppSystem.Collections.Generic.List<Il2CppScheduleOne.Property.LaunderingOperation>());
+        b._Employees_k__BackingField = KeepData("employees", new il2cpp::Il2CppSystem.Collections.Generic.List<Il2CppScheduleOne.Employees.Employee>());
+        b.BuildableItems = KeepData("buildables", new il2cpp::Il2CppSystem.Collections.Generic.List<Il2CppScheduleOne.EntityFramework.BuildableItem>());
+        b.Configurables = KeepData("configurables", new il2cpp::Il2CppSystem.Collections.Generic.List<Il2CppScheduleOne.Management.IConfigurable>());
+        b.Grids = KeepData("grids", new il2cpp::Il2CppSystem.Collections.Generic.List<Il2CppScheduleOne.Tiles.Grid>());
+        b.Switches = KeepData("switches", new il2cpp::Il2CppSystem.Collections.Generic.List<Il2CppScheduleOne.Misc.ModularSwitch>());
+        b.Toggleables = KeepData("toggleables", new il2cpp::Il2CppSystem.Collections.Generic.List<Il2CppScheduleOne.Interaction.InteractableToggleable>());
+        KeepData("extra-files", b._LocalExtraFiles_k__BackingField); KeepData("extra-folders", b._LocalExtraFolders_k__BackingField);
+        b.savedObjectPaths = KeepData("saved-objects", new il2cpp::Il2CppSystem.Collections.Generic.List<string>());
+        b.savedEmployeePaths = KeepData("saved-employees", new il2cpp::Il2CppSystem.Collections.Generic.List<string>());
+        b.ObjectsToCull = KeepData("objects-to-cull", new Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppReferenceArray<UnityEngine.GameObject>(0));
+        b.EmployeeIdlePoints = KeepData("employee-idle", new Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppReferenceArray<UnityEngine.Transform>(0));
+        b.LoadingDocks = KeepData("loading-docks", new Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppReferenceArray<Il2CppScheduleOne.Delivery.LoadingDock>(0));
+        b.loader = KeepData("business-loader", new Il2CppScheduleOne.Persistence.Loaders.BusinessLoader());
+        new Il2CppScheduleOne.Property.Property(_businessPointer).loader = KeepData("property-loader", new Il2CppScheduleOne.Persistence.Loaders.PropertyLoader());
+        _dataContainerRoot = DataChild("container");
+        _dataContainer = KeepDataUnity("container-component", _dataContainerRoot.AddComponent<Il2CppScheduleOne.Property.PropertyContentsContainer>());
+        _dataBoundsRoot = DataChild("bounds");
+        _dataBounds = KeepDataUnity("bounds-component", _dataBoundsRoot.AddComponent<UnityEngine.BoxCollider>());
+        _dataBounds.enabled = false; _dataBounds.center = UnityEngine.Vector3.zero; _dataBounds.size = new UnityEngine.Vector3(2, 2, 2);
+        b.BoundingBox = _dataBoundsRoot;
+        b.propertyBoundsColliders = KeepData("bounds", new Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppReferenceArray<UnityEngine.BoxCollider>(new[] { _dataBounds }));
+        b._Container_k__BackingField = _dataContainer;
+        _dataWrapper = new S1API.Property.BusinessWrapper(new Il2CppScheduleOne.Property.Business(_businessPointer));
+        RequireDataBoundary(requireBacklink: false);
+        _dataSetPropertyAttempted = true;
+        _dataCalls.Add(new { Call = "SetProperty", Attempted = true, Returned = false });
+        _dataContainer.SetProperty(new Il2CppScheduleOne.Property.Property(_businessPointer));
+        _dataSetPropertyReturned = true;
+        _dataCalls.Add(new { Call = "SetProperty", Attempted = true, Returned = true, ReciprocalPointersConfirmed = false });
+        RequireContext();
+        RequireDataBoundary();
+        _dataCalls.Add(new { Call = "SetProperty", Attempted = true, Returned = true, ReciprocalPointersConfirmed = true });
+        _dataPrepared = true;
+    }
+    private long ReadOwnData(string name, Il2CppInterop.Runtime.InteropTypes.Il2CppObjectBase? current)
+    {
+        RequireContext();
+        if (ReferenceEquals(current, null) || current.WasCollected || !_dataHandles.TryGetValue(name, out var retained) ||
+            retained.WasCollected || current.Pointer != retained.Pointer || current.Pointer == IntPtr.Zero)
+            throw new InvalidOperationException("data-field-identity-changed:" + name);
+        return current.Pointer.ToInt64();
+    }
+    private bool DataHierarchyMatches()
+    {
+        RequireContext();
+        if (_root == null || _dataContainerRoot == null || _dataBoundsRoot == null || _dataContainer == null || _dataBounds == null || _dataUnity.Count != 7)
+            return false;
+        foreach (var item in _dataUnity.Values)
+            if (item.Handle == null || item.Handle.WasCollected || item.Handle.Pointer != item.Pointer) return false;
+        var rootTransform = _root.transform;
+        if (rootTransform.Pointer != _dataUnity["root-transform"].Pointer || rootTransform.parent != null || rootTransform.childCount != 2 ||
+            rootTransform.position != UnityEngine.Vector3.zero || rootTransform.rotation != UnityEngine.Quaternion.identity || rootTransform.localScale != UnityEngine.Vector3.one)
+            return false;
+        foreach (var pair in new[] { (Name: "container", Root: _dataContainerRoot, Component: (UnityEngine.Component)_dataContainer),
+            (Name: "bounds", Root: _dataBoundsRoot, Component: (UnityEngine.Component)_dataBounds) })
+        {
+            var t = pair.Root.transform;
+            if (pair.Root.Pointer != _dataUnity[pair.Name].Pointer || t.Pointer != _dataUnity[pair.Name + "-transform"].Pointer ||
+                t.parent == null || t.parent.Pointer != rootTransform.Pointer || t.childCount != 0 || pair.Root.activeSelf || pair.Root.activeInHierarchy ||
+                t.localPosition != UnityEngine.Vector3.zero || t.localRotation != UnityEngine.Quaternion.identity || t.localScale != UnityEngine.Vector3.one ||
+                pair.Component.gameObject.Pointer != pair.Root.Pointer) return false;
+            var components = pair.Root.GetComponents<UnityEngine.Component>();
+            if (components.Length != 2 || components.Any(p => p == null || p.WasCollected) ||
+                components.Count(p => p.Pointer == t.Pointer) != 1 || components.Count(p => p.Pointer == pair.Component.Pointer) != 1) return false;
+        }
+        return Il2CppInterop.Runtime.IL2CPP.il2cpp_object_get_class(_dataContainer.Pointer) == Class<Il2CppScheduleOne.Property.PropertyContentsContainer>() &&
+            Il2CppInterop.Runtime.IL2CPP.il2cpp_object_get_class(_dataBounds.Pointer) == Class<UnityEngine.BoxCollider>() &&
+            !_dataBounds.enabled && _dataBounds.center == UnityEngine.Vector3.zero && _dataBounds.size == new UnityEngine.Vector3(2, 2, 2);
+    }
+    private long ReadWrapperBinding()
+    {
+        RequireContext();
+        if (_dataWrapper == null) throw new InvalidOperationException("data-wrapper-missing");
+        foreach (var spec in new[] { (Owner: typeof(S1API.Property.BusinessWrapper), Name: "InnerBusiness", Type: typeof(Il2CppScheduleOne.Property.Business)),
+            (Owner: typeof(S1API.Property.PropertyWrapper), Name: "InnerProperty", Type: typeof(Il2CppScheduleOne.Property.Property)) })
+        {
+            var field = spec.Owner.GetField(spec.Name, System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.DeclaredOnly);
+            if (field == null || field.DeclaringType != spec.Owner || field.FieldType != spec.Type || !field.IsInitOnly ||
+                field.GetValue(_dataWrapper) is not Il2CppInterop.Runtime.InteropTypes.Il2CppObjectBase value || value.WasCollected || value.Pointer != _businessPointer)
+                throw new InvalidOperationException("data-wrapper-binding-changed:" + spec.Name);
+        }
+        return _businessPointer.ToInt64();
+    }
+    private BusinessDataState ReadBusinessData(bool requireBacklink = true)
+    {
+        RequireContext(); ValidateDataMethods(); ReadWrapperBinding();
+        if (_business == null || _business.WasCollected || _business.Pointer != _businessPointer || !DataHierarchyMatches())
+            throw new InvalidOperationException("data-owned-hierarchy-changed");
+        var b = _business; var p = new Il2CppScheduleOne.Property.Property(_businessPointer);
+        var pointers = new Dictionary<string, long>(StringComparer.Ordinal); var counts = new Dictionary<string, int>(StringComparer.Ordinal);
+        void List<T>(string name, il2cpp::Il2CppSystem.Collections.Generic.List<T> value)
+        { pointers.Add(name, ReadOwnData(name, value)); counts.Add(name, value.Count); }
+        void Array<T>(string name, Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppReferenceArray<T> value) where T : Il2CppInterop.Runtime.InteropTypes.Il2CppObjectBase
+        { pointers.Add(name, ReadOwnData(name, value)); counts.Add(name, value.Length); }
+        List("laundering", b.LaunderingOperations); List("employees", p._Employees_k__BackingField); List("buildables", p.BuildableItems);
+        List("configurables", p.Configurables); List("grids", p.Grids); List("switches", p.Switches); List("toggleables", p.Toggleables);
+        List("extra-files", p._LocalExtraFiles_k__BackingField); List("extra-folders", p._LocalExtraFolders_k__BackingField);
+        List("saved-objects", p.savedObjectPaths); List("saved-employees", p.savedEmployeePaths);
+        Array("bounds", p.propertyBoundsColliders); Array("objects-to-cull", p.ObjectsToCull); Array("employee-idle", p.EmployeeIdlePoints); Array("loading-docks", p.LoadingDocks);
+        if (counts.Any(pair => pair.Value != (pair.Key == "bounds" ? 1 : 0))) throw new InvalidOperationException("data-collection-content-changed");
+        long businessLoader = ReadOwnData("business-loader", b.loader), propertyLoader = ReadOwnData("property-loader", p.loader);
+        var container = p._Container_k__BackingField; var boxRoot = p.BoundingBox; var box = p.propertyBoundsColliders[0];
+        if (container == null || container.WasCollected || container.Pointer != _dataContainer!.Pointer || boxRoot == null || boxRoot.WasCollected ||
+            boxRoot.Pointer != _dataBoundsRoot!.Pointer || box == null || box.WasCollected || box.Pointer != _dataBounds!.Pointer)
+            throw new InvalidOperationException("data-own-reference-changed");
+        var back = _dataContainer._Property_k__BackingField;
+        if (requireBacklink ? back == null || back.WasCollected || back.Pointer != _businessPointer : !ReferenceEquals(back, null))
+            throw new InvalidOperationException("data-container-backlink-changed");
+        bool neutral = !p._IsOwned_k__BackingField && !p.OwnedByDefault && !p.ContentCullingEnabled && !p._hasBeenLoaded && !p._HasChanged_k__BackingField &&
+            float.IsFinite(p.Price) && p.Price == 0 && p.EmployeeCapacity == 0 && float.IsFinite(b.LaunderCapacity) && b.LaunderCapacity == 0;
+        if (!neutral) throw new InvalidOperationException("data-neutral-defaults-changed");
+        var state = new BusinessDataState(_dataContainerRoot!.Pointer.ToInt64(), container.Pointer.ToInt64(), back?.Pointer.ToInt64() ?? 0,
+            boxRoot.Pointer.ToInt64(), box.Pointer.ToInt64(), businessLoader, propertyLoader, true, neutral, true,
+            new ReadOnlyDictionary<string, long>(pointers), new ReadOnlyDictionary<string, int>(counts));
+        RequireContext(); _dataLastRead = state; return state;
+    }
+    private void RequireDataBoundary(bool requireBacklink = true)
+    {
+        RequireContext();
+        ReadBusinessData(requireBacklink);
+        var inspection = Inspect();
+        var network = ReadNetworkBinding();
+        if (!inspection.ExactComponents || !inspection.Unowned || !inspection.OwnNativeClass || !inspection.OwnVirtualTargets ||
+            !network.OwnNativeClass || !network.OwnVirtualTargets || !network.OwnUnityMessages || !network.Unspawned || !network.Detached || !network.ReferencesAbsent)
+            throw new InvalidOperationException("data-native-boundary-unconfirmed");
+        if (!_dataPrepared && (_root!.activeSelf || _root.activeInHierarchy || _business!.Counters().Any(p => p.Value != 0) || network.Counters.Any(p => p.Value != 0)))
+            throw new InvalidOperationException("data-preparation-callback-or-activation-changed");
+        var current = Capture(); var baseline = _dataForeignBaseline ?? throw new InvalidOperationException("data-baseline-missing");
+        if (!SameDataMap(current.Registries, baseline.Registries) || !SameDataMap(current.ForeignVtables, baseline.ForeignVtables))
+            throw new InvalidOperationException("data-foreign-state-changed");
+        RequireContext();
+    }
+    private static bool SameDataMap(IReadOnlyDictionary<string, string> first, IReadOnlyDictionary<string, string> second) =>
+        first.Count == second.Count && first.All(p => second.TryGetValue(p.Key, out string? value) && p.Value == value);
+    public BusinessDataQuery ReadNativeDataQueries()
+    {
+        RequireContext();
+        if (_dataQueryAttempted || !_dataPrepared || !_dataSetPropertyReturned || _activeSetAttempted) throw new InvalidOperationException("data-query-state");
+        _dataQueryAttempted = true;
+        T Query<T>(string name, Func<T> call, Func<T, bool> accept)
+        {
+            RequireDataBoundary();
+            var before = ReadActiveState(); RequireNetworkMutationBoundary(before);
+            if (before.ActiveSelf || before.ActiveInHierarchy) throw new InvalidOperationException("data-query-active");
+            RequireContext(); _dataCalls.Add(new { Call = name, Attempted = true, Returned = false });
+            T value = call();
+            // Preserve even nonfinite scalar returns without performing native reads or breaking JSON diagnostics.
+            string? valueText = Convert.ToString(value, System.Globalization.CultureInfo.InvariantCulture);
+            _dataCalls.Add(new { Call = name, Attempted = true, Returned = true, Value = valueText, ValueType = typeof(T).Name, ReadbackConfirmed = false });
+            RequireContext();
+            RequireDataBoundary(); var after = ReadActiveState(); RequireNetworkMutationBoundary(after);
+            if (after.ActiveSelf || after.ActiveInHierarchy || before.Counters.Any(p => after.Counters[p.Key] != p.Value) ||
+                before.Network!.Counters.Any(p => after.Network!.Counters[p.Key] != p.Value)) throw new InvalidOperationException("data-query-callback-changed");
+            if (!accept(value)) throw new InvalidOperationException("data-query-value-unconfirmed:" + name);
+            _dataCalls.Add(new { Call = name, Attempted = true, Returned = true, Value = valueText, ValueType = typeof(T).Name, ReadbackConfirmed = true });
+            return value;
+        }
+        float total = Query("CurrentLaunderTotal", () => _dataWrapper!.CurrentLaunderTotal, value => float.IsFinite(value) && value == 0);
+        float limit = Query("AppliedLaunderLimit", () => _dataWrapper!.AppliedLaunderLimit, value => float.IsFinite(value) && value == 0);
+        bool inside = Query("IsPointInside(center)", () => _dataWrapper!.IsPointInside(UnityEngine.Vector3.zero), value => value);
+        bool outside = Query("IsPointInside(outside)", () => _dataWrapper!.IsPointInside(new UnityEngine.Vector3(4, 0, 0)), value => !value);
+        RequireDataBoundary();
+        return new(_businessPointer.ToInt64(), _dataContainer!.Pointer.ToInt64(), _dataBounds!.Pointer.ToInt64(), ReadWrapperBinding(), total, limit, inside, outside);
+    }
+    private void ConfirmDataCleanup()
+    {
+        RequireContext();
+        if (_dataPendingHandles.Count != 0) throw new InvalidOperationException("data-unconfirmed-handles-retained");
+        foreach (var pair in _dataUnity)
+        {
+            RequireContext(); var retained = pair.Value;
+            if (retained.Handle.WasCollected || retained.Handle.Pointer != retained.Pointer || retained.Handle != null)
+                throw new InvalidOperationException("data-unity-cleanup-unconfirmed:" + pair.Key);
+        }
+        RequireContext();
+        _dataHandles.Clear(); _dataWrapper = null; // Release our GC handles; no assertion about immediate native heap collection.
+        _dataCleanupVerified = true;
+    }
+    private void ValidateDataMethods()
+    {
+        RequireContext();
+        void BindData<T>(string name, uint token, string returns, bool privateMethod, params string[] parameters) where T : Il2CppInterop.Runtime.InteropTypes.Il2CppObjectBase
+        {
+            IntPtr owner = Class<T>();
+            IntPtr pointer = Il2CppInterop.Runtime.IL2CPP.il2cpp_class_get_method_from_name(owner, name, parameters.Length);
+            if (pointer == IntPtr.Zero || Il2CppInterop.Runtime.IL2CPP.il2cpp_method_get_class(pointer) != owner)
+                throw new InvalidOperationException("data-method-owner:" + name);
+            var info = Il2CppInterop.Runtime.Runtime.UnityVersionHandler.Wrap((Il2CppInterop.Runtime.Runtime.Il2CppMethodInfo*)pointer);
+            int flags = (int)info.Flags;
+            if (info.Token != token || Il2CppInterop.Runtime.IL2CPP.il2cpp_method_get_name_(pointer) != name ||
+                info.ParametersCount != parameters.Length || (flags & (0x10 | 0x40 | 0x400)) != 0 ||
+                (flags & 7) != (privateMethod ? 1 : 6) || info.ReturnType == null ||
+                Il2CppInterop.Runtime.IL2CPP.il2cpp_type_get_name_((IntPtr)info.ReturnType) != returns ||
+                info.MethodPointer == IntPtr.Zero || info.InvokerMethod == IntPtr.Zero || info.VirtualMethodPointer == IntPtr.Zero)
+                throw new InvalidOperationException("data-method-metadata:" + name);
+            for (int i = 0; i < parameters.Length; i++)
+            {
+                var type = Il2CppInterop.Runtime.Runtime.UnityVersionHandler.Wrap(info.Parameters, i).ParameterType;
+                if (type == null || Il2CppInterop.Runtime.IL2CPP.il2cpp_type_get_name_((IntPtr)type) != parameters[i])
+                    throw new InvalidOperationException("data-method-signature:" + name);
+            }
+            string key = typeof(T).FullName + "." + name;
+            string value = string.Join("|", Hex(owner), Hex(pointer), Hex(info.MethodPointer), Hex(info.InvokerMethod), Hex(info.VirtualMethodPointer), token, flags, returns, string.Join(",", parameters));
+            if (_dataMethods.TryGetValue(key, out string? previous) && previous != value) throw new InvalidOperationException("data-method-changed:" + name);
+            _dataMethods[key] = value;
+        }
+        BindData<Il2CppScheduleOne.Property.Business>("get_currentLaunderTotal", 0x06001398, "System.Single", false);
+        BindData<Il2CppScheduleOne.Property.Business>("get_appliedLaunderLimit", 0x06001399, "System.Single", false);
+        BindData<Il2CppScheduleOne.Property.PropertyContentsContainer>("SetProperty", 0x06001475, "System.Void", false, "ScheduleOne.Property.Property");
+        BindData<Il2CppScheduleOne.Property.Property>("DoBoundsContainPoint", 0x0600143E, "System.Boolean", false, "UnityEngine.Vector3");
+        BindData<Il2CppScheduleOne.Property.Property>("IsPointInsideBox", 0x0600143F, "System.Boolean", true, "UnityEngine.Vector3", "UnityEngine.BoxCollider");
+        BindData<Il2CppScheduleOne.Persistence.Loaders.BusinessLoader>(".ctor", 0x06001862, "System.Void", false);
+        BindData<Il2CppScheduleOne.Persistence.Loaders.PropertyLoader>(".ctor", 0x06001899, "System.Void", false);
+        BindData<Il2CppScheduleOne.Persistence.Loaders.Loader>(".ctor", 0x0600187A, "System.Void", false);
+        RequireContext();
+    }
+    private Dictionary<string, string> CaptureDataListeners()
+    {
+        RequireContext();
+        _dataListenerDiagnostics = new Dictionary<string, string>(StringComparer.Ordinal);
+        void Diag(string key, string value) => _dataListenerDiagnostics[key] = value;
+        var time = Il2CppScheduleOne.DevUtilities.NetworkSingleton<Il2CppScheduleOne.GameTime.TimeManager>.Instance;
+        var money = Il2CppScheduleOne.DevUtilities.NetworkSingleton<Il2CppScheduleOne.Money.MoneyManager>.Instance;
+        if (!S1Mods.Shared.NetworkGuard.IsAlive(time) || !S1Mods.Shared.NetworkGuard.IsAlive(money))
+            throw new InvalidOperationException("data-listener-manager-unavailable");
+        var recursion = new HashSet<IntPtr>(); int nodes = 0, maxChildren = 0;
+        string Identity(Il2CppInterop.Runtime.InteropTypes.Il2CppObjectBase? value)
+        {
+            RequireContext();
+            if (ReferenceEquals(value, null)) return "null";
+            if (value.WasCollected || value.Pointer == IntPtr.Zero) throw new InvalidOperationException("data-listener-object-unreadable");
+            IntPtr pointer = value.Pointer;
+            if (pointer == _businessPointer || pointer == _rootPointer || pointer == _networkPointer ||
+                _dataUnity.Values.Any(p => p.Pointer == pointer) || _dataHandles.Values.Any(p => p.Pointer == pointer))
+                throw new InvalidOperationException("data-listener-own-reference");
+            return Hex(pointer);
+        }
+        string Delegate(il2cpp::Il2CppSystem.Delegate? value, int depth = 0)
+        {
+            string identity = Identity(value);
+            if (ReferenceEquals(value, null)) return identity;
+            if (depth > 8 || ++nodes > 16384 || !recursion.Add(value!.Pointer))
+                throw new InvalidOperationException("data-listener-graph-over-budget-or-cycle:" + nodes.ToString(System.Globalization.CultureInfo.InvariantCulture));
+            var text = new System.Text.StringBuilder(identity).Append(':').Append(Hex(value.method_ptr)).Append(':').Append(Hex(value.invoke_impl))
+                .Append(':').Append(Hex(value.method)).Append(':').Append(Identity(value.m_target));
+            var multicast = value.TryCast<il2cpp::Il2CppSystem.MulticastDelegate>();
+            if (!ReferenceEquals(multicast, null))
+            {
+                var children = multicast.delegates;
+                text.Append(':').Append(Identity(children));
+                if (!ReferenceEquals(children, null))
+                {
+                    int count = children.Length;
+                    if (count > maxChildren) maxChildren = count;
+                    if (count < 0 || count > 512) throw new InvalidOperationException("data-listener-array-over-budget:" + count.ToString(System.Globalization.CultureInfo.InvariantCulture));
+                    text.Append(':').Append(count);
+                    for (int i = 0; i < count; i++) text.Append('|').Append(Delegate(children[i], depth + 1));
+                    if (children.Length != count || multicast.delegates?.Pointer != children.Pointer) throw new InvalidOperationException("data-listener-array-changed");
+                }
+            }
+            recursion.Remove(value.Pointer); return text.ToString();
+        }
+        var minute = time.onMinutePass;
+        var minuteText = new System.Text.StringBuilder(Identity(time)).Append('|').Append(Identity(minute));
+        if (!ReferenceEquals(minute, null))
+        {
+            var list = minute.list;
+            minuteText.Append('|').Append(Identity(list));
+            if (!ReferenceEquals(list, null))
+            {
+                int size = list._size;
+                int version = list._version;
+                var items = list._items;
+                int capacity = items == null ? -1 : items.Length;
+                string countProperty;
+                bool countPropertyMatches;
+                try
+                {
+                    int count = list.Count;
+                    countProperty = count.ToString(System.Globalization.CultureInfo.InvariantCulture);
+                    countPropertyMatches = count == size;
+                }
+                catch (Exception ex)
+                {
+                    countProperty = "unreadable:" + ex.GetType().Name + ":" + ex.Message;
+                    countPropertyMatches = false;
+                }
+                string diagnostic = Hex(list.Pointer) + "|class=" + Hex(Il2CppInterop.Runtime.IL2CPP.il2cpp_object_get_class(list.Pointer)) +
+                    "|size=" + size.ToString(System.Globalization.CultureInfo.InvariantCulture) +
+                    "|capacity=" + capacity.ToString(System.Globalization.CultureInfo.InvariantCulture) +
+                    "|items=" + (items == null ? "null" : Hex(items.Pointer)) +
+                    "|version=" + version.ToString(System.Globalization.CultureInfo.InvariantCulture) +
+                    "|countProperty=" + countProperty + "|countPropertyMatchesSize=" + countPropertyMatches.ToString();
+                Diag("minute-list", diagnostic);
+                if (items == null || items.WasCollected || items.Pointer == IntPtr.Zero)
+                    throw new InvalidOperationException("data-minute-list-items-unreadable:" + size.ToString(System.Globalization.CultureInfo.InvariantCulture));
+                // Observed 2026-11-06: size 889, capacity 1024. The old fixed 512-entry guard
+                // rejected a valid list. Bound by the container's own capacity and the existing
+                // 4096 ceiling instead of an arbitrary entry count.
+                if (size < 0 || capacity < size || capacity > 4096)
+                    throw new InvalidOperationException("data-minute-list-capacity-invalid:" + capacity.ToString(System.Globalization.CultureInfo.InvariantCulture));
+                minuteText.Append('|').Append(size).Append('|').Append(version);
+                try
+                {
+                    for (int i = 0; i < size; i++) minuteText.Append('|').Append(Delegate(items[i]));
+                }
+                catch (Exception ex)
+                {
+                    Diag("minute-list", diagnostic + "|nodes=" + nodes.ToString(System.Globalization.CultureInfo.InvariantCulture) +
+                        "|maxChildren=" + maxChildren.ToString(System.Globalization.CultureInfo.InvariantCulture) +
+                        "|failure=" + ex.GetType().Name + ":" + ex.Message);
+                    throw;
+                }
+                Diag("minute-list", diagnostic + "|nodes=" + nodes.ToString(System.Globalization.CultureInfo.InvariantCulture) +
+                    "|maxChildren=" + maxChildren.ToString(System.Globalization.CultureInfo.InvariantCulture));
+                if (list._size != size || list._version != version || list._items?.Pointer != items.Pointer || minute.list?.Pointer != list.Pointer)
+                    throw new InvalidOperationException("data-minute-list-changed");
+            }
+            if (time.onMinutePass?.Pointer != minute.Pointer) throw new InvalidOperationException("data-minute-holder-changed");
+        }
+        minuteText.Append('|').Append(Delegate(time.onTimeSkip));
+        var result = new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            ["data-time-listeners"] = Digest(minuteText.ToString()),
+            ["data-money-listeners"] = Digest(Identity(money) + "|" + Delegate(money.onNetworthCalculation)),
+            ["data-property-listeners"] = Digest(Delegate(Il2CppScheduleOne.Property.Property.onPropertyAcquired)),
+            ["data-business-listeners"] = Digest(Delegate(Il2CppScheduleOne.Property.Business.onOperationStarted) + "|" + Delegate(Il2CppScheduleOne.Property.Business.onOperationFinished))
+        };
+        RequireContext(); return result;
+    }
+#endif
     public SubtypeReadback Inspect()
     {
         if (_root == null || _business == null || _destroyed || _business.WasCollected) throw new InvalidOperationException("own-object-missing");
@@ -2095,6 +4111,9 @@ internal sealed unsafe class NativeSubtypePort : IBusinessSubtypePort, IBusiness
         if (components.Length > 16) throw new InvalidOperationException("components-over-budget");
         _components.Clear();
         int transforms = 0, businesses = 0;
+#if TOWNHALL_BUSINESS_NETWORK_SUBTYPE
+        int networks = 0;
+#endif
         foreach (var component in components)
         {
             if (component == null || component.WasCollected) throw new InvalidOperationException("component-unreadable");
@@ -2102,17 +4121,43 @@ internal sealed unsafe class NativeSubtypePort : IBusinessSubtypePort, IBusiness
             _components.Add(new { Type = component.GetIl2CppType().FullName, Pointer = Hex(component.Pointer), NativeClass = Hex(nativeClass) });
             if (nativeClass == Class<UnityEngine.Transform>()) transforms++;
             if (nativeClass == _ownClass && component.Pointer == _businessPointer) businesses++;
+#if TOWNHALL_BUSINESS_NETWORK_SUBTYPE
+            if (nativeClass == _networkClass && component.Pointer == _networkPointer) networks++;
+#endif
         }
-        bool targets = _baseMethods.Count == 12;
+        bool targets = _baseMethods.Count == 16;
+        var ownWrap = Il2CppInterop.Runtime.Runtime.UnityVersionHandler.Wrap((Il2CppInterop.Runtime.Runtime.Il2CppClass*)_ownClass);
+        if (ownWrap.VTable == IntPtr.Zero || ownWrap.VtableCount <= 0) throw new InvalidOperationException("own-vtable-unreadable");
         foreach (var entry in _baseMethods)
         {
+            int slotIndex = _baseSlots[entry.Key];
+            if (slotIndex < 0 || slotIndex >= ownWrap.VtableCount) throw new InvalidOperationException("base-slot-out-of-range:" + entry.Key);
+            var vtableSlot = ((Il2CppInterop.Runtime.Runtime.VirtualInvokeData*)ownWrap.VTable)[slotIndex];
+            bool vtableMatches = (IntPtr)vtableSlot.method == _ownMethods[entry.Key] &&
+                Il2CppInterop.Runtime.IL2CPP.il2cpp_method_get_class((IntPtr)vtableSlot.method) == _ownClass &&
+                vtableSlot.methodPtr == _ownMethodPointers[entry.Key] &&
+                vtableSlot.methodPtr != MethodPointer(entry.Value);
+
             IntPtr resolved = Il2CppInterop.Runtime.IL2CPP.il2cpp_object_get_virtual_method(_businessPointer, entry.Value);
-            targets &= resolved == _ownMethods[entry.Key] && Il2CppInterop.Runtime.IL2CPP.il2cpp_method_get_class(resolved) == _ownClass &&
-                MethodPointer(resolved) == _ownMethodPointers[entry.Key] && MethodPointer(resolved) != MethodPointer(entry.Value);
+            bool resolvedMatches = resolved == _ownMethods[entry.Key] &&
+                Il2CppInterop.Runtime.IL2CPP.il2cpp_method_get_class(resolved) == _ownClass &&
+                MethodPointer(resolved) == _ownMethodPointers[entry.Key] &&
+                MethodPointer(resolved) != MethodPointer(entry.Value);
+
+            targets &= resolvedMatches || vtableMatches;
         }
         int lifecycle = _business.Counters().Where(p => p.Key != "ShouldSave" && p.Key != "CanBePurchased").Sum(p => p.Value) - _expectedInterfaceCallbacks;
-        return new(!_root.activeSelf && !_root.activeInHierarchy, components.Length == 2 && transforms == 1 && businesses == 1 && _root.transform.childCount == 0,
-            !_business.IsOwned && _business.propertyCode == BusinessConstructionTrial.PropertyCode,
+        return new(!_root.activeSelf && !_root.activeInHierarchy,
+#if TOWNHALL_BUSINESS_DATA
+            components.Length == 3 && transforms == 1 && businesses == 1 && networks == 1 && DataHierarchyMatches(),
+#elif TOWNHALL_BUSINESS_NETWORK_SUBTYPE
+            components.Length == 3 && transforms == 1 && businesses == 1 && networks == 1 && _root.transform.childCount == 0,
+#else
+            components.Length == 2 && transforms == 1 && businesses == 1 && _root.transform.childCount == 0,
+#endif
+            !_business.IsOwned && _business.propertyCode == BusinessConstructionTrial.PropertyCode && _business.ConstructedWhileArmed &&
+            ProbeBusinessSubtype.UnarmedConstructs == 0 && _business.propertyName == "Hyland Town Hall" &&
+            _business.LocalExtraFiles?.Count == 0 && _business.LocalExtraFolders?.Count == 0,
             Il2CppInterop.Runtime.IL2CPP.il2cpp_object_get_class(_businessPointer) == _ownClass, targets, lifecycle, _business.Calls("InitializeSaveable"));
     }
     public SubtypeDispatch InvokeThroughNativeBase()
@@ -2127,6 +4172,427 @@ internal sealed unsafe class NativeSubtypePort : IBusinessSubtypePort, IBusiness
         bool purchase = new Il2CppScheduleOne.Property.Property(_businessPointer).CanBePurchased();
         return new(save, purchase, _business.Calls("ShouldSave"), _business.Calls("CanBePurchased"));
     }
+#if TOWNHALL_BUSINESS_ACTIVE_SUBTYPE
+    public ActiveSubtypeState ReadActiveState()
+    {
+        RequireContext();
+        var inspection = Inspect();
+        if (_root == null || _business == null || _root.Pointer != _rootPointer || _business.Pointer != _businessPointer || _root.WasCollected)
+            throw new InvalidOperationException("active-owned-identity-unreadable");
+        ValidateUnityMessages();
+        var save = Il2CppScheduleOne.DevUtilities.PersistentSingleton<Il2CppScheduleOne.Persistence.SaveManager>.Instance;
+        if (!S1Mods.Shared.NetworkGuard.IsAlive(save)) throw new InvalidOperationException("active-manager-unavailable");
+        bool absent = !OwnReference(Il2CppScheduleOne.Property.Property.Properties) &
+            !OwnReference(Il2CppScheduleOne.Property.Property.OwnedProperties) &
+            !OwnReference(Il2CppScheduleOne.Property.Property.UnownedProperties) &
+            !OwnReference(Il2CppScheduleOne.Property.Business.Businesses) &
+            !OwnReference(Il2CppScheduleOne.Property.Business.OwnedBusinesses) &
+            !OwnReference(Il2CppScheduleOne.Property.Business.UnownedBusinesses) &
+            !OwnReference(save.Saveables) & !OwnReference(save.BaseSaveables) & !OwnReference(save.CompletedSaveables) &
+            !OwnReference(save.QueuedSaveRequests, request =>
+            {
+                var target = request.Saveable;
+                if (target != null && target.WasCollected) throw new InvalidOperationException("active-queue-target-unreadable");
+                return target?.Pointer ?? IntPtr.Zero;
+            });
+        _lastObservedUnityFrame = UnityEngine.Time.frameCount;
+        var result = new ActiveSubtypeState(BusinessSubtypeRuntime.CurrentContext(), BusinessSubtypeRuntime.Generation,
+            _lastObservedUnityFrame.Value, _root.Pointer.ToInt64(), _business.Pointer.ToInt64(), _ownClass.ToInt64(), save.Pointer.ToInt64(),
+            _root.activeSelf, _root.activeInHierarchy, inspection.ExactComponents && _business.enabled,
+            inspection.Unowned, inspection.OwnNativeClass && inspection.OwnVirtualTargets,
+            _unityMessages.Count == UnityMessageNames.Length, absent, !save.IsSaving && save.QueuedSaveRequests.Count == 0, _business.Counters());
+#if TOWNHALL_BUSINESS_NETWORK_SUBTYPE
+        result = result with { Network = ReadNetworkBinding() };
+#if TOWNHALL_BUSINESS_DATA
+        result = result with { Data = ReadBusinessData() };
+#endif
+        if (_nativeNetworkBinding is { } bound && (result.Generation != bound.Generation || result.Root != bound.Root ||
+            result.Business != bound.Business || result.OwnClass != bound.OwnClass || result.Manager != bound.Manager ||
+            !SameNativeWorld(result.Context, bound.Context))) throw new InvalidOperationException("network-native-world-or-instance-changed");
+        if (_nativeNetworkLastRead is { } last && (result.UnityFrame < last.UnityFrame ||
+            last.Counters.Any(p => !result.Counters.TryGetValue(p.Key, out int count) || count < p.Value) ||
+            last.Network!.Counters.Any(p => !result.Network!.Counters.TryGetValue(p.Key, out int count) || count < p.Value)))
+            throw new InvalidOperationException("network-native-observation-regressed");
+        _nativeNetworkBinding ??= result;
+        _nativeNetworkLastRead = result;
+#endif
+        RequireContext(); return result;
+    }
+    public void SetActive(bool active)
+    {
+        RequireContext(); var state = ReadActiveState();
+#if TOWNHALL_BUSINESS_NETWORK_SUBTYPE
+        RequireNetworkMutationBoundary(state);
+#endif
+        if (!state.ExactComponents || !state.Unowned || !state.OwnVirtualTargets || !state.OwnUnityMessages ||
+            !state.ReferencesAbsent || !state.SaveIdle) throw new InvalidOperationException("active-mutation-boundary-unconfirmed");
+        if (active)
+        {
+            if (_activeSetAttempted || state.ActiveSelf || state.ActiveInHierarchy) throw new InvalidOperationException("activation-repeated-or-invalid");
+            _activeSetAttempted = true;
+        }
+        else
+        {
+            if (!_activeSetAttempted || _inactiveSetAttempted || !state.ActiveSelf || !state.ActiveInHierarchy)
+                throw new InvalidOperationException("deactivation-repeated-or-invalid");
+            _inactiveSetAttempted = true;
+        }
+#if TOWNHALL_BUSINESS_DATA
+        RequireDataBoundary();
+#endif
+        RequireContext(); _root!.SetActive(active);
+    }
+    public IReadOnlyDictionary<string, int> ReadFinalCounters() => _business?.Counters() ?? throw new InvalidOperationException("active-counters-missing");
+#if TOWNHALL_BUSINESS_NETWORK_SUBTYPE
+    public IReadOnlyDictionary<string, int> ReadFinalNetworkCounters() => _network?.Counters() ?? throw new InvalidOperationException("network-counters-missing");
+    private void RequireNetworkMutationBoundary(ActiveSubtypeState state)
+    {
+        var network = state.Network;
+        if (!state.ExactComponents || !state.Unowned || !state.OwnVirtualTargets || !state.OwnUnityMessages ||
+            state.Root != _rootPointer.ToInt64() || state.Business != _businessPointer.ToInt64() || state.OwnClass != _ownClass.ToInt64() ||
+            !state.ReferencesAbsent || !state.SaveIdle || network == null || network.Network != _networkPointer.ToInt64() || network.OwnClass != _networkClass.ToInt64() ||
+            network.BehaviourArray != _behaviourArrayPointer.ToInt64() || network.BusinessNetworkObject != network.Network ||
+            network.BusinessComponentIndex != 0 || network.BehaviourCount != 1 || network.FirstBehaviour != _businessPointer.ToInt64() ||
+            !network.OwnNativeClass || !network.OwnVirtualTargets || !network.OwnUnityMessages || !network.Unspawned || !network.Detached || !network.ReferencesAbsent)
+            throw new InvalidOperationException("network-mutation-boundary-unconfirmed");
+        if (!state.Counters.TryGetValue("ShouldSave", out int saveCalls) || saveCalls != 1 ||
+            !state.Counters.TryGetValue("CanBePurchased", out int purchaseCalls) || purchaseCalls != 1)
+            throw new InvalidOperationException("network-property-dispatch-changed");
+        foreach (var calls in new[] { state.Counters, network.Counters })
+        {
+            foreach (var entry in calls)
+            {
+                if (entry.Value < 0 || entry.Value > 10000 ||
+                    (entry.Key is "Awake" or "Start" or "OnEnable" && entry.Value > 1) ||
+                    (entry.Key == "OnDestroy" && entry.Value != 0) ||
+                    (entry.Key == "OnDisable" && entry.Value != (_inactiveSetAttempted ? 1 : 0)) ||
+                    (!UnityMessageNames.Contains(entry.Key) && entry.Key is not "ShouldSave" and not "CanBePurchased" && entry.Value != 0))
+                    throw new InvalidOperationException("network-mutation-callback-unconfirmed");
+            }
+        }
+        if (!_activeSetAttempted && (state.Counters.Any(p => UnityMessageNames.Contains(p.Key) && p.Value != 0) || network.Counters.Any(p => p.Value != 0)))
+            throw new InvalidOperationException("network-callback-before-activation");
+        if (network.Counters.Any(p => !UnityMessageNames.Contains(p.Key) && p.Value != 0)) throw new InvalidOperationException("network-unexpected-callback");
+    }
+    private static bool SameNativeWorld(ConstructionContext current, ConstructionContext bound) =>
+        ConstructionGate.Check(current) == null && string.Equals(current.OrganisationName, bound.OrganisationName, StringComparison.Ordinal) &&
+        string.Equals(Path.TrimEndingDirectorySeparator(Path.GetFullPath(current.ActiveSavePath!)), Path.TrimEndingDirectorySeparator(Path.GetFullPath(bound.ActiveSavePath!)), StringComparison.OrdinalIgnoreCase) &&
+        string.Equals(Path.TrimEndingDirectorySeparator(Path.GetFullPath(current.LoadedSavePath!)), Path.TrimEndingDirectorySeparator(Path.GetFullPath(bound.LoadedSavePath!)), StringComparison.OrdinalIgnoreCase);
+    private static bool NullNativeReference(Il2CppInterop.Runtime.InteropTypes.Il2CppObjectBase? value) => ReferenceEquals(value, null);
+    private void PrepareNetworkBinding()
+    {
+        RequireContext();
+        if (_network == null || _business == null || _network.Pointer != _networkPointer || !_network.ConstructedWhileArmed || ProbeNetworkSubtype.UnarmedConstructs != 0)
+            throw new InvalidOperationException("network-construction-unconfirmed");
+        _network._ObjectId_k__BackingField = Il2CppFishNet.Object.NetworkObject.UNSET_OBJECTID_VALUE;
+        _network._SceneId_k__BackingField = 0;
+        _network.State = Il2CppFishNet.Object.NetworkObjectState.Unset;
+        _network._isNetworked = false;
+        _network._IsNested_k__BackingField = false;
+        _network._IsDeinitializing_k__BackingField = false;
+        _network._IsServerInitialized_k__BackingField = false;
+        _network._IsClientInitialized_k__BackingField = false;
+        RequireContext();
+        _network._ChildNetworkObjects_k__BackingField = new il2cpp::Il2CppSystem.Collections.Generic.List<Il2CppFishNet.Object.NetworkObject>();
+        _network._RuntimeChildNetworkObjects_k__BackingField = new il2cpp::Il2CppSystem.Collections.Generic.List<Il2CppFishNet.Object.NetworkObject>();
+        _network.Observers = new Il2CppSystem.Collections.Generic.HashSet<Il2CppFishNet.Connection.NetworkConnection>();
+        RequireContext();
+        _network._networkBehaviours = new Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppReferenceArray<Il2CppFishNet.Object.NetworkBehaviour>(1);
+        _behaviourArrayPointer = _network._networkBehaviours.Pointer;
+        _network._networkBehaviours[0] = _business;
+        RequireContext();
+        _business._networkObjectCache = _network;
+        _business._componentIndexCache = 0;
+    }
+    private NetworkSubtypeState ReadNetworkBinding()
+    {
+        RequireContext();
+        if (_network == null || _network.WasCollected || _network.Pointer != _networkPointer || _business == null)
+            throw new InvalidOperationException("network-instance-unreadable");
+        ValidateNetworkUnityMessages();
+        var behaviours = _network._networkBehaviours;
+        if (behaviours == null || behaviours.WasCollected || behaviours.Pointer != _behaviourArrayPointer || behaviours.Length != 1)
+            throw new InvalidOperationException("network-behaviour-array-unreadable");
+        var first = behaviours[0];
+        if (first == null || first.WasCollected) throw new InvalidOperationException("network-behaviour-entry-unreadable");
+        var cache = _business._networkObjectCache;
+        if (cache == null || cache.WasCollected) throw new InvalidOperationException("business-network-cache-unreadable");
+        bool detached = NullNativeReference(_network._ParentNetworkObject_k__BackingField) && NullNativeReference(_network._RuntimeParentNetworkObject_k__BackingField) &&
+            NullNativeReference(_network._RuntimeParentTransform_k__BackingField) && !_network._IsNested_k__BackingField &&
+            EmptyList(_network._ChildNetworkObjects_k__BackingField) && EmptyList(_network._RuntimeChildNetworkObjects_k__BackingField) &&
+            EmptySet(_network.Observers) && NullNativeReference(_network._owner) && NullNativeReference(_network._PredictedSpawner_k__BackingField);
+        bool unspawned = _network._ObjectId_k__BackingField == Il2CppFishNet.Object.NetworkObject.UNSET_OBJECTID_VALUE &&
+            _network._SceneId_k__BackingField == 0 && _network.State == Il2CppFishNet.Object.NetworkObjectState.Unset && !_network._isNetworked &&
+            !_network._IsDeinitializing_k__BackingField && !_network._IsClientInitialized_k__BackingField && !_network._IsServerInitialized_k__BackingField &&
+            NullNativeReference(_network._NetworkManager_k__BackingField) && NullNativeReference(_network._ServerManager_k__BackingField) && NullNativeReference(_network._ClientManager_k__BackingField) &&
+            NullNativeReference(_network._ObserverManager_k__BackingField) && NullNativeReference(_network._TransportManager_k__BackingField) && NullNativeReference(_network._TimeManager_k__BackingField) &&
+            NullNativeReference(_network._SceneManager_k__BackingField) && NullNativeReference(_network._PredictionManager_k__BackingField) && NullNativeReference(_network._RollbackManager_k__BackingField) &&
+            NullNativeReference(_network._hashGrid) && NullNativeReference(_network.HashGridEntry) && !_business._initializedOnceServer && !_business._initializedOnceClient &&
+            NullNativeReference(_business._transportManagerCache);
+        var holders = CaptureNetworkHolders(out bool referencesAbsent);
+        _networkBindingDetails = new
+        {
+            Network = Hex(_networkPointer),
+            BusinessNetworkObject = Hex(cache.Pointer),
+            BusinessComponentIndex = _business._componentIndexCache,
+            BehaviourArray = Hex(behaviours.Pointer),
+            BehaviourCount = behaviours.Length,
+            FirstBehaviour = Hex(first.Pointer),
+            ObjectId = _network._ObjectId_k__BackingField,
+            ExpectedUnsetObjectId = Il2CppFishNet.Object.NetworkObject.UNSET_OBJECTID_VALUE,
+            SceneId = _network._SceneId_k__BackingField,
+            State = _network.State.ToString(),
+            IsNetworked = _network._isNetworked,
+            IsClientInitialized = _network._IsClientInitialized_k__BackingField,
+            IsServerInitialized = _network._IsServerInitialized_k__BackingField,
+            Detached = detached,
+            Unspawned = unspawned,
+            KnownReferencesAbsent = referencesAbsent,
+            KnownHolderFingerprints = holders,
+            Scope = "Direct known FishNet object/connection registries and empty client cache; not arbitrary delegate closure or native last-use proof"
+        };
+        return new(_networkPointer.ToInt64(), _networkClass.ToInt64(), cache.Pointer.ToInt64(), _business._componentIndexCache,
+            behaviours.Pointer.ToInt64(), behaviours.Length, first.Pointer.ToInt64(),
+            Il2CppInterop.Runtime.IL2CPP.il2cpp_object_get_class(_networkPointer) == _networkClass && _network.ConstructedWhileArmed &&
+            ProbeNetworkSubtype.UnarmedConstructs == 0 && _network.enabled, NetworkVirtualTargetsMatch(), _networkUnityMessages.Count == UnityMessageNames.Length,
+            unspawned, detached, referencesAbsent, _network.Counters());
+    }
+    private void ValidateNetworkUnityMessages()
+    {
+        foreach (string name in UnityMessageNames)
+        {
+            IntPtr pointer = Il2CppInterop.Runtime.IL2CPP.il2cpp_class_get_method_from_name(_networkClass, name, 0);
+            if (pointer == IntPtr.Zero || Il2CppInterop.Runtime.IL2CPP.il2cpp_method_get_class(pointer) != _networkClass)
+                throw new InvalidOperationException("network-unity-message-owner:" + name);
+            var info = Il2CppInterop.Runtime.Runtime.UnityVersionHandler.Wrap((Il2CppInterop.Runtime.Runtime.Il2CppMethodInfo*)pointer);
+            if (info.ParametersCount != 0 || ((int)info.Flags & (0x10 | 0x400)) != 0 || info.ReturnType == null ||
+                Il2CppInterop.Runtime.IL2CPP.il2cpp_type_get_name_((IntPtr)info.ReturnType) != "System.Void" ||
+                Il2CppInterop.Runtime.IL2CPP.il2cpp_method_get_name_(pointer) != name ||
+                info.MethodPointer == IntPtr.Zero || info.InvokerMethod == IntPtr.Zero || info.VirtualMethodPointer == IntPtr.Zero)
+                throw new InvalidOperationException("network-unity-message-signature:" + name);
+            var current = (pointer, info.MethodPointer, info.InvokerMethod, info.VirtualMethodPointer);
+            if (_networkUnityMessages.TryGetValue(name, out var prior))
+            {
+                if (prior != current) throw new InvalidOperationException("network-unity-message-changed:" + name);
+            }
+            else
+            {
+                if (_activeSetAttempted) throw new InvalidOperationException("network-message-not-bound-before-activation");
+                _networkUnityMessages.Add(name, current);
+                _networkUnityEvidence.Add(new
+                {
+                    Name = name,
+                    OwnClass = Hex(_networkClass),
+                    Method = Hex(pointer),
+                    MethodPointer = Hex(info.MethodPointer),
+                    InvokerMethod = Hex(info.InvokerMethod),
+                    VirtualMethodPointer = Hex(info.VirtualMethodPointer),
+                    NonvirtualBaseShadow = name is "OnDisable" or "OnDestroy",
+                    NativeDeliveryObservedByCountersOnly = true
+                });
+            }
+        }
+        if (!NetworkVirtualTargetsMatch()) throw new InvalidOperationException("network-virtual-targets-mismatch");
+    }
+    private bool NetworkVirtualTargetsMatch()
+    {
+        var own = Il2CppInterop.Runtime.Runtime.UnityVersionHandler.Wrap((Il2CppInterop.Runtime.Runtime.Il2CppClass*)_networkClass);
+        if (own.VTable == IntPtr.Zero || own.VtableCount is 0 or > 256) return false;
+        foreach (string name in new[] { "Awake", "Start" })
+        {
+            IntPtr source = Il2CppInterop.Runtime.IL2CPP.il2cpp_class_get_method_from_name(Class<Il2CppFishNet.Object.NetworkObject>(), name, 0);
+            if (source == IntPtr.Zero || !_networkUnityMessages.TryGetValue(name, out var expected)) return false;
+            var original = Il2CppInterop.Runtime.Runtime.UnityVersionHandler.Wrap((Il2CppInterop.Runtime.Runtime.Il2CppMethodInfo*)source);
+            if (original.Slot >= own.VtableCount) return false;
+            var slot = ((Il2CppInterop.Runtime.Runtime.VirtualInvokeData*)own.VTable)[original.Slot];
+            if ((IntPtr)slot.method != expected.Method || slot.methodPtr != expected.Pointer || slot.methodPtr == original.MethodPointer) return false;
+        }
+        return true;
+    }
+    private static bool EmptyList<T>(il2cpp::Il2CppSystem.Collections.Generic.List<T> list) where T : Il2CppInterop.Runtime.InteropTypes.Il2CppObjectBase =>
+        list != null && !list.WasCollected && list.Pointer != IntPtr.Zero && list.Count == 0;
+    private static bool EmptySet<T>(Il2CppSystem.Collections.Generic.HashSet<T> set) =>
+        set != null && !set.WasCollected && set.Pointer != IntPtr.Zero && set.Count == 0;
+    private Dictionary<string, string> CaptureNetworkHolders(out bool referencesAbsent)
+    {
+        var result = new Dictionary<string, string>(StringComparer.Ordinal);
+        bool found = false;
+        var connections = new Dictionary<IntPtr, Il2CppFishNet.Connection.NetworkConnection>();
+        void RequireObject(Il2CppInterop.Runtime.InteropTypes.Il2CppObjectBase? value)
+        {
+            if (value == null || value.WasCollected || value.Pointer == IntPtr.Zero) throw new InvalidOperationException("network-holder-unreadable");
+        }
+        void Check(Il2CppInterop.Runtime.InteropTypes.Il2CppObjectBase? value)
+        {
+            RequireObject(value);
+            found |= (_networkPointer != IntPtr.Zero && value!.Pointer == _networkPointer) || (_businessPointer != IntPtr.Zero && value!.Pointer == _businessPointer);
+        }
+        void Connection(Il2CppFishNet.Connection.NetworkConnection value)
+        {
+            RequireObject(value);
+            if (connections.Count >= 256 && !connections.ContainsKey(value.Pointer)) throw new InvalidOperationException("network-connections-over-budget");
+            connections[value.Pointer] = value;
+        }
+        void List<T>(string key, il2cpp::Il2CppSystem.Collections.Generic.List<T> list) where T : Il2CppInterop.Runtime.InteropTypes.Il2CppObjectBase
+        {
+            RequireObject(list);
+            int count = list.Count;
+            if (count < 0 || count > 8192) throw new InvalidOperationException("network-list-over-budget");
+            var text = new System.Text.StringBuilder(Hex(list.Pointer)).Append('|').Append(count);
+            for (int i = 0; i < count; i++) { var item = list[i]; Check(item); text.Append('|').Append(Hex(item.Pointer)); }
+            if (list.Count != count) throw new InvalidOperationException("network-list-changed");
+            result.Add(key, count + ":" + Digest(text.ToString()));
+        }
+        void Dictionary<TKey, TValue>(string key, il2cpp::Il2CppSystem.Collections.Generic.Dictionary<TKey, TValue> dictionary,
+            Func<TKey, string> keyText, Action<TValue>? visit = null) where TValue : Il2CppInterop.Runtime.InteropTypes.Il2CppObjectBase
+        {
+            RequireObject(dictionary);
+            int count = dictionary.Count;
+            if (count < 0 || count > 8192) throw new InvalidOperationException("network-dictionary-over-budget");
+            var text = new System.Text.StringBuilder(Hex(dictionary.Pointer)).Append('|').Append(count);
+            int seen = 0;
+            foreach (var entry in dictionary)
+            {
+                if (++seen > count) throw new InvalidOperationException("network-dictionary-changed");
+                Check(entry.Value); visit?.Invoke(entry.Value);
+                text.Append('|').Append(keyText(entry.Key)).Append('=').Append(Hex(entry.Value.Pointer));
+            }
+            if (seen != count || dictionary.Count != count) throw new InvalidOperationException("network-dictionary-changed");
+            result.Add(key, count + ":" + Digest(text.ToString()));
+        }
+        string Set<T>(Il2CppSystem.Collections.Generic.HashSet<T> set) where T : Il2CppInterop.Runtime.InteropTypes.Il2CppObjectBase
+        {
+            RequireObject(set);
+            int count = set.Count;
+            if (count < 0 || count > 8192) throw new InvalidOperationException("network-set-over-budget");
+            var pointers = new System.Collections.Generic.List<long>();
+            foreach (var item in set) { Check(item); pointers.Add(item.Pointer.ToInt64()); if (pointers.Count > count) throw new InvalidOperationException("network-set-changed"); }
+            if (pointers.Count != count || set.Count != count) throw new InvalidOperationException("network-set-changed");
+            pointers.Sort();
+            return count + ":" + Digest(Hex(set.Pointer) + "|" + string.Join("|", pointers));
+        }
+        var instances = Il2CppFishNet.Managing.NetworkManager._instances;
+        RequireObject(instances);
+        if (instances.Count != 1) throw new InvalidOperationException("network-manager-ambiguous");
+        var manager = instances[0]; RequireObject(manager);
+        if (!S1Mods.Shared.NetworkGuard.IsAlive(manager) || !manager._Initialized_k__BackingField) throw new InvalidOperationException("network-manager-unready");
+        var server = manager._ServerManager_k__BackingField;
+        var client = manager._ClientManager_k__BackingField;
+        RequireObject(server); RequireObject(client);
+        var sobs = server._Objects_k__BackingField;
+        var cobs = client._Objects_k__BackingField;
+        RequireObject(sobs); RequireObject(cobs);
+        if (server._NetworkManager_k__BackingField?.Pointer != manager.Pointer || client._NetworkManager_k__BackingField?.Pointer != manager.Pointer ||
+            sobs._NetworkManager_k__BackingField?.Pointer != manager.Pointer || cobs._NetworkManager_k__BackingField?.Pointer != manager.Pointer)
+            throw new InvalidOperationException("network-manager-binding-mismatch");
+        result.Add("network-holders", Digest(string.Join("|", new[] { instances.Pointer, manager.Pointer, server.Pointer, client.Pointer, sobs.Pointer, cobs.Pointer }.Select(Hex))));
+        Dictionary("network-server-spawned", sobs.Spawned, key => key.ToString(System.Globalization.CultureInfo.InvariantCulture));
+        Dictionary("network-server-scene", sobs.SceneObjects_Internal, key => key.ToString(System.Globalization.CultureInfo.InvariantCulture));
+        Dictionary("network-client-spawned", cobs.Spawned, key => key.ToString(System.Globalization.CultureInfo.InvariantCulture));
+        Dictionary("network-client-scene", cobs.SceneObjects_Internal, key => key.ToString(System.Globalization.CultureInfo.InvariantCulture));
+        Dictionary("network-pending-destroy", sobs._pendingDestroy, key => key.ToString(System.Globalization.CultureInfo.InvariantCulture));
+        List("network-spawn-cache", sobs._spawnCache);
+        List("network-observer-changed", sobs._observerChangedObjectsCache);
+        List("network-timed-observers", sobs._timedNetworkObservers);
+        List("network-dirty-sync-vars", sobs._dirtySyncVarBehaviours);
+        List("network-dirty-sync-objects", sobs._dirtySyncObjectBehaviours);
+        List("network-local-client-spawned", cobs.LocalClientSpawned);
+        Dictionary("network-registered-components", manager._registeredComponents, key => key);
+        Dictionary("network-server-connections", server.Clients, key => key.ToString(System.Globalization.CultureInfo.InvariantCulture), Connection);
+        Dictionary("network-client-connections", client.Clients, key => key.ToString(System.Globalization.CultureInfo.InvariantCulture), Connection);
+        Connection(client.Connection);
+        var connectionStates = new System.Collections.Generic.List<string>();
+        foreach (var connection in connections.Values.OrderBy(c => c.Pointer.ToInt64()))
+        {
+            if (connection._NetworkManager_k__BackingField?.Pointer != manager.Pointer) throw new InvalidOperationException("network-connection-owner-mismatch");
+            string objects = Set(connection.Objects);
+            var first = connection._FirstObject_k__BackingField;
+            if (first != null) Check(first);
+            string lodKey = "network-connection-lod-temporary";
+            Dictionary(lodKey, connection.LevelOfDetails, nob => { Check(nob); return Hex(nob.Pointer); });
+            string lod = result[lodKey]; result.Remove(lodKey);
+            connectionStates.Add(Hex(connection.Pointer) + "|" + objects + "|" + (first == null ? "null" : Hex(first.Pointer)) + "|" + lod);
+        }
+        result.Add("network-connection-owned", connections.Count + ":" + Digest(string.Join(";", connectionStates)));
+        var ids = sobs._objectIdCache; RequireObject(ids);
+        if (ids.Count < 0 || ids.Count > 65536) throw new InvalidOperationException("network-id-cache-over-budget");
+        int idCount = ids.Count;
+        var idValues = ids.ToArray();
+        if (ids.Count != idCount || idValues.Length != idCount) throw new InvalidOperationException("network-id-cache-changed");
+        result.Add("network-object-id-cache", idCount + ":" + Digest(Hex(ids.Pointer) + "|" + string.Join("|", idValues.ToArray())));
+        var cache = cobs._objectCache; RequireObject(cache);
+        if (cache._networkManager?.Pointer != manager.Pointer || cache._clientObjects?.Pointer != cobs.Pointer)
+            throw new InvalidOperationException("network-client-cache-binding");
+        RequireObject(cache.IteratedSpawningObjects); RequireObject(cache._cachedObjects);
+        if (cache.IteratedSpawningObjects.Count != 0 || cache._cachedObjects.Count != 0 || !EmptySet(cache._iteratedSpawns) ||
+            !EmptySet(cache.ReadSpawningObjects) || !EmptySet(cache._conflictingDespawns))
+            throw new InvalidOperationException("network-client-cache-not-readably-empty");
+        result.Add("network-client-cache", Digest(string.Join("|", new[] { cache.Pointer, cache.IteratedSpawningObjects.Pointer,
+            cache._cachedObjects.Pointer, cache._iteratedSpawns.Pointer, cache.ReadSpawningObjects.Pointer, cache._conflictingDespawns.Pointer }.Select(Hex))));
+        if (instances.Count != 1 || instances[0]?.Pointer != manager.Pointer) throw new InvalidOperationException("network-manager-changed");
+        if (_networkHolderBaseline != null && (_networkHolderBaseline.Count != result.Count ||
+            _networkHolderBaseline.Any(p => !result.TryGetValue(p.Key, out string? value) || value != p.Value)))
+            throw new InvalidOperationException("network-holder-identity-or-content-changed");
+        _networkHolderBaseline ??= new Dictionary<string, string>(result, StringComparer.Ordinal);
+        referencesAbsent = !found;
+        return result;
+    }
+#endif
+    private void ValidateUnityMessages()
+    {
+        foreach (string name in UnityMessageNames)
+        {
+            IntPtr pointer = Il2CppInterop.Runtime.IL2CPP.il2cpp_class_get_method_from_name(_ownClass, name, 0);
+            if (pointer == IntPtr.Zero || Il2CppInterop.Runtime.IL2CPP.il2cpp_method_get_class(pointer) != _ownClass)
+                throw new InvalidOperationException("unity-message-owner-mismatch:" + name);
+            var info = Il2CppInterop.Runtime.Runtime.UnityVersionHandler.Wrap((Il2CppInterop.Runtime.Runtime.Il2CppMethodInfo*)pointer);
+            if (info.ParametersCount != 0 || ((int)info.Flags & (0x10 | 0x400)) != 0 || info.ReturnType == null ||
+                Il2CppInterop.Runtime.IL2CPP.il2cpp_type_get_name_((IntPtr)info.ReturnType) != "System.Void" ||
+                Il2CppInterop.Runtime.IL2CPP.il2cpp_method_get_name_(pointer) != name ||
+                info.MethodPointer == IntPtr.Zero || info.InvokerMethod == IntPtr.Zero || info.VirtualMethodPointer == IntPtr.Zero)
+                throw new InvalidOperationException("unity-message-signature-or-invoker-invalid:" + name);
+            var current = (pointer, info.MethodPointer, info.InvokerMethod, info.VirtualMethodPointer);
+            if (_unityMessages.TryGetValue(name, out var prior))
+            {
+                if (prior != current) throw new InvalidOperationException("unity-message-changed:" + name);
+            }
+            else
+            {
+                if (_activeSetAttempted) throw new InvalidOperationException("unity-message-not-bound-before-activation:" + name);
+                _unityMessages.Add(name, current);
+                _unityMessageEvidence.Add(new
+                {
+                    Name = name,
+                    Method = Hex(pointer),
+                    OwnClass = Hex(_ownClass),
+                    MethodPointer = Hex(info.MethodPointer),
+                    InvokerMethod = Hex(info.InvokerMethod),
+                    VirtualMethodPointer = Hex(info.VirtualMethodPointer),
+                    Parameters = info.ParametersCount,
+                    ReturnType = "System.Void",
+                    NativeDeliveryObservedByCountersOnly = true
+                });
+            }
+        }
+    }
+    private bool OwnReference<T>(il2cpp::Il2CppSystem.Collections.Generic.List<T> list, Func<T, IntPtr>? target = null)
+        where T : Il2CppInterop.Runtime.InteropTypes.Il2CppObjectBase
+    {
+        if (list == null || list.WasCollected || list.Pointer == IntPtr.Zero || list.Count < 0 || list.Count > 8192)
+            throw new InvalidOperationException("active-reference-list-unreadable");
+        int count = list.Count;
+        bool found = false;
+        for (int i = 0; i < count; i++)
+        {
+            var item = list[i];
+            if (item == null) continue;
+            if (item.WasCollected) throw new InvalidOperationException("active-reference-entry-unreadable");
+            found |= (target == null ? item.Pointer : target(item)) == _businessPointer;
+        }
+        if (list.Count != count) throw new InvalidOperationException("active-reference-list-changed");
+        return found;
+    }
+#endif
     private InterfaceReadback Reject(string finding, InterfaceReadback readback)
     {
         _interfaceStages.Add(new { Stage = "rejected", Finding = finding, Readback = readback });
@@ -2244,9 +4710,26 @@ internal sealed unsafe class NativeSubtypePort : IBusinessSubtypePort, IBusiness
     public void Cleanup()
     {
         if (ReferenceEquals(_root, null) || _cleanupVerified) return;
+#if TOWNHALL_BUSINESS_ACTIVE_SUBTYPE
+        var activeState = ReadActiveState();
+        if (_activeCleanupAttempted || !_inactiveSetAttempted || activeState.ActiveSelf || activeState.ActiveInHierarchy ||
+            !activeState.ReferencesAbsent || !activeState.SaveIdle) throw new InvalidOperationException("active-cleanup-boundary-unconfirmed");
+        _activeCleanupAttempted = true;
+        RequireContext();
+#endif
+#if TOWNHALL_BUSINESS_NETWORK_SUBTYPE
+        RequireNetworkMutationBoundary(activeState);
+        _networkBeforeCleanup = _network!.Counters();
+#endif
         _beforeCleanup ??= _business?.Counters();
+#if TOWNHALL_BUSINESS_DATA
+        RequireDataBoundary();
+#endif
         if (_root.Pointer != _rootPointer || _root.WasCollected) throw new InvalidOperationException("cleanup-identity-unreadable");
         if (!_destroyed && (UnityEngine.Object)_root != null) UnityEngine.Object.DestroyImmediate(_root);
+#if TOWNHALL_BUSINESS_NETWORK_SUBTYPE
+        RequireContext();
+#endif
         if ((UnityEngine.Object)_root! != null) throw new InvalidOperationException("cleanup-native-root-still-present");
         _destroyed = true;
         if (!ReferenceEquals(_business, null))
@@ -2261,10 +4744,28 @@ internal sealed unsafe class NativeSubtypePort : IBusinessSubtypePort, IBusiness
                     throw new InvalidOperationException("cleanup-unexpected-callback:" + entry.Key);
             }
         }
+#if TOWNHALL_BUSINESS_NETWORK_SUBTYPE
+        if (ReferenceEquals(_network, null) || _network!.WasCollected || _network.Pointer != _networkPointer || (UnityEngine.Object)_network != null)
+            throw new InvalidOperationException("network-cleanup-absence-unconfirmed");
+        var networkAfter = _network!.Counters();
+        foreach (var entry in networkAfter)
+        {
+            int prior = _networkBeforeCleanup?.GetValueOrDefault(entry.Key) ?? 0;
+            if (entry.Key == "OnDestroy" ? entry.Value - prior is < 0 or > 1 : entry.Value != prior)
+                throw new InvalidOperationException("network-cleanup-unexpected-callback:" + entry.Key);
+        }
+#endif
+#if TOWNHALL_BUSINESS_DATA
+        ConfirmDataCleanup();
+#endif
         _cleanupVerified = true;
     }
     public bool IsClean => ReferenceEquals(_root, null) || (_destroyed && _cleanupVerified && !_root.WasCollected &&
-        _root.Pointer == _rootPointer && (UnityEngine.Object)_root == null);
+        _root.Pointer == _rootPointer && (UnityEngine.Object)_root == null
+#if TOWNHALL_BUSINESS_NETWORK_SUBTYPE
+        && !ReferenceEquals(_network, null) && !_network!.WasCollected && _network.Pointer == _networkPointer && (UnityEngine.Object)_network == null
+#endif
+        );
     public ManagerRegistration RegisterOnce()
     {
 #if !TOWNHALL_BUSINESS_MANAGER
@@ -2287,40 +4788,96 @@ internal sealed unsafe class NativeSubtypePort : IBusinessSubtypePort, IBusiness
         return new(before, added, remaining, removed && remaining == 0 && list.Count == before, false);
 #endif
     }
-    public ManagerRegistration SaveRegistered()
+    public ManagerSaveState ReadSaveState()
     {
-#if !TOWNHALL_BUSINESS_MANAGER
-        throw new InvalidOperationException("manager-probe-disabled");
-#else
+        RequireContext();
+        var context = BusinessSubtypeRuntime.CurrentContext();
+        long generation = BusinessSubtypeRuntime.Generation;
+        var save = Il2CppScheduleOne.DevUtilities.PersistentSingleton<Il2CppScheduleOne.Persistence.SaveManager>.Instance;
+        long managerPtr = (save != null && S1Mods.Shared.NetworkGuard.IsAlive(save)) ? save.Pointer.ToInt64() : 0;
+        long saveablesPtr = (save?.Saveables != null && !save.Saveables.WasCollected) ? save.Saveables.Pointer.ToInt64() : 0;
+        long frame = NextFrame();
+        bool isSaving = save != null && save.IsSaving;
+        int pending = save?.QueuedSaveRequests?.Count ?? 0;
+        int ownEntries = (_businessPointer != IntPtr.Zero && save?.Saveables != null) ? CountPointer(save.Saveables, _businessPointer) : 0;
+        int activeCallbacks = 0;
+        if (_saveStarted == 0 && _business?.SaveCallbackObserved == true)
+            _saveStarted = 1;
+        if (_saveCompleted == 0 && save != null && save.CompletedSaveables != null && _businessPointer != IntPtr.Zero && CountPointer(save.CompletedSaveables, _businessPointer) > 0)
+            _saveCompleted = 1;
+        int started = _saveStarted;
+        int completed = _saveCompleted;
+        string foreignSaveables = ForeignSaveables(save?.Saveables);
+        bool verified = _registered &&
+            _baseMethods.Count == 16 &&
+            _business != null &&
+            _business.ConstructedWhileArmed &&
+            ProbeBusinessSubtype.UnarmedConstructs == 0 &&
+            _business.LocalExtraFiles != null &&
+            _business.LocalExtraFolders != null &&
+            _business.LocalExtraFiles.Count == 0 &&
+            _business.LocalExtraFolders.Count == 0 &&
+            !_business.ShouldSaveUnderFolder;
+        return new ManagerSaveState(context, generation, managerPtr, saveablesPtr, frame,
+            isSaving, pending, ownEntries, activeCallbacks, started, completed, foreignSaveables, verified);
+    }
+    public void RegisterSaveable()
+    {
         RequireContext();
         if (_business == null || _businessPointer == IntPtr.Zero) throw new InvalidOperationException("manager-instance-missing");
         var save = Il2CppScheduleOne.DevUtilities.PersistentSingleton<Il2CppScheduleOne.Persistence.SaveManager>.Instance;
         if (!S1Mods.Shared.NetworkGuard.IsAlive(save) || save.IsSaving) throw new InvalidOperationException("saving-or-unavailable");
         var list = save.Saveables ?? throw new InvalidOperationException("saveables-missing");
-        int before = list.Count;
         if (CountPointer(list, _businessPointer) != 0) throw new InvalidOperationException("already-registered");
-        int writesBefore = _business.Calls("WriteData");
-        int deletesBefore = _business.Calls("DeleteUnapprovedFiles");
-        int stringsBefore = _business.Calls("GetSaveString");
-        bool saved = false;
-        try
+        save.RegisterSaveable(new Il2CppScheduleOne.Persistence.ISaveable(_businessPointer));
+    }
+    public void SaveOnce()
+    {
+        RequireContext();
+        if (_business == null || _businessPointer == IntPtr.Zero) throw new InvalidOperationException("manager-instance-missing");
+        var load = Il2CppScheduleOne.DevUtilities.PersistentSingleton<Il2CppScheduleOne.Persistence.LoadManager>.Instance;
+        string? folder = load?.LoadedGameFolderPath;
+        if (string.IsNullOrEmpty(folder)) throw new InvalidOperationException("loaded-game-folder-missing");
+        _saveStarted = 1;
+        new Il2CppScheduleOne.Persistence.ISaveable(_businessPointer).Save(folder);
+        var save = Il2CppScheduleOne.DevUtilities.PersistentSingleton<Il2CppScheduleOne.Persistence.SaveManager>.Instance;
+        if (save != null && save.CompletedSaveables != null && CountPointer(save.CompletedSaveables, _businessPointer) > 0)
         {
-            save.RegisterSaveable(new Il2CppScheduleOne.Persistence.ISaveable(_businessPointer));
-            if (save.IsSaving) throw new InvalidOperationException("save-started-during-register");
-            save.Save();
-            saved = true;
+            _saveCompleted = 1;
         }
-        finally
+    }
+    public void RemoveSaveable()
+    {
+        RequireContext();
+        if (_businessPointer == IntPtr.Zero) throw new InvalidOperationException("manager-instance-missing");
+        var save = Il2CppScheduleOne.DevUtilities.PersistentSingleton<Il2CppScheduleOne.Persistence.SaveManager>.Instance;
+        if (!S1Mods.Shared.NetworkGuard.IsAlive(save)) throw new InvalidOperationException("saving-or-unavailable");
+        if (save.Saveables != null)
         {
-            if (CountPointer(list, _businessPointer) != 0) RemovePointer(list, _businessPointer);
+            RemovePointer(save.Saveables, _businessPointer);
         }
-        if (!saved) throw new InvalidOperationException("save-did-not-return");
-        if (!save.IsSaving) save.Save();
-        int remaining = CountPointer(list, _businessPointer);
-        return new(before, 1, remaining, remaining == 0 && list.Count == before, true,
-            _business.Calls("WriteData") - writesBefore, _business.Calls("DeleteUnapprovedFiles") - deletesBefore,
-            _business.Calls("GetSaveString") - stringsBefore, save.IsSaving);
-#endif
+        save.ClearCompletedSaveable(new Il2CppScheduleOne.Persistence.ISaveable(_businessPointer));
+        if (save.CompletedSaveables != null)
+        {
+            RemovePointer(save.CompletedSaveables, _businessPointer);
+        }
+    }
+    private string ForeignSaveables(il2cpp::Il2CppSystem.Collections.Generic.List<Il2CppScheduleOne.Persistence.ISaveable>? list)
+    {
+        if (list == null || list.WasCollected || list.Count < 0 || list.Count > 8192) return "";
+        int count = list.Count;
+        int foreign = 0;
+        var value = new System.Text.StringBuilder(Hex(list.Pointer));
+        for (int i = 0; i < count; i++)
+        {
+            var item = list[i];
+            if (item != null && item.WasCollected) throw new InvalidOperationException("registry-entry-unreadable");
+            if (item != null && item.Pointer == _businessPointer) continue;
+            foreign++;
+            value.Append('|').Append(item == null ? "null" : Hex(item.Pointer));
+        }
+        if (list.Count != count) throw new InvalidOperationException("registry-changed-during-read");
+        return foreign + ":" + Digest(value.ToString());
     }
     private static int CountPointer<T>(il2cpp::Il2CppSystem.Collections.Generic.List<T> list, IntPtr pointer)
         where T : Il2CppInterop.Runtime.InteropTypes.Il2CppObjectBase

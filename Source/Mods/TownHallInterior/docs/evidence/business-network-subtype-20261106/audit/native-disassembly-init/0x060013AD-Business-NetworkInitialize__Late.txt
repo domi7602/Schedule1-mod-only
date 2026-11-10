@@ -1,0 +1,24 @@
+; ScheduleOne.Property.Business::NetworkInitialize__Late/0, token 0x060013AD, RVA 0x54CB40, next-pointer window 0x30 bytes
+; No target execution. Parser-pointer window can contain padding/cold fragments and is not exact/full function, EH or transitive coverage. Shared direct aliases are truncated to eight names.
+0x54CB40     80 B9 81 02 00 00 00            cmp byte ptr [rcx+281h],0
+0x54CB47     75 17                           jne short 000000018054CB60h
+0x54CB49     80 B9 61 02 00 00 00            cmp byte ptr [rcx+261h],0
+0x54CB50     C6 81 81 02 00 00 01            mov byte ptr [rcx+281h],1
+0x54CB57     75 07                           jne short 000000018054CB60h
+0x54CB59     C6 81 61 02 00 00 01            mov byte ptr [rcx+261h],1
+0x54CB60     C3                              ret
+0x54CB61     CC                              int 3
+0x54CB62     CC                              int 3
+0x54CB63     CC                              int 3
+0x54CB64     CC                              int 3
+0x54CB65     CC                              int 3
+0x54CB66     CC                              int 3
+0x54CB67     CC                              int 3
+0x54CB68     CC                              int 3
+0x54CB69     CC                              int 3
+0x54CB6A     CC                              int 3
+0x54CB6B     CC                              int 3
+0x54CB6C     CC                              int 3
+0x54CB6D     CC                              int 3
+0x54CB6E     CC                              int 3
+0x54CB6F     CC                              int 3

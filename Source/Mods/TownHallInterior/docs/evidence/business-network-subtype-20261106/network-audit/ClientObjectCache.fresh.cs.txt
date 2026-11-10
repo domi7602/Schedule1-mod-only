@@ -1,0 +1,391 @@
+using System;
+using System.Runtime.CompilerServices;
+using Il2CppFishNet.Managing.Object;
+using Il2CppFishNet.Object;
+using Il2CppInterop.Common.Attributes;
+using Il2CppInterop.Runtime;
+using Il2CppInterop.Runtime.InteropTypes;
+using Il2CppInterop.Runtime.Runtime;
+using Il2CppSystem;
+using Il2CppSystem.Collections.Generic;
+using UnityEngine;
+
+namespace Il2CppFishNet.Managing.Client;
+
+public class ClientObjectCache : Il2CppSystem.Object
+{
+	[OriginalName("FishNet.Runtime.dll", "", "CacheSearchType")]
+	public enum CacheSearchType
+	{
+		Any,
+		Spawning,
+		Despawning
+	}
+
+	[ObfuscatedName("FishNet.Managing.Client.ClientObjectCache+<>c__DisplayClass14_0")]
+	public sealed class __c__DisplayClass14_0 : Il2CppSystem.ValueType
+	{
+		private static readonly System.IntPtr NativeFieldInfoPtr_processedIndexes;
+
+		public unsafe HashSet<int> processedIndexes
+		{
+			get
+			{
+				nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_processedIndexes);
+				System.IntPtr intPtr = *(System.IntPtr*)num;
+				return (intPtr != (System.IntPtr)0) ? Il2CppObjectPool.Get<HashSet<int>>(intPtr) : null;
+			}
+			set
+			{
+				System.IntPtr num = IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+				IL2CPP.il2cpp_gc_wbarrier_set_field(num, (System.IntPtr)((nint)num + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_processedIndexes)), IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)value));
+			}
+		}
+
+		static __c__DisplayClass14_0()
+		{
+			Il2CppClassPointerStore<__c__DisplayClass14_0>.NativeClassPtr = IL2CPP.GetIl2CppNestedType(Il2CppClassPointerStore<ClientObjectCache>.NativeClassPtr, "<>c__DisplayClass14_0");
+			IL2CPP.il2cpp_runtime_class_init(Il2CppClassPointerStore<__c__DisplayClass14_0>.NativeClassPtr);
+			NativeFieldInfoPtr_processedIndexes = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<__c__DisplayClass14_0>.NativeClassPtr, "processedIndexes");
+		}
+
+		public __c__DisplayClass14_0(System.IntPtr pointer)
+			: base(pointer)
+		{
+		}
+
+		public __c__DisplayClass14_0()
+			: base(IL2CPP.il2cpp_object_new(Il2CppClassPointerStore<__c__DisplayClass14_0>.NativeClassPtr))
+		{
+		}
+	}
+
+	private static readonly System.IntPtr NativeFieldInfoPtr_IteratedSpawningObjects;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr_ReadSpawningObjects;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr__cachedObjects;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr__iteratedSpawns;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr__conflictingDespawns;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr__clientObjects;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr__networkManager;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr__loggedSameTickWarning;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr__initializeOrderChanged;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr__ctor_Public_Void_ClientObjects_NetworkManager_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_GetInCached_Public_NetworkObject_Int32_CacheSearchType_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_AddSpawn_Public_Void_NetworkManager_UInt16_Int32_SByte_Int32_SpawnType_Byte_Int32_Nullable_1_Int32_Nullable_1_Byte_Nullable_1_Int32_Nullable_1_Vector3_Nullable_1_Quaternion_Nullable_1_Vector3_UInt64_String_String_ArraySegment_1_Byte_ArraySegment_1_Byte_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_AddDespawn_Public_Void_Int32_DespawnType_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_Iterate_Public_Void_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_IterateDespawn_Private_Void_CachedNetworkObject_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_GetSpawnedObject_Internal_NetworkObject_Int32_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_Reset_Public_Void_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_Method_Private_Void_CachedNetworkObject_Boolean_Int32_byref___c__DisplayClass14_0_0;
+
+	public unsafe Dictionary<int, NetworkObject> IteratedSpawningObjects
+	{
+		get
+		{
+			nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_IteratedSpawningObjects);
+			System.IntPtr intPtr = *(System.IntPtr*)num;
+			return (intPtr != (System.IntPtr)0) ? Il2CppObjectPool.Get<Dictionary<int, NetworkObject>>(intPtr) : null;
+		}
+		set
+		{
+			System.IntPtr num = IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+			IL2CPP.il2cpp_gc_wbarrier_set_field(num, (System.IntPtr)((nint)num + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_IteratedSpawningObjects)), IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)value));
+		}
+	}
+
+	public unsafe HashSet<int> ReadSpawningObjects
+	{
+		get
+		{
+			nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_ReadSpawningObjects);
+			System.IntPtr intPtr = *(System.IntPtr*)num;
+			return (intPtr != (System.IntPtr)0) ? Il2CppObjectPool.Get<HashSet<int>>(intPtr) : null;
+		}
+		set
+		{
+			System.IntPtr num = IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+			IL2CPP.il2cpp_gc_wbarrier_set_field(num, (System.IntPtr)((nint)num + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_ReadSpawningObjects)), IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)value));
+		}
+	}
+
+	public unsafe List<CachedNetworkObject> _cachedObjects
+	{
+		get
+		{
+			nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr__cachedObjects);
+			System.IntPtr intPtr = *(System.IntPtr*)num;
+			return (intPtr != (System.IntPtr)0) ? Il2CppObjectPool.Get<List<CachedNetworkObject>>(intPtr) : null;
+		}
+		set
+		{
+			System.IntPtr num = IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+			IL2CPP.il2cpp_gc_wbarrier_set_field(num, (System.IntPtr)((nint)num + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr__cachedObjects)), IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)value));
+		}
+	}
+
+	public unsafe HashSet<NetworkObject> _iteratedSpawns
+	{
+		get
+		{
+			nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr__iteratedSpawns);
+			System.IntPtr intPtr = *(System.IntPtr*)num;
+			return (intPtr != (System.IntPtr)0) ? Il2CppObjectPool.Get<HashSet<NetworkObject>>(intPtr) : null;
+		}
+		set
+		{
+			System.IntPtr num = IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+			IL2CPP.il2cpp_gc_wbarrier_set_field(num, (System.IntPtr)((nint)num + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr__iteratedSpawns)), IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)value));
+		}
+	}
+
+	public unsafe HashSet<int> _conflictingDespawns
+	{
+		get
+		{
+			nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr__conflictingDespawns);
+			System.IntPtr intPtr = *(System.IntPtr*)num;
+			return (intPtr != (System.IntPtr)0) ? Il2CppObjectPool.Get<HashSet<int>>(intPtr) : null;
+		}
+		set
+		{
+			System.IntPtr num = IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+			IL2CPP.il2cpp_gc_wbarrier_set_field(num, (System.IntPtr)((nint)num + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr__conflictingDespawns)), IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)value));
+		}
+	}
+
+	public unsafe ClientObjects _clientObjects
+	{
+		get
+		{
+			nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr__clientObjects);
+			System.IntPtr intPtr = *(System.IntPtr*)num;
+			return (intPtr != (System.IntPtr)0) ? Il2CppObjectPool.Get<ClientObjects>(intPtr) : null;
+		}
+		set
+		{
+			System.IntPtr num = IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+			IL2CPP.il2cpp_gc_wbarrier_set_field(num, (System.IntPtr)((nint)num + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr__clientObjects)), IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)value));
+		}
+	}
+
+	public unsafe NetworkManager _networkManager
+	{
+		get
+		{
+			nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr__networkManager);
+			System.IntPtr intPtr = *(System.IntPtr*)num;
+			return (intPtr != (System.IntPtr)0) ? Il2CppObjectPool.Get<NetworkManager>(intPtr) : null;
+		}
+		set
+		{
+			System.IntPtr num = IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+			IL2CPP.il2cpp_gc_wbarrier_set_field(num, (System.IntPtr)((nint)num + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr__networkManager)), IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)value));
+		}
+	}
+
+	public unsafe bool _loggedSameTickWarning
+	{
+		get
+		{
+			nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr__loggedSameTickWarning);
+			return *(bool*)num;
+		}
+		set
+		{
+			*(bool*)((nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr__loggedSameTickWarning)) = value;
+		}
+	}
+
+	public unsafe bool _initializeOrderChanged
+	{
+		get
+		{
+			nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr__initializeOrderChanged);
+			return *(bool*)num;
+		}
+		set
+		{
+			*(bool*)((nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr__initializeOrderChanged)) = value;
+		}
+	}
+
+	static ClientObjectCache()
+	{
+		Il2CppClassPointerStore<ClientObjectCache>.NativeClassPtr = IL2CPP.GetIl2CppClass("FishNet.Runtime.dll", "FishNet.Managing.Client", "ClientObjectCache");
+		IL2CPP.il2cpp_runtime_class_init(Il2CppClassPointerStore<ClientObjectCache>.NativeClassPtr);
+		NativeFieldInfoPtr_IteratedSpawningObjects = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<ClientObjectCache>.NativeClassPtr, "IteratedSpawningObjects");
+		NativeFieldInfoPtr_ReadSpawningObjects = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<ClientObjectCache>.NativeClassPtr, "ReadSpawningObjects");
+		NativeFieldInfoPtr__cachedObjects = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<ClientObjectCache>.NativeClassPtr, "_cachedObjects");
+		NativeFieldInfoPtr__iteratedSpawns = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<ClientObjectCache>.NativeClassPtr, "_iteratedSpawns");
+		NativeFieldInfoPtr__conflictingDespawns = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<ClientObjectCache>.NativeClassPtr, "_conflictingDespawns");
+		NativeFieldInfoPtr__clientObjects = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<ClientObjectCache>.NativeClassPtr, "_clientObjects");
+		NativeFieldInfoPtr__networkManager = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<ClientObjectCache>.NativeClassPtr, "_networkManager");
+		NativeFieldInfoPtr__loggedSameTickWarning = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<ClientObjectCache>.NativeClassPtr, "_loggedSameTickWarning");
+		NativeFieldInfoPtr__initializeOrderChanged = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<ClientObjectCache>.NativeClassPtr, "_initializeOrderChanged");
+		NativeMethodInfoPtr__ctor_Public_Void_ClientObjects_NetworkManager_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<ClientObjectCache>.NativeClassPtr, 100666923);
+		NativeMethodInfoPtr_GetInCached_Public_NetworkObject_Int32_CacheSearchType_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<ClientObjectCache>.NativeClassPtr, 100666924);
+		NativeMethodInfoPtr_AddSpawn_Public_Void_NetworkManager_UInt16_Int32_SByte_Int32_SpawnType_Byte_Int32_Nullable_1_Int32_Nullable_1_Byte_Nullable_1_Int32_Nullable_1_Vector3_Nullable_1_Quaternion_Nullable_1_Vector3_UInt64_String_String_ArraySegment_1_Byte_ArraySegment_1_Byte_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<ClientObjectCache>.NativeClassPtr, 100666925);
+		NativeMethodInfoPtr_AddDespawn_Public_Void_Int32_DespawnType_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<ClientObjectCache>.NativeClassPtr, 100666926);
+		NativeMethodInfoPtr_Iterate_Public_Void_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<ClientObjectCache>.NativeClassPtr, 100666927);
+		NativeMethodInfoPtr_IterateDespawn_Private_Void_CachedNetworkObject_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<ClientObjectCache>.NativeClassPtr, 100666928);
+		NativeMethodInfoPtr_GetSpawnedObject_Internal_NetworkObject_Int32_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<ClientObjectCache>.NativeClassPtr, 100666929);
+		NativeMethodInfoPtr_Reset_Public_Void_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<ClientObjectCache>.NativeClassPtr, 100666930);
+		NativeMethodInfoPtr_Method_Private_Void_CachedNetworkObject_Boolean_Int32_byref___c__DisplayClass14_0_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<ClientObjectCache>.NativeClassPtr, 100666931);
+	}
+
+	[CallerCount(1)]
+	[CachedScanResults(RefRangeStart = 458328, RefRangeEnd = 458329, XrefRangeStart = 458292, XrefRangeEnd = 458328, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe ClientObjectCache(ClientObjects cobs, NetworkManager networkManager)
+		: this(IL2CPP.il2cpp_object_new(Il2CppClassPointerStore<ClientObjectCache>.NativeClassPtr))
+	{
+		System.IntPtr* ptr = stackalloc System.IntPtr[2];
+		*ptr = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)cobs);
+		*(System.IntPtr*)((byte*)ptr + checked((nuint)1u * unchecked((nuint)sizeof(System.IntPtr)))) = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)networkManager);
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr__ctor_Public_Void_ClientObjects_NetworkManager_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+	}
+
+	[CallerCount(1)]
+	[CachedScanResults(RefRangeStart = 458334, RefRangeEnd = 458335, XrefRangeStart = 458329, XrefRangeEnd = 458334, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe NetworkObject GetInCached(int objectId, CacheSearchType searchType)
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = stackalloc System.IntPtr[2];
+		*ptr = (nint)(&objectId);
+		*(CacheSearchType**)((byte*)ptr + checked((nuint)1u * unchecked((nuint)sizeof(System.IntPtr)))) = &searchType;
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_GetInCached_Public_NetworkObject_Int32_CacheSearchType_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+		return (intPtr2 != (System.IntPtr)0) ? Il2CppObjectPool.Get<NetworkObject>(intPtr2) : null;
+	}
+
+	[CallerCount(0)]
+	[CachedScanResults(RefRangeStart = 0, RefRangeEnd = 0, XrefRangeStart = 458335, XrefRangeEnd = 458365, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe void AddSpawn(NetworkManager manager, ushort collectionId, int objectId, sbyte initializeOrder, int ownerId, SpawnType ost, byte componentIndex, int rootObjectId, Il2CppSystem.Nullable<int> parentObjectId, Il2CppSystem.Nullable<byte> parentComponentIndex, Il2CppSystem.Nullable<int> prefabId, Il2CppSystem.Nullable<Vector3> localPosition, Il2CppSystem.Nullable<Quaternion> localRotation, Il2CppSystem.Nullable<Vector3> localScale, ulong sceneId, string sceneName, string objectName, Il2CppSystem.ArraySegment<byte> rpcLinks, Il2CppSystem.ArraySegment<byte> syncValues)
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = stackalloc System.IntPtr[19];
+		*ptr = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)manager);
+		*(ushort**)((byte*)ptr + checked((nuint)1u * unchecked((nuint)sizeof(System.IntPtr)))) = &collectionId;
+		*(int**)((byte*)ptr + checked((nuint)2u * unchecked((nuint)sizeof(System.IntPtr)))) = &objectId;
+		*(sbyte**)((byte*)ptr + checked((nuint)3u * unchecked((nuint)sizeof(System.IntPtr)))) = &initializeOrder;
+		*(int**)((byte*)ptr + checked((nuint)4u * unchecked((nuint)sizeof(System.IntPtr)))) = &ownerId;
+		*(SpawnType**)((byte*)ptr + checked((nuint)5u * unchecked((nuint)sizeof(System.IntPtr)))) = &ost;
+		*(byte**)((byte*)ptr + checked((nuint)6u * unchecked((nuint)sizeof(System.IntPtr)))) = &componentIndex;
+		*(int**)((byte*)ptr + checked((nuint)7u * unchecked((nuint)sizeof(System.IntPtr)))) = &rootObjectId;
+		*(System.IntPtr*)((byte*)ptr + checked((nuint)8u * unchecked((nuint)sizeof(System.IntPtr)))) = IL2CPP.il2cpp_object_unbox(IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)parentObjectId));
+		*(System.IntPtr*)((byte*)ptr + checked((nuint)9u * unchecked((nuint)sizeof(System.IntPtr)))) = IL2CPP.il2cpp_object_unbox(IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)parentComponentIndex));
+		*(System.IntPtr*)((byte*)ptr + checked((nuint)10u * unchecked((nuint)sizeof(System.IntPtr)))) = IL2CPP.il2cpp_object_unbox(IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)prefabId));
+		*(System.IntPtr*)((byte*)ptr + checked((nuint)11u * unchecked((nuint)sizeof(System.IntPtr)))) = IL2CPP.il2cpp_object_unbox(IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)localPosition));
+		*(System.IntPtr*)((byte*)ptr + checked((nuint)12u * unchecked((nuint)sizeof(System.IntPtr)))) = IL2CPP.il2cpp_object_unbox(IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)localRotation));
+		*(System.IntPtr*)((byte*)ptr + checked((nuint)13u * unchecked((nuint)sizeof(System.IntPtr)))) = IL2CPP.il2cpp_object_unbox(IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)localScale));
+		*(ulong**)((byte*)ptr + checked((nuint)14u * unchecked((nuint)sizeof(System.IntPtr)))) = &sceneId;
+		*(System.IntPtr*)((byte*)ptr + checked((nuint)15u * unchecked((nuint)sizeof(System.IntPtr)))) = IL2CPP.ManagedStringToIl2Cpp(sceneName);
+		*(System.IntPtr*)((byte*)ptr + checked((nuint)16u * unchecked((nuint)sizeof(System.IntPtr)))) = IL2CPP.ManagedStringToIl2Cpp(objectName);
+		*(System.IntPtr*)((byte*)ptr + checked((nuint)17u * unchecked((nuint)sizeof(System.IntPtr)))) = IL2CPP.il2cpp_object_unbox(IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)rpcLinks));
+		*(System.IntPtr*)((byte*)ptr + checked((nuint)18u * unchecked((nuint)sizeof(System.IntPtr)))) = IL2CPP.il2cpp_object_unbox(IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)syncValues));
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_AddSpawn_Public_Void_NetworkManager_UInt16_Int32_SByte_Int32_SpawnType_Byte_Int32_Nullable_1_Int32_Nullable_1_Byte_Nullable_1_Int32_Nullable_1_Vector3_Nullable_1_Quaternion_Nullable_1_Vector3_UInt64_String_String_ArraySegment_1_Byte_ArraySegment_1_Byte_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+	}
+
+	[CallerCount(1)]
+	[CachedScanResults(RefRangeStart = 458374, RefRangeEnd = 458375, XrefRangeStart = 458365, XrefRangeEnd = 458374, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe void AddDespawn(int objectId, DespawnType despawnType)
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = stackalloc System.IntPtr[2];
+		*ptr = (nint)(&objectId);
+		*(DespawnType**)((byte*)ptr + checked((nuint)1u * unchecked((nuint)sizeof(System.IntPtr)))) = &despawnType;
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_AddDespawn_Public_Void_Int32_DespawnType_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+	}
+
+	[CallerCount(4)]
+	[CachedScanResults(RefRangeStart = 458472, RefRangeEnd = 458476, XrefRangeStart = 458375, XrefRangeEnd = 458472, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe void Iterate()
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = null;
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_Iterate_Public_Void_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+	}
+
+	[CallerCount(0)]
+	public unsafe void IterateDespawn(CachedNetworkObject cnob)
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = stackalloc System.IntPtr[1];
+		*ptr = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)cnob);
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_IterateDespawn_Private_Void_CachedNetworkObject_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+	}
+
+	[CallerCount(2)]
+	[CachedScanResults(RefRangeStart = 458483, RefRangeEnd = 458485, XrefRangeStart = 458476, XrefRangeEnd = 458483, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe NetworkObject GetSpawnedObject(int objectId)
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = stackalloc System.IntPtr[1];
+		*ptr = (nint)(&objectId);
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_GetSpawnedObject_Internal_NetworkObject_Int32_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+		return (intPtr2 != (System.IntPtr)0) ? Il2CppObjectPool.Get<NetworkObject>(intPtr2) : null;
+	}
+
+	[CallerCount(3)]
+	[CachedScanResults(RefRangeStart = 458513, RefRangeEnd = 458516, XrefRangeStart = 458485, XrefRangeEnd = 458513, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe void Reset()
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = null;
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_Reset_Public_Void_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+	}
+
+	[CallerCount(2)]
+	[CachedScanResults(RefRangeStart = 458603, RefRangeEnd = 458605, XrefRangeStart = 458516, XrefRangeEnd = 458603, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe void Method_Private_Void_CachedNetworkObject_Boolean_Int32_byref___c__DisplayClass14_0_0(CachedNetworkObject cnob, bool spawn, int index, ref __c__DisplayClass14_0 A_4)
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = stackalloc System.IntPtr[4];
+		*ptr = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)cnob);
+		*(bool**)((byte*)ptr + checked((nuint)1u * unchecked((nuint)sizeof(System.IntPtr)))) = &spawn;
+		*(int**)((byte*)ptr + checked((nuint)2u * unchecked((nuint)sizeof(System.IntPtr)))) = &index;
+		*(System.IntPtr*)((byte*)ptr + checked((nuint)3u * unchecked((nuint)sizeof(System.IntPtr)))) = IL2CPP.il2cpp_object_unbox(IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)A_4));
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_Method_Private_Void_CachedNetworkObject_Boolean_Int32_byref___c__DisplayClass14_0_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+	}
+
+	public ClientObjectCache(System.IntPtr pointer)
+		: base(pointer)
+	{
+	}
+}
+You are not using the latest version of the tool, please update.
+Latest version is '11.2.0.10050' (yours is '8.2.0.7535-95108c96')

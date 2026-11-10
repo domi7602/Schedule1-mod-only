@@ -1,0 +1,20 @@
+; FishNet.Object.NetworkObject::OnDestroy/0, token 0x060006EC, RVA 0xCCD410, .pdata primary extent 0x5F bytes
+; Raw native bytes decoded without invoking the game. .pdata primary extent is not a proof of full transitive/exception-path coverage.
+0xCCD410     40 53                           push rbx
+0xCCD412     48 83 EC 20                     sub rsp,20h
+0xCCD416     80 3D 52 38 F3 02 00            cmp byte ptr [183C00C6Fh],0
+0xCCD41D     48 8B D9                        mov rbx,rcx
+0xCCD420     75 43                           jne short 0000000180CCD465h
+0xCCD422     48 8D 0D 6F 3A CD 02            lea rcx,[1839A0E98h]
+0xCCD429     E8 72 A4 64 FF                  call 00000001803178A0h
+0xCCD42E     48 8D 0D 73 B5 CB 02            lea rcx,[1839889A8h] ; TypeInfo: GameKit.Utilities.CollectionCaches`1<FishNet.Object.NetworkObject>
+0xCCD435     E8 66 A4 64 FF                  call 00000001803178A0h
+0xCCD43A     48 8D 0D 37 FA D3 02            lea rcx,[183A0CE78h]
+0xCCD441     E8 5A A4 64 FF                  call 00000001803178A0h
+0xCCD446     48 8D 0D C3 07 CC 02            lea rcx,[18398DC10h]
+0xCCD44D     E8 4E A4 64 FF                  call 00000001803178A0h
+0xCCD452     48 8D 0D 9F 2B D2 02            lea rcx,[1839EFFF8h] ; TypeInfo: UnityEngine.Object
+0xCCD459     E8 42 A4 64 FF                  call 00000001803178A0h
+0xCCD45E     C6 05 0A 38 F3 02 01            mov byte ptr [183C00C6Fh],1
+0xCCD465     80 7B 38 00                     cmp byte ptr [rbx+38h],0
+0xCCD469     0F 85 0A 02 00 00               jne near ptr 0000000180CCD679h

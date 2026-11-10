@@ -1,0 +1,103 @@
+{
+  "schema": 1,
+  "checkedUtc": "2026-11-06T09:33:06.263948+00:00",
+  "reviewer": "active_business_audit",
+  "result": "accepted-with-bounded-runtime-limit",
+  "comparisonBaseline": ".scratch/townhall-active-subtype-20261106/input",
+  "reviewedSources": [
+    {
+      "path": "Source/Mods/TownHallInterior/src/BusinessConstruction.cs",
+      "sha256": "32724b5085d1d6ca6bb34340e6b95198f450c4f67a2c5e5bbb187b68286ad708"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/TownHallInterior.csproj",
+      "sha256": "1ea10486e850372e3faeed9fb3491066de1c8ac027a17f46bcfe9a746bfb1dfd"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/Mod.cs",
+      "sha256": "82323dd725b033b124c0f5edd6252730676f3f1910bdd402441945f0fe4e9385"
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/BusinessActiveSubtypeTests.cs",
+      "sha256": "2a9124617fe1494ce08f73361b8bc0b24be89df4c8b69258ad17142876899221"
+    }
+  ],
+  "baselineSources": [
+    {
+      "path": "Source/Mods/TownHallInterior/src/BusinessConstruction.cs",
+      "sha256": "159f7cbdc6c7c01db1a34c93cfe2c02c8df095c2f709678afb2bf13256b9e868"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/TownHallInterior.csproj",
+      "sha256": "c730506d8c85e9d9fb88def2c397920f408b7771576a59aacc2c4b183bcde9df"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/Mod.cs",
+      "sha256": "82323dd725b033b124c0f5edd6252730676f3f1910bdd402441945f0fe4e9385"
+    }
+  ],
+  "checks": [
+    {
+      "scope": "Build selection",
+      "result": "accepted",
+      "detail": "New opt-in mode is distinct from old ACTIVATION; old #error remains; manager/interface/construction combinations are rejected; normal runtime wiring unchanged."
+    },
+    {
+      "scope": "One attempt and binding",
+      "result": "accepted",
+      "detail": "Pure owner freezes context and counters, binds same root/business/class/manager/generation, revokes cross-thread or reentrant use, consumes effects before calls and never retries unknown effects."
+    },
+    {
+      "scope": "Actual lifecycle",
+      "result": "accepted-offline",
+      "detail": "Port reads UnityEngine.Time.frameCount directly. Later frame plus Awake/Start/OnEnable exactly once and FixedUpdate observed are required. Synthetic NextFrame remains unused by active route."
+    },
+    {
+      "scope": "Named Unity method preflight",
+      "result": "accepted-source",
+      "detail": "Own named void() nonstatic nonabstract methods need nonzero method/invoker/virtual pointers, stable identity across reads, and binding before SetActive. Existing16 virtual targets remain separate checks. Exact wrapper signatures freshly decompiled in metadata audit."
+    },
+    {
+      "scope": "Foreign state and own references",
+      "result": "accepted",
+      "detail": "Ten registry fingerprints and foreign VTables preserved; all ten collections scan own Business references, including QueuedSaveRequests.Saveable. No publication, NetworkObject creation, save invocation, or foreign restore added."
+    },
+    {
+      "scope": "Retirement",
+      "result": "accepted-offline",
+      "detail": "Fresh monotonic readbacks and unchanged foreign state before deactivate and destroy. Exact disable/destroy deltas and native absence gate success. Timeout retires only with current safe state and never passes observation."
+    },
+    {
+      "scope": "Revoked-context reporting",
+      "result": "accepted-after-fix",
+      "detail": "Leaving/Stop/catch report cached frame; Details has no added Unity frame getter. Existing counter/type-resolution details are managed copies; LastObservedUnityFrame identifies last gated state."
+    },
+    {
+      "scope": "Tests",
+      "result": "source-reviewed",
+      "detail": "89 cases cover happy later-frame sequence, invalid clocks/bindings, monotonicity, timeout, counters, foreign state, native-effect-then-throw, revocation, reentrancy, retained quarantine, and cleanup evidence. Root reported all89 plus973 total passing; this reviewer did not rerun suites."
+    }
+  ],
+  "findings": [
+    {
+      "id": "ASR-01",
+      "priority": "P2",
+      "status": "fixed-and-source-rechecked",
+      "initial": "Details used UnityEngine.Time.frameCount during reports invoked after context/thread/scene failure.",
+      "resolution": "Details now emits LastObservedUnityFrame from nullable cache assigned inside gated ReadActiveState; same captured value enters ActiveSubtypeState."
+    }
+  ],
+  "attributedParentFindingsClosed": [
+    "Postcleanup evidence failure must clear _clean.",
+    "Every retirement read must enforce latest frame/counter monotonicity.",
+    "Expired timeout takes precedence over newly good lifecycle observation."
+  ],
+  "remainingMandatoryFindings": [],
+  "limits": [
+    "No active Unity lifecycle execution, deployment, save access, builds, or tests performed by this reviewer.",
+    "Native bridge compiles and metadata preflight are not proof that Unity delivers messages in the later live run.",
+    "Quarantine deliberately retains handles and stops native operations; Unity scene destruction/code unload is not thereby made safe or acknowledged.",
+    "This is active own no-base shell preparation, not a working native Business, safe NetworkObject lifecycle, persistence/reload, purchase, or world-exit last-use contract.",
+    "Parent owns final builds/test/artifact and installed-byte verification."
+  ]
+}

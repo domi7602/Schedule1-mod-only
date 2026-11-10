@@ -1,0 +1,229 @@
+{
+  "schema": 1,
+  "capturedUtc": "2026-11-05T16:44:58.247943+00:00",
+  "gameAssemblySha256": "61829050e56ca180d67be592e4bfe61ec97d2e9573f720d90a54e318a7e4381d",
+  "scope": "Raw E8/E9 rel32 search in both executable code sections; ignores indirect calls, pointers, external modules and runtime patches",
+  "targets": {
+    "SaveManager.Clean": "0x5a94e0",
+    "SaveManager.ClearCompletedSaveable": "0x5a9a40",
+    "SaveManager.DequeueSaveRequest": "0x5a9fa0",
+    "SaveRequest.Complete": "0x5aba60",
+    "SaveRoutine.MoveNext": "0x5b0c20",
+    "LoadManager.ExitToMenu": "0x5868f0",
+    "LoadManager.CleanUp": "0x586250",
+    "MonoBehaviour.StopAllCoroutines": "0x2b79b50"
+  },
+  "rawOpcodesExamined": 1627611,
+  "candidates": [
+    {
+      "rva": "0x53bc3b",
+      "va": "0x18053bc3b",
+      "rawOffset": "0x53ae3b",
+      "bytes": "e8 10 df 63 02",
+      "targetRva": "0x2b79b50",
+      "target": "MonoBehaviour.StopAllCoroutines",
+      "kind": "raw-E8/E9-candidate-not-yet-decoder-confirmed"
+    },
+    {
+      "rva": "0x53bc62",
+      "va": "0x18053bc62",
+      "rawOffset": "0x53ae62",
+      "bytes": "e9 e9 de 63 02",
+      "targetRva": "0x2b79b50",
+      "target": "MonoBehaviour.StopAllCoroutines",
+      "kind": "raw-E8/E9-candidate-not-yet-decoder-confirmed"
+    },
+    {
+      "rva": "0x53c3df",
+      "va": "0x18053c3df",
+      "rawOffset": "0x53b5df",
+      "bytes": "e8 6c d7 63 02",
+      "targetRva": "0x2b79b50",
+      "target": "MonoBehaviour.StopAllCoroutines",
+      "kind": "raw-E8/E9-candidate-not-yet-decoder-confirmed"
+    },
+    {
+      "rva": "0x53c9cf",
+      "va": "0x18053c9cf",
+      "rawOffset": "0x53bbcf",
+      "bytes": "e8 7c d1 63 02",
+      "targetRva": "0x2b79b50",
+      "target": "MonoBehaviour.StopAllCoroutines",
+      "kind": "raw-E8/E9-candidate-not-yet-decoder-confirmed"
+    },
+    {
+      "rva": "0x587ac3",
+      "va": "0x180587ac3",
+      "rawOffset": "0x586cc3",
+      "bytes": "e8 28 ee ff ff",
+      "targetRva": "0x5868f0",
+      "target": "LoadManager.ExitToMenu",
+      "kind": "raw-E8/E9-candidate-not-yet-decoder-confirmed"
+    },
+    {
+      "rva": "0x587c47",
+      "va": "0x180587c47",
+      "rawOffset": "0x586e47",
+      "bytes": "e8 a4 ec ff ff",
+      "targetRva": "0x5868f0",
+      "target": "LoadManager.ExitToMenu",
+      "kind": "raw-E8/E9-candidate-not-yet-decoder-confirmed"
+    },
+    {
+      "rva": "0x59116f",
+      "va": "0x18059116f",
+      "rawOffset": "0x59036f",
+      "bytes": "e8 dc 50 ff ff",
+      "targetRva": "0x586250",
+      "target": "LoadManager.CleanUp",
+      "kind": "raw-E8/E9-candidate-not-yet-decoder-confirmed"
+    },
+    {
+      "rva": "0x5aef57",
+      "va": "0x1805aef57",
+      "rawOffset": "0x5ae157",
+      "bytes": "e8 f4 72 fd ff",
+      "targetRva": "0x586250",
+      "target": "LoadManager.CleanUp",
+      "kind": "raw-E8/E9-candidate-not-yet-decoder-confirmed"
+    },
+    {
+      "rva": "0x5aff48",
+      "va": "0x1805aff48",
+      "rawOffset": "0x5af148",
+      "bytes": "e8 03 63 fd ff",
+      "targetRva": "0x586250",
+      "target": "LoadManager.CleanUp",
+      "kind": "raw-E8/E9-candidate-not-yet-decoder-confirmed"
+    },
+    {
+      "rva": "0x5b10cd",
+      "va": "0x1805b10cd",
+      "rawOffset": "0x5b02cd",
+      "bytes": "e8 8e a9 ff ff",
+      "targetRva": "0x5aba60",
+      "target": "SaveRequest.Complete",
+      "kind": "raw-E8/E9-candidate-not-yet-decoder-confirmed"
+    },
+    {
+      "rva": "0x628eee",
+      "va": "0x180628eee",
+      "rawOffset": "0x6280ee",
+      "bytes": "e8 fd d9 f5 ff",
+      "targetRva": "0x5868f0",
+      "target": "LoadManager.ExitToMenu",
+      "kind": "raw-E8/E9-candidate-not-yet-decoder-confirmed"
+    },
+    {
+      "rva": "0x677182",
+      "va": "0x180677182",
+      "rawOffset": "0x676382",
+      "bytes": "e8 b9 28 f3 ff",
+      "targetRva": "0x5a9a40",
+      "target": "SaveManager.ClearCompletedSaveable",
+      "kind": "raw-E8/E9-candidate-not-yet-decoder-confirmed"
+    },
+    {
+      "rva": "0x71265c",
+      "va": "0x18071265c",
+      "rawOffset": "0x71185c",
+      "bytes": "e8 8f 42 e7 ff",
+      "targetRva": "0x5868f0",
+      "target": "LoadManager.ExitToMenu",
+      "kind": "raw-E8/E9-candidate-not-yet-decoder-confirmed"
+    },
+    {
+      "rva": "0x7dfc58",
+      "va": "0x1807dfc58",
+      "rawOffset": "0x7dee58",
+      "bytes": "e8 93 6c da ff",
+      "targetRva": "0x5868f0",
+      "target": "LoadManager.ExitToMenu",
+      "kind": "raw-E8/E9-candidate-not-yet-decoder-confirmed"
+    },
+    {
+      "rva": "0x9ebdf3",
+      "va": "0x1809ebdf3",
+      "rawOffset": "0x9eaff3",
+      "bytes": "e8 f8 aa b9 ff",
+      "targetRva": "0x5868f0",
+      "target": "LoadManager.ExitToMenu",
+      "kind": "raw-E8/E9-candidate-not-yet-decoder-confirmed"
+    },
+    {
+      "rva": "0xa680ad",
+      "va": "0x180a680ad",
+      "rawOffset": "0xa672ad",
+      "bytes": "e8 3e e8 b1 ff",
+      "targetRva": "0x5868f0",
+      "target": "LoadManager.ExitToMenu",
+      "kind": "raw-E8/E9-candidate-not-yet-decoder-confirmed"
+    },
+    {
+      "rva": "0xb2a9c1",
+      "va": "0x180b2a9c1",
+      "rawOffset": "0xb29bc1",
+      "bytes": "e9 8a f1 04 02",
+      "targetRva": "0x2b79b50",
+      "target": "MonoBehaviour.StopAllCoroutines",
+      "kind": "raw-E8/E9-candidate-not-yet-decoder-confirmed"
+    },
+    {
+      "rva": "0x1e43855",
+      "va": "0x181e43855",
+      "rawOffset": "0x1e42a55",
+      "bytes": "e8 f6 62 d3 00",
+      "targetRva": "0x2b79b50",
+      "target": "MonoBehaviour.StopAllCoroutines",
+      "kind": "raw-E8/E9-candidate-not-yet-decoder-confirmed"
+    },
+    {
+      "rva": "0x1e4391e",
+      "va": "0x181e4391e",
+      "rawOffset": "0x1e42b1e",
+      "bytes": "e8 2d 62 d3 00",
+      "targetRva": "0x2b79b50",
+      "target": "MonoBehaviour.StopAllCoroutines",
+      "kind": "raw-E8/E9-candidate-not-yet-decoder-confirmed"
+    },
+    {
+      "rva": "0x1e5ffd9",
+      "va": "0x181e5ffd9",
+      "rawOffset": "0x1e5f1d9",
+      "bytes": "e8 72 9b d1 00",
+      "targetRva": "0x2b79b50",
+      "target": "MonoBehaviour.StopAllCoroutines",
+      "kind": "raw-E8/E9-candidate-not-yet-decoder-confirmed"
+    },
+    {
+      "rva": "0x1e66a8c",
+      "va": "0x181e66a8c",
+      "rawOffset": "0x1e65c8c",
+      "bytes": "e8 bf 30 d1 00",
+      "targetRva": "0x2b79b50",
+      "target": "MonoBehaviour.StopAllCoroutines",
+      "kind": "raw-E8/E9-candidate-not-yet-decoder-confirmed"
+    },
+    {
+      "rva": "0x1e6f959",
+      "va": "0x181e6f959",
+      "rawOffset": "0x1e6eb59",
+      "bytes": "e8 f2 a1 d0 00",
+      "targetRva": "0x2b79b50",
+      "target": "MonoBehaviour.StopAllCoroutines",
+      "kind": "raw-E8/E9-candidate-not-yet-decoder-confirmed"
+    },
+    {
+      "rva": "0x2ac984a",
+      "va": "0x182ac984a",
+      "rawOffset": "0x2ac8a4a",
+      "bytes": "e8 01 03 0b 00",
+      "targetRva": "0x2b79b50",
+      "target": "MonoBehaviour.StopAllCoroutines",
+      "kind": "raw-E8/E9-candidate-not-yet-decoder-confirmed"
+    }
+  ],
+  "limits": "Raw bytes can be data or mid-instruction. Each positive hit needs a containing decoded window; absence is not a complete caller proof.",
+  "gameInvoked": false,
+  "saveFilesRead": false
+}

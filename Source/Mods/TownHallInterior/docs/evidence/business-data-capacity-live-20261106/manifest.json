@@ -1,0 +1,33 @@
+{
+  "capturedUtc": "2026-11-06T14:50:55.000Z",
+  "files": {
+    "live-log-excerpt.txt": {
+      "sha256": "03a56a2e419e5794182d28c8188e24df7ebe6e804993d82372420ef9e17ae158",
+      "bytes": 4222
+    },
+    "live-report.json": {
+      "sha256": "032048ae2515f21a98d6eb20b5174c473a80457fc0477175dbd38472babe6868",
+      "bytes": 50711
+    },
+    "observation.json": {
+      "sha256": "b6bd473679d375b2179d2b30471d9c3a8c18f7baa42d1df390942046d2c7a301",
+      "bytes": 2620
+    },
+    "rollback-receipt.json": {
+      "sha256": "f8583c693b06e3527bb3f6b0a090e33efd1414608a649ad994aa1870eed8e65a",
+      "bytes": 3364
+    },
+    "rollback-verification.json": {
+      "sha256": "00071fbb2ab856fff11e47a08c99fe99941c0a1e8b13a3b172dae7d79a97bf5e",
+      "bytes": 1753
+    },
+    "rollback.log.txt": {
+      "sha256": "bffcd9058b6972c04e85f152b922f892e6d14879f691ca410371373c065e956a",
+      "bytes": 342
+    },
+    "save-verification.json": {
+      "sha256": "381ebb005b6ac6e5cf3432de8a5e5bd30af3bc9914e6374d77ffe9f532eac8ad",
+      "bytes": 548
+    }
+  }
+}

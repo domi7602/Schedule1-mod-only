@@ -1,0 +1,171 @@
+; FishNet.Object.NetworkBehaviour::.ctor/0, token 0x060006B3, RVA 0xCCAC60, next-pointer window 0x350 bytes
+; No target execution. Parser-pointer window can contain padding/cold fragments and is not exact/full function, EH or transitive coverage. Shared direct aliases are truncated to eight names.
+0xCCAC60     48 89 5C 24 08                  mov [rsp+8],rbx
+0xCCAC65     57                              push rdi
+0xCCAC66     48 83 EC 20                     sub rsp,20h
+0xCCAC6A     80 3D F1 5F F3 02 00            cmp byte ptr [183C00C62h],0
+0xCCAC71     48 8B F9                        mov rdi,rcx
+0xCCAC74     0F 85 DF 00 00 00               jne near ptr 0000000180CCAD59h
+0xCCAC7A     48 8D 0D 07 30 D4 02            lea rcx,[183A0DC88h] ; MethodRef: System.Void System.Collections.Generic.Dictionary`2<System.UInt32, FishNet.Object.NetworkBehaviour+BufferedRpc>..ctor
+0xCCAC81     E8 1A CC 64 FF                  call 00000001803178A0h
+0xCCAC86     48 8D 0D 23 14 D4 02            lea rcx,[183A0C0B0h] ; MethodRef: System.Void System.Collections.Generic.Dictionary`2<System.UInt32, FishNet.Object.Delegating.ServerRpcDelegate>..ctor
+0xCCAC8D     E8 0E CC 64 FF                  call 00000001803178A0h
+0xCCAC92     48 8D 0D 37 1E D4 02            lea rcx,[183A0CAD0h] ; MethodRef: System.Void System.Collections.Generic.Dictionary`2<System.UInt32, FishNet.Object.Synchronizing.Internal.SyncBase>..ctor
+0xCCAC99     E8 02 CC 64 FF                  call 00000001803178A0h
+0xCCAC9E     48 8D 0D FB 0E D4 02            lea rcx,[183A0BBA0h] ; MethodRef: System.Void System.Collections.Generic.Dictionary`2<System.UInt32, FishNet.Object.RpcLinkType>..ctor
+0xCCACA5     E8 F6 CB 64 FF                  call 00000001803178A0h
+0xCCACAA     48 8D 0D 6F E6 D3 02            lea rcx,[183A09320h] ; MethodRef: System.Void System.Collections.Generic.Dictionary`2<System.UInt32, FishNet.Object.Delegating.ClientRpcDelegate>..ctor
+0xCCACB1     E8 EA CB 64 FF                  call 00000001803178A0h
+0xCCACB6     48 8D 0D 33 0D D4 02            lea rcx,[183A0B9F0h] ; MethodRef: System.Void System.Collections.Generic.Dictionary`2<System.UInt32, FishNet.Object.Prediction.Delegating.ReplicateRpcDelegate>..ctor
+0xCCACBD     E8 DE CB 64 FF                  call 00000001803178A0h
+0xCCACC2     48 8D 0D 9F 0A D4 02            lea rcx,[183A0B768h] ; MethodRef: System.Void System.Collections.Generic.Dictionary`2<System.UInt32, FishNet.Object.Prediction.Delegating.ReconcileRpcDelegate>..ctor
+0xCCACC9     E8 D2 CB 64 FF                  call 00000001803178A0h
+0xCCACCE     48 8D 0D E3 82 CD 02            lea rcx,[1839A2FB8h] ; TypeInfo: System.Collections.Generic.Dictionary`2<System.UInt32, FishNet.Object.Prediction.Delegating.ReconcileRpcDelegate>
+0xCCACD5     E8 C6 CB 64 FF                  call 00000001803178A0h
+0xCCACDA     48 8D 0D AF 83 CD 02            lea rcx,[1839A3090h] ; TypeInfo: System.Collections.Generic.Dictionary`2<System.UInt32, FishNet.Object.Prediction.Delegating.ReplicateRpcDelegate>
+0xCCACE1     E8 BA CB 64 FF                  call 00000001803178A0h
+0xCCACE6     48 8D 0D DB 87 CD 02            lea rcx,[1839A34C8h] ; TypeInfo: System.Collections.Generic.Dictionary`2<System.UInt32, FishNet.Object.Synchronizing.Internal.SyncBase>
+0xCCACED     E8 AE CB 64 FF                  call 00000001803178A0h
+0xCCACF2     48 8D 0D 6F 84 CD 02            lea rcx,[1839A3168h] ; TypeInfo: System.Collections.Generic.Dictionary`2<System.UInt32, FishNet.Object.RpcLinkType>
+0xCCACF9     E8 A2 CB 64 FF                  call 00000001803178A0h
+0xCCACFE     48 8D 0D 1B 7B CD 02            lea rcx,[1839A2820h] ; TypeInfo: System.Collections.Generic.Dictionary`2<System.UInt32, FishNet.Object.Delegating.ClientRpcDelegate>
+0xCCAD05     E8 96 CB 64 FF                  call 00000001803178A0h
+0xCCAD0A     48 8D 0D 2F 85 CD 02            lea rcx,[1839A3240h] ; TypeInfo: System.Collections.Generic.Dictionary`2<System.UInt32, FishNet.Object.Delegating.ServerRpcDelegate>
+0xCCAD11     E8 8A CB 64 FF                  call 00000001803178A0h
+0xCCAD16     48 8D 0D 0B 8B CD 02            lea rcx,[1839A3828h] ; TypeInfo: System.Collections.Generic.Dictionary`2<System.UInt32, FishNet.Object.NetworkBehaviour+BufferedRpc>
+0xCCAD1D     E8 7E CB 64 FF                  call 00000001803178A0h
+0xCCAD22     48 8D 0D 9F 1F D4 02            lea rcx,[183A0CCC8h] ; MethodRef: System.Void System.Collections.Generic.HashSet`1<FishNet.Connection.NetworkConnection>..ctor
+0xCCAD29     E8 72 CB 64 FF                  call 00000001803178A0h
+0xCCAD2E     48 8D 0D 4B A9 D0 02            lea rcx,[1839D5680h] ; TypeInfo: System.Collections.Generic.HashSet`1<FishNet.Connection.NetworkConnection>
+0xCCAD35     E8 66 CB 64 FF                  call 00000001803178A0h
+0xCCAD3A     48 8D 0D 47 C0 CF 02            lea rcx,[1839C6D88h] ; MethodRef: System.Void System.Collections.Generic.List`1<FishNet.Object.Delegating.SyncVarReadDelegate>..ctor
+0xCCAD41     E8 5A CB 64 FF                  call 00000001803178A0h
+0xCCAD46     48 8D 0D 8B 0E D4 02            lea rcx,[183A0BBD8h] ; TypeInfo: System.Collections.Generic.List`1<FishNet.Object.Delegating.SyncVarReadDelegate>
+0xCCAD4D     E8 4E CB 64 FF                  call 00000001803178A0h
+0xCCAD52     C6 05 09 5F F3 02 01            mov byte ptr [183C00C62h],1
+0xCCAD59     C6 47 24 FF                     mov byte ptr [rdi+24h],0FFh
+0xCCAD5D     48 8B 0D 2C 83 CD 02            mov rcx,[1839A3090h] ; TypeInfo: System.Collections.Generic.Dictionary`2<System.UInt32, FishNet.Object.Prediction.Delegating.ReplicateRpcDelegate>
+0xCCAD64     E8 B7 CD 64 FF                  call 0000000180317B20h
+0xCCAD69     48 8B 15 80 0C D4 02            mov rdx,[183A0B9F0h] ; MethodRef: System.Void System.Collections.Generic.Dictionary`2<System.UInt32, FishNet.Object.Prediction.Delegating.ReplicateRpcDelegate>..ctor
+0xCCAD70     48 8B C8                        mov rcx,rax
+0xCCAD73     48 8B D8                        mov rbx,rax
+0xCCAD76     E8 85 A7 89 00                  call 0000000181565500h
+0xCCAD7B     48 8D 4F 48                     lea rcx,[rdi+48h]
+0xCCAD7F     48 89 5F 48                     mov [rdi+48h],rbx
+0xCCAD83     48 8B D3                        mov rdx,rbx
+0xCCAD86     E8 25 BD 64 FF                  call 0000000180316AB0h
+0xCCAD8B     48 8B 0D 26 82 CD 02            mov rcx,[1839A2FB8h] ; TypeInfo: System.Collections.Generic.Dictionary`2<System.UInt32, FishNet.Object.Prediction.Delegating.ReconcileRpcDelegate>
+0xCCAD92     E8 89 CD 64 FF                  call 0000000180317B20h
+0xCCAD97     48 8B 15 CA 09 D4 02            mov rdx,[183A0B768h] ; MethodRef: System.Void System.Collections.Generic.Dictionary`2<System.UInt32, FishNet.Object.Prediction.Delegating.ReconcileRpcDelegate>..ctor
+0xCCAD9E     48 8B C8                        mov rcx,rax
+0xCCADA1     48 8B D8                        mov rbx,rax
+0xCCADA4     E8 57 A7 89 00                  call 0000000181565500h
+0xCCADA9     48 8D 4F 50                     lea rcx,[rdi+50h]
+0xCCADAD     48 89 5F 50                     mov [rdi+50h],rbx
+0xCCADB1     48 8B D3                        mov rdx,rbx
+0xCCADB4     E8 F7 BC 64 FF                  call 0000000180316AB0h
+0xCCADB9     48 8B 0D A8 83 CD 02            mov rcx,[1839A3168h] ; TypeInfo: System.Collections.Generic.Dictionary`2<System.UInt32, FishNet.Object.RpcLinkType>
+0xCCADC0     E8 5B CD 64 FF                  call 0000000180317B20h
+0xCCADC5     48 8B 15 D4 0D D4 02            mov rdx,[183A0BBA0h] ; MethodRef: System.Void System.Collections.Generic.Dictionary`2<System.UInt32, FishNet.Object.RpcLinkType>..ctor
+0xCCADCC     48 8B C8                        mov rcx,rax
+0xCCADCF     48 8B D8                        mov rbx,rax
+0xCCADD2     E8 29 A7 89 00                  call 0000000181565500h
+0xCCADD7     48 8D 8F B0 00 00 00            lea rcx,[rdi+0B0h]
+0xCCADDE     48 89 9F B0 00 00 00            mov [rdi+0B0h],rbx
+0xCCADE5     48 8B D3                        mov rdx,rbx
+0xCCADE8     E8 C3 BC 64 FF                  call 0000000180316AB0h
+0xCCADED     48 8B 0D 4C 84 CD 02            mov rcx,[1839A3240h] ; TypeInfo: System.Collections.Generic.Dictionary`2<System.UInt32, FishNet.Object.Delegating.ServerRpcDelegate>
+0xCCADF4     E8 27 CD 64 FF                  call 0000000180317B20h
+0xCCADF9     48 8B 15 B0 12 D4 02            mov rdx,[183A0C0B0h] ; MethodRef: System.Void System.Collections.Generic.Dictionary`2<System.UInt32, FishNet.Object.Delegating.ServerRpcDelegate>..ctor
+0xCCAE00     48 8B C8                        mov rcx,rax
+0xCCAE03     48 8B D8                        mov rbx,rax
+0xCCAE06     E8 F5 A6 89 00                  call 0000000181565500h
+0xCCAE0B     48 8D 8F B8 00 00 00            lea rcx,[rdi+0B8h]
+0xCCAE12     48 89 9F B8 00 00 00            mov [rdi+0B8h],rbx
+0xCCAE19     48 8B D3                        mov rdx,rbx
+0xCCAE1C     E8 8F BC 64 FF                  call 0000000180316AB0h
+0xCCAE21     48 8B 0D F8 79 CD 02            mov rcx,[1839A2820h] ; TypeInfo: System.Collections.Generic.Dictionary`2<System.UInt32, FishNet.Object.Delegating.ClientRpcDelegate>
+0xCCAE28     E8 F3 CC 64 FF                  call 0000000180317B20h
+0xCCAE2D     48 8B 15 EC E4 D3 02            mov rdx,[183A09320h] ; MethodRef: System.Void System.Collections.Generic.Dictionary`2<System.UInt32, FishNet.Object.Delegating.ClientRpcDelegate>..ctor
+0xCCAE34     48 8B C8                        mov rcx,rax
+0xCCAE37     48 8B D8                        mov rbx,rax
+0xCCAE3A     E8 C1 A6 89 00                  call 0000000181565500h
+0xCCAE3F     48 8D 8F C0 00 00 00            lea rcx,[rdi+0C0h]
+0xCCAE46     48 89 9F C0 00 00 00            mov [rdi+0C0h],rbx
+0xCCAE4D     48 8B D3                        mov rdx,rbx
+0xCCAE50     E8 5B BC 64 FF                  call 0000000180316AB0h
+0xCCAE55     48 8B 0D C4 79 CD 02            mov rcx,[1839A2820h] ; TypeInfo: System.Collections.Generic.Dictionary`2<System.UInt32, FishNet.Object.Delegating.ClientRpcDelegate>
+0xCCAE5C     E8 BF CC 64 FF                  call 0000000180317B20h
+0xCCAE61     48 8B 15 B8 E4 D3 02            mov rdx,[183A09320h] ; MethodRef: System.Void System.Collections.Generic.Dictionary`2<System.UInt32, FishNet.Object.Delegating.ClientRpcDelegate>..ctor
+0xCCAE68     48 8B C8                        mov rcx,rax
+0xCCAE6B     48 8B D8                        mov rbx,rax
+0xCCAE6E     E8 8D A6 89 00                  call 0000000181565500h
+0xCCAE73     48 8D 8F C8 00 00 00            lea rcx,[rdi+0C8h]
+0xCCAE7A     48 89 9F C8 00 00 00            mov [rdi+0C8h],rbx
+0xCCAE81     48 8B D3                        mov rdx,rbx
+0xCCAE84     E8 27 BC 64 FF                  call 0000000180316AB0h
+0xCCAE89     C6 87 D4 00 00 00 01            mov byte ptr [rdi+0D4h],1
+0xCCAE90     48 8B 0D 91 89 CD 02            mov rcx,[1839A3828h] ; TypeInfo: System.Collections.Generic.Dictionary`2<System.UInt32, FishNet.Object.NetworkBehaviour+BufferedRpc>
+0xCCAE97     E8 84 CC 64 FF                  call 0000000180317B20h
+0xCCAE9C     48 8B 15 E5 2D D4 02            mov rdx,[183A0DC88h] ; MethodRef: System.Void System.Collections.Generic.Dictionary`2<System.UInt32, FishNet.Object.NetworkBehaviour+BufferedRpc>..ctor
+0xCCAEA3     48 8B C8                        mov rcx,rax
+0xCCAEA6     48 8B D8                        mov rbx,rax
+0xCCAEA9     E8 52 A6 89 00                  call 0000000181565500h
+0xCCAEAE     48 8D 8F D8 00 00 00            lea rcx,[rdi+0D8h]
+0xCCAEB5     48 89 9F D8 00 00 00            mov [rdi+0D8h],rbx
+0xCCAEBC     48 8B D3                        mov rdx,rbx
+0xCCAEBF     E8 EC BB 64 FF                  call 0000000180316AB0h
+0xCCAEC4     48 8B 0D B5 A7 D0 02            mov rcx,[1839D5680h] ; TypeInfo: System.Collections.Generic.HashSet`1<FishNet.Connection.NetworkConnection>
+0xCCAECB     E8 50 CC 64 FF                  call 0000000180317B20h
+0xCCAED0     48 8B 15 F1 1D D4 02            mov rdx,[183A0CCC8h] ; MethodRef: System.Void System.Collections.Generic.HashSet`1<FishNet.Connection.NetworkConnection>..ctor
+0xCCAED7     48 8B C8                        mov rcx,rax
+0xCCAEDA     48 8B D8                        mov rbx,rax
+0xCCAEDD     E8 BE C9 AC 00                  call 00000001817978A0h
+0xCCAEE2     48 8D 8F E0 00 00 00            lea rcx,[rdi+0E0h]
+0xCCAEE9     48 89 9F E0 00 00 00            mov [rdi+0E0h],rbx
+0xCCAEF0     48 8B D3                        mov rdx,rbx
+0xCCAEF3     E8 B8 BB 64 FF                  call 0000000180316AB0h
+0xCCAEF8     48 8B 0D C9 85 CD 02            mov rcx,[1839A34C8h] ; TypeInfo: System.Collections.Generic.Dictionary`2<System.UInt32, FishNet.Object.Synchronizing.Internal.SyncBase>
+0xCCAEFF     E8 1C CC 64 FF                  call 0000000180317B20h
+0xCCAF04     48 8B 15 C5 1B D4 02            mov rdx,[183A0CAD0h] ; MethodRef: System.Void System.Collections.Generic.Dictionary`2<System.UInt32, FishNet.Object.Synchronizing.Internal.SyncBase>..ctor
+0xCCAF0B     48 8B C8                        mov rcx,rax
+0xCCAF0E     48 8B D8                        mov rbx,rax
+0xCCAF11     E8 EA A5 89 00                  call 0000000181565500h
+0xCCAF16     48 8D 8F F0 00 00 00            lea rcx,[rdi+0F0h]
+0xCCAF1D     48 89 9F F0 00 00 00            mov [rdi+0F0h],rbx
+0xCCAF24     48 8B D3                        mov rdx,rbx
+0xCCAF27     E8 84 BB 64 FF                  call 0000000180316AB0h
+0xCCAF2C     48 8B 0D 95 85 CD 02            mov rcx,[1839A34C8h] ; TypeInfo: System.Collections.Generic.Dictionary`2<System.UInt32, FishNet.Object.Synchronizing.Internal.SyncBase>
+0xCCAF33     E8 E8 CB 64 FF                  call 0000000180317B20h
+0xCCAF38     48 8B 15 91 1B D4 02            mov rdx,[183A0CAD0h] ; MethodRef: System.Void System.Collections.Generic.Dictionary`2<System.UInt32, FishNet.Object.Synchronizing.Internal.SyncBase>..ctor
+0xCCAF3F     48 8B C8                        mov rcx,rax
+0xCCAF42     48 8B D8                        mov rbx,rax
+0xCCAF45     E8 B6 A5 89 00                  call 0000000181565500h
+0xCCAF4A     48 8D 8F 00 01 00 00            lea rcx,[rdi+100h]
+0xCCAF51     48 89 9F 00 01 00 00            mov [rdi+100h],rbx
+0xCCAF58     48 8B D3                        mov rdx,rbx
+0xCCAF5B     E8 50 BB 64 FF                  call 0000000180316AB0h
+0xCCAF60     48 8B 0D 71 0C D4 02            mov rcx,[183A0BBD8h] ; TypeInfo: System.Collections.Generic.List`1<FishNet.Object.Delegating.SyncVarReadDelegate>
+0xCCAF67     E8 B4 CB 64 FF                  call 0000000180317B20h
+0xCCAF6C     48 8B 15 15 BE CF 02            mov rdx,[1839C6D88h] ; MethodRef: System.Void System.Collections.Generic.List`1<FishNet.Object.Delegating.SyncVarReadDelegate>..ctor
+0xCCAF73     48 8B C8                        mov rcx,rax
+0xCCAF76     48 8B D8                        mov rbx,rax
+0xCCAF79     E8 B2 8E 2E 00                  call 0000000180FB3E30h ; System.Collections.Generic.List`1::.ctor/0 | System.Collections.Generic.LowLevelList`1::.ctor/0
+0xCCAF7E     48 8D 8F 10 01 00 00            lea rcx,[rdi+110h]
+0xCCAF85     48 89 9F 10 01 00 00            mov [rdi+110h],rbx
+0xCCAF8C     48 8B D3                        mov rdx,rbx
+0xCCAF8F     E8 1C BB 64 FF                  call 0000000180316AB0h
+0xCCAF94     33 D2                           xor edx,edx
+0xCCAF96     48 8B CF                        mov rcx,rdi
+0xCCAF99     48 8B 5C 24 30                  mov rbx,[rsp+30h]
+0xCCAF9E     48 83 C4 20                     add rsp,20h
+0xCCAFA2     5F                              pop rdi
+0xCCAFA3     E9 18 8B EA 01                  jmp near ptr 0000000182B73AC0h ; UnityEngine.Behaviour::.ctor/0 | UnityEngine.Component::.ctor/0 | UnityEngine.MonoBehaviour::.ctor/0 | UnityEngine.RectTransform::.ctor/0 | UnityEngine.Transform::.ctor/0 | UnityEngine.U2D.Light2DBase::.ctor/0
+0xCCAFA8     CC                              int 3
+0xCCAFA9     CC                              int 3
+0xCCAFAA     CC                              int 3
+0xCCAFAB     CC                              int 3
+0xCCAFAC     CC                              int 3
+0xCCAFAD     CC                              int 3
+0xCCAFAE     CC                              int 3
+0xCCAFAF     CC                              int 3

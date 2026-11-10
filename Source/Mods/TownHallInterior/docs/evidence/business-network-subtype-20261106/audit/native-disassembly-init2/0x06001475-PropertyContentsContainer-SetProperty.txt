@@ -1,0 +1,58 @@
+; ScheduleOne.Property.PropertyContentsContainer::SetProperty/1, token 0x06001475, RVA 0x5520E0, next-pointer window 0xC0 bytes
+; No target execution. Parser-pointer window can contain padding/cold fragments and is not exact/full function, EH or transitive coverage. Shared direct aliases are truncated to eight names.
+0x5520E0     48 89 5C 24 08                  mov [rsp+8],rbx
+0x5520E5     57                              push rdi
+0x5520E6     48 83 EC 20                     sub rsp,20h
+0x5520EA     80 3D 89 94 6A 03 00            cmp byte ptr [183BFB57Ah],0
+0x5520F1     48 8B DA                        mov rbx,rdx
+0x5520F4     48 8B F9                        mov rdi,rcx
+0x5520F7     75 2B                           jne short 0000000180552124h
+0x5520F9     48 8D 0D 10 7B 4B 03            lea rcx,[183A09C10h] ; TypeInfo: UnityEngine.Debug
+0x552100     E8 9B 57 DC FF                  call 00000001803178A0h
+0x552105     48 8D 0D EC DE 49 03            lea rcx,[1839EFFF8h] ; TypeInfo: UnityEngine.Object
+0x55210C     E8 8F 57 DC FF                  call 00000001803178A0h
+0x552111     48 8D 0D 88 32 44 03            lea rcx,[1839953A0h] ; StringLiteral: PropertyContentsContainer: Attempted to set a null property.
+0x552118     E8 83 57 DC FF                  call 00000001803178A0h
+0x55211D     C6 05 56 94 6A 03 01            mov byte ptr [183BFB57Ah],1
+0x552124     48 8B 0D CD DE 49 03            mov rcx,[1839EFFF8h] ; TypeInfo: UnityEngine.Object
+0x55212B     83 B9 E0 00 00 00 00            cmp dword ptr [rcx+0E0h],0
+0x552132     75 05                           jne short 0000000180552139h
+0x552134     E8 F7 5A DC FF                  call 0000000180317C30h
+0x552139     45 33 C0                        xor r8d,r8d
+0x55213C     33 D2                           xor edx,edx
+0x55213E     48 8B CB                        mov rcx,rbx
+0x552141     E8 5A 9F 62 02                  call 0000000182B7C0A0h ; UnityEngine.Object::op_Equality/2
+0x552146     84 C0                           test al,al
+0x552148     75 1A                           jne short 0000000180552164h
+0x55214A     48 8D 4F 20                     lea rcx,[rdi+20h]
+0x55214E     48 89 5F 20                     mov [rdi+20h],rbx
+0x552152     48 8B D3                        mov rdx,rbx
+0x552155     48 8B 5C 24 30                  mov rbx,[rsp+30h]
+0x55215A     48 83 C4 20                     add rsp,20h
+0x55215E     5F                              pop rdi
+0x55215F     E9 4C 49 DC FF                  jmp near ptr 0000000180316AB0h
+0x552164     48 8B 0D A5 7A 4B 03            mov rcx,[183A09C10h] ; TypeInfo: UnityEngine.Debug
+0x55216B     83 B9 E0 00 00 00 00            cmp dword ptr [rcx+0E0h],0
+0x552172     75 05                           jne short 0000000180552179h
+0x552174     E8 B7 5A DC FF                  call 0000000180317C30h
+0x552179     48 8B 0D 20 32 44 03            mov rcx,[1839953A0h] ; StringLiteral: PropertyContentsContainer: Attempted to set a null property.
+0x552180     33 D2                           xor edx,edx
+0x552182     48 8B 5C 24 30                  mov rbx,[rsp+30h]
+0x552187     48 83 C4 20                     add rsp,20h
+0x55218B     5F                              pop rdi
+0x55218C     E9 6F F8 5E 02                  jmp near ptr 0000000182B41A00h ; UnityEngine.Debug::LogError/1
+0x552191     CC                              int 3
+0x552192     CC                              int 3
+0x552193     CC                              int 3
+0x552194     CC                              int 3
+0x552195     CC                              int 3
+0x552196     CC                              int 3
+0x552197     CC                              int 3
+0x552198     CC                              int 3
+0x552199     CC                              int 3
+0x55219A     CC                              int 3
+0x55219B     CC                              int 3
+0x55219C     CC                              int 3
+0x55219D     CC                              int 3
+0x55219E     CC                              int 3
+0x55219F     CC                              int 3

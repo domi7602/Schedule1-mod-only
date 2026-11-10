@@ -1,0 +1,29 @@
+{
+  "captured_utc": "2026-11-06T08:14:36.085703+00:00",
+  "files": {
+    "baseline.log.txt": "784d4fbc83b062f9146df66103d97e9cd4ae52311f7bd71fda70e72421e37dc6",
+    "baseline.trx": "0e3d0136cc3a0e8d6e4383a6cb9772ecfa5e39e6b58dedc3367c34d3d64c2138",
+    "build-Interface.log.txt": "c96673bf5dbff88db8e2db104762cb7a09dc7b05840c54a36ab3be19b3310796",
+    "build-Manager.log.txt": "c4a5aa9b7da4cda14e540232341d3de1be32272cc1b73960897b76970c51b520",
+    "build-Normal.log.txt": "12b17aabe32a976f3a02af1b97c854c89263c7bb3e7d699151ce5aaac72bb524",
+    "build-Subtype.log.txt": "cf7df9abe2e5238c6a98dd255a3d462c745355628cc60bb34b018697e13fba6b",
+    "BusinessConstruction.patch": "cc3829fb0782654b0f87a1de645bd94ab8dec0341ff9e56aad40b29e0c77a635",
+    "BusinessSaveIntegrationRegressionTests.cs.txt": "55111225977871cbb496505f000858f2c9c6f15ffbc2e0d820e8c2e28ce7c867",
+    "BusinessSubtypeTests.patch": "64a678d9af638a703a3a081eb66a67fdee308939a146abd723d9328c4eb1da80",
+    "final-isolated-doc-paths.log.txt": "c75dccfe79f190ebbb1e889f842e60e6cdd9437299e0220c7ec7374980873660",
+    "getter-legacy-red.log.txt": "a68f684c20d7db6182ab249adc72a2e12ed90011247875bb03e35d5cce86ec99",
+    "getter-legacy-red.trx": "38546a76fcebc2aa0e083964f77c6ada475d98c8e12da939e055b85948c5a5b4",
+    "independent-review.json": "2f520dd542139aac75009c8d057ee0cc4625a06ca2c0771745394381a65798cf",
+    "isolated-output.log.txt": "c83d611b9a0eb47d1dedb4241f35cf23d9cf50bff4402431b90752dc99b6d290",
+    "isolated-report.json": "e9fde7f1a77ed9b52906c6babe863aaa8b9fa4102de44219014c549a0c1819ba",
+    "isolated-snapshot.json": "e6d5d32a20f49451829f71867c3bb6533a55c6254f071f662a93d03ac752ab3e",
+    "isolated-tests.log.txt": "c72d0de6468b44ca7ba14d04cefced4a7ae55afdc4e26a51b0f3de33fb3b0588",
+    "isolated-townhall.trx": "da110414a4ed782a3f644ddaccaf22dcf4fc15f7334bbdda07a7cfc602d3662e",
+    "isolated-versions.log.txt": "9a0ab34fd86a534eec7ee6413f158a008b9ae05c4d09ced60842201a549dddaf",
+    "regressions-red.log.txt": "9bf76c94a3f6147c6eb31342adf45de76e6db67aa7cf6b8fc4bd4ce7cf3f2577",
+    "regressions-red.trx": "e1cfc56dd908493c0991ac676a6e05ccf63e563d79ae6469dab1c418c2b3167a",
+    "townhall-green.log.txt": "72a8c23d04ad09b65d0730d2b23c0713523be98c177534081eb561c6af42b773",
+    "townhall-green.trx": "d7ba70d561060f20b054362a27ee6ccaf86bf7525da9445d9b7bf34393e72efc",
+    "verification.json": "9237d11c018de2e9b511783ea00d7a50f847b0db338f883966b56d5a33986e6b"
+  }
+}

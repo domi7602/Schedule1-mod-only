@@ -1,0 +1,5112 @@
+{
+  "CapturedUtc": "2026-11-06T11:06:16.8912870Z",
+  "Method": "Fresh LibCpp2IL metadata/pointer parsing of exact on-disk GameAssembly + metadata; Iced decoding of primary x64 .pdata extents, no game execution",
+  "MetadataVersion": 31.1,
+  "GlobalMetadataMethodCount": 149349,
+  "Types": [
+    "FishNet.Object.NetworkBehaviour",
+    "FishNet.Object.NetworkObject",
+    "FishNet.Managing.NetworkManager",
+    "FishNet.Managing.Server.ServerObjects",
+    "FishNet.Managing.Object.ManagedObjects",
+    "FishNet.Managing.Client.ClientObjects"
+  ],
+  "AnalysisToolAssemblies": [
+    {
+      "Name": "AssetRipper.Primitives.dll",
+      "Identity": "AssetRipper.Primitives, Version=3.2.0.0, Culture=neutral, PublicKeyToken=null",
+      "Sha256": "da98be48de99a938b661d6582a50cf2a36ff9022a8dfa0a487ee7860965cb78f"
+    },
+    {
+      "Name": "WasmDisassembler.dll",
+      "Identity": "WasmDisassembler, Version=2022.1.0.0, Culture=neutral, PublicKeyToken=null",
+      "Sha256": "87bd7557beeb7f65f3de6ef07581a18a5669f389ecdc2319c1b01687eee5127b"
+    },
+    {
+      "Name": "Disarm.dll",
+      "Identity": "Disarm, Version=2022.1.0.0, Culture=neutral, PublicKeyToken=null",
+      "Sha256": "40e804c35369825884534734725d06831a534759478c8d9f3f908d80779a1a93"
+    },
+    {
+      "Name": "Iced.dll",
+      "Identity": "Iced, Version=1.21.0.0, Culture=neutral, PublicKeyToken=5baba79f4264913b",
+      "Sha256": "f058c01321b4cdfc9b9151879e88e59571c8d0ba176fbcf95bc936a8f3d073ed"
+    },
+    {
+      "Name": "LibCpp2IL.dll",
+      "Identity": "LibCpp2IL, Version=2022.1.0.0, Culture=neutral, PublicKeyToken=null",
+      "Sha256": "acc85f105ef788ee2a0e1d6ab824013029f9f580de0f7494e3793e1e55afddf6"
+    }
+  ],
+  "MethodMap": [
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "get_OnStartServerCalled",
+      "Token": "0x06000628",
+      "ParameterCount": 0,
+      "Va": "0x1804610B0",
+      "Rva": "0x4610B0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "set_OnStartServerCalled",
+      "Token": "0x06000629",
+      "ParameterCount": 1,
+      "Va": "0x1804610D0",
+      "Rva": "0x4610D0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "get_OnStartClientCalled",
+      "Token": "0x0600062A",
+      "ParameterCount": 0,
+      "Va": "0x1805DF7B0",
+      "Rva": "0x5DF7B0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "set_OnStartClientCalled",
+      "Token": "0x0600062B",
+      "ParameterCount": 1,
+      "Va": "0x1805DF880",
+      "Rva": "0x5DF880",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "InvokeSyncTypeOnStartCallbacks",
+      "Token": "0x0600062C",
+      "ParameterCount": 1,
+      "Va": "0x180CC6040",
+      "Rva": "0xCC6040",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "InvokeSyncTypeOnStopCallbacks",
+      "Token": "0x0600062D",
+      "ParameterCount": 1,
+      "Va": "0x180CC6290",
+      "Rva": "0xCC6290",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "InvokeOnNetwork",
+      "Token": "0x0600062E",
+      "ParameterCount": 1,
+      "Va": "0x180CC6000",
+      "Rva": "0xCC6000",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "OnStartNetwork_Internal",
+      "Token": "0x0600062F",
+      "ParameterCount": 0,
+      "Va": "0x180CC7220",
+      "Rva": "0xCC7220",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "OnStartNetwork",
+      "Token": "0x06000630",
+      "ParameterCount": 0,
+      "Va": "0x18043FEC0",
+      "Rva": "0x43FEC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "OnStopNetwork_Internal",
+      "Token": "0x06000631",
+      "ParameterCount": 0,
+      "Va": "0x180CC7280",
+      "Rva": "0xCC7280",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "OnStopNetwork",
+      "Token": "0x06000632",
+      "ParameterCount": 0,
+      "Va": "0x18043FEC0",
+      "Rva": "0x43FEC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "OnStartServer_Internal",
+      "Token": "0x06000633",
+      "ParameterCount": 0,
+      "Va": "0x180CC7240",
+      "Rva": "0xCC7240",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "OnStartServer",
+      "Token": "0x06000634",
+      "ParameterCount": 0,
+      "Va": "0x18043FEC0",
+      "Rva": "0x43FEC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "OnStopServer_Internal",
+      "Token": "0x06000635",
+      "ParameterCount": 0,
+      "Va": "0x180CC72A0",
+      "Rva": "0xCC72A0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "OnStopServer",
+      "Token": "0x06000636",
+      "ParameterCount": 0,
+      "Va": "0x18043FEC0",
+      "Rva": "0x43FEC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "OnOwnershipServer_Internal",
+      "Token": "0x06000637",
+      "ParameterCount": 1,
+      "Va": "0x180CC6990",
+      "Rva": "0xCC6990",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "OnOwnershipServer",
+      "Token": "0x06000638",
+      "ParameterCount": 1,
+      "Va": "0x18043FEC0",
+      "Rva": "0x43FEC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "OnSpawnServer",
+      "Token": "0x06000639",
+      "ParameterCount": 1,
+      "Va": "0x18043FEC0",
+      "Rva": "0x43FEC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "OnDespawnServer",
+      "Token": "0x0600063A",
+      "ParameterCount": 1,
+      "Va": "0x18043FEC0",
+      "Rva": "0x43FEC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "OnStartClient_Internal",
+      "Token": "0x0600063B",
+      "ParameterCount": 0,
+      "Va": "0x180CC7200",
+      "Rva": "0xCC7200",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "OnStartClient",
+      "Token": "0x0600063C",
+      "ParameterCount": 0,
+      "Va": "0x18043FEC0",
+      "Rva": "0x43FEC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "OnStopClient_Internal",
+      "Token": "0x0600063D",
+      "ParameterCount": 0,
+      "Va": "0x180CC7260",
+      "Rva": "0xCC7260",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "OnStopClient",
+      "Token": "0x0600063E",
+      "ParameterCount": 0,
+      "Va": "0x18043FEC0",
+      "Rva": "0x43FEC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "OnOwnershipClient_Internal",
+      "Token": "0x0600063F",
+      "ParameterCount": 1,
+      "Va": "0x180CC68E0",
+      "Rva": "0xCC68E0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "OnOwnershipClient",
+      "Token": "0x06000640",
+      "ParameterCount": 1,
+      "Va": "0x18043FEC0",
+      "Rva": "0x43FEC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "get_IsSpawned",
+      "Token": "0x06000641",
+      "ParameterCount": 0,
+      "Va": "0x180CCB1D0",
+      "Rva": "0xCCB1D0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "get_ComponentIndex",
+      "Token": "0x06000642",
+      "ParameterCount": 0,
+      "Va": "0x18053C0D0",
+      "Rva": "0x53C0D0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "set_ComponentIndex",
+      "Token": "0x06000643",
+      "ParameterCount": 1,
+      "Va": "0x18053C0E0",
+      "Rva": "0x53C0E0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "get_NetworkObject",
+      "Token": "0x06000644",
+      "ParameterCount": 0,
+      "Va": "0x180421DD0",
+      "Rva": "0x421DD0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "ToString",
+      "Token": "0x06000645",
+      "ParameterCount": 0,
+      "Va": "0x180CC97E0",
+      "Rva": "0xCC97E0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "Preinitialize_Internal",
+      "Token": "0x06000646",
+      "ParameterCount": 2,
+      "Va": "0x180CC7E40",
+      "Rva": "0xCC7E40",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "Deinitialize",
+      "Token": "0x06000647",
+      "ParameterCount": 1,
+      "Va": "0x18043FEC0",
+      "Rva": "0x43FEC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "SerializeComponents",
+      "Token": "0x06000648",
+      "ParameterCount": 2,
+      "Va": "0x180CC9290",
+      "Rva": "0xCC9290",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "InitializeIfDisabled",
+      "Token": "0x06000649",
+      "ParameterCount": 0,
+      "Va": "0x180CC51E0",
+      "Rva": "0xCC51E0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "NetworkInitializeIfDisabled",
+      "Token": "0x0600064A",
+      "ParameterCount": 0,
+      "Va": "0x18043FEC0",
+      "Rva": "0x43FEC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "Reset",
+      "Token": "0x0600064B",
+      "ParameterCount": 0,
+      "Va": "0x18043FEC0",
+      "Rva": "0x43FEC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "OnValidate",
+      "Token": "0x0600064C",
+      "ParameterCount": 0,
+      "Va": "0x18043FEC0",
+      "Rva": "0x43FEC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "ResetState",
+      "Token": "0x0600064D",
+      "ParameterCount": 0,
+      "Va": "0x180CC8960",
+      "Rva": "0xCC8960",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "TryAddNetworkObject",
+      "Token": "0x0600064E",
+      "ParameterCount": 0,
+      "Va": "0x18045F1F0",
+      "Rva": "0x45F1F0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "CanLog",
+      "Token": "0x0600064F",
+      "ParameterCount": 1,
+      "Va": "0x180CC4910",
+      "Rva": "0xCC4910",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "GetLastReconcileTick",
+      "Token": "0x06000650",
+      "ParameterCount": 0,
+      "Va": "0x180BE7870",
+      "Rva": "0xBE7870",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "SetLastReconcileTick",
+      "Token": "0x06000651",
+      "ParameterCount": 2,
+      "Va": "0x180CC92C0",
+      "Rva": "0xCC92C0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "GetLastReplicateTick",
+      "Token": "0x06000652",
+      "ParameterCount": 0,
+      "Va": "0x180C7BC50",
+      "Rva": "0xC7BC50",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "SetLastReplicateTick",
+      "Token": "0x06000653",
+      "ParameterCount": 2,
+      "Va": "0x180CC9300",
+      "Rva": "0xCC9300",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "get_IsReconciling",
+      "Token": "0x06000654",
+      "ParameterCount": 0,
+      "Va": "0x180465110",
+      "Rva": "0x465110",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "set_IsReconciling",
+      "Token": "0x06000655",
+      "ParameterCount": 1,
+      "Va": "0x180465190",
+      "Rva": "0x465190",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "RegisterReplicateRpc",
+      "Token": "0x06000656",
+      "ParameterCount": 2,
+      "Va": "0x180CC8240",
+      "Rva": "0xCC8240",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "RegisterReconcileRpc",
+      "Token": "0x06000657",
+      "ParameterCount": 2,
+      "Va": "0x180CC81D0",
+      "Rva": "0xCC81D0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "OnReplicateRpc",
+      "Token": "0x06000658",
+      "ParameterCount": 4,
+      "Va": "0x180CC6BF0",
+      "Rva": "0xCC6BF0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "OnReconcileRpc",
+      "Token": "0x06000659",
+      "ParameterCount": 3,
+      "Va": "0x180CC69F0",
+      "Rva": "0xCC69F0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "ClearReplicateCache",
+      "Token": "0x0600065A",
+      "ParameterCount": 1,
+      "Va": "0x180CC4B80",
+      "Rva": "0xCC4B80",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "ClearReplicateCache",
+      "Token": "0x0600065B",
+      "ParameterCount": 0,
+      "Va": "0x180CC4B30",
+      "Rva": "0xCC4B30",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "ClearReplicateCache_Virtual",
+      "Token": "0x0600065C",
+      "ParameterCount": 1,
+      "Va": "0x18043FEC0",
+      "Rva": "0x43FEC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "ResetLastPredictionTicks",
+      "Token": "0x0600065D",
+      "ParameterCount": 0,
+      "Va": "0x180CC8940",
+      "Rva": "0xCC8940",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "Owner_SendReplicateRpc",
+      "Token": "0x0600065E",
+      "ParameterCount": 3,
+      "Va": "0x180E9C1B0",
+      "Rva": "0xE9C1B0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "Server_SendReconcileRpc",
+      "Token": "0x0600065F",
+      "ParameterCount": 3,
+      "Va": "0x180E9E2E0",
+      "Rva": "0xE9E2E0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "PredictedTransformMayChange",
+      "Token": "0x06000660",
+      "ParameterCount": 0,
+      "Va": "0x180CC7830",
+      "Rva": "0xCC7830",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "Replicate_ExitEarly_A",
+      "Token": "0x06000661",
+      "ParameterCount": 3,
+      "Va": "0x180CC87F0",
+      "Rva": "0xCC87F0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "Replicate_NonOwner",
+      "Token": "0x06000662",
+      "ParameterCount": 5,
+      "Va": "0x180E9D6E0",
+      "Rva": "0xE9D6E0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "Replicate_Owner",
+      "Token": "0x06000663",
+      "ParameterCount": 5,
+      "Va": "0x180E9DB50",
+      "Rva": "0xE9DB50",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "Replicate_Reader",
+      "Token": "0x06000664",
+      "ParameterCount": 5,
+      "Va": "0x180E9E170",
+      "Rva": "0xE9E170",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "Replicate_HandleReceivedReplicate",
+      "Token": "0x06000665",
+      "ParameterCount": 4,
+      "Va": "0x180E9D320",
+      "Rva": "0xE9D320",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "Reconcile_ExitEarly_A",
+      "Token": "0x06000666",
+      "ParameterCount": 2,
+      "Va": "0x180CC7F40",
+      "Rva": "0xCC7F40",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "Reconcile_Server",
+      "Token": "0x06000667",
+      "ParameterCount": 3,
+      "Va": "0x180E9D010",
+      "Rva": "0xE9D010",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "Reconcile_Client",
+      "Token": "0x06000668",
+      "ParameterCount": 5,
+      "Va": "0x180E9C5A0",
+      "Rva": "0xE9C5A0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "Reconcile_Reader",
+      "Token": "0x06000669",
+      "ParameterCount": 3,
+      "Va": "0x180E9CE00",
+      "Rva": "0xE9CE00",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "get_IsDeinitializing",
+      "Token": "0x0600066A",
+      "ParameterCount": 0,
+      "Va": "0x180CCB050",
+      "Rva": "0xCCB050",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "get_NetworkManager",
+      "Token": "0x0600066B",
+      "ParameterCount": 0,
+      "Va": "0x180CCB2C0",
+      "Rva": "0xCCB2C0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "get_ServerManager",
+      "Token": "0x0600066C",
+      "ParameterCount": 0,
+      "Va": "0x180CCB510",
+      "Rva": "0xCCB510",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "get_ClientManager",
+      "Token": "0x0600066D",
+      "ParameterCount": 0,
+      "Va": "0x180CCAFB0",
+      "Rva": "0xCCAFB0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "get_ObserverManager",
+      "Token": "0x0600066E",
+      "ParameterCount": 0,
+      "Va": "0x180CCB320",
+      "Rva": "0xCCB320",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "get_TransportManager",
+      "Token": "0x0600066F",
+      "ParameterCount": 0,
+      "Va": "0x180CCB550",
+      "Rva": "0xCCB550",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "get_TimeManager",
+      "Token": "0x06000670",
+      "ParameterCount": 0,
+      "Va": "0x180CCB530",
+      "Rva": "0xCCB530",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "get_SceneManager",
+      "Token": "0x06000671",
+      "ParameterCount": 0,
+      "Va": "0x180CCB4F0",
+      "Rva": "0xCCB4F0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "get_PredictionManager",
+      "Token": "0x06000672",
+      "ParameterCount": 0,
+      "Va": "0x180CCB4B0",
+      "Rva": "0xCCB4B0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "get_RollbackManager",
+      "Token": "0x06000673",
+      "ParameterCount": 0,
+      "Va": "0x180CCB4D0",
+      "Rva": "0xCCB4D0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "get_NetworkObserver",
+      "Token": "0x06000674",
+      "ParameterCount": 0,
+      "Va": "0x180CCB2E0",
+      "Rva": "0xCCB2E0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "get_IsClientInitialized",
+      "Token": "0x06000675",
+      "ParameterCount": 0,
+      "Va": "0x180CCAFD0",
+      "Rva": "0xCCAFD0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "get_IsClient",
+      "Token": "0x06000676",
+      "ParameterCount": 0,
+      "Va": "0x180CCB030",
+      "Rva": "0xCCB030",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "get_IsClientOnly",
+      "Token": "0x06000677",
+      "ParameterCount": 0,
+      "Va": "0x180CCAFF0",
+      "Rva": "0xCCAFF0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "get_IsServerInitialized",
+      "Token": "0x06000678",
+      "ParameterCount": 0,
+      "Va": "0x180CCB150",
+      "Rva": "0xCCB150",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "get_IsServer",
+      "Token": "0x06000679",
+      "ParameterCount": 0,
+      "Va": "0x180CCB1B0",
+      "Rva": "0xCCB1B0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "get_IsServerOnly",
+      "Token": "0x0600067A",
+      "ParameterCount": 0,
+      "Va": "0x180CCB170",
+      "Rva": "0xCCB170",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "get_IsHost",
+      "Token": "0x0600067B",
+      "ParameterCount": 0,
+      "Va": "0x180CCB070",
+      "Rva": "0xCCB070",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "get_IsOffline",
+      "Token": "0x0600067C",
+      "ParameterCount": 0,
+      "Va": "0x180CCB0D0",
+      "Rva": "0xCCB0D0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "get_IsNetworked",
+      "Token": "0x0600067D",
+      "ParameterCount": 0,
+      "Va": "0x180CCB0B0",
+      "Rva": "0xCCB0B0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "get_Observers",
+      "Token": "0x0600067E",
+      "ParameterCount": 0,
+      "Va": "0x180CCB340",
+      "Rva": "0xCCB340",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "get_IsOwner",
+      "Token": "0x0600067F",
+      "ParameterCount": 0,
+      "Va": "0x180CCB110",
+      "Rva": "0xCCB110",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "get_Owner",
+      "Token": "0x06000680",
+      "ParameterCount": 0,
+      "Va": "0x180CCB3C0",
+      "Rva": "0xCCB3C0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "get_OwnerId",
+      "Token": "0x06000681",
+      "ParameterCount": 0,
+      "Va": "0x180CCB360",
+      "Rva": "0xCCB360",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "get_ObjectId",
+      "Token": "0x06000682",
+      "ParameterCount": 0,
+      "Va": "0x180CCB300",
+      "Rva": "0xCCB300",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "get_LocalConnection",
+      "Token": "0x06000683",
+      "ParameterCount": 0,
+      "Va": "0x180CCB200",
+      "Rva": "0xCCB200",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "OwnerMatches",
+      "Token": "0x06000684",
+      "ParameterCount": 1,
+      "Va": "0x180CC77F0",
+      "Rva": "0xCC77F0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "Despawn",
+      "Token": "0x06000685",
+      "ParameterCount": 2,
+      "Va": "0x180CC4F00",
+      "Rva": "0xCC4F00",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "Despawn",
+      "Token": "0x06000686",
+      "ParameterCount": 2,
+      "Va": "0x180CC5020",
+      "Rva": "0xCC5020",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "Despawn",
+      "Token": "0x06000687",
+      "ParameterCount": 1,
+      "Va": "0x180CC4EA0",
+      "Rva": "0xCC4EA0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "Spawn",
+      "Token": "0x06000688",
+      "ParameterCount": 3,
+      "Va": "0x180CC9490",
+      "Rva": "0xCC9490",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "Spawn",
+      "Token": "0x06000689",
+      "ParameterCount": 3,
+      "Va": "0x180CC95A0",
+      "Rva": "0xCC95A0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "IsNetworkObjectNull",
+      "Token": "0x0600068A",
+      "ParameterCount": 1,
+      "Va": "0x180CC64E0",
+      "Rva": "0xCC64E0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "RemoveOwnership",
+      "Token": "0x0600068B",
+      "ParameterCount": 0,
+      "Va": "0x180CC87C0",
+      "Rva": "0xCC87C0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "GiveOwnership",
+      "Token": "0x0600068C",
+      "ParameterCount": 1,
+      "Va": "0x180CC5190",
+      "Rva": "0xCC5190",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "RegisterInvokeOnInstance",
+      "Token": "0x0600068D",
+      "ParameterCount": 1,
+      "Va": "0x180E9D2C0",
+      "Rva": "0xE9D2C0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "UnregisterInvokeOnInstance",
+      "Token": "0x0600068E",
+      "ParameterCount": 1,
+      "Va": "0x180E9EA90",
+      "Rva": "0xE9EA90",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "GetInstance",
+      "Token": "0x0600068F",
+      "ParameterCount": 0,
+      "Va": "0x180E9C0A0",
+      "Rva": "0xE9C0A0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "RegisterInstance",
+      "Token": "0x06000690",
+      "ParameterCount": 2,
+      "Va": "0x180E9D240",
+      "Rva": "0xE9D240",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "TryRegisterInstance",
+      "Token": "0x06000691",
+      "ParameterCount": 1,
+      "Va": "0x180E9E700",
+      "Rva": "0xE9E700",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "UnregisterInstance",
+      "Token": "0x06000692",
+      "ParameterCount": 0,
+      "Va": "0x180E9E9E0",
+      "Rva": "0xE9E9E0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "InitializeRpcLinks",
+      "Token": "0x06000693",
+      "ParameterCount": 0,
+      "Va": "0x180CC5AA0",
+      "Rva": "0xCC5AA0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "GetEstimatedRpcHeaderLength",
+      "Token": "0x06000694",
+      "ParameterCount": 0,
+      "Va": "0x180AC74D0",
+      "Rva": "0xAC74D0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "CreateLinkedRpc",
+      "Token": "0x06000695",
+      "ParameterCount": 3,
+      "Va": "0x180CC4BB0",
+      "Rva": "0xCC4BB0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "ReturnRpcLinks",
+      "Token": "0x06000696",
+      "ParameterCount": 0,
+      "Va": "0x180CC89C0",
+      "Rva": "0xCC89C0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "WriteRpcLinks",
+      "Token": "0x06000697",
+      "ParameterCount": 1,
+      "Va": "0x180CCA6B0",
+      "Rva": "0xCCA6B0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "SendBufferedRpcs",
+      "Token": "0x06000698",
+      "ParameterCount": 1,
+      "Va": "0x180CC8A60",
+      "Rva": "0xCC8A60",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "RegisterServerRpc",
+      "Token": "0x06000699",
+      "ParameterCount": 2,
+      "Va": "0x180CC82B0",
+      "Rva": "0xCC82B0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "RegisterObserversRpc",
+      "Token": "0x0600069A",
+      "ParameterCount": 2,
+      "Va": "0x180CC7FE0",
+      "Rva": "0xCC7FE0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "RegisterTargetRpc",
+      "Token": "0x0600069B",
+      "ParameterCount": 2,
+      "Va": "0x180CC85D0",
+      "Rva": "0xCC85D0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "IncreaseRpcMethodCount",
+      "Token": "0x0600069C",
+      "ParameterCount": 0,
+      "Va": "0x180CC51C0",
+      "Rva": "0xCC51C0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "ClearBuffedRpcs",
+      "Token": "0x0600069D",
+      "ParameterCount": 0,
+      "Va": "0x180CC49C0",
+      "Rva": "0xCC49C0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "ReadRpcHash",
+      "Token": "0x0600069E",
+      "ParameterCount": 1,
+      "Va": "0x180CC7EB0",
+      "Rva": "0xCC7EB0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "OnServerRpc",
+      "Token": "0x0600069F",
+      "ParameterCount": 3,
+      "Va": "0x180CC6F30",
+      "Rva": "0xCC6F30",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "OnObserversRpc",
+      "Token": "0x060006A0",
+      "ParameterCount": 3,
+      "Va": "0x180CC6680",
+      "Rva": "0xCC6680",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "OnTargetRpc",
+      "Token": "0x060006A1",
+      "ParameterCount": 3,
+      "Va": "0x180CC7590",
+      "Rva": "0xCC7590",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "SendServerRpc",
+      "Token": "0x060006A2",
+      "ParameterCount": 4,
+      "Va": "0x1805475B0",
+      "Rva": "0x5475B0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "SendObserversRpc",
+      "Token": "0x060006A3",
+      "ParameterCount": 7,
+      "Va": "0x180CC8D00",
+      "Rva": "0xCC8D00",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "SendTargetRpc",
+      "Token": "0x060006A4",
+      "ParameterCount": 7,
+      "Va": "0x180CC8FA0",
+      "Rva": "0xCC8FA0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "SetNetworkConnectionCache",
+      "Token": "0x060006A5",
+      "ParameterCount": 2,
+      "Va": "0x180CC9380",
+      "Rva": "0xCC9380",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "IsSpawnedWithWarning",
+      "Token": "0x060006A6",
+      "ParameterCount": 0,
+      "Va": "0x180CC6590",
+      "Rva": "0xCC6590",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "CreateRpc",
+      "Token": "0x060006A7",
+      "ParameterCount": 4,
+      "Va": "0x180CC4D00",
+      "Rva": "0xCC4D00",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "WriteRpcHash",
+      "Token": "0x060006A8",
+      "ParameterCount": 2,
+      "Va": "0x180CCA670",
+      "Rva": "0xCCA670",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "RegisterSyncVarRead",
+      "Token": "0x060006A9",
+      "ParameterCount": 1,
+      "Va": "0x180CC8520",
+      "Rva": "0xCC8520",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "RegisterSyncType",
+      "Token": "0x060006AA",
+      "ParameterCount": 2,
+      "Va": "0x180CC84A0",
+      "Rva": "0xCC84A0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "DirtySyncType",
+      "Token": "0x060006AB",
+      "ParameterCount": 1,
+      "Va": "0x180CC5090",
+      "Rva": "0xCC5090",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "InitializeOnceSyncTypes",
+      "Token": "0x060006AC",
+      "ParameterCount": 1,
+      "Va": "0x180CC5230",
+      "Rva": "0xCC5230",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "OnSyncType",
+      "Token": "0x060006AD",
+      "ParameterCount": 4,
+      "Va": "0x180CC72D0",
+      "Rva": "0xCC72D0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "WriteDirtySyncTypes",
+      "Token": "0x060006AE",
+      "ParameterCount": 2,
+      "Va": "0x180CC9D80",
+      "Rva": "0xCC9D80",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "SyncTypes_ResetState",
+      "Token": "0x060006AF",
+      "ParameterCount": 0,
+      "Va": "0x180CC9610",
+      "Rva": "0xCC9610",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "ResetSyncVarFields",
+      "Token": "0x060006B0",
+      "ParameterCount": 0,
+      "Va": "0x18043FEC0",
+      "Rva": "0x43FEC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "WriteSyncTypesForSpawn",
+      "Token": "0x060006B1",
+      "ParameterCount": 2,
+      "Va": "0x180CCABD0",
+      "Rva": "0xCCABD0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "DirtySyncType",
+      "Token": "0x060006B2",
+      "ParameterCount": 1,
+      "Va": "0x18043FEC0",
+      "Rva": "0x43FEC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": ".ctor",
+      "Token": "0x060006B3",
+      "ParameterCount": 0,
+      "Va": "0x180CCAC60",
+      "Rva": "0xCCAC60",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "<Replicate_NonOwner>g__ReplicateData|89_0",
+      "Token": "0x060006B4",
+      "ParameterCount": 2,
+      "Va": "0x180E9E800",
+      "Rva": "0xE9E800",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "<InitializeRpcLinks>g__MakeLink|165_0",
+      "Token": "0x060006B5",
+      "ParameterCount": 3,
+      "Va": "0x180CC9A10",
+      "Rva": "0xCC9A10",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "<WriteSyncTypesForSpawn>g__WriteSyncType|212_0",
+      "Token": "0x060006B6",
+      "ParameterCount": 2,
+      "Va": "0x180CC9AB0",
+      "Rva": "0xCC9AB0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "Broadcast",
+      "Token": "0x060006BC",
+      "ParameterCount": 3,
+      "Va": "0x180E9FBE0",
+      "Rva": "0xE9FBE0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "InitializeCallbacks",
+      "Token": "0x060006BD",
+      "ParameterCount": 2,
+      "Va": "0x180CCC6C0",
+      "Rva": "0xCCC6C0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "InvokeOnStartSyncTypeCallbacks",
+      "Token": "0x060006BE",
+      "ParameterCount": 1,
+      "Va": "0x180CCCF00",
+      "Rva": "0xCCCF00",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "InvokeOnStopSyncTypeCallbacks",
+      "Token": "0x060006BF",
+      "ParameterCount": 1,
+      "Va": "0x180CCCF80",
+      "Rva": "0xCCCF80",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "OnSpawnServer",
+      "Token": "0x060006C0",
+      "ParameterCount": 1,
+      "Va": "0x180CCD840",
+      "Rva": "0xCCD840",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "InvokeOnServerDespawn",
+      "Token": "0x060006C1",
+      "ParameterCount": 1,
+      "Va": "0x180CCCE80",
+      "Rva": "0xCCCE80",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "InvokeStopCallbacks",
+      "Token": "0x060006C2",
+      "ParameterCount": 1,
+      "Va": "0x180CCD1F0",
+      "Rva": "0xCCD1F0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "InvokeOwnership",
+      "Token": "0x060006C3",
+      "ParameterCount": 2,
+      "Va": "0x180CCD000",
+      "Rva": "0xCCD000",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "get_IsNested",
+      "Token": "0x060006C4",
+      "ParameterCount": 0,
+      "Va": "0x1804610B0",
+      "Rva": "0x4610B0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "set_IsNested",
+      "Token": "0x060006C5",
+      "ParameterCount": 1,
+      "Va": "0x1804610D0",
+      "Rva": "0x4610D0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "get_PredictedSpawner",
+      "Token": "0x060006C6",
+      "ParameterCount": 0,
+      "Va": "0x180421DF0",
+      "Rva": "0x421DF0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "set_PredictedSpawner",
+      "Token": "0x060006C7",
+      "ParameterCount": 1,
+      "Va": "0x180421E30",
+      "Rva": "0x421E30",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "get_IsSceneObject",
+      "Token": "0x060006C8",
+      "ParameterCount": 0,
+      "Va": "0x180CD03B0",
+      "Rva": "0xCD03B0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "get_ComponentIndex",
+      "Token": "0x060006C9",
+      "ParameterCount": 0,
+      "Va": "0x1804994C0",
+      "Rva": "0x4994C0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "set_ComponentIndex",
+      "Token": "0x060006CA",
+      "ParameterCount": 1,
+      "Va": "0x1804D5380",
+      "Rva": "0x4D5380",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "get_ObjectId",
+      "Token": "0x060006CB",
+      "ParameterCount": 0,
+      "Va": "0x180499500",
+      "Rva": "0x499500",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "set_ObjectId",
+      "Token": "0x060006CC",
+      "ParameterCount": 1,
+      "Va": "0x1804ADFB0",
+      "Rva": "0x4ADFB0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "get_IsDeinitializing",
+      "Token": "0x060006CD",
+      "ParameterCount": 0,
+      "Va": "0x18065A640",
+      "Rva": "0x65A640",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "set_IsDeinitializing",
+      "Token": "0x060006CE",
+      "ParameterCount": 1,
+      "Va": "0x180A108C0",
+      "Rva": "0xA108C0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "get_PredictedSpawn",
+      "Token": "0x060006CF",
+      "ParameterCount": 0,
+      "Va": "0x1804610C0",
+      "Rva": "0x4610C0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "set_PredictedSpawn",
+      "Token": "0x060006D0",
+      "ParameterCount": 1,
+      "Va": "0x18049EF90",
+      "Rva": "0x49EF90",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "get_NetworkBehaviours",
+      "Token": "0x060006D1",
+      "ParameterCount": 0,
+      "Va": "0x18048DD60",
+      "Rva": "0x48DD60",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "set_NetworkBehaviours",
+      "Token": "0x060006D2",
+      "ParameterCount": 1,
+      "Va": "0x18058A100",
+      "Rva": "0x58A100",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "get_ParentNetworkObject",
+      "Token": "0x060006D3",
+      "ParameterCount": 0,
+      "Va": "0x1804583C0",
+      "Rva": "0x4583C0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "set_ParentNetworkObject",
+      "Token": "0x060006D4",
+      "ParameterCount": 1,
+      "Va": "0x180465C20",
+      "Rva": "0x465C20",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "get_ChildNetworkObjects",
+      "Token": "0x060006D5",
+      "ParameterCount": 0,
+      "Va": "0x180465C10",
+      "Rva": "0x465C10",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "set_ChildNetworkObjects",
+      "Token": "0x060006D6",
+      "ParameterCount": 1,
+      "Va": "0x180465C30",
+      "Rva": "0x465C30",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "get_RuntimeParentNetworkObject",
+      "Token": "0x060006D7",
+      "ParameterCount": 0,
+      "Va": "0x180490AC0",
+      "Rva": "0x490AC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "set_RuntimeParentNetworkObject",
+      "Token": "0x060006D8",
+      "ParameterCount": 1,
+      "Va": "0x1805EC440",
+      "Rva": "0x5EC440",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "get_CurrentParentNetworkObject",
+      "Token": "0x060006D9",
+      "ParameterCount": 0,
+      "Va": "0x180CD0180",
+      "Rva": "0xCD0180",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "get_RuntimeParentTransform",
+      "Token": "0x060006DA",
+      "ParameterCount": 0,
+      "Va": "0x1804368B0",
+      "Rva": "0x4368B0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "set_RuntimeParentTransform",
+      "Token": "0x060006DB",
+      "ParameterCount": 1,
+      "Va": "0x1805EC420",
+      "Rva": "0x5EC420",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "get_RuntimeChildNetworkObjects",
+      "Token": "0x060006DC",
+      "ParameterCount": 0,
+      "Va": "0x1804368A0",
+      "Rva": "0x4368A0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "set_RuntimeChildNetworkObjects",
+      "Token": "0x060006DD",
+      "ParameterCount": 1,
+      "Va": "0x1805EC450",
+      "Rva": "0x5EC450",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "get_IsNetworked",
+      "Token": "0x060006DE",
+      "ParameterCount": 0,
+      "Va": "0x180CD0330",
+      "Rva": "0xCD0330",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "set_IsNetworked",
+      "Token": "0x060006DF",
+      "ParameterCount": 1,
+      "Va": "0x180CCE900",
+      "Rva": "0xCCE900",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "SetIsNetworked",
+      "Token": "0x060006E0",
+      "ParameterCount": 1,
+      "Va": "0x180CCE900",
+      "Rva": "0xCCE900",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "get_IsGlobal",
+      "Token": "0x060006E1",
+      "ParameterCount": 0,
+      "Va": "0x180CD02F0",
+      "Rva": "0xCD02F0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "set_IsGlobal",
+      "Token": "0x060006E2",
+      "ParameterCount": 1,
+      "Va": "0x180CD0800",
+      "Rva": "0xCD0800",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "SetIsGlobal",
+      "Token": "0x060006E3",
+      "ParameterCount": 1,
+      "Va": "0x180CCE790",
+      "Rva": "0xCCE790",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "GetInitializeOrder",
+      "Token": "0x060006E4",
+      "ParameterCount": 0,
+      "Va": "0x180CCBB90",
+      "Rva": "0xCCBB90",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "GetDefaultDespawnType",
+      "Token": "0x060006E5",
+      "ParameterCount": 0,
+      "Va": "0x18083B690",
+      "Rva": "0x83B690",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "SetDefaultDespawnType",
+      "Token": "0x060006E6",
+      "ParameterCount": 1,
+      "Va": "0x18083B800",
+      "Rva": "0x83B800",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "ToString",
+      "Token": "0x060006E7",
+      "ParameterCount": 0,
+      "Va": "0x180CCEE20",
+      "Rva": "0xCCEE20",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "Awake",
+      "Token": "0x060006E8",
+      "ParameterCount": 0,
+      "Va": "0x180CCB640",
+      "Rva": "0xCCB640",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "Start",
+      "Token": "0x060006E9",
+      "ParameterCount": 0,
+      "Va": "0x180CCED00",
+      "Rva": "0xCCED00",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "PrintNOBs",
+      "Token": "0x060006EA",
+      "ParameterCount": 0,
+      "Va": "0x180CCDCF0",
+      "Rva": "0xCCDCF0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "OnDisable",
+      "Token": "0x060006EB",
+      "ParameterCount": 0,
+      "Va": "0x180CCD690",
+      "Rva": "0xCCD690",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "OnDestroy",
+      "Token": "0x060006EC",
+      "ParameterCount": 0,
+      "Va": "0x180CCD410",
+      "Rva": "0xCCD410",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "InitializeNetworkBehavioursIfDisabled",
+      "Token": "0x060006ED",
+      "ParameterCount": 0,
+      "Va": "0x180CCCAD0",
+      "Rva": "0xCCCAD0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "SetChildGlobalState",
+      "Token": "0x060006EE",
+      "ParameterCount": 0,
+      "Va": "0x180CCE560",
+      "Rva": "0xCCE560",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "SetChildDespawnedState",
+      "Token": "0x060006EF",
+      "ParameterCount": 0,
+      "Va": "0x180CCE4A0",
+      "Rva": "0xCCE4A0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "TryStartDeactivation",
+      "Token": "0x060006F0",
+      "ParameterCount": 0,
+      "Va": "0x180CCED00",
+      "Rva": "0xCCED00",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "SetInitializedStatus",
+      "Token": "0x060006F1",
+      "ParameterCount": 2,
+      "Va": "0x180CCE770",
+      "Rva": "0xCCE770",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "SetDeinitializedStatus",
+      "Token": "0x060006F2",
+      "ParameterCount": 0,
+      "Va": "0x180CCE760",
+      "Rva": "0xCCE760",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "Preinitialize_Internal",
+      "Token": "0x060006F3",
+      "ParameterCount": 4,
+      "Va": "0x180CCD980",
+      "Rva": "0xCCD980",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "SetParent",
+      "Token": "0x060006F4",
+      "ParameterCount": 1,
+      "Va": "0x180CCEB10",
+      "Rva": "0xCCEB10",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "SetParent",
+      "Token": "0x060006F5",
+      "ParameterCount": 1,
+      "Va": "0x180CCEAD0",
+      "Rva": "0xCCEAD0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "UnsetParent",
+      "Token": "0x060006F6",
+      "ParameterCount": 0,
+      "Va": "0x180CCEF30",
+      "Rva": "0xCCEF30",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "UpdateParent",
+      "Token": "0x060006F7",
+      "ParameterCount": 2,
+      "Va": "0x180CCF790",
+      "Rva": "0xCCF790",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "InvalidParent",
+      "Token": "0x060006F8",
+      "ParameterCount": 1,
+      "Va": "0x180CCCBF0",
+      "Rva": "0xCCCBF0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "AddAndSerialize",
+      "Token": "0x060006F9",
+      "ParameterCount": 0,
+      "Va": "0x180E9FAD0",
+      "Rva": "0xE9FAD0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "UpdateNetworkBehaviours",
+      "Token": "0x060006FA",
+      "ParameterCount": 2,
+      "Va": "0x180CCF060",
+      "Rva": "0xCCF060",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "Initialize",
+      "Token": "0x060006FB",
+      "ParameterCount": 2,
+      "Va": "0x180CCCBC0",
+      "Rva": "0xCCCBC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "Deinitialize",
+      "Token": "0x060006FC",
+      "ParameterCount": 1,
+      "Va": "0x180CCB820",
+      "Rva": "0xCCB820",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "ResetForObjectPool",
+      "Token": "0x060006FD",
+      "ParameterCount": 0,
+      "Va": "0x18043FEC0",
+      "Rva": "0x43FEC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "ResetState",
+      "Token": "0x060006FE",
+      "ParameterCount": 0,
+      "Va": "0x180CCE160",
+      "Rva": "0xCCE160",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "RemoveOwnership",
+      "Token": "0x060006FF",
+      "ParameterCount": 0,
+      "Va": "0x180CCE150",
+      "Rva": "0xCCE150",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "GiveOwnership",
+      "Token": "0x06000700",
+      "ParameterCount": 1,
+      "Va": "0x180CCC6B0",
+      "Rva": "0xCCC6B0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "GiveOwnership",
+      "Token": "0x06000701",
+      "ParameterCount": 2,
+      "Va": "0x180CCC100",
+      "Rva": "0xCCC100",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "InitializePredictedObject_Server",
+      "Token": "0x06000702",
+      "ParameterCount": 2,
+      "Va": "0x180CCCB80",
+      "Rva": "0xCCCB80",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "PreinitializePredictedObject_Client",
+      "Token": "0x06000703",
+      "ParameterCount": 4,
+      "Va": "0x180CCD920",
+      "Rva": "0xCCD920",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "DeinitializePredictedObject_Client",
+      "Token": "0x06000704",
+      "ParameterCount": 0,
+      "Va": "0x18070A140",
+      "Rva": "0x70A140",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "SetOwner",
+      "Token": "0x06000705",
+      "ParameterCount": 1,
+      "Va": "0x1804D0900",
+      "Rva": "0x4D0900",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "GetTransformChanges",
+      "Token": "0x06000706",
+      "ParameterCount": 1,
+      "Va": "0x180CCBF20",
+      "Rva": "0xCCBF20",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "GetTransformChanges",
+      "Token": "0x06000707",
+      "ParameterCount": 1,
+      "Va": "0x180CCBD40",
+      "Rva": "0xCCBD40",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "add_OnHostVisibilityUpdated",
+      "Token": "0x06000708",
+      "ParameterCount": 1,
+      "Va": "0x180CCFE70",
+      "Rva": "0xCCFE70",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "remove_OnHostVisibilityUpdated",
+      "Token": "0x06000709",
+      "ParameterCount": 1,
+      "Va": "0x180CD0690",
+      "Rva": "0xCD0690",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "add_OnObserversActive",
+      "Token": "0x0600070A",
+      "ParameterCount": 1,
+      "Va": "0x180CCFF20",
+      "Rva": "0xCCFF20",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "remove_OnObserversActive",
+      "Token": "0x0600070B",
+      "ParameterCount": 1,
+      "Va": "0x180CD0740",
+      "Rva": "0xCD0740",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "UpdateForNetworkObject",
+      "Token": "0x0600070C",
+      "ParameterCount": 1,
+      "Va": "0x180CCEF40",
+      "Rva": "0xCCEF40",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "UpdateRenderers",
+      "Token": "0x0600070D",
+      "ParameterCount": 1,
+      "Va": "0x180CCFC70",
+      "Rva": "0xCCFC70",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "SetRenderersVisible",
+      "Token": "0x0600070E",
+      "ParameterCount": 2,
+      "Va": "0x180CCEB60",
+      "Rva": "0xCCEB60",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "UpdateRenderers_Internal",
+      "Token": "0x0600070F",
+      "ParameterCount": 1,
+      "Va": "0x180CCFAD0",
+      "Rva": "0xCCFAD0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "UpdateRenderVisibility",
+      "Token": "0x06000710",
+      "ParameterCount": 1,
+      "Va": "0x180CCF9B0",
+      "Rva": "0xCCF9B0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "AddDefaultNetworkObserverConditions",
+      "Token": "0x06000711",
+      "ParameterCount": 0,
+      "Va": "0x180CCB5E0",
+      "Rva": "0xCCB5E0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "RemoveObserver",
+      "Token": "0x06000712",
+      "ParameterCount": 1,
+      "Va": "0x180CCE0B0",
+      "Rva": "0xCCE0B0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "RebuildObservers",
+      "Token": "0x06000713",
+      "ParameterCount": 2,
+      "Va": "0x180CCDDF0",
+      "Rva": "0xCCDDF0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "TryInvokeOnObserversActive",
+      "Token": "0x06000714",
+      "ParameterCount": 1,
+      "Va": "0x180CCEEB0",
+      "Rva": "0xCCEEB0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "get_AllowPredictedSpawning",
+      "Token": "0x06000715",
+      "ParameterCount": 0,
+      "Va": "0x180CD0060",
+      "Rva": "0xCD0060",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "get_AllowPredictedDespawning",
+      "Token": "0x06000716",
+      "ParameterCount": 0,
+      "Va": "0x180CCFFD0",
+      "Rva": "0xCCFFD0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "get_AllowPredictedSyncTypes",
+      "Token": "0x06000717",
+      "ParameterCount": 0,
+      "Va": "0x180CD00F0",
+      "Rva": "0xCD00F0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "get_IsClientInitialized",
+      "Token": "0x06000718",
+      "ParameterCount": 0,
+      "Va": "0x1804ED7B0",
+      "Rva": "0x4ED7B0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "set_IsClientInitialized",
+      "Token": "0x06000719",
+      "ParameterCount": 1,
+      "Va": "0x180CD07F0",
+      "Rva": "0xCD07F0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "get_ClientInitialized",
+      "Token": "0x0600071A",
+      "ParameterCount": 0,
+      "Va": "0x1804ED7B0",
+      "Rva": "0x4ED7B0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "get_IsClient",
+      "Token": "0x0600071B",
+      "ParameterCount": 0,
+      "Va": "0x180CD0260",
+      "Rva": "0xCD0260",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "get_IsClientOnly",
+      "Token": "0x0600071C",
+      "ParameterCount": 0,
+      "Va": "0x180CD0230",
+      "Rva": "0xCD0230",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "get_IsServerInitialized",
+      "Token": "0x0600071D",
+      "ParameterCount": 0,
+      "Va": "0x180CD03C0",
+      "Rva": "0xCD03C0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "set_IsServerInitialized",
+      "Token": "0x0600071E",
+      "ParameterCount": 1,
+      "Va": "0x180CD0810",
+      "Rva": "0xCD0810",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "get_IsServer",
+      "Token": "0x0600071F",
+      "ParameterCount": 0,
+      "Va": "0x180CD0400",
+      "Rva": "0xCD0400",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "get_IsServerOnly",
+      "Token": "0x06000720",
+      "ParameterCount": 0,
+      "Va": "0x180CD03D0",
+      "Rva": "0xCD03D0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "get_IsHost",
+      "Token": "0x06000721",
+      "ParameterCount": 0,
+      "Va": "0x180CD0300",
+      "Rva": "0xCD0300",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "get_IsOffline",
+      "Token": "0x06000722",
+      "ParameterCount": 0,
+      "Va": "0x180CD0340",
+      "Rva": "0xCD0340",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "get_IsOwner",
+      "Token": "0x06000723",
+      "ParameterCount": 0,
+      "Va": "0x180CD0370",
+      "Rva": "0xCD0370",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "get_Owner",
+      "Token": "0x06000724",
+      "ParameterCount": 0,
+      "Va": "0x180CD05C0",
+      "Rva": "0xCD05C0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "set_Owner",
+      "Token": "0x06000725",
+      "ParameterCount": 1,
+      "Va": "0x1804D0900",
+      "Rva": "0x4D0900",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "get_OwnerId",
+      "Token": "0x06000726",
+      "ParameterCount": 0,
+      "Va": "0x180CD0570",
+      "Rva": "0xCD0570",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "get_IsSpawned",
+      "Token": "0x06000727",
+      "ParameterCount": 0,
+      "Va": "0x180CD0490",
+      "Rva": "0xCD0490",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "get_LocalConnection",
+      "Token": "0x06000728",
+      "ParameterCount": 0,
+      "Va": "0x180CD04B0",
+      "Rva": "0xCD04B0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "get_NetworkManager",
+      "Token": "0x06000729",
+      "ParameterCount": 0,
+      "Va": "0x1804ED5A0",
+      "Rva": "0x4ED5A0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "set_NetworkManager",
+      "Token": "0x0600072A",
+      "ParameterCount": 1,
+      "Va": "0x1808106E0",
+      "Rva": "0x8106E0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "get_ServerManager",
+      "Token": "0x0600072B",
+      "ParameterCount": 0,
+      "Va": "0x180561740",
+      "Rva": "0x561740",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "set_ServerManager",
+      "Token": "0x0600072C",
+      "ParameterCount": 1,
+      "Va": "0x180561790",
+      "Rva": "0x561790",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "get_ClientManager",
+      "Token": "0x0600072D",
+      "ParameterCount": 0,
+      "Va": "0x180561750",
+      "Rva": "0x561750",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "set_ClientManager",
+      "Token": "0x0600072E",
+      "ParameterCount": 1,
+      "Va": "0x1805617B0",
+      "Rva": "0x5617B0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "get_ObserverManager",
+      "Token": "0x0600072F",
+      "ParameterCount": 0,
+      "Va": "0x1804ED770",
+      "Rva": "0x4ED770",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "set_ObserverManager",
+      "Token": "0x06000730",
+      "ParameterCount": 1,
+      "Va": "0x180557ED0",
+      "Rva": "0x557ED0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "get_TransportManager",
+      "Token": "0x06000731",
+      "ParameterCount": 0,
+      "Va": "0x18054E840",
+      "Rva": "0x54E840",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "set_TransportManager",
+      "Token": "0x06000732",
+      "ParameterCount": 1,
+      "Va": "0x18054E850",
+      "Rva": "0x54E850",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "get_TimeManager",
+      "Token": "0x06000733",
+      "ParameterCount": 0,
+      "Va": "0x180684A70",
+      "Rva": "0x684A70",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "set_TimeManager",
+      "Token": "0x06000734",
+      "ParameterCount": 1,
+      "Va": "0x180809AA0",
+      "Rva": "0x809AA0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "get_SceneManager",
+      "Token": "0x06000735",
+      "ParameterCount": 0,
+      "Va": "0x180557D20",
+      "Rva": "0x557D20",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "set_SceneManager",
+      "Token": "0x06000736",
+      "ParameterCount": 1,
+      "Va": "0x1805680E0",
+      "Rva": "0x5680E0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "get_PredictionManager",
+      "Token": "0x06000737",
+      "ParameterCount": 0,
+      "Va": "0x18056BAE0",
+      "Rva": "0x56BAE0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "set_PredictionManager",
+      "Token": "0x06000738",
+      "ParameterCount": 1,
+      "Va": "0x18056BAF0",
+      "Rva": "0x56BAF0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "get_RollbackManager",
+      "Token": "0x06000739",
+      "ParameterCount": 0,
+      "Va": "0x180557D10",
+      "Rva": "0x557D10",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "set_RollbackManager",
+      "Token": "0x0600073A",
+      "ParameterCount": 1,
+      "Va": "0x18057EDE0",
+      "Rva": "0x57EDE0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "GetNetworkBehaviour",
+      "Token": "0x0600073B",
+      "ParameterCount": 2,
+      "Va": "0x180CCBBA0",
+      "Rva": "0xCCBBA0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "Despawn",
+      "Token": "0x0600073C",
+      "ParameterCount": 2,
+      "Va": "0x180CCBAA0",
+      "Rva": "0xCCBAA0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "Despawn",
+      "Token": "0x0600073D",
+      "ParameterCount": 2,
+      "Va": "0x180CCBA70",
+      "Rva": "0xCCBA70",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "Despawn",
+      "Token": "0x0600073E",
+      "ParameterCount": 1,
+      "Va": "0x180CCBA30",
+      "Rva": "0xCCBA30",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "Spawn",
+      "Token": "0x0600073F",
+      "ParameterCount": 3,
+      "Va": "0x180CCEBD0",
+      "Rva": "0xCCEBD0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "Spawn",
+      "Token": "0x06000740",
+      "ParameterCount": 3,
+      "Va": "0x180CCECC0",
+      "Rva": "0xCCECC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "SetLocalOwnership",
+      "Token": "0x06000741",
+      "ParameterCount": 1,
+      "Va": "0x180CCE910",
+      "Rva": "0xCCE910",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "RegisterInvokeOnInstance",
+      "Token": "0x06000742",
+      "ParameterCount": 1,
+      "Va": "0x180E9FF70",
+      "Rva": "0xE9FF70",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "UnregisterInvokeOnInstance",
+      "Token": "0x06000743",
+      "ParameterCount": 1,
+      "Va": "0x180EA0320",
+      "Rva": "0xEA0320",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "HasInstance",
+      "Token": "0x06000744",
+      "ParameterCount": 0,
+      "Va": "0x180E9FEA0",
+      "Rva": "0xE9FEA0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "GetInstance",
+      "Token": "0x06000745",
+      "ParameterCount": 0,
+      "Va": "0x180E9FDC0",
+      "Rva": "0xE9FDC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "RegisterInstance",
+      "Token": "0x06000746",
+      "ParameterCount": 2,
+      "Va": "0x180E9FF10",
+      "Rva": "0xE9FF10",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "TryRegisterInstance",
+      "Token": "0x06000747",
+      "ParameterCount": 1,
+      "Va": "0x180EA01C0",
+      "Rva": "0xEA01C0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "TryGetInstance",
+      "Token": "0x06000748",
+      "ParameterCount": 1,
+      "Va": "0x180EA0160",
+      "Rva": "0xEA0160",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "UnregisterInstance",
+      "Token": "0x06000749",
+      "ParameterCount": 0,
+      "Va": "0x180EA0290",
+      "Rva": "0xEA0290",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "get_PrefabId",
+      "Token": "0x0600074A",
+      "ParameterCount": 0,
+      "Va": "0x180CD0670",
+      "Rva": "0xCD0670",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "set_PrefabId",
+      "Token": "0x0600074B",
+      "ParameterCount": 1,
+      "Va": "0x180CD0820",
+      "Rva": "0xCD0820",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "get_SpawnableCollectionId",
+      "Token": "0x0600074C",
+      "ParameterCount": 0,
+      "Va": "0x180CD0680",
+      "Rva": "0xCD0680",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "set_SpawnableCollectionId",
+      "Token": "0x0600074D",
+      "ParameterCount": 1,
+      "Va": "0x180CD0840",
+      "Rva": "0xCD0840",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "get_SceneId",
+      "Token": "0x0600074E",
+      "ParameterCount": 0,
+      "Va": "0x1805E73C0",
+      "Rva": "0x5E73C0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "set_SceneId",
+      "Token": "0x0600074F",
+      "ParameterCount": 1,
+      "Va": "0x180CD0830",
+      "Rva": "0xCD0830",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "get_AssetPathHash",
+      "Token": "0x06000750",
+      "ParameterCount": 0,
+      "Va": "0x1805E73D0",
+      "Rva": "0x5E73D0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "set_AssetPathHash",
+      "Token": "0x06000751",
+      "ParameterCount": 1,
+      "Va": "0x180CCE490",
+      "Rva": "0xCCE490",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "SetAssetPathHash",
+      "Token": "0x06000752",
+      "ParameterCount": 1,
+      "Va": "0x180CCE490",
+      "Rva": "0xCCE490",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "ClearRuntimeSceneObject",
+      "Token": "0x06000753",
+      "ParameterCount": 0,
+      "Va": "0x180CCB780",
+      "Rva": "0xCCB780",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "SetRpcLinkIndexes",
+      "Token": "0x06000754",
+      "ParameterCount": 1,
+      "Va": "0x1805E7520",
+      "Rva": "0x5E7520",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "RemoveClientRpcLinkIndexes",
+      "Token": "0x06000755",
+      "ParameterCount": 0,
+      "Va": "0x180CCE070",
+      "Rva": "0xCCE070",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": "WriteDirtySyncTypes",
+      "Token": "0x06000756",
+      "ParameterCount": 0,
+      "Va": "0x180CCFC80",
+      "Rva": "0xCCFC80",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkObject",
+      "Name": ".ctor",
+      "Token": "0x06000757",
+      "ParameterCount": 0,
+      "Va": "0x180CCFCF0",
+      "Rva": "0xCCFCF0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "get_Initialized",
+      "Token": "0x06000AF5",
+      "ParameterCount": 0,
+      "Va": "0x1804610B0",
+      "Rva": "0x4610B0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "set_Initialized",
+      "Token": "0x06000AF6",
+      "ParameterCount": 1,
+      "Va": "0x1804610D0",
+      "Rva": "0x4610D0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "get_Instances",
+      "Token": "0x06000AF7",
+      "ParameterCount": 0,
+      "Va": "0x180CF90A0",
+      "Rva": "0xCF90A0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "get_IsServer",
+      "Token": "0x06000AF8",
+      "ParameterCount": 0,
+      "Va": "0x180CF93A0",
+      "Rva": "0xCF93A0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "get_IsServerOnly",
+      "Token": "0x06000AF9",
+      "ParameterCount": 0,
+      "Va": "0x180CF9350",
+      "Rva": "0xCF9350",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "get_IsClient",
+      "Token": "0x06000AFA",
+      "ParameterCount": 0,
+      "Va": "0x180CF9270",
+      "Rva": "0xCF9270",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "get_IsClientOnly",
+      "Token": "0x06000AFB",
+      "ParameterCount": 0,
+      "Va": "0x180CF9220",
+      "Rva": "0xCF9220",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "get_IsHost",
+      "Token": "0x06000AFC",
+      "ParameterCount": 0,
+      "Va": "0x180CF92B0",
+      "Rva": "0xCF92B0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "get_IsOffline",
+      "Token": "0x06000AFD",
+      "ParameterCount": 0,
+      "Va": "0x180CF9300",
+      "Rva": "0xCF9300",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "get_PredictionManager",
+      "Token": "0x06000AFE",
+      "ParameterCount": 0,
+      "Va": "0x180421DF0",
+      "Rva": "0x421DF0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "set_PredictionManager",
+      "Token": "0x06000AFF",
+      "ParameterCount": 1,
+      "Va": "0x180421E30",
+      "Rva": "0x421E30",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "get_ServerManager",
+      "Token": "0x06000B00",
+      "ParameterCount": 0,
+      "Va": "0x180421DD0",
+      "Rva": "0x421DD0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "set_ServerManager",
+      "Token": "0x06000B01",
+      "ParameterCount": 1,
+      "Va": "0x180421E10",
+      "Rva": "0x421E10",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "get_ClientManager",
+      "Token": "0x06000B02",
+      "ParameterCount": 0,
+      "Va": "0x180421DE0",
+      "Rva": "0x421DE0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "set_ClientManager",
+      "Token": "0x06000B03",
+      "ParameterCount": 1,
+      "Va": "0x180421E20",
+      "Rva": "0x421E20",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "get_TransportManager",
+      "Token": "0x06000B04",
+      "ParameterCount": 0,
+      "Va": "0x1804610C0",
+      "Rva": "0x4610C0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "set_TransportManager",
+      "Token": "0x06000B05",
+      "ParameterCount": 1,
+      "Va": "0x18049EF90",
+      "Rva": "0x49EF90",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "get_TimeManager",
+      "Token": "0x06000B06",
+      "ParameterCount": 0,
+      "Va": "0x18048DD60",
+      "Rva": "0x48DD60",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "set_TimeManager",
+      "Token": "0x06000B07",
+      "ParameterCount": 1,
+      "Va": "0x18058A100",
+      "Rva": "0x58A100",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "get_SceneManager",
+      "Token": "0x06000B08",
+      "ParameterCount": 0,
+      "Va": "0x1804583C0",
+      "Rva": "0x4583C0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "set_SceneManager",
+      "Token": "0x06000B09",
+      "ParameterCount": 1,
+      "Va": "0x180465C20",
+      "Rva": "0x465C20",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "get_ObserverManager",
+      "Token": "0x06000B0A",
+      "ParameterCount": 0,
+      "Va": "0x180465C10",
+      "Rva": "0x465C10",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "set_ObserverManager",
+      "Token": "0x06000B0B",
+      "ParameterCount": 1,
+      "Va": "0x180465C30",
+      "Rva": "0x465C30",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "get_Authenticator",
+      "Token": "0x06000B0C",
+      "ParameterCount": 0,
+      "Va": "0x180CF9030",
+      "Rva": "0xCF9030",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "get_DebugManager",
+      "Token": "0x06000B0D",
+      "ParameterCount": 0,
+      "Va": "0x180490AC0",
+      "Rva": "0x490AC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "set_DebugManager",
+      "Token": "0x06000B0E",
+      "ParameterCount": 1,
+      "Va": "0x1805EC440",
+      "Rva": "0x5EC440",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "get_StatisticsManager",
+      "Token": "0x06000B0F",
+      "ParameterCount": 0,
+      "Va": "0x1804368B0",
+      "Rva": "0x4368B0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "set_StatisticsManager",
+      "Token": "0x06000B10",
+      "ParameterCount": 1,
+      "Va": "0x1805EC420",
+      "Rva": "0x5EC420",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "get_EmptyConnection",
+      "Token": "0x06000B11",
+      "ParameterCount": 0,
+      "Va": "0x180CF9050",
+      "Rva": "0xCF9050",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "set_EmptyConnection",
+      "Token": "0x06000B12",
+      "ParameterCount": 1,
+      "Va": "0x180CF93C0",
+      "Rva": "0xCF93C0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "get_ObjectPool",
+      "Token": "0x06000B13",
+      "ParameterCount": 0,
+      "Va": "0x180498CF0",
+      "Rva": "0x498CF0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "Awake",
+      "Token": "0x06000B14",
+      "ParameterCount": 0,
+      "Va": "0x180CF6830",
+      "Rva": "0xCF6830",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "Start",
+      "Token": "0x06000B15",
+      "ParameterCount": 0,
+      "Va": "0x180CF8600",
+      "Rva": "0xCF8600",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "OnDestroy",
+      "Token": "0x06000B16",
+      "ParameterCount": 0,
+      "Va": "0x180CF82E0",
+      "Rva": "0xCF82E0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "InitializeComponents",
+      "Token": "0x06000B17",
+      "ParameterCount": 0,
+      "Va": "0x180CF7ED0",
+      "Rva": "0xCF7ED0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "UpdateFramerate",
+      "Token": "0x06000B18",
+      "ParameterCount": 0,
+      "Va": "0x180CF8AD0",
+      "Rva": "0xCF8AD0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "TimeManager_OnLateUpdate",
+      "Token": "0x06000B19",
+      "ParameterCount": 0,
+      "Va": "0x180CF85B0",
+      "Rva": "0xCF85B0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "CanInitialize",
+      "Token": "0x06000B1A",
+      "ParameterCount": 0,
+      "Va": "0x180CF6F80",
+      "Rva": "0xCF6F80",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "ValidateSpawnablePrefabs",
+      "Token": "0x06000B1B",
+      "ParameterCount": 1,
+      "Va": "0x180CF8BF0",
+      "Rva": "0xCF8BF0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "SetDontDestroyOnLoad",
+      "Token": "0x06000B1C",
+      "ParameterCount": 0,
+      "Va": "0x180CF8550",
+      "Rva": "0xCF8550",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "SetRunInBackground",
+      "Token": "0x06000B1D",
+      "ParameterCount": 0,
+      "Va": "0x180CF85B0",
+      "Rva": "0xCF85B0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "GetOrCreateComponent",
+      "Token": "0x06000B1E",
+      "ParameterCount": 1,
+      "Va": "0x180E9F190",
+      "Rva": "0xE9F190",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "ClearClientsCollection",
+      "Token": "0x06000B1F",
+      "ParameterCount": 2,
+      "Va": "0x180CF7450",
+      "Rva": "0xCF7450",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "GetPooledInstantiated",
+      "Token": "0x06000B20",
+      "ParameterCount": 2,
+      "Va": "0x180CF7B20",
+      "Rva": "0xCF7B20",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "GetPooledInstantiated",
+      "Token": "0x06000B21",
+      "ParameterCount": 4,
+      "Va": "0x180CF7C00",
+      "Rva": "0xCF7C00",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "GetPooledInstantiated",
+      "Token": "0x06000B22",
+      "ParameterCount": 3,
+      "Va": "0x180CF77B0",
+      "Rva": "0xCF77B0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "GetPooledInstantiated",
+      "Token": "0x06000B23",
+      "ParameterCount": 2,
+      "Va": "0x180CF77F0",
+      "Rva": "0xCF77F0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "GetPooledInstantiated",
+      "Token": "0x06000B24",
+      "ParameterCount": 3,
+      "Va": "0x180CF7C80",
+      "Rva": "0xCF7C80",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "GetPooledInstantiated",
+      "Token": "0x06000B25",
+      "ParameterCount": 4,
+      "Va": "0x180CF7900",
+      "Rva": "0xCF7900",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "GetPooledInstantiated",
+      "Token": "0x06000B26",
+      "ParameterCount": 2,
+      "Va": "0x180CF7A40",
+      "Rva": "0xCF7A40",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "GetPooledInstantiated",
+      "Token": "0x06000B27",
+      "ParameterCount": 3,
+      "Va": "0x180CF7A80",
+      "Rva": "0xCF7A80",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "GetPooledInstantiated",
+      "Token": "0x06000B28",
+      "ParameterCount": 5,
+      "Va": "0x180CF7AB0",
+      "Rva": "0xCF7AB0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "StorePooledInstantiated",
+      "Token": "0x06000B29",
+      "ParameterCount": 3,
+      "Va": "0x180CF87B0",
+      "Rva": "0xCF87B0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "StorePooledInstantiated",
+      "Token": "0x06000B2A",
+      "ParameterCount": 2,
+      "Va": "0x180CF8940",
+      "Rva": "0xCF8940",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "CacheObjects",
+      "Token": "0x06000B2B",
+      "ParameterCount": 3,
+      "Va": "0x180CF6F50",
+      "Rva": "0xCF6F50",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "InitializeLogging",
+      "Token": "0x06000B2C",
+      "ParameterCount": 0,
+      "Va": "0x180CF80E0",
+      "Rva": "0xCF80E0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "StaticCanLog",
+      "Token": "0x06000B2D",
+      "ParameterCount": 1,
+      "Va": "0x180CF8620",
+      "Rva": "0xCF8620",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "CanLog",
+      "Token": "0x06000B2E",
+      "ParameterCount": 1,
+      "Va": "0x180CF7420",
+      "Rva": "0xCF7420",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "StaticLog",
+      "Token": "0x06000B2F",
+      "ParameterCount": 1,
+      "Va": "0x180CF8760",
+      "Rva": "0xCF8760",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "Log",
+      "Token": "0x06000B30",
+      "ParameterCount": 1,
+      "Va": "0x180CF82B0",
+      "Rva": "0xCF82B0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "Log",
+      "Token": "0x06000B31",
+      "ParameterCount": 2,
+      "Va": "0x180CF8220",
+      "Rva": "0xCF8220",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "StaticLogWarning",
+      "Token": "0x06000B32",
+      "ParameterCount": 1,
+      "Va": "0x180CF8710",
+      "Rva": "0xCF8710",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "LogWarning",
+      "Token": "0x06000B33",
+      "ParameterCount": 1,
+      "Va": "0x180CF81F0",
+      "Rva": "0xCF81F0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "StaticLogError",
+      "Token": "0x06000B34",
+      "ParameterCount": 1,
+      "Va": "0x180CF86C0",
+      "Rva": "0xCF86C0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "LogError",
+      "Token": "0x06000B35",
+      "ParameterCount": 1,
+      "Va": "0x180CF81C0",
+      "Rva": "0xCF81C0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "get_RollbackManager",
+      "Token": "0x06000B36",
+      "ParameterCount": 0,
+      "Va": "0x180544A20",
+      "Rva": "0x544A20",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "set_RollbackManager",
+      "Token": "0x06000B37",
+      "ParameterCount": 1,
+      "Va": "0x18063C330",
+      "Rva": "0x63C330",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "get_SpawnablePrefabs",
+      "Token": "0x06000B38",
+      "ParameterCount": 0,
+      "Va": "0x180675C70",
+      "Rva": "0x675C70",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "set_SpawnablePrefabs",
+      "Token": "0x06000B39",
+      "ParameterCount": 1,
+      "Va": "0x180675DA0",
+      "Rva": "0x675DA0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "get_RuntimeSpawnablePrefabs",
+      "Token": "0x06000B3A",
+      "ParameterCount": 0,
+      "Va": "0x180482410",
+      "Rva": "0x482410",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "GetPrefabObjects",
+      "Token": "0x06000B3B",
+      "ParameterCount": 2,
+      "Va": "0x180E9F290",
+      "Rva": "0xE9F290",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "RemoveSpawnableCollection",
+      "Token": "0x06000B3C",
+      "ParameterCount": 1,
+      "Va": "0x180CF84F0",
+      "Rva": "0xCF84F0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "GetPrefabIndex",
+      "Token": "0x06000B3D",
+      "ParameterCount": 2,
+      "Va": "0x180CF7D90",
+      "Rva": "0xCF7D90",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "GetPrefab",
+      "Token": "0x06000B3E",
+      "ParameterCount": 2,
+      "Va": "0x180CF7E90",
+      "Rva": "0xCF7E90",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "RegisterInvokeOnInstance",
+      "Token": "0x06000B3F",
+      "ParameterCount": 1,
+      "Va": "0x180E9F5E0",
+      "Rva": "0xE9F5E0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "UnregisterInvokeOnInstance",
+      "Token": "0x06000B40",
+      "ParameterCount": 1,
+      "Va": "0x180E9FA10",
+      "Rva": "0xE9FA10",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "HasInstance",
+      "Token": "0x06000B41",
+      "ParameterCount": 0,
+      "Va": "0x180E9F3B0",
+      "Rva": "0xE9F3B0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "GetInstance",
+      "Token": "0x06000B42",
+      "ParameterCount": 0,
+      "Va": "0x180E9F0D0",
+      "Rva": "0xE9F0D0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "GetInstance",
+      "Token": "0x06000B43",
+      "ParameterCount": 1,
+      "Va": "0x180E9F010",
+      "Rva": "0xE9F010",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "TryGetInstance",
+      "Token": "0x06000B44",
+      "ParameterCount": 1,
+      "Va": "0x180E9F7A0",
+      "Rva": "0xE9F7A0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "RegisterInstance",
+      "Token": "0x06000B45",
+      "ParameterCount": 2,
+      "Va": "0x180E9F400",
+      "Rva": "0xE9F400",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "TryRegisterInstance",
+      "Token": "0x06000B46",
+      "ParameterCount": 1,
+      "Va": "0x180E9F8F0",
+      "Rva": "0xE9F8F0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "UnregisterInstance",
+      "Token": "0x06000B47",
+      "ParameterCount": 0,
+      "Va": "0x180E9F9A0",
+      "Rva": "0xE9F9A0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "RemoveNullPendingDelegates",
+      "Token": "0x06000B48",
+      "ParameterCount": 0,
+      "Va": "0x180CF8360",
+      "Rva": "0xCF8360",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": "GetInstanceName",
+      "Token": "0x06000B49",
+      "ParameterCount": 0,
+      "Va": "0x180E9EF90",
+      "Rva": "0xE9EF90",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": ".ctor",
+      "Token": "0x06000B4A",
+      "ParameterCount": 0,
+      "Va": "0x180CF8F10",
+      "Rva": "0xCF8F10",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.NetworkManager",
+      "Name": ".cctor",
+      "Token": "0x06000B4B",
+      "ParameterCount": 0,
+      "Va": "0x180CF8E20",
+      "Rva": "0xCF8E20",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Server.ServerObjects",
+      "Name": "add_OnPreDestroyClientObjects",
+      "Token": "0x06000BB3",
+      "ParameterCount": 1,
+      "Va": "0x180D06680",
+      "Rva": "0xD06680",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Server.ServerObjects",
+      "Name": "remove_OnPreDestroyClientObjects",
+      "Token": "0x06000BB4",
+      "ParameterCount": 1,
+      "Va": "0x180D067C0",
+      "Rva": "0xD067C0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Server.ServerObjects",
+      "Name": "GetObjectIdCache",
+      "Token": "0x06000BB5",
+      "ParameterCount": 0,
+      "Va": "0x1804610C0",
+      "Rva": "0x4610C0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Server.ServerObjects",
+      "Name": "get__cleanRecentlyDespawnedMaxTicks",
+      "Token": "0x06000BB6",
+      "ParameterCount": 0,
+      "Va": "0x180D06730",
+      "Rva": "0xD06730",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Server.ServerObjects",
+      "Name": ".ctor",
+      "Token": "0x06000BB7",
+      "ParameterCount": 1,
+      "Va": "0x180D06290",
+      "Rva": "0xD06290",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Server.ServerObjects",
+      "Name": "TimeManager_OnUpdate",
+      "Token": "0x06000BB8",
+      "ParameterCount": 0,
+      "Va": "0x180D05650",
+      "Rva": "0xD05650",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Server.ServerObjects",
+      "Name": "WriteDirtySyncTypes",
+      "Token": "0x06000BB9",
+      "ParameterCount": 0,
+      "Va": "0x180D06260",
+      "Rva": "0xD06260",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Server.ServerObjects",
+      "Name": "SetDirtySyncType",
+      "Token": "0x06000BBA",
+      "ParameterCount": 2,
+      "Va": "0x180D04260",
+      "Rva": "0xD04260",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Server.ServerObjects",
+      "Name": "OnServerConnectionState",
+      "Token": "0x06000BBB",
+      "ParameterCount": 1,
+      "Va": "0x180D01050",
+      "Rva": "0xD01050",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Server.ServerObjects",
+      "Name": "ClientDisconnected",
+      "Token": "0x06000BBC",
+      "ParameterCount": 1,
+      "Va": "0x180D00390",
+      "Rva": "0xD00390",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Server.ServerObjects",
+      "Name": "BuildObjectIdCache",
+      "Token": "0x06000BBD",
+      "ParameterCount": 0,
+      "Va": "0x180CFFD60",
+      "Rva": "0xCFFD60",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Server.ServerObjects",
+      "Name": "CacheObjectId",
+      "Token": "0x06000BBE",
+      "ParameterCount": 1,
+      "Va": "0x180CFFF90",
+      "Rva": "0xCFFF90",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Server.ServerObjects",
+      "Name": "CacheObjectId",
+      "Token": "0x06000BBF",
+      "ParameterCount": 1,
+      "Va": "0x180CFFF30",
+      "Rva": "0xCFFF30",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Server.ServerObjects",
+      "Name": "GetNextNetworkObjectId",
+      "Token": "0x06000BC0",
+      "ParameterCount": 1,
+      "Va": "0x180D00DE0",
+      "Rva": "0xD00DE0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Server.ServerObjects",
+      "Name": "SceneManager_OnLoadStart",
+      "Token": "0x06000BC1",
+      "ParameterCount": 1,
+      "Va": "0x180D04130",
+      "Rva": "0xD04130",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Server.ServerObjects",
+      "Name": "SceneManager_OnActiveSceneSet",
+      "Token": "0x06000BC2",
+      "ParameterCount": 0,
+      "Va": "0x180D04120",
+      "Rva": "0xD04120",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Server.ServerObjects",
+      "Name": "IterateLoadedScenes",
+      "Token": "0x06000BC3",
+      "ParameterCount": 1,
+      "Va": "0x180D00EC0",
+      "Rva": "0xD00EC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Server.ServerObjects",
+      "Name": "SceneManager_sceneLoaded",
+      "Token": "0x06000BC4",
+      "ParameterCount": 2,
+      "Va": "0x180D04140",
+      "Rva": "0xD04140",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Server.ServerObjects",
+      "Name": "SetupSceneObjects",
+      "Token": "0x06000BC5",
+      "ParameterCount": 0,
+      "Va": "0x180D042D0",
+      "Rva": "0xD042D0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Server.ServerObjects",
+      "Name": "SetupSceneObjects",
+      "Token": "0x06000BC6",
+      "ParameterCount": 1,
+      "Va": "0x180D043C0",
+      "Rva": "0xD043C0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Server.ServerObjects",
+      "Name": "SetupWithoutSynchronization",
+      "Token": "0x06000BC7",
+      "ParameterCount": 3,
+      "Va": "0x180D04830",
+      "Rva": "0xD04830",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Server.ServerObjects",
+      "Name": "Spawn",
+      "Token": "0x06000BC8",
+      "ParameterCount": 3,
+      "Va": "0x180D04F60",
+      "Rva": "0xD04F60",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Server.ServerObjects",
+      "Name": "SpawnWithoutChecks",
+      "Token": "0x06000BC9",
+      "ParameterCount": 3,
+      "Va": "0x180D04970",
+      "Rva": "0xD04970",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Server.ServerObjects",
+      "Name": "ReadPredictedSpawn",
+      "Token": "0x06000BCA",
+      "ParameterCount": 2,
+      "Va": "0x180D018C0",
+      "Rva": "0xD018C0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Server.ServerObjects",
+      "Name": "CleanRecentlyDespawned",
+      "Token": "0x06000BCB",
+      "ParameterCount": 0,
+      "Va": "0x180D00000",
+      "Rva": "0xD00000",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Server.ServerObjects",
+      "Name": "RecentlyDespawned",
+      "Token": "0x06000BCC",
+      "ParameterCount": 2,
+      "Va": "0x180D03910",
+      "Rva": "0xD03910",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Server.ServerObjects",
+      "Name": "AddToPending",
+      "Token": "0x06000BCD",
+      "ParameterCount": 1,
+      "Va": "0x180CFFD00",
+      "Rva": "0xCFFD00",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Server.ServerObjects",
+      "Name": "RemoveFromPending",
+      "Token": "0x06000BCE",
+      "ParameterCount": 1,
+      "Va": "0x180D03BE0",
+      "Rva": "0xD03BE0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Server.ServerObjects",
+      "Name": "GetFromPending",
+      "Token": "0x06000BCF",
+      "ParameterCount": 1,
+      "Va": "0x180D00D70",
+      "Rva": "0xD00D70",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Server.ServerObjects",
+      "Name": "DestroyPending",
+      "Token": "0x06000BD0",
+      "ParameterCount": 0,
+      "Va": "0x180D009F0",
+      "Rva": "0xD009F0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Server.ServerObjects",
+      "Name": "Despawn",
+      "Token": "0x06000BD1",
+      "ParameterCount": 3,
+      "Va": "0x180D00670",
+      "Rva": "0xD00670",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Server.ServerObjects",
+      "Name": "NetworkObjectUnexpectedlyDestroyed",
+      "Token": "0x06000BD2",
+      "ParameterCount": 2,
+      "Va": "0x180D00FF0",
+      "Rva": "0xD00FF0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Server.ServerObjects",
+      "Name": "FinalizeDespawn",
+      "Token": "0x06000BD3",
+      "ParameterCount": 2,
+      "Va": "0x180D00BC0",
+      "Rva": "0xD00BC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Server.ServerObjects",
+      "Name": "WriteDespawnAndSend",
+      "Token": "0x06000BD4",
+      "ParameterCount": 2,
+      "Va": "0x180D05E00",
+      "Rva": "0xD05E00",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Server.ServerObjects",
+      "Name": "ReadPredictedDespawn",
+      "Token": "0x06000BD5",
+      "ParameterCount": 2,
+      "Va": "0x180D01720",
+      "Rva": "0xD01720",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Server.ServerObjects",
+      "Name": "Observers_OnUpdate",
+      "Token": "0x06000BD6",
+      "ParameterCount": 0,
+      "Va": "0x180D01040",
+      "Rva": "0xD01040",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Server.ServerObjects",
+      "Name": "UpdateTimedObservers",
+      "Token": "0x06000BD7",
+      "ParameterCount": 0,
+      "Va": "0x180D05AB0",
+      "Rva": "0xD05AB0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Server.ServerObjects",
+      "Name": "AddTimedNetworkObserver",
+      "Token": "0x06000BD8",
+      "ParameterCount": 1,
+      "Va": "0x180CFFC50",
+      "Rva": "0xCFFC50",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Server.ServerObjects",
+      "Name": "RemoveTimedNetworkObserver",
+      "Token": "0x06000BD9",
+      "ParameterCount": 1,
+      "Va": "0x180D03C40",
+      "Rva": "0xD03C40",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Server.ServerObjects",
+      "Name": "RetrieveAuthenticatedConnections",
+      "Token": "0x06000BDA",
+      "ParameterCount": 0,
+      "Va": "0x180D03CA0",
+      "Rva": "0xD03CA0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Server.ServerObjects",
+      "Name": "RetrieveOrderedSpawnedObjects",
+      "Token": "0x06000BDB",
+      "ParameterCount": 0,
+      "Va": "0x180D03E60",
+      "Rva": "0xD03E60",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Server.ServerObjects",
+      "Name": "OrderRootByInitializationOrder",
+      "Token": "0x06000BDC",
+      "ParameterCount": 3,
+      "Va": "0x180D014D0",
+      "Rva": "0xD014D0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Server.ServerObjects",
+      "Name": "OrderNestedByInitializationOrder",
+      "Token": "0x06000BDD",
+      "ParameterCount": 1,
+      "Va": "0x180D01410",
+      "Rva": "0xD01410",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Server.ServerObjects",
+      "Name": "RemoveFromObserversWithoutSynchronization",
+      "Token": "0x06000BDE",
+      "ParameterCount": 1,
+      "Va": "0x180D039C0",
+      "Rva": "0xD039C0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Server.ServerObjects",
+      "Name": "RebuildObservers",
+      "Token": "0x06000BDF",
+      "ParameterCount": 1,
+      "Va": "0x180D02930",
+      "Rva": "0xD02930",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Server.ServerObjects",
+      "Name": "RebuildObservers",
+      "Token": "0x06000BE0",
+      "ParameterCount": 2,
+      "Va": "0x180D02B00",
+      "Rva": "0xD02B00",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Server.ServerObjects",
+      "Name": "RebuildObservers",
+      "Token": "0x06000BE1",
+      "ParameterCount": 2,
+      "Va": "0x180D02A10",
+      "Rva": "0xD02A10",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Server.ServerObjects",
+      "Name": "RebuildObservers",
+      "Token": "0x06000BE2",
+      "ParameterCount": 2,
+      "Va": "0x180D02240",
+      "Rva": "0xD02240",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Server.ServerObjects",
+      "Name": "RebuildObservers",
+      "Token": "0x06000BE3",
+      "ParameterCount": 2,
+      "Va": "0x180D023F0",
+      "Rva": "0xD023F0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Server.ServerObjects",
+      "Name": "RebuildObservers",
+      "Token": "0x06000BE4",
+      "ParameterCount": 3,
+      "Va": "0x180D02880",
+      "Rva": "0xD02880",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Server.ServerObjects",
+      "Name": "RebuildObservers",
+      "Token": "0x06000BE5",
+      "ParameterCount": 3,
+      "Va": "0x180D02480",
+      "Rva": "0xD02480",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Server.ServerObjects",
+      "Name": "RebuildObservers",
+      "Token": "0x06000BE6",
+      "ParameterCount": 3,
+      "Va": "0x180D02BF0",
+      "Rva": "0xD02BF0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Server.ServerObjects",
+      "Name": "RebuildObservers",
+      "Token": "0x06000BE7",
+      "ParameterCount": 2,
+      "Va": "0x180D022D0",
+      "Rva": "0xD022D0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Server.ServerObjects",
+      "Name": "RebuildObservers",
+      "Token": "0x06000BE8",
+      "ParameterCount": 2,
+      "Va": "0x180D02360",
+      "Rva": "0xD02360",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Server.ServerObjects",
+      "Name": "RebuildObservers",
+      "Token": "0x06000BE9",
+      "ParameterCount": 3,
+      "Va": "0x180D03860",
+      "Rva": "0xD03860",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Server.ServerObjects",
+      "Name": "RebuildObservers",
+      "Token": "0x06000BEA",
+      "ParameterCount": 3,
+      "Va": "0x180D03120",
+      "Rva": "0xD03120",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Server.ServerObjects",
+      "Name": "RebuildObservers",
+      "Token": "0x06000BEB",
+      "ParameterCount": 3,
+      "Va": "0x180D031D0",
+      "Rva": "0xD031D0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Server.ServerObjects",
+      "Name": "RebuildObservers",
+      "Token": "0x06000BEC",
+      "ParameterCount": 3,
+      "Va": "0x180D02530",
+      "Rva": "0xD02530",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Server.ServerObjects",
+      "Name": "RebuildObservers",
+      "Token": "0x06000BED",
+      "ParameterCount": 4,
+      "Va": "0x180D03580",
+      "Rva": "0xD03580",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Server.ServerObjects",
+      "Name": "ParseServerRpc",
+      "Token": "0x06000BEE",
+      "ParameterCount": 3,
+      "Va": "0x180D01600",
+      "Rva": "0xD01600",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Server.ServerObjects",
+      "Name": "<WriteDirtySyncTypes>g__IterateCollection|16_0",
+      "Token": "0x06000BEF",
+      "ParameterCount": 2,
+      "Va": "0x180D059F0",
+      "Rva": "0xD059F0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Server.ServerObjects",
+      "Name": "<ReadPredictedSpawn>g__WriteResponse|33_0",
+      "Token": "0x06000BF0",
+      "ParameterCount": 2,
+      "Va": "0x180D05820",
+      "Rva": "0xD05820",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Server.ServerObjects",
+      "Name": "<OrderNestedByInitializationOrder>g__AddChildNetworkObjects|56_0",
+      "Token": "0x06000BF1",
+      "ParameterCount": 3,
+      "Va": "0x180D056E0",
+      "Rva": "0xD056E0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Object.ManagedObjects",
+      "Name": "GetNextNetworkObjectId",
+      "Token": "0x06000D78",
+      "ParameterCount": 1,
+      "Va": "0x180D14260",
+      "Rva": "0xD14260",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Object.ManagedObjects",
+      "Name": "get_NetworkManager",
+      "Token": "0x06000D79",
+      "ParameterCount": 0,
+      "Va": "0x18043F260",
+      "Rva": "0x43F260",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Object.ManagedObjects",
+      "Name": "set_NetworkManager",
+      "Token": "0x06000D7A",
+      "ParameterCount": 1,
+      "Va": "0x180460F80",
+      "Rva": "0x460F80",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Object.ManagedObjects",
+      "Name": "get_SceneObjects",
+      "Token": "0x06000D7B",
+      "ParameterCount": 0,
+      "Va": "0x180421DC0",
+      "Rva": "0x421DC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Object.ManagedObjects",
+      "Name": "Initialize",
+      "Token": "0x06000D7C",
+      "ParameterCount": 1,
+      "Va": "0x180D14670",
+      "Rva": "0xD14670",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Object.ManagedObjects",
+      "Name": "SubscribeToSceneLoaded",
+      "Token": "0x06000D7D",
+      "ParameterCount": 1,
+      "Va": "0x180D14ED0",
+      "Rva": "0xD14ED0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Object.ManagedObjects",
+      "Name": "SceneManager_sceneLoaded",
+      "Token": "0x06000D7E",
+      "ParameterCount": 2,
+      "Va": "0x18043FEC0",
+      "Rva": "0x43FEC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Object.ManagedObjects",
+      "Name": "NetworkObjectUnexpectedlyDestroyed",
+      "Token": "0x06000D7F",
+      "ParameterCount": 2,
+      "Va": "0x180D146E0",
+      "Rva": "0xD146E0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Object.ManagedObjects",
+      "Name": "RemoveFromSpawned",
+      "Token": "0x06000D80",
+      "ParameterCount": 3,
+      "Va": "0x180D14C20",
+      "Rva": "0xD14C20",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Object.ManagedObjects",
+      "Name": "Despawn",
+      "Token": "0x06000D81",
+      "ParameterCount": 3,
+      "Va": "0x180D13D70",
+      "Rva": "0xD13D70",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Object.ManagedObjects",
+      "Name": "UpdateNetworkBehavioursForSceneObject",
+      "Token": "0x06000D82",
+      "ParameterCount": 2,
+      "Va": "0x180D15170",
+      "Rva": "0xD15170",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Object.ManagedObjects",
+      "Name": "InitializePrefab",
+      "Token": "0x06000D83",
+      "ParameterCount": 3,
+      "Va": "0x180D14590",
+      "Rva": "0xD14590",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Object.ManagedObjects",
+      "Name": "DespawnWithoutSynchronization",
+      "Token": "0x06000D84",
+      "ParameterCount": 1,
+      "Va": "0x180D13A60",
+      "Rva": "0xD13A60",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Object.ManagedObjects",
+      "Name": "DespawnWithoutSynchronization",
+      "Token": "0x06000D85",
+      "ParameterCount": 4,
+      "Va": "0x180D13C10",
+      "Rva": "0xD13C10",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Object.ManagedObjects",
+      "Name": "AddToSpawned",
+      "Token": "0x06000D86",
+      "ParameterCount": 2,
+      "Va": "0x180D13350",
+      "Rva": "0xD13350",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Object.ManagedObjects",
+      "Name": "AddToSceneObjects",
+      "Token": "0x06000D87",
+      "ParameterCount": 1,
+      "Va": "0x180D132F0",
+      "Rva": "0xD132F0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Object.ManagedObjects",
+      "Name": "RemoveFromSceneObjects",
+      "Token": "0x06000D88",
+      "ParameterCount": 1,
+      "Va": "0x180D14BC0",
+      "Rva": "0xD14BC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Object.ManagedObjects",
+      "Name": "RemoveFromSceneObjects",
+      "Token": "0x06000D89",
+      "ParameterCount": 1,
+      "Va": "0x180D14B60",
+      "Rva": "0xD14B60",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Object.ManagedObjects",
+      "Name": "GetSpawnedNetworkObject",
+      "Token": "0x06000D8A",
+      "ParameterCount": 1,
+      "Va": "0x180D14370",
+      "Rva": "0xD14370",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Object.ManagedObjects",
+      "Name": "SkipDataLength",
+      "Token": "0x06000D8B",
+      "ParameterCount": 4,
+      "Va": "0x180D14CE0",
+      "Rva": "0xD14CE0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Object.ManagedObjects",
+      "Name": "ParseReplicateRpc",
+      "Token": "0x06000D8C",
+      "ParameterCount": 3,
+      "Va": "0x180D14770",
+      "Rva": "0xD14770",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Object.ManagedObjects",
+      "Name": "ReadTransformProperties",
+      "Token": "0x06000D8D",
+      "ParameterCount": 4,
+      "Va": "0x180D14890",
+      "Rva": "0xD14890",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Object.ManagedObjects",
+      "Name": "WriteSpawn_Server",
+      "Token": "0x06000D8E",
+      "ParameterCount": 3,
+      "Va": "0x180D15530",
+      "Rva": "0xD15530",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Object.ManagedObjects",
+      "Name": "WriteChangedTransformProperties",
+      "Token": "0x06000D8F",
+      "ParameterCount": 4,
+      "Va": "0x180D15220",
+      "Rva": "0xD15220",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Object.ManagedObjects",
+      "Name": "WriteDespawn",
+      "Token": "0x06000D90",
+      "ParameterCount": 3,
+      "Va": "0x180D154C0",
+      "Rva": "0xD154C0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Object.ManagedObjects",
+      "Name": "GetTransformProperties",
+      "Token": "0x06000D91",
+      "ParameterCount": 7,
+      "Va": "0x180D14430",
+      "Rva": "0xD14430",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Object.ManagedObjects",
+      "Name": "GetSceneNetworkObject",
+      "Token": "0x06000D92",
+      "ParameterCount": 1,
+      "Va": "0x180D14270",
+      "Rva": "0xD14270",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Object.ManagedObjects",
+      "Name": "CanPredictedSpawn",
+      "Token": "0x06000D93",
+      "ParameterCount": 5,
+      "Va": "0x180D13700",
+      "Rva": "0xD13700",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Object.ManagedObjects",
+      "Name": "CanPredictedDespawn",
+      "Token": "0x06000D94",
+      "ParameterCount": 4,
+      "Va": "0x180D133B0",
+      "Rva": "0xD133B0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Object.ManagedObjects",
+      "Name": ".ctor",
+      "Token": "0x06000D95",
+      "ParameterCount": 0,
+      "Va": "0x180D15CC0",
+      "Rva": "0xD15CC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Object.ManagedObjects",
+      "Name": "<WriteSpawn_Server>g__ParentIsSpawned|28_0",
+      "Token": "0x06000D96",
+      "ParameterCount": 3,
+      "Va": "0x180D14FC0",
+      "Rva": "0xD14FC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Client.ClientObjects",
+      "Name": ".ctor",
+      "Token": "0x06000E0C",
+      "ParameterCount": 1,
+      "Va": "0x180D11870",
+      "Rva": "0xD11870",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Client.ClientObjects",
+      "Name": "OnServerConnectionState",
+      "Token": "0x06000E0D",
+      "ParameterCount": 1,
+      "Va": "0x180D0FE60",
+      "Rva": "0xD0FE60",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Client.ClientObjects",
+      "Name": "OnClientConnectionState",
+      "Token": "0x06000E0E",
+      "ParameterCount": 1,
+      "Va": "0x180D0FC30",
+      "Rva": "0xD0FC30",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Client.ClientObjects",
+      "Name": "SceneManager_sceneLoaded",
+      "Token": "0x06000E0F",
+      "ParameterCount": 2,
+      "Va": "0x180D11460",
+      "Rva": "0xD11460",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Client.ClientObjects",
+      "Name": "AddToSpawned",
+      "Token": "0x06000E10",
+      "ParameterCount": 2,
+      "Va": "0x180D0E500",
+      "Rva": "0xD0E500",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Client.ClientObjects",
+      "Name": "RemoveFromSpawned",
+      "Token": "0x06000E11",
+      "ParameterCount": 3,
+      "Va": "0x180D112C0",
+      "Rva": "0xD112C0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Client.ClientObjects",
+      "Name": "PredictedSpawn",
+      "Token": "0x06000E12",
+      "ParameterCount": 2,
+      "Va": "0x180D108E0",
+      "Rva": "0xD108E0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Client.ClientObjects",
+      "Name": "WriteSpawn",
+      "Token": "0x06000E13",
+      "ParameterCount": 2,
+      "Va": "0x180D11570",
+      "Rva": "0xD11570",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Client.ClientObjects",
+      "Name": "PredictedDespawn",
+      "Token": "0x06000E14",
+      "ParameterCount": 1,
+      "Va": "0x180D107B0",
+      "Rva": "0xD107B0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Client.ClientObjects",
+      "Name": "WriteDepawn",
+      "Token": "0x06000E15",
+      "ParameterCount": 2,
+      "Va": "0x180D11520",
+      "Rva": "0xD11520",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Client.ClientObjects",
+      "Name": "RegisterAndDespawnSceneObjects",
+      "Token": "0x06000E16",
+      "ParameterCount": 0,
+      "Va": "0x180D11000",
+      "Rva": "0xD11000",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Client.ClientObjects",
+      "Name": "RegisterAndDespawnSceneObjects",
+      "Token": "0x06000E17",
+      "ParameterCount": 1,
+      "Va": "0x180D10DB0",
+      "Rva": "0xD10DB0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Client.ClientObjects",
+      "Name": "NetworkObjectUnexpectedlyDestroyed",
+      "Token": "0x06000E18",
+      "ParameterCount": 2,
+      "Va": "0x180D0FB80",
+      "Rva": "0xD0FB80",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Client.ClientObjects",
+      "Name": "ParseOwnershipChange",
+      "Token": "0x06000E19",
+      "ParameterCount": 1,
+      "Va": "0x180D10010",
+      "Rva": "0xD10010",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Client.ClientObjects",
+      "Name": "ParseSyncType",
+      "Token": "0x06000E1A",
+      "ParameterCount": 3,
+      "Va": "0x180D10550",
+      "Rva": "0xD10550",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Client.ClientObjects",
+      "Name": "ParsePredictedSpawnResult",
+      "Token": "0x06000E1B",
+      "ParameterCount": 1,
+      "Va": "0x180D10100",
+      "Rva": "0xD10100",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Client.ClientObjects",
+      "Name": "ParseReconcileRpc",
+      "Token": "0x06000E1C",
+      "ParameterCount": 2,
+      "Va": "0x180D10220",
+      "Rva": "0xD10220",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Client.ClientObjects",
+      "Name": "ParseObserversRpc",
+      "Token": "0x06000E1D",
+      "ParameterCount": 2,
+      "Va": "0x180D0FF00",
+      "Rva": "0xD0FF00",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Client.ClientObjects",
+      "Name": "ParseTargetRpc",
+      "Token": "0x06000E1E",
+      "ParameterCount": 2,
+      "Va": "0x180D106A0",
+      "Rva": "0xD106A0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Client.ClientObjects",
+      "Name": "CacheSpawn",
+      "Token": "0x06000E1F",
+      "ParameterCount": 1,
+      "Va": "0x180D0E920",
+      "Rva": "0xD0E920",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Client.ClientObjects",
+      "Name": "CacheDespawn",
+      "Token": "0x06000E20",
+      "ParameterCount": 1,
+      "Va": "0x180D0E880",
+      "Rva": "0xD0E880",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Client.ClientObjects",
+      "Name": "IterateObjectCache",
+      "Token": "0x06000E21",
+      "ParameterCount": 0,
+      "Va": "0x180D0FB60",
+      "Rva": "0xD0FB60",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Client.ClientObjects",
+      "Name": "GetNestedNetworkObject",
+      "Token": "0x06000E22",
+      "ParameterCount": 1,
+      "Va": "0x180D0F8A0",
+      "Rva": "0xD0F8A0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Client.ClientObjects",
+      "Name": "ApplyRpcLinks",
+      "Token": "0x06000E23",
+      "ParameterCount": 2,
+      "Va": "0x180D0E610",
+      "Rva": "0xD0E610",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Client.ClientObjects",
+      "Name": "GetInstantiatedNetworkObject",
+      "Token": "0x06000E24",
+      "ParameterCount": 1,
+      "Va": "0x180D0F190",
+      "Rva": "0xD0F190",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Client.ClientObjects",
+      "Name": "GetSpawnedNetworkObject",
+      "Token": "0x06000E25",
+      "ParameterCount": 1,
+      "Va": "0x180D0FAD0",
+      "Rva": "0xD0FAD0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Client.ClientObjects",
+      "Name": "ReadSceneObject",
+      "Token": "0x06000E26",
+      "ParameterCount": 2,
+      "Va": "0x180D10B60",
+      "Rva": "0xD10B60",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Client.ClientObjects",
+      "Name": "ReadSpawnedObject",
+      "Token": "0x06000E27",
+      "ParameterCount": 4,
+      "Va": "0x180D10B90",
+      "Rva": "0xD10B90",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Client.ClientObjects",
+      "Name": "ParseRpcLink",
+      "Token": "0x06000E28",
+      "ParameterCount": 3,
+      "Va": "0x180D10330",
+      "Rva": "0xD10330",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Client.ClientObjects",
+      "Name": "SetRpcLink",
+      "Token": "0x06000E29",
+      "ParameterCount": 2,
+      "Va": "0x180D114B0",
+      "Rva": "0xD114B0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Managing.Client.ClientObjects",
+      "Name": "RemoveLinkIndexes",
+      "Token": "0x06000E2A",
+      "ParameterCount": 1,
+      "Va": "0x180D113B0",
+      "Rva": "0xD113B0",
+      "NativePointerPresent": true
+    }
+  ],
+  "Disassembled": [
+    {
+      "Method": {
+        "Type": "FishNet.Object.NetworkBehaviour",
+        "Name": "get_IsSpawned",
+        "Token": "0x06000641",
+        "ParameterCount": 0,
+        "Va": "0x180CCB1D0",
+        "Rva": "0xCCB1D0",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 47,
+      "Instructions": 15,
+      "BytesSha256": "cbf754383e63c7932263f476fe7d0830679d3f7cb702d65dc27a3fc50950746c",
+      "TextFile": "0x06000641-get_IsSpawned.txt"
+    },
+    {
+      "Method": {
+        "Type": "FishNet.Object.NetworkBehaviour",
+        "Name": "Preinitialize_Internal",
+        "Token": "0x06000646",
+        "ParameterCount": 2,
+        "Va": "0x180CC7E40",
+        "Rva": "0xCC7E40",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 108,
+      "Instructions": 32,
+      "BytesSha256": "8f8ca41cffa6fdd05b940f81c262c66e18be45410f4306a49af0173fdb17df72",
+      "TextFile": "0x06000646-Preinitialize_Internal.txt"
+    },
+    {
+      "Method": {
+        "Type": "FishNet.Object.NetworkBehaviour",
+        "Name": "SerializeComponents",
+        "Token": "0x06000648",
+        "ParameterCount": 2,
+        "Va": "0x180CC9290",
+        "Rva": "0xCC9290",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 45,
+      "Instructions": 13,
+      "BytesSha256": "afb93b8119d6eda29fbdc283dd449f4546c0b52f1e05ab70888a2f8ea70a7886",
+      "TextFile": "0x06000648-SerializeComponents.txt"
+    },
+    {
+      "Method": {
+        "Type": "FishNet.Object.NetworkBehaviour",
+        "Name": "InitializeIfDisabled",
+        "Token": "0x06000649",
+        "ParameterCount": 0,
+        "Va": "0x180CC51E0",
+        "Rva": "0xCC51E0",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 72,
+      "Instructions": 23,
+      "BytesSha256": "1251be8dc5c270928fc546a0345cfb195d914f06323c276c2c75a70518ef7776",
+      "TextFile": "0x06000649-InitializeIfDisabled.txt"
+    },
+    {
+      "Method": {
+        "Type": "FishNet.Object.NetworkBehaviour",
+        "Name": "get_IsNetworked",
+        "Token": "0x0600067D",
+        "ParameterCount": 0,
+        "Va": "0x180CCB0B0",
+        "Rva": "0xCCB0B0",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 31,
+      "Instructions": 9,
+      "BytesSha256": "3ab35401d653934b779ae83f0773a3ff2f9f007f8bc359f35ba0a470e86df917",
+      "TextFile": "0x0600067D-get_IsNetworked.txt"
+    },
+    {
+      "Method": {
+        "Type": "FishNet.Object.NetworkBehaviour",
+        "Name": "get_ObjectId",
+        "Token": "0x06000682",
+        "ParameterCount": 0,
+        "Va": "0x180CCB300",
+        "Rva": "0xCCB300",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 27,
+      "Instructions": 9,
+      "BytesSha256": "63dc38f0af148c04e955193bfdb6654b095f55fc6cc758cb39788accbdaae0bf",
+      "TextFile": "0x06000682-get_ObjectId.txt"
+    },
+    {
+      "Method": {
+        "Type": "FishNet.Object.NetworkBehaviour",
+        "Name": ".ctor",
+        "Token": "0x060006B3",
+        "ParameterCount": 0,
+        "Va": "0x180CCAC60",
+        "Rva": "0xCCAC60",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 840,
+      "Instructions": 161,
+      "BytesSha256": "61103591673f107d2884d5caf27e15d59715554bced0ca21f03130d2b9f91f7c",
+      "TextFile": "0x060006B3-_ctor.txt"
+    },
+    {
+      "Method": {
+        "Type": "FishNet.Object.NetworkObject",
+        "Name": "Awake",
+        "Token": "0x060006E8",
+        "ParameterCount": 0,
+        "Va": "0x180CCB640",
+        "Rva": "0xCCB640",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 305,
+      "Instructions": 78,
+      "BytesSha256": "f3d1ad52d72a69872603721f210b4ac282d8a3ac883e46b15a04c511f45e5ff8",
+      "TextFile": "0x060006E8-Awake.txt"
+    },
+    {
+      "Method": {
+        "Type": "FishNet.Object.NetworkObject",
+        "Name": "Start",
+        "Token": "0x060006E9",
+        "ParameterCount": 0,
+        "Va": "0x180CCED00",
+        "Rva": "0xCCED00",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 50,
+      "Instructions": 10,
+      "BytesSha256": "ae59201544dfd4195adfd7aef8bb6c942d7d11fad99d2ca169c038a3677aef46",
+      "TextFile": "0x060006E9-Start.txt"
+    },
+    {
+      "Method": {
+        "Type": "FishNet.Object.NetworkObject",
+        "Name": "OnDisable",
+        "Token": "0x060006EB",
+        "ParameterCount": 0,
+        "Va": "0x180CCD690",
+        "Rva": "0xCCD690",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 427,
+      "Instructions": 112,
+      "BytesSha256": "bc1b84738d2da814913bf8b6839e86490764e5dac8635ef4c19785a4a1637190",
+      "TextFile": "0x060006EB-OnDisable.txt"
+    },
+    {
+      "Method": {
+        "Type": "FishNet.Object.NetworkObject",
+        "Name": "OnDestroy",
+        "Token": "0x060006EC",
+        "ParameterCount": 0,
+        "Va": "0x180CCD410",
+        "Rva": "0xCCD410",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 95,
+      "Instructions": 18,
+      "BytesSha256": "4abb244e91bf627c82ab514f8b6ee0067d8e331d9bbcf1597895964232c85797",
+      "TextFile": "0x060006EC-OnDestroy.txt"
+    },
+    {
+      "Method": {
+        "Type": "FishNet.Object.NetworkObject",
+        "Name": "InitializeNetworkBehavioursIfDisabled",
+        "Token": "0x060006ED",
+        "ParameterCount": 0,
+        "Va": "0x180CCCAD0",
+        "Rva": "0xCCCAD0",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 22,
+      "Instructions": 5,
+      "BytesSha256": "cc1ffa0cf72bec210916a8de742e6eed0b112167fb31db29d22468a6caf01f66",
+      "TextFile": "0x060006ED-InitializeNetworkBehavioursIfDisabled.txt"
+    },
+    {
+      "Method": {
+        "Type": "FishNet.Object.NetworkObject",
+        "Name": "SetChildDespawnedState",
+        "Token": "0x060006EF",
+        "ParameterCount": 0,
+        "Va": "0x180CCE4A0",
+        "Rva": "0xCCE4A0",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 180,
+      "Instructions": 52,
+      "BytesSha256": "3e39e0d5caa9f8549dc29d4dcc60dc92a9e5af60a7f2016a321f841ca2fdfbba",
+      "TextFile": "0x060006EF-SetChildDespawnedState.txt"
+    },
+    {
+      "Method": {
+        "Type": "FishNet.Object.NetworkObject",
+        "Name": "TryStartDeactivation",
+        "Token": "0x060006F0",
+        "ParameterCount": 0,
+        "Va": "0x180CCED00",
+        "Rva": "0xCCED00",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 50,
+      "Instructions": 10,
+      "BytesSha256": "ae59201544dfd4195adfd7aef8bb6c942d7d11fad99d2ca169c038a3677aef46",
+      "TextFile": "0x060006F0-TryStartDeactivation.txt"
+    },
+    {
+      "Method": {
+        "Type": "FishNet.Object.NetworkObject",
+        "Name": "Preinitialize_Internal",
+        "Token": "0x060006F3",
+        "ParameterCount": 4,
+        "Va": "0x180CCD980",
+        "Rva": "0xCCD980",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 871,
+      "Instructions": 202,
+      "BytesSha256": "e3bb666572f7cbb5bb7a42b78f47918f10dba704cd4021a6ddb936d23b6b8496",
+      "TextFile": "0x060006F3-Preinitialize_Internal.txt"
+    },
+    {
+      "Method": {
+        "Type": "FishNet.Object.NetworkObject",
+        "Name": "UpdateNetworkBehaviours",
+        "Token": "0x060006FA",
+        "ParameterCount": 2,
+        "Va": "0x180CCF060",
+        "Rva": "0xCCF060",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 1826,
+      "Instructions": 415,
+      "BytesSha256": "085a0a0f60f610d17d688972d230819d6117e4d8681e2ce12dceca3290c6bcda",
+      "TextFile": "0x060006FA-UpdateNetworkBehaviours.txt"
+    },
+    {
+      "Method": {
+        "Type": "FishNet.Object.NetworkObject",
+        "Name": ".ctor",
+        "Token": "0x06000757",
+        "ParameterCount": 0,
+        "Va": "0x180CCFCF0",
+        "Rva": "0xCCFCF0",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 379,
+      "Instructions": 75,
+      "BytesSha256": "52e040f01e6005d9d238abdd3b4d6e04f7522d39878d6af253c8850ed333d3a5",
+      "TextFile": "0x06000757-_ctor.txt"
+    },
+    {
+      "Method": {
+        "Type": "FishNet.Managing.NetworkManager",
+        "Name": "Awake",
+        "Token": "0x06000B14",
+        "ParameterCount": 0,
+        "Va": "0x180CF6830",
+        "Rva": "0xCF6830",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 365,
+      "Instructions": 63,
+      "BytesSha256": "968bf8591a46dcb35abaf7e3b239c09d47dfa5454031f460d976d5d745e394ea",
+      "TextFile": "0x06000B14-Awake.txt"
+    },
+    {
+      "Method": {
+        "Type": "FishNet.Managing.NetworkManager",
+        "Name": "Start",
+        "Token": "0x06000B15",
+        "ParameterCount": 0,
+        "Va": "0x180CF8600",
+        "Rva": "0xCF8600",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 22,
+      "Instructions": 7,
+      "BytesSha256": "a2f17176fbf8bc00fb3adce976c681ab836dbca75a505bb2f49e50186db0b33b",
+      "TextFile": "0x06000B15-Start.txt"
+    },
+    {
+      "Method": {
+        "Type": "FishNet.Managing.NetworkManager",
+        "Name": "OnDestroy",
+        "Token": "0x06000B16",
+        "ParameterCount": 0,
+        "Va": "0x180CF82E0",
+        "Rva": "0xCF82E0",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 121,
+      "Instructions": 27,
+      "BytesSha256": "f4b254f677af4e9d674563db21de1e33dbf0b1e45b2b7c54d72b63cb08c40dfb",
+      "TextFile": "0x06000B16-OnDestroy.txt"
+    },
+    {
+      "Method": {
+        "Type": "FishNet.Managing.NetworkManager",
+        "Name": ".ctor",
+        "Token": "0x06000B4A",
+        "ParameterCount": 0,
+        "Va": "0x180CF8F10",
+        "Rva": "0xCF8F10",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 283,
+      "Instructions": 56,
+      "BytesSha256": "3e4548aac6bf438daf782907e39577320cdbd654d285dc531393cc82169dbe0b",
+      "TextFile": "0x06000B4A-_ctor.txt"
+    },
+    {
+      "Method": {
+        "Type": "FishNet.Managing.Server.ServerObjects",
+        "Name": ".ctor",
+        "Token": "0x06000BB7",
+        "ParameterCount": 1,
+        "Va": "0x180D06290",
+        "Rva": "0xD06290",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 276,
+      "Instructions": 48,
+      "BytesSha256": "92a980024b31039ec8776cd1603e3948e4d465f973965a1a4bab5b34d87833cd",
+      "TextFile": "0x06000BB7-_ctor.txt"
+    },
+    {
+      "Method": {
+        "Type": "FishNet.Managing.Object.ManagedObjects",
+        "Name": "RemoveFromSpawned",
+        "Token": "0x06000D80",
+        "ParameterCount": 3,
+        "Va": "0x180D14C20",
+        "Rva": "0xD14C20",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 179,
+      "Instructions": 45,
+      "BytesSha256": "7daf7b086b4bd1c5957fd202aec03eedb4c31ed8e8460e8d4d164136107fb412",
+      "TextFile": "0x06000D80-RemoveFromSpawned.txt"
+    },
+    {
+      "Method": {
+        "Type": "FishNet.Managing.Object.ManagedObjects",
+        "Name": "AddToSpawned",
+        "Token": "0x06000D86",
+        "ParameterCount": 2,
+        "Va": "0x180D13350",
+        "Rva": "0xD13350",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 92,
+      "Instructions": 24,
+      "BytesSha256": "599d36e148e10f6c71b37af126a64bca19de4ebb76398f8fbc2f20c6c3d11a8e",
+      "TextFile": "0x06000D86-AddToSpawned.txt"
+    },
+    {
+      "Method": {
+        "Type": "FishNet.Managing.Object.ManagedObjects",
+        "Name": "AddToSceneObjects",
+        "Token": "0x06000D87",
+        "ParameterCount": 1,
+        "Va": "0x180D132F0",
+        "Rva": "0xD132F0",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 96,
+      "Instructions": 24,
+      "BytesSha256": "572651c344b78f83ed2380fb53c44de7a6395b2fadf120f90e37a68140e746e0",
+      "TextFile": "0x06000D87-AddToSceneObjects.txt"
+    },
+    {
+      "Method": {
+        "Type": "FishNet.Managing.Object.ManagedObjects",
+        "Name": "RemoveFromSceneObjects",
+        "Token": "0x06000D88",
+        "ParameterCount": 1,
+        "Va": "0x180D14BC0",
+        "Rva": "0xD14BC0",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 93,
+      "Instructions": 23,
+      "BytesSha256": "e187c7adf8f9782a0d85feb9773d17dfbf371a59925335337d1b094d604ec510",
+      "TextFile": "0x06000D88-RemoveFromSceneObjects.txt"
+    },
+    {
+      "Method": {
+        "Type": "FishNet.Managing.Object.ManagedObjects",
+        "Name": "RemoveFromSceneObjects",
+        "Token": "0x06000D89",
+        "ParameterCount": 1,
+        "Va": "0x180D14B60",
+        "Rva": "0xD14B60",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 84,
+      "Instructions": 21,
+      "BytesSha256": "276ca6cea0d2d8f1276b415860d10c35f967b8e726c19e60af7b336dc3ebcffd",
+      "TextFile": "0x06000D89-RemoveFromSceneObjects.txt"
+    },
+    {
+      "Method": {
+        "Type": "FishNet.Managing.Object.ManagedObjects",
+        "Name": ".ctor",
+        "Token": "0x06000D95",
+        "ParameterCount": 0,
+        "Va": "0x180D15CC0",
+        "Rva": "0xD15CC0",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 189,
+      "Instructions": 41,
+      "BytesSha256": "f50a3950da58c5d8157557494875f8bb42a9cbdc1618a0d0bbffba3046cfbc8d",
+      "TextFile": "0x06000D95-_ctor.txt"
+    },
+    {
+      "Method": {
+        "Type": "FishNet.Managing.Client.ClientObjects",
+        "Name": ".ctor",
+        "Token": "0x06000E0C",
+        "ParameterCount": 1,
+        "Va": "0x180D11870",
+        "Rva": "0xD11870",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 492,
+      "Instructions": 106,
+      "BytesSha256": "19527164e6bccb4dafe3d0846a32bbd49068d829437b456e04be8aebd3920b72",
+      "TextFile": "0x06000E0C-_ctor.txt"
+    },
+    {
+      "Method": {
+        "Type": "FishNet.Managing.Client.ClientObjects",
+        "Name": "AddToSpawned",
+        "Token": "0x06000E10",
+        "ParameterCount": 2,
+        "Va": "0x180D0E500",
+        "Rva": "0xD0E500",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 272,
+      "Instructions": 70,
+      "BytesSha256": "2d2bd50425e24eeabc422b8e7dcb9cc226e0ec818199589ab4cf61db065da99f",
+      "TextFile": "0x06000E10-AddToSpawned.txt"
+    },
+    {
+      "Method": {
+        "Type": "FishNet.Managing.Client.ClientObjects",
+        "Name": "RemoveFromSpawned",
+        "Token": "0x06000E11",
+        "ParameterCount": 3,
+        "Va": "0x180D112C0",
+        "Rva": "0xD112C0",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 235,
+      "Instructions": 56,
+      "BytesSha256": "df4d435efcadc574892cf07bc28cf5063c6c792cb11d7c8b7619d5d1538ee612",
+      "TextFile": "0x06000E11-RemoveFromSpawned.txt"
+    }
+  ],
+  "NativeSaveRouteAllowed": false,
+  "GameInvoked": false,
+  "SaveFilesAccessed": false
+}

@@ -1,0 +1,49 @@
+{
+  "schema": 1,
+  "checkedUtc": "2026-11-06T14:30:55.719494+00:00",
+  "sourceRevision": "b2c6c7e6c6ecc778da9624cdb68a6578b9db471a",
+  "sourceWorktree": "dirty",
+  "candidateSha256": "4ae6509a2d8501176ee8b9dca7e3c8b6481382d0f6f30fa73857506c9cf304f6",
+  "candidatePdbSha256": "47592f81d0471844256ae91cd521a715f76a96c9fe27f7ffdc2bfa5567bc0a3d",
+  "target": "TownHallTest / SaveGame_2",
+  "context": {
+    "LoadComplete": true,
+    "Singleplayer": true,
+    "HallReady": true,
+    "DependenciesMatch": true,
+    "ActiveSavePath": "C:\\Users\\pc\\AppData\\LocalLow\\TVGS\\Schedule I\\Saves\\76561199109519851\\SaveGame_2",
+    "LoadedSavePath": "C:\\Users\\pc\\AppData\\LocalLow\\TVGS\\Schedule I\\Saves\\76561199109519851\\SaveGame_2",
+    "OrganisationName": "TownHallTest"
+  },
+  "report": "live-report.json",
+  "reportSha256": "be603b162f21aa3678e8c6a142c6ddbbdee305c0e7c97051e9493514439c05ff",
+  "capturedUtc": "2026-11-06T14:28:53.3982313Z",
+  "status": "quarantined",
+  "findings": [
+    "data-minute-list-over-budget:889"
+  ],
+  "dataListenerDiagnostics": {
+    "minute-list": "1660D005ED0|class=164FCB3F560|size=889|capacity=1024|items=168A3C24000|version=891|countProperty=889|countPropertyMatchesSize=True"
+  },
+  "interpretation": "The generic Count getter matches _size: the minute list genuinely holds 889 entries. The 512-entry guard was too low; this is not a getter misread. No own registration, data preparation, SetProperty, native query or cleanup was reached.",
+  "nativeEvidenceFromThisAttempt": true,
+  "nativeSaveWriteAllowed": false,
+  "worldPublicationAllowed": false,
+  "nativeFiles": 39,
+  "nativeFilesByteIdentical": true,
+  "nativeChanged": [],
+  "nativeAdded": [],
+  "nativeRemoved": [],
+  "baselineCheckpointId": "20261106T132157195259Z-af2660f4",
+  "nativeSlot1Accessed": false,
+  "saveWriteByProbe": false,
+  "nativeDataQueriesObserved": false,
+  "normalBuildRestored": true,
+  "rollbackAttemptId": "20261106T143102107Z-03b2f4f937bf",
+  "rollbackReceipt": "rollback-receipt.json",
+  "limits": [
+    "The report is a native listener-count observation only; no own data, query, cleanup or save behavior was reached.",
+    "Byte equality of the 39 native files is not proof of no filesystem operations; empty-directory baselines are not recorded.",
+    "Slot 1 was not opened."
+  ]
+}

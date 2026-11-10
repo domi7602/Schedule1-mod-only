@@ -1,0 +1,10 @@
+  Shared -> C:\Users\pc\Schedule1-mod-only\Source\Mods\Shared\src\bin\Release\net6.0\Shared.dll
+C:\Users\pc\Schedule1-mod-only\Source\Mods\TownHallInterior\src\BusinessConstruction.cs(11,8): error CS1029: #error: 'Business data must be built alone; do not combine it with another probe mode.' [C:\Users\pc\Schedule1-mod-only\Source\Mods\TownHallInterior\src\TownHallInterior.csproj]
+
+Build FAILED.
+
+C:\Users\pc\Schedule1-mod-only\Source\Mods\TownHallInterior\src\BusinessConstruction.cs(11,8): error CS1029: #error: 'Business data must be built alone; do not combine it with another probe mode.' [C:\Users\pc\Schedule1-mod-only\Source\Mods\TownHallInterior\src\TownHallInterior.csproj]
+    0 Warning(s)
+    1 Error(s)
+
+Time Elapsed 00:00:00.75

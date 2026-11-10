@@ -1,0 +1,11 @@
+{
+  "schema": 1,
+  "frozenUtc": "2026-11-05T17:23:54.985990+00:00",
+  "source": "Source/Mods/TownHallInterior/docs/business-save-operation-owner.md",
+  "snapshot": "business-save-operation-owner-v1.md",
+  "sha256": "cd9517772af6c65a21968f812bed7d371420a1f13b674196663f4503287a58cb",
+  "bytes": 19290,
+  "lineCount": 233,
+  "kind": "Unimplemented offline contract frozen for independent design review",
+  "nativeSaveWriteAllowed": false
+}

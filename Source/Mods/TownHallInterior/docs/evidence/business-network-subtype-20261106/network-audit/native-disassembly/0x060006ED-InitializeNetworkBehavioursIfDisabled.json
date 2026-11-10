@@ -1,0 +1,76 @@
+{
+  "Method": {
+    "Type": "FishNet.Object.NetworkObject",
+    "Name": "InitializeNetworkBehavioursIfDisabled",
+    "Token": "0x060006ED",
+    "ParameterCount": 0,
+    "Va": "0x180CCCAD0",
+    "Rva": "0xCCCAD0",
+    "NativePointerPresent": true
+  },
+  "Bounds": {
+    "BeginRva": 13421264,
+    "EndRva": 13421286,
+    "UnwindRva": 57317608
+  },
+  "RawOffset": "0xCCBCD0",
+  "ByteLength": 22,
+  "BytesSha256": "cc1ffa0cf72bec210916a8de742e6eed0b112167fb31db29d22468a6caf01f66",
+  "Instructions": [
+    {
+      "Va": "0x180CCCAD0",
+      "Rva": "0xCCCAD0",
+      "Bytes": "40 56",
+      "Text": "push rsi",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CCCAD2",
+      "Rva": "0xCCCAD2",
+      "Bytes": "48 83 EC 20",
+      "Text": "sub rsp,20h",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CCCAD6",
+      "Rva": "0xCCCAD6",
+      "Bytes": "80 B9 A5 00 00 00 00",
+      "Text": "cmp byte ptr [rcx+0A5h],0",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CCCADD",
+      "Rva": "0xCCCADD",
+      "Bytes": "48 8B F1",
+      "Text": "mov rsi,rcx",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CCCAE0",
+      "Rva": "0xCCCAE0",
+      "Bytes": "0F 85 87 00 00 00",
+      "Text": "jne near ptr 0000000180CCCB6Dh",
+      "FlowControl": "ConditionalBranch",
+      "DirectTarget": "0x180CCCB6D",
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    }
+  ]
+}

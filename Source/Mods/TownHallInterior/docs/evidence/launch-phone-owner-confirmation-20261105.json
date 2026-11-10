@@ -1,0 +1,39 @@
+{
+  "schema": 1,
+  "date": "2026-11-05",
+  "project": "schedule1-mod-only",
+  "sourceRevision": "b2c6c7e6c6ecc778da9624cdb68a6578b9db471a",
+  "sourceWorktree": "dirty",
+  "kind": "attributed-owner-confirmation",
+  "ownerStatement": {
+    "speaker": "Dominik",
+    "source": "Owner reply in the active conversation to the explicit phone-open/close question after the loaded baseline.",
+    "question": "Ließ sich das Handy problemlos öffnen und wieder schließen?",
+    "exactReply": "lies sich problemlos öffnen und schließen"
+  },
+  "baselineContext": {
+    "organisation": "TownHallTest",
+    "slot": "SaveGame_2",
+    "normalDllSha256": "614b81fd584040d4cebe7a18929bca09eabae478a6487ec6d846ea01d6062003",
+    "s1apiVersion": "3.2.2",
+    "precedingLogReport": "Source/Mods/TownHallInterior/docs/evidence/launch-live-loaded-20261105.json",
+    "precedingLogReportSha256": "c4065b43c1da899d88ce13814edd570a8cadca16258c831b3afa6aa04de14076",
+    "identityBasis": "Preceding captured startup/load and conversation context; no new process, log or artifact sampling for this owner statement."
+  },
+  "conclusion": {
+    "phoneOpenCloseOwnerConfirmed": true,
+    "startupLoadPhoneBaselineComplete": true,
+    "startLoadAttribution": "Preceding loader-log review and owner loaded statement.",
+    "phoneAttribution": "Owner confirmation only; no agent desktop observation.",
+    "nativeSaveProbeAllowed": false,
+    "nativeBusinessSaveLoadAccepted": false,
+    "individualPhoneAppsAccepted": false,
+    "broadApiGameplayAcceptance": false
+  },
+  "limits": [
+    "Closes only normal startup/load and phone opening/closing on the prepared TownHallTest baseline.",
+    "Does not erase captured warnings or establish every app action, native business save/load, purchase, money laundering, multiplayer or new API behavior.",
+    "The earlier log report remains unchanged as the historical pre-confirmation capture.",
+    "Documentation only; no game control, bridge/console/save commands, native save-file access, build, deployment, commit or push."
+  ]
+}

@@ -2,6 +2,84 @@
 
 ## Nächste Entwicklungsphase: TownHall Business
 
+**Aktueller Stand, 2026-11-06, 15:50 CET:** Die kapazitätsgebundene Datenprobe
+bestand den dritten Slot-2-Lauf: **`observed`, keine Findings**. Der
+Listener-Snapshot zeigt `size=889`, `capacity=1024`, `nodes=889`,
+`maxChildren=0`; Datenvorbereitung und `SetProperty` sind bestätigt, die nativen
+Abfragen liefern **0/0/true/false**. Cleanup bestätigt, Root zerstört;
+Vorher-/Nachher-Snapshots identisch (32 Register, 19 fremde VTables).
+39/39 native Slot-2-Dateien nach regulärem Alt+F4 bytegleich; Normalbuild
+`614b81fd…` / PDB `8126ae65…` um **15:50:44 CET** wiederhergestellt und geprüft.
+Das ist der technische Erfolg der eigenen leeren Daten-/Abfrageprobe, nicht die
+vollständige Business-Initialisierung. Offen bleiben Originalinitialisierung,
+Kauf, echte Geldwäsche und Persistenz/Reload.
+[Live-Beleg](evidence/business-data-capacity-live-20261106/observation.json),
+[Savevergleich](evidence/business-data-capacity-live-20261106/save-verification.json),
+[Rollback](evidence/business-data-capacity-live-20261106/rollback-verification.json).
+
+Der gescheiterte Lauf bleibt historisch dokumentiert: 39/39 native
+Slot-2-Dateien nach regulärem Spielende bytegleich; Normalbuild seit 14:22:17 CET
+wiederhergestellt und unabhängig geprüft. Der vorherige Offline-Schritt bestand
+1.166/1.166 TownHall-Tests, sieben No-Deploy-Builds und unabhängigen
+Quellenreview. Die Listener-Korrektur wurde erneut mit diesem Umfang geprüft.
+
+**Vorangegangener Live-Stand, 2026-11-06:** Eigene no-base NetworkObject-Unterklasse
+mit gegenseitiger Business-Bindung, frischen Manager-/Halterprüfungen und getrennten
+Lifecycle-Zählern implementiert. 104 neue Fälle, 1.077/1.077 TownHall-Tests bestanden.
+Kandidat `beb088f2…` um 13:05:17 CET in TownHallTest / Slot 2 beobachtet: korrekte
+gegenseitige Bindung, beide Lebenszyklen und Rückbau bestätigt, 28 Fingerprints und
+15 fremde VTables unverändert. 39 Testdateien bytegleich; Normalbuild `614b81fd…`
+seit 13:09:54 CET wiederhergestellt. Das ist noch keine
+originale native Business-/FishNet-Initialisierung oder Persistenz.
+[Vertrag, Prüfungen und nächster Datenschritt](business-network-subtype-probe.md).
+
+**Vorangegangener Live-Stand, 2026-11-06:** Kandidat `c07ada69…` bestand um **11:55:28 CET**
+auf TownHallTest / Slot 2 die begrenzte aktive Untertyp-Probe: `observed`, keine
+Findings, echter Unity-Framefortschritt 2243 → 2244, beobachtete eigene
+Lifecycle-Callbacks und bestätigter Rückbau. Zehn Register und 14 fremde VTables
+blieben gleich. Kein NetworkObject, keine Weltpublikation und kein Save-Aufruf;
+die eigene no-base Shell beweist keine native Business-Initialisierung.
+39/39 native Testdateien nach Spielende bytegleich, keine Dateien hinzugefügt
+oder gelöscht; leere Baseline-Verzeichnisse waren nicht inventarisiert.
+Um **11:57:33 CET wurde Normalbuild `614b81fd…` / PDB `8126ae65…` wiederhergestellt**,
+unabhängig geprüft. Die vorausgehenden 973/973 Tests und fünf No-Deploy-Builds
+wurden für diesen Liveabschluss nicht erneut ausgeführt.
+[Lifecycle-Vertrag und Grenzen](business-active-subtype-probe.md),
+[Laufzeitbeleg](evidence/business-active-subtype-live-20261106/observation.json),
+[Save-Abgleich](evidence/business-active-subtype-live-20261106/save-verification.json),
+[Rollback](evidence/business-active-subtype-live-20261106/rollback-verification.json).
+Phase 1 bleibt offen: native Business-Initialisierung, NetworkObject-Lifecycle,
+frühe Weltregistrierung und echter Save-/Load-Weg sind die folgenden Aufgaben.
+
+**Vorheriger abgeschlossener Test, 2026-11-06:** Der korrigierte Kandidat `38bd7da3…` bestand
+um **09:56:01 CET (08:56:01 UTC)** auf `TownHallTest / SaveGame_2` die begrenzte
+inaktive Speicherprobe: eigener synchroner `ISaveable.Save`-Aufruf ohne
+Dateischreiben, bestätigte Completion, Entfernung eigener Listenreferenzen und
+bestätigter Rückbau. Register und fremde VTables blieben gleich; alle 39 nativen
+Testdateien sind gegenüber dem Checkpoint bytegleich. Nach geschlossenem Spiel
+wurde **Normalbuild `614b81fd…` / PDB `8126ae65…` wiederhergestellt**.
+[Laufzeitbeleg](evidence/business-save-live-success-20261106/observation.json),
+[Save-Abgleich](evidence/business-save-live-success-20261106/save-verification.json),
+[Rollback](evidence/business-save-live-success-20261106/rollback-verification.json).
+
+Der vorausgehende Offline-Stand umfasst 884/884 Tests, vier No-Deploy-Buildvarianten
+und unabhängigen Code-/Testreview. `NativeSaveWriteAllowed=false` bleibt bestehen.
+Die Probe ist kein vollständiger `SaveManager.Save`-Durchlauf und kein Nachweis
+für Persistenz/Reload, Kauf, Geldwäsche oder Weltwechsel-/Last-Use-Sicherheit.
+Business-Phase 1 bleibt offen; der Innenausbau bleibt abgenommen.
+[Korrektur, technische Teilabnahme und Grenzen](business-manager-save-probe.md).
+
+**Historischer Installationsnachtrag, 2026-11-05:** Für den angeforderten Spielstart
+wurde nach ausdrücklicher Auswahl der geprüfte **Normalbuild `614b81fd…` ohne
+Business-Proben** installiert. Die zuvor vorgefundene `cff67a85…` war tatsächlich
+die alte Slot-1-/Doppel-Save-Probe. Checkpoint und Cloud-Vorprüfung sind dokumentiert.
+Nach Dominiks „geladen“ bestätigt das frische Log den Normalbuild, TownHallTest /
+Slot 2 und die veröffentlichte Halle. Elf PhoneApp-Initialisierungen protokolliert;
+Handy-Öffnen/-Schließen anschließend von Dominik ausdrücklich als problemlos
+bestätigt: begrenzter Start-/Lade-/Handy-Basistest abgeschlossen. Keine TownHall-Exception
+im erfassten Präfix; LightControl meldet abgefangenen Arial-Schriftfallback.
+Kein nativer Business-Speichertest. [Vorbereitung, Laufzeitbeleg und Grenzen](launch-preparation.md).
+
 Der [Fertigstellungsplan für das TownHall Business](business-completion-plan.md)
 beschreibt Kauf, Besitz, native Geldwäsche und Speicherung auf Basis des fertigen
 Innenausbaus. Stand 2026-11-04: Die [beobachtende Anbindungsprobe](business-binding-probe.md)
@@ -32,9 +110,52 @@ Der inaktive Speicherlisten-Registrierungsmodus (`473064e0…`,
 Eintrag sofort wieder aus der Speicherliste entfernt, `Save()` unaufgerufen;
 Register, VTables und native Dateien unverändert. Kein Save-/Load-Nachweis.
 [Bericht](evidence/business-manager-live-register-saveable-20261104.json),
-[Vertrag und Herkunft](business-manager-registration-probe.md). **411 reine TownHall-Tests** bleiben der
-Offline-Stand. Aktivierung, vollständige Initialisierung und Persistenz bleiben offen.
+[Vertrag und Herkunft](business-manager-registration-probe.md). **411 reine TownHall-Tests** waren der
+damalige Interface-Offline-Stand. Aktivierung, vollständige Initialisierung und Persistenz bleiben offen.
 Keine MapExpansions-Abhängigkeit. Der abgenommene Innenraum bleibt abgeschlossen.
+
+**Offline-Sicherheitsarbeit 2026-11-05:** Die vorbereitete Save-Variante ist nur
+noch auf TownHallTest / SaveGame_2 gerichtet; Slot 1 ist auch mit expliziten
+Argumenten gesperrt. Die alten nativen Save-Aufrufe und die sofortige Abmeldung
+sind entfernt. Ohne nachgewiesenen nativen Abschluss-/Freigabevertrag bleibt
+der Manager-Modus vor jeder Registrierung `blocked`; eine reine, separat
+getestete Zustandsmaschine ist kein Ersatz für diesen Vertrag. Keine neue
+Installation oder Ingame-Abnahme. [Speicherprobe, Prüfungen und nächste Lücke](business-manager-save-probe.md).
+
+**Nachfolgender Native-Audit 2026-11-05:** Echte GameAssembly-Bytes und passende
+Metadaten ausgewertet. Queueentnahme erfolgt vor Schreibdispatch, Completion vor
+Fehlerauswertung; Completed-/Batchreferenzen können unabhängig von Queue/Idle
+weiterbestehen. **Kein eigener Freigabevertrag, Schreibsperre unverändert.**
+Nur Analyse und Dokumentation, kein Code-/Installations- oder Spieleingriff.
+[Nativer Befund, Rohbelege und Grenzen](native-save-completion-audit.md).
+
+**Weltwechsel-Nachtrag 2026-11-05 abgeschlossen:** `Clean` ist ein Eventlistener,
+kein Drain; Exit invalidiert die aktive Identität davor. Seine Zeit-/Player-Waits
+quittieren keinen eigenen Saveabschluss. Persistenter Manager und fehlender eigener
+Altauftragbesitz erlauben keine Freigabe der transienten Probe. Architekturentscheidung:
+zunächst eigenen Operationsbesitz und Teilnehmerlebensdauer entwerfen, nicht die
+Sperre durch Event-/Framewarten umgehen. Keine Umsetzung oder Writefreigabe.
+[Offline-Audit und dauerhafte Belege](native-world-exit-audit.md).
+
+**Besitzentwurf 2026-11-05:** Der [Vertrag für einen Speicherauftrag](business-save-operation-owner.md)
+legt unveränderliche Bindung, Intent vor Teilwirkung, monotonen Widerruf,
+Einmalbudget und getrennte Beweisziele fest. Der nachfolgende reine Datenbaustein
+ist implementiert: 128 neue Modellfälle und abschließend 809 TownHall-Offlinetests
+bestanden. Unabhängiger Semantikreview mit 33 eigenen Probegruppen; reine
+Testformatkorrektur danach separat belegt. Isoliertes Pure nicht insgesamt grün
+(eigene Formatstelle inzwischen korrigiert, fremder Versionsdrift bleibt).
+Künstliches Prozessmodell, keine globale Runtimebesitzgarantie, kein Runtime-Port,
+Unity-/Dateizugriff oder Modverdrahtung. Schreibsperre und native Beweislücken bleiben.
+
+**Phase 1 Schritte 1–3 und Übergangsplan 2026-11-06:** Alle drei Implementierungsschritte
+von Phase 1 (ISaveable-Vertragsinventar, non-IO Save-Completion-Pfad über 16. Slot
+`ShouldSaveUnderFolder = false` und Verknüpfung von `BusinessSubtypeTrial.Run` mit
+atomarer Frame-Progression) sind umgesetzt und mit 854/854 bestandenen Tests
+verifiziert. Der [Übergangsplan](business-save-transition-plan.md) hält die danach
+ausgeführten Tests auf `TownHallTest / SaveGame_2`, ihre privaten Checkpoints,
+den Slot-1-Schutz und den abschließenden Normalrollback fest. Der jüngste
+erfolgreiche, begrenzte Lauf ist oben eingeordnet.
+
 
 ## Abgenommen: Innenausbau komplett (2026-10-30)
 

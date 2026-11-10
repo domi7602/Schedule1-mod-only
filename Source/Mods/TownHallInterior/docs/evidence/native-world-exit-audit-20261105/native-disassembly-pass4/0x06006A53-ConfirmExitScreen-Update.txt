@@ -1,0 +1,200 @@
+; ScheduleOne.UI.MainMenu.ConfirmExitScreen::Update/0, token 0x06006A53, RVA 0xA680D0, next-pointer window 0x370 bytes
+; No target execution. Parser-pointer window can contain padding/cold fragments and is not exact/full function, EH or transitive coverage. Shared direct aliases are truncated to eight names.
+0xA680D0     40 57                           push rdi
+0xA680D2     48 83 EC 40                     sub rsp,40h
+0xA680D6     80 3D 10 5D 19 03 00            cmp byte ptr [183BFDDEDh],0
+0xA680DD     48 8B F9                        mov rdi,rcx
+0xA680E0     75 67                           jne short 0000000180A68149h
+0xA680E2     48 8D 0D D7 A2 F8 02            lea rcx,[1839F23C0h] ; MethodRef: T ScheduleOne.DevUtilities.Singleton`1<ScheduleOne.Persistence.SaveManager>.get_Instance
+0xA680E9     E8 B2 F7 8A FF                  call 00000001803178A0h
+0xA680EE     48 8D 0D 83 B3 F5 02            lea rcx,[1839C3478h] ; TypeInfo: System.String[]
+0xA680F5     E8 A6 F7 8A FF                  call 00000001803178A0h
+0xA680FA     48 8D 0D 07 0A F4 02            lea rcx,[1839A8B08h] ; StringLiteral:  seconds ago
+0xA68101     E8 9A F7 8A FF                  call 00000001803178A0h
+0xA68106     48 8D 0D FB C3 F3 02            lea rcx,[1839A4508h] ; StringLiteral: Last save was 
+0xA6810D     E8 8E F7 8A FF                  call 00000001803178A0h
+0xA68112     48 8D 0D 5F 91 F2 02            lea rcx,[183991278h] ; StringLiteral:  ago
+0xA68119     E8 82 F7 8A FF                  call 00000001803178A0h
+0xA6811E     48 8D 0D 33 D2 F3 02            lea rcx,[1839A5358h] ; StringLiteral:  minute
+0xA68125     E8 76 F7 8A FF                  call 00000001803178A0h
+0xA6812A     48 8D 0D E7 CC F9 02            lea rcx,[183A04E18h]
+0xA68131     E8 6A F7 8A FF                  call 00000001803178A0h
+0xA68136     48 8D 0D 63 66 F1 02            lea rcx,[18397E7A0h] ; StringLiteral: s
+0xA6813D     E8 5E F7 8A FF                  call 00000001803178A0h
+0xA68142     C6 05 A4 5C 19 03 01            mov byte ptr [183BFDDEDh],1
+0xA68149     33 C0                           xor eax,eax
+0xA6814B     89 44 24 60                     mov [rsp+60h],eax
+0xA6814F     89 44 24 50                     mov [rsp+50h],eax
+0xA68153     38 47 20                        cmp [rdi+20h],al
+0xA68156     0F 84 90 00 00 00               je near ptr 0000000180A681ECh
+0xA6815C     48 8B 05 5D A2 F8 02            mov rax,[1839F23C0h] ; MethodRef: T ScheduleOne.DevUtilities.Singleton`1<ScheduleOne.Persistence.SaveManager>.get_Instance
+0xA68163     48 8B 40 20                     mov rax,[rax+20h]
+0xA68167     F6 80 35 01 00 00 01            test byte ptr [rax+135h],1
+0xA6816E     75 08                           jne short 0000000180A68178h
+0xA68170     48 8B C8                        mov rcx,rax
+0xA68173     E8 C8 46 8B FF                  call 000000018031C840h
+0xA68178     48 8B 80 C0 00 00 00            mov rax,[rax+0C0h]
+0xA6817F     48 8B 40 10                     mov rax,[rax+10h]
+0xA68183     F6 80 35 01 00 00 01            test byte ptr [rax+135h],1
+0xA6818A     75 08                           jne short 0000000180A68194h
+0xA6818C     48 8B C8                        mov rcx,rax
+0xA6818F     E8 AC 46 8B FF                  call 000000018031C840h
+0xA68194     48 8B 80 B8 00 00 00            mov rax,[rax+0B8h]
+0xA6819B     48 89 5C 24 58                  mov [rsp+58h],rbx
+0xA681A0     48 89 74 24 68                  mov [rsp+68h],rsi
+0xA681A5     0F 29 74 24 30                  movaps [rsp+30h],xmm6
+0xA681AA     48 8B 08                        mov rcx,[rax]
+0xA681AD     48 85 C9                        test rcx,rcx
+0xA681B0     0F 84 77 02 00 00               je near ptr 0000000180A6842Dh
+0xA681B6     F3 0F 10 71 2C                  movss xmm6,dword ptr [rcx+2Ch]
+0xA681BB     33 C9                           xor ecx,ecx
+0xA681BD     E8 AE D6 23 00                  call 0000000180CA5870h ; FishNet.InstanceFinder::get_IsServer/0
+0xA681C2     84 C0                           test al,al
+0xA681C4     75 2C                           jne short 0000000180A681F2h
+0xA681C6     48 8B 4F 68                     mov rcx,[rdi+68h]
+0xA681CA     48 85 C9                        test rcx,rcx
+0xA681CD     0F 84 5A 02 00 00               je near ptr 0000000180A6842Dh
+0xA681D3     45 33 C0                        xor r8d,r8d
+0xA681D6     33 D2                           xor edx,edx
+0xA681D8     E8 B3 B9 10 02                  call 0000000182B73B90h ; UnityEngine.Behaviour::set_enabled/1
+0xA681DD     48 8B 74 24 68                  mov rsi,[rsp+68h]
+0xA681E2     48 8B 5C 24 58                  mov rbx,[rsp+58h]
+0xA681E7     0F 28 74 24 30                  movaps xmm6,[rsp+30h]
+0xA681EC     48 83 C4 40                     add rsp,40h
+0xA681F0     5F                              pop rdi
+0xA681F1     C3                              ret
+0xA681F2     F3 0F 10 05 32 56 3F 02         movss xmm0,dword ptr [182E5D82Ch]
+0xA681FA     0F 2F C6                        comiss xmm0,xmm6
+0xA681FD     0F 83 99 01 00 00               jae near ptr 0000000180A6839Ch
+0xA68203     80 3D 96 2D 19 03 00            cmp byte ptr [183BFAFA0h],0
+0xA6820A     F3 0F 5E F0                     divss xmm6,xmm0
+0xA6820E     75 13                           jne short 0000000180A68223h
+0xA68210     48 8D 0D 51 1C F7 02            lea rcx,[1839D9E68h] ; TypeInfo: System.Math
+0xA68217     E8 84 F6 8A FF                  call 00000001803178A0h
+0xA6821C     C6 05 7D 2D 19 03 01            mov byte ptr [183BFAFA0h],1
+0xA68223     48 8B 0D 3E 1C F7 02            mov rcx,[1839D9E68h] ; TypeInfo: System.Math
+0xA6822A     83 B9 E0 00 00 00 00            cmp dword ptr [rcx+0E0h],0
+0xA68231     75 05                           jne short 0000000180A68238h
+0xA68233     E8 F8 F9 8A FF                  call 0000000180317C30h
+0xA68238     0F 5A C6                        cvtps2pd xmm0,xmm6
+0xA6823B     E8 A0 37 98 FF                  call 00000001803EB9E0h
+0xA68240     48 8B 0D 31 B2 F5 02            mov rcx,[1839C3478h] ; TypeInfo: System.String[]
+0xA68247     BA 05 00 00 00                  mov edx,5
+0xA6824C     48 8B 77 68                     mov rsi,[rdi+68h]
+0xA68250     F2 0F 2C C0                     cvttsd2si eax,xmm0
+0xA68254     89 44 24 50                     mov [rsp+50h],eax
+0xA68258     E8 D3 E8 8A FF                  call 0000000180316B30h
+0xA6825D     48 8B D8                        mov rbx,rax
+0xA68260     48 85 C0                        test rax,rax
+0xA68263     0F 84 C4 01 00 00               je near ptr 0000000180A6842Dh
+0xA68269     83 78 18 00                     cmp dword ptr [rax+18h],0
+0xA6826D     0F 86 C0 01 00 00               jbe near ptr 0000000180A68433h
+0xA68273     48 8B 15 8E C2 F3 02            mov rdx,[1839A4508h] ; StringLiteral: Last save was 
+0xA6827A     48 8D 48 20                     lea rcx,[rax+20h]
+0xA6827E     48 89 50 20                     mov [rax+20h],rdx
+0xA68282     E8 29 E8 8A FF                  call 0000000180316AB0h
+0xA68287     33 D2                           xor edx,edx
+0xA68289     48 8D 4C 24 50                  lea rcx,[rsp+50h]
+0xA6828E     E8 3D 1F 13 01                  call 0000000181B9A1D0h ; System.Int32::ToString/0
+0xA68293     83 7B 18 01                     cmp dword ptr [rbx+18h],1
+0xA68297     0F 86 96 01 00 00               jbe near ptr 0000000180A68433h
+0xA6829D     48 8D 4B 28                     lea rcx,[rbx+28h]
+0xA682A1     48 89 43 28                     mov [rbx+28h],rax
+0xA682A5     48 8B D0                        mov rdx,rax
+0xA682A8     E8 03 E8 8A FF                  call 0000000180316AB0h
+0xA682AD     83 7B 18 02                     cmp dword ptr [rbx+18h],2
+0xA682B1     0F 86 7C 01 00 00               jbe near ptr 0000000180A68433h
+0xA682B7     48 8B 15 9A D0 F3 02            mov rdx,[1839A5358h] ; StringLiteral:  minute
+0xA682BE     48 8D 4B 30                     lea rcx,[rbx+30h]
+0xA682C2     48 89 53 30                     mov [rbx+30h],rdx
+0xA682C6     E8 E5 E7 8A FF                  call 0000000180316AB0h
+0xA682CB     83 7C 24 50 01                  cmp dword ptr [rsp+50h],1
+0xA682D0     48 8B 15 C9 64 F1 02            mov rdx,[18397E7A0h] ; StringLiteral: s
+0xA682D7     7F 07                           jg short 0000000180A682E0h
+0xA682D9     48 8B 15 38 CB F9 02            mov rdx,[183A04E18h]
+0xA682E0     83 7B 18 03                     cmp dword ptr [rbx+18h],3
+0xA682E4     0F 86 49 01 00 00               jbe near ptr 0000000180A68433h
+0xA682EA     48 8D 4B 38                     lea rcx,[rbx+38h]
+0xA682EE     48 89 53 38                     mov [rbx+38h],rdx
+0xA682F2     E8 B9 E7 8A FF                  call 0000000180316AB0h
+0xA682F7     83 7B 18 04                     cmp dword ptr [rbx+18h],4
+0xA682FB     0F 86 32 01 00 00               jbe near ptr 0000000180A68433h
+0xA68301     48 8B 15 70 8F F2 02            mov rdx,[183991278h] ; StringLiteral:  ago
+0xA68308     48 8D 4B 40                     lea rcx,[rbx+40h]
+0xA6830C     48 89 53 40                     mov [rbx+40h],rdx
+0xA68310     E8 9B E7 8A FF                  call 0000000180316AB0h
+0xA68315     33 D2                           xor edx,edx
+0xA68317     48 8B CB                        mov rcx,rbx
+0xA6831A     E8 91 B1 F7 00                  call 00000001819E34B0h ; System.String::Concat/1
+0xA6831F     48 85 F6                        test rsi,rsi
+0xA68322     0F 84 05 01 00 00               je near ptr 0000000180A6842Dh
+0xA68328     4C 8B 0E                        mov r9,[rsi]
+0xA6832B     48 8B D0                        mov rdx,rax
+0xA6832E     48 8B CE                        mov rcx,rsi
+0xA68331     4D 8B 81 60 05 00 00            mov r8,[r9+560h]
+0xA68338     41 FF 91 58 05 00 00            call qword ptr [r9+558h]
+0xA6833F     83 7C 24 50 01                  cmp dword ptr [rsp+50h],1
+0xA68344     F3 0F 10 0D F8 47 3F 02         movss xmm1,dword ptr [182E5CB44h]
+0xA6834C     7E 08                           jle short 0000000180A68356h
+0xA6834E     F3 0F 10 0D B2 56 3F 02         movss xmm1,dword ptr [182E5DA08h]
+0xA68356     0F 28 D1                        movaps xmm2,xmm1
+0xA68359     48 8B 4F 68                     mov rcx,[rdi+68h]
+0xA6835D     48 85 C9                        test rcx,rcx
+0xA68360     0F 84 C7 00 00 00               je near ptr 0000000180A6842Dh
+0xA68366     C7 44 24 20 00 00 80 3F         mov dword ptr [rsp+20h],3F800000h
+0xA6836E     C7 44 24 2C 00 00 80 3F         mov dword ptr [rsp+2Ch],3F800000h
+0xA68376     0F 28 44 24 20                  movaps xmm0,[rsp+20h]
+0xA6837B     0F C6 C0 E1                     shufps xmm0,xmm0,0E1h
+0xA6837F     F3 0F 10 C1                     movss xmm0,xmm1
+0xA68383     0F C6 C0 C6                     shufps xmm0,xmm0,0C6h
+0xA68387     F3 0F 10 C2                     movss xmm0,xmm2
+0xA6838B     0F C6 C0 C9                     shufps xmm0,xmm0,0C9h
+0xA6838F     0F 29 44 24 20                  movaps [rsp+20h],xmm0
+0xA68394     66 0F 7F 44 24 20               movdqa [rsp+20h],xmm0
+0xA6839A     EB 69                           jmp short 0000000180A68405h
+0xA6839C     48 8B 5F 68                     mov rbx,[rdi+68h]
+0xA683A0     33 D2                           xor edx,edx
+0xA683A2     0F 28 C6                        movaps xmm0,xmm6
+0xA683A5     E8 46 22 A7 FF                  call 00000001804DA5F0h
+0xA683AA     33 D2                           xor edx,edx
+0xA683AC     89 44 24 60                     mov [rsp+60h],eax
+0xA683B0     48 8D 4C 24 60                  lea rcx,[rsp+60h]
+0xA683B5     E8 16 1E 13 01                  call 0000000181B9A1D0h ; System.Int32::ToString/0
+0xA683BA     4C 8B 05 47 07 F4 02            mov r8,[1839A8B08h] ; StringLiteral:  seconds ago
+0xA683C1     45 33 C9                        xor r9d,r9d
+0xA683C4     48 8B 0D 3D C1 F3 02            mov rcx,[1839A4508h] ; StringLiteral: Last save was 
+0xA683CB     48 8B D0                        mov rdx,rax
+0xA683CE     E8 3D B4 F7 00                  call 00000001819E3810h ; System.String::Concat/3
+0xA683D3     48 85 DB                        test rbx,rbx
+0xA683D6     74 55                           je short 0000000180A6842Dh
+0xA683D8     4C 8B 0B                        mov r9,[rbx]
+0xA683DB     48 8B D0                        mov rdx,rax
+0xA683DE     48 8B CB                        mov rcx,rbx
+0xA683E1     4D 8B 81 60 05 00 00            mov r8,[r9+560h]
+0xA683E8     41 FF 91 58 05 00 00            call qword ptr [r9+558h]
+0xA683EF     48 8B 4F 68                     mov rcx,[rdi+68h]
+0xA683F3     48 85 C9                        test rcx,rcx
+0xA683F6     74 35                           je short 0000000180A6842Dh
+0xA683F8     66 0F 6F 05 30 52 3F 02         movdqa xmm0,[182E5D630h]
+0xA68400     0F 29 44 24 20                  movaps [rsp+20h],xmm0
+0xA68405     48 8B 01                        mov rax,[rcx]
+0xA68408     48 8D 54 24 20                  lea rdx,[rsp+20h]
+0xA6840D     4C 8B 80 B0 02 00 00            mov r8,[rax+2B0h]
+0xA68414     FF 90 A8 02 00 00               call qword ptr [rax+2A8h]
+0xA6841A     48 8B 4F 68                     mov rcx,[rdi+68h]
+0xA6841E     48 85 C9                        test rcx,rcx
+0xA68421     74 0A                           je short 0000000180A6842Dh
+0xA68423     45 33 C0                        xor r8d,r8d
+0xA68426     B2 01                           mov dl,1
+0xA68428     E9 AB FD FF FF                  jmp near ptr 0000000180A681D8h
+0xA6842D     E8 4E F7 8A FF                  call 0000000180317B80h
+0xA68432     CC                              int 3
+0xA68433     E8 38 F7 8A FF                  call 0000000180317B70h
+0xA68438     CC                              int 3
+0xA68439     CC                              int 3
+0xA6843A     CC                              int 3
+0xA6843B     CC                              int 3
+0xA6843C     CC                              int 3
+0xA6843D     CC                              int 3
+0xA6843E     CC                              int 3
+0xA6843F     CC                              int 3

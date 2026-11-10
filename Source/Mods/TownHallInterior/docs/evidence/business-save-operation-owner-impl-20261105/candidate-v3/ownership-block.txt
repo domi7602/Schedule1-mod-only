@@ -1,0 +1,419 @@
+#region DataOnlySaveOperationOwnership
+public readonly record struct BusinessSaveModelKey(Guid ProcessId, long Operation);
+public sealed record BusinessSaveModelBinding(ConstructionContext Context, long Epoch,
+    string LoadManager, string SaveManager, string Saveables, string BaseSaveables,
+    string Completed, string Requests, string Participant);
+public sealed record BusinessSaveModelStamp(BusinessSaveModelKey Key,
+    BusinessSaveModelBinding Binding, long Sequence, double Time, string Source = "synthetic");
+public enum BusinessSaveModelEffect { TypeRegistration, Construction, Registration, Save, Removal, Destroy }
+public enum BusinessSaveModelOutcome { Returned, Failed }
+public sealed record BusinessSaveModelEffectState(bool Intent, bool Returned, bool ReadbackConfirmed, bool Failure);
+public sealed record BusinessSaveModelDiagnostic(long Sequence, string Kind, string Detail);
+public sealed record BusinessSaveModelSnapshot(Guid ProcessId, BusinessSaveModelKey? Key,
+    BusinessSaveModelBinding? Binding, string Status, bool SlotConsumed, bool Revoked,
+    string? FirstRevocationReason, long LastSequence, double? LastTime, int ActiveCallbacks,
+    bool CallbacksUncertain, bool DiagnosticsIncomplete,
+    IReadOnlyDictionary<BusinessSaveModelEffect, BusinessSaveModelEffectState> Effects,
+    IReadOnlyList<BusinessSaveModelDiagnostic> Diagnostics)
+{
+    public bool SimulationOnly => true;
+    public bool NativeSaveWriteAllowed => false;
+    public bool SafeToUnregister => false;
+    public bool SafeToDestroy => false;
+    public string ReferenceProof => "unknown";
+    public string NativeWriteProof => "unknown";
+    public string ModDataProof => "unknown";
+}
+
+// One explicitly artificial process per model, not a singleton or an OS-process budget.
+// The private lock orders only synthetic messages against revocation. It does not
+// establish a native adapter's entry, callback lifetime, dispatch or last-use contract.
+public sealed class BusinessSaveProcessModel
+{
+    public const int DiagnosticCapacity = 64, MaxTextLength = 160;
+    public const double TimeoutSeconds = 60;
+    private const int EffectCount = 6, MaximumPathLength = 32767;
+    private readonly object _sync = new();
+    private readonly int _thread = Environment.CurrentManagedThreadId;
+    private readonly BusinessSaveModelEffectState[] _effects = new BusinessSaveModelEffectState[EffectCount];
+    private readonly bool[] _failedOutcomes = new bool[EffectCount], _readbacks = new bool[EffectCount];
+    private readonly HashSet<long> _callbacks = new();
+    private readonly Queue<BusinessSaveModelDiagnostic> _diagnostics = new(DiagnosticCapacity);
+    private BusinessSaveModelBinding? _binding;
+    private bool _revoked, _callbacksUncertain, _diagnosticsIncomplete;
+    private string? _firstRevocationReason;
+    private long _lastSequence, _lastTicket, _diagnosticSequence;
+    private double _startedAt;
+    private double? _lastTime;
+    public Guid ProcessId { get; } = Guid.NewGuid();
+
+    public BusinessSaveProcessModel()
+    {
+        for (int i = 0; i < EffectCount; i++) _effects[i] = new(false, false, false, false);
+    }
+
+    public BusinessSaveOperationOwner CreateOwner()
+    {
+        lock (_sync)
+        {
+            RequireModelThread();
+            return new(this); // Even an off-thread facade inherits the same revoked tombstone.
+        }
+    }
+
+    internal BusinessSaveModelSnapshot CaptureSnapshot()
+    {
+        lock (_sync)
+        {
+            var effects = new Dictionary<BusinessSaveModelEffect, BusinessSaveModelEffectState>(EffectCount);
+            for (int i = 0; i < EffectCount; i++) effects.Add((BusinessSaveModelEffect)i, _effects[i]);
+            return new(ProcessId, _binding == null ? null : new BusinessSaveModelKey(ProcessId, 1), _binding,
+                _revoked ? "quarantined" : _binding == null ? "empty" : "bound-data-only",
+                _binding != null, _revoked, _firstRevocationReason, _lastSequence, _lastTime,
+                _callbacks.Count, _callbacksUncertain, _diagnosticsIncomplete,
+                new ReadOnlyDictionary<BusinessSaveModelEffect, BusinessSaveModelEffectState>(effects),
+                Array.AsReadOnly(_diagnostics.ToArray()));
+        }
+    }
+
+    internal bool Bind(BusinessSaveModelBinding? candidate, double now)
+    {
+        lock (_sync)
+        {
+            if (!RequireModelThread() || !AcceptClock(now)) return false;
+            if (_revoked) return false;
+            if (_binding != null) return Reject("slot-already-consumed");
+            if (!TryFreezeBinding(candidate, out var frozen, out string denial))
+            {
+                AddDiagnostic("bind-rejected", denial);
+                return false; // No slot or possible effect was consumed by a rejected candidate.
+            }
+            AddDiagnostic("bind", "synthetic-process-slot-1");
+            if (_revoked) return false;
+            _binding = frozen;
+            _startedAt = now;
+            _lastTime = now;
+            return true;
+        }
+    }
+
+    internal bool Intent(BusinessSaveModelEffect effect, BusinessSaveModelStamp stamp)
+    {
+        lock (_sync)
+        {
+            if (!RequireModelThread() || !AcceptStamp(stamp)) return false;
+            if (!Defined(effect)) return Reject("effect-undefined");
+            if (_revoked) return false;
+            int index = (int)effect;
+            if (_callbacks.Count != 0 || _callbacksUncertain) return Reject("callback-active-or-uncertain");
+            if (_effects[index].Intent) return Reject("duplicate-intent");
+            for (int i = 0; i < index; i++)
+                if (!_effects[i].Returned || !_effects[i].ReadbackConfirmed || _effects[i].Failure)
+                    return Reject("effect-intent-order");
+            AddDiagnostic("intent", effect + ":" + Source(stamp));
+            if (_revoked) return false;
+            _effects[index] = _effects[index] with { Intent = true };
+            return true; // The only admission transition; all named effects are data bits, never calls.
+        }
+    }
+
+    // Observation returns indicate accepted bookkeeping, not native success or permission.
+    // Valid observations for existing intents remain recordable after any revocation.
+    internal bool Outcome(BusinessSaveModelEffect effect, BusinessSaveModelOutcome outcome, BusinessSaveModelStamp stamp)
+    {
+        lock (_sync)
+        {
+            if (!RequireModelThread() || !AcceptStamp(stamp)) return false;
+            if (!Defined(effect)) return Reject("effect-undefined");
+            if (outcome is not (BusinessSaveModelOutcome.Returned or BusinessSaveModelOutcome.Failed))
+                return Reject("outcome-undefined");
+            int index = (int)effect;
+            if (!_effects[index].Intent) return Reject("outcome-without-intent");
+            if (outcome == BusinessSaveModelOutcome.Returned)
+            {
+                if (_effects[index].Returned) return Reject("duplicate-outcome");
+                _effects[index] = _effects[index] with { Returned = true };
+            }
+            else
+            {
+                // Failure also covers readback errors; outcome failure needs its own once-only mark.
+                if (_failedOutcomes[index]) return Reject("duplicate-outcome");
+                _failedOutcomes[index] = true;
+                _effects[index] = _effects[index] with { Failure = true };
+                RevokeCore("effect-outcome-failed");
+            }
+            AddDiagnostic("outcome", effect + ":" + outcome + ":" + Source(stamp));
+            return true;
+        }
+    }
+
+    internal bool Readback(BusinessSaveModelEffect effect, bool confirmed, BusinessSaveModelStamp stamp)
+    {
+        lock (_sync)
+        {
+            if (!RequireModelThread() || !AcceptStamp(stamp)) return false;
+            if (!Defined(effect)) return Reject("effect-undefined");
+            int index = (int)effect;
+            if (!_effects[index].Intent) return Reject("readback-without-intent");
+            if (_readbacks[index]) return Reject("duplicate-readback");
+            if (confirmed && !_effects[index].Returned) return Reject("readback-without-return");
+            _readbacks[index] = true;
+            if (confirmed) _effects[index] = _effects[index] with { ReadbackConfirmed = true };
+            else
+            {
+                _effects[index] = _effects[index] with { Failure = true };
+                RevokeCore("effect-readback-failed");
+            }
+            AddDiagnostic("readback", effect + ":" + (confirmed ? "confirmed:" : "failed:") + Source(stamp));
+            return true;
+        }
+    }
+
+    internal long Enter(BusinessSaveModelStamp stamp)
+    {
+        lock (_sync)
+        {
+            if (!RequireModelThread(callback: true) || !AcceptStamp(stamp, callback: true)) return 0;
+            if (_callbacks.Count >= DiagnosticCapacity)
+            {
+                Reject("callback-capacity-exhausted", callback: true);
+                return 0;
+            }
+            if (_lastTicket == long.MaxValue)
+            {
+                Reject("callback-ticket-exhausted", incomplete: true, callback: true);
+                return 0;
+            }
+            long ticket = ++_lastTicket;
+            _callbacks.Add(ticket);
+            if (ticket == long.MaxValue) Reject("callback-ticket-exhausted", incomplete: true);
+            AddDiagnostic("callback-enter", Source(stamp));
+            return ticket; // Counting a late message does not reopen admission or prove dispatch safety.
+        }
+    }
+
+    internal bool Exit(long ticket, BusinessSaveModelStamp stamp)
+    {
+        lock (_sync)
+        {
+            if (!RequireModelThread(callback: true) || !AcceptStamp(stamp, callback: true)) return false;
+            if (ticket <= 0 || !_callbacks.Remove(ticket)) return Reject("callback-ticket-untracked", callback: true);
+            AddDiagnostic("callback-exit", Source(stamp));
+            return true; // Zero tracked callbacks never establishes native quiescence.
+        }
+    }
+
+    internal bool Telemetry(string detail, BusinessSaveModelStamp stamp)
+    {
+        lock (_sync)
+        {
+            if (!RequireModelThread() || !AcceptStamp(stamp)) return false;
+            AddDiagnostic("telemetry:" + Source(stamp), detail);
+            return true; // Completion, Idle and queue-empty text have no effect/proof authority.
+        }
+    }
+
+    internal bool ObserveBinding(BusinessSaveModelBinding? current, BusinessSaveModelStamp stamp)
+    {
+        lock (_sync)
+        {
+            if (!RequireModelThread() || !AcceptStamp(stamp)) return false;
+            if (!TryFreezeBinding(current, out var frozen, out _) || !SameBinding(_binding!, frozen!))
+                return Reject("context-changed-or-lost");
+            AddDiagnostic("context-unchanged", Source(stamp));
+            return true;
+        }
+    }
+
+    internal bool UnexpectedSave(BusinessSaveModelStamp stamp)
+    {
+        lock (_sync)
+        {
+            if (!RequireModelThread() || !AcceptStamp(stamp)) return false;
+            RevokeCore("unexpected-save");
+            return true; // No save is issued and no foreign subscriber or callback is invoked.
+        }
+    }
+
+    internal void Revoke(string reason)
+    {
+        lock (_sync) RevokeCore(reason);
+    }
+
+    internal bool Tick(double now)
+    {
+        lock (_sync)
+        {
+            if (!RequireModelThread() || !AcceptClock(now) || _binding == null || _revoked) return false;
+            AddDiagnostic("tick", "synthetic-clock-observation");
+            return !_revoked;
+        }
+    }
+
+    // Helpers below are called only under _sync; none calls outside code or performs IO.
+    private bool RequireModelThread(bool callback = false) =>
+        Environment.CurrentManagedThreadId == _thread || Reject("off-model-thread", callback: callback);
+
+    private bool AcceptStamp(BusinessSaveModelStamp? stamp, bool callback = false)
+    {
+        if (_binding == null) return Reject("observation-unbound", callback: callback);
+        if (stamp == null) return Reject("stamp-missing", callback: callback);
+        if (stamp.Key != new BusinessSaveModelKey(ProcessId, 1)) return Reject("stamp-key-mismatch", callback: callback);
+        if (!TryFreezeBinding(stamp.Binding, out var frozen, out _) || !SameBinding(_binding, frozen!))
+            return Reject("stamp-binding-mismatch", callback: callback);
+        if (stamp.Sequence <= 0 || stamp.Sequence <= _lastSequence)
+            return Reject("stamp-sequence-invalid", incomplete: true, callback: callback);
+        if (!AcceptClock(stamp.Time))
+        {
+            if (callback) _callbacksUncertain = true;
+            return false;
+        }
+        _lastSequence = stamp.Sequence;
+        // The last representable message is observable but closes new intent admission.
+        if (_lastSequence == long.MaxValue) Reject("stamp-sequence-exhausted", incomplete: true);
+        return true;
+    }
+
+    private bool AcceptClock(double now)
+    {
+        if (!double.IsFinite(now) || now < 0 || (_lastTime is { } last && now < last))
+            return Reject("clock-invalid", incomplete: true);
+        if (_binding != null)
+        {
+            _lastTime = now;
+            if (!_revoked && now - _startedAt >= TimeoutSeconds) RevokeCore("diagnostic-timeout");
+        }
+        return true;
+    }
+
+    private bool Reject(string reason, bool incomplete = false, bool callback = false)
+    {
+        if (incomplete) _diagnosticsIncomplete = true;
+        if (callback) _callbacksUncertain = true;
+        RevokeCore(reason);
+        return false;
+    }
+
+    private void RevokeCore(string? reason)
+    {
+        LatchRevocation(reason);
+        AddDiagnostic("revoke", BoundText(reason, "revoked"));
+    }
+
+    private void LatchRevocation(string? reason)
+    {
+        _revoked = true;
+        _firstRevocationReason ??= BoundText(reason, "revoked");
+    }
+
+    private void AddDiagnostic(string kind, string? detail)
+    {
+        if (_diagnosticSequence == long.MaxValue)
+        {
+            _diagnosticsIncomplete = true;
+            LatchRevocation("diagnostic-sequence-exhausted");
+            return;
+        }
+        if (_diagnostics.Count == DiagnosticCapacity)
+        {
+            _diagnosticsIncomplete = true;
+            LatchRevocation("diagnostic-ring-overflow");
+            _diagnostics.Dequeue();
+        }
+        _diagnostics.Enqueue(new(++_diagnosticSequence, BoundText(kind, "diagnostic"), BoundText(detail, "unspecified")));
+        if (_diagnosticSequence == long.MaxValue)
+        {
+            _diagnosticsIncomplete = true;
+            LatchRevocation("diagnostic-sequence-exhausted");
+        }
+    }
+
+    private static bool Defined(BusinessSaveModelEffect effect) => (uint)effect < EffectCount;
+    private static string Source(BusinessSaveModelStamp stamp) => BoundText(stamp.Source, "unspecified");
+
+    private static string BoundText(string? value, string fallback)
+    {
+        if (string.IsNullOrWhiteSpace(value)) return fallback;
+        var chars = new char[Math.Min(value.Length, MaxTextLength)];
+        for (int i = 0; i < chars.Length; i++) chars[i] = char.IsControl(value[i]) ? ' ' : value[i];
+        return new string(chars);
+    }
+
+    private static bool IdentityLabel(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value) || value.Length > MaxTextLength) return false;
+        foreach (char character in value) if (char.IsControl(character)) return false;
+        return true;
+    }
+
+    private static bool TryPathValue(string? value, out string canonical)
+    {
+        canonical = "";
+        if (string.IsNullOrWhiteSpace(value) || value.Length > MaximumPathLength) return false;
+        foreach (char character in value) if (char.IsControl(character)) return false;
+        try
+        {
+            if (!Path.IsPathFullyQualified(value)) return false;
+            canonical = Path.TrimEndingDirectorySeparator(Path.GetFullPath(value));
+            return canonical.Length <= MaximumPathLength;
+        }
+        catch (Exception ex) when (ex is ArgumentException or IOException or NotSupportedException or System.Security.SecurityException)
+        {
+            return false;
+        }
+    }
+
+    private static bool TryFreezeBinding(BusinessSaveModelBinding? value, out BusinessSaveModelBinding? frozen, out string denial)
+    {
+        frozen = null;
+        denial = "binding-invalid";
+        if (value?.Context is not { } context || value.Epoch <= 0 ||
+            !IdentityLabel(value.LoadManager) || !IdentityLabel(value.SaveManager) ||
+            !IdentityLabel(value.Saveables) || !IdentityLabel(value.BaseSaveables) ||
+            !IdentityLabel(value.Completed) || !IdentityLabel(value.Requests) || !IdentityLabel(value.Participant)) return false;
+        if (!TryPathValue(context.ActiveSavePath, out string active) ||
+            !TryPathValue(context.LoadedSavePath, out string loaded))
+        {
+            denial = "binding-path-invalid";
+            return false;
+        }
+        // Canonicalization is limited to path values. Identity labels/epoch are never normalized.
+        var canonical = context with { ActiveSavePath = active, LoadedSavePath = loaded };
+        string? gate = ConstructionGate.CheckSave(canonical, "TownHallTest", "SaveGame_2");
+        if (gate != null) { denial = gate; return false; }
+        frozen = value with { Context = canonical };
+        return true;
+    }
+
+    private static bool SameBinding(BusinessSaveModelBinding left, BusinessSaveModelBinding right) =>
+        left.Epoch == right.Epoch && left.LoadManager == right.LoadManager && left.SaveManager == right.SaveManager &&
+        left.Saveables == right.Saveables && left.BaseSaveables == right.BaseSaveables &&
+        left.Completed == right.Completed && left.Requests == right.Requests && left.Participant == right.Participant &&
+        left.Context.LoadComplete == right.Context.LoadComplete && left.Context.Singleplayer == right.Context.Singleplayer &&
+        left.Context.HallReady == right.Context.HallReady && left.Context.DependenciesMatch == right.Context.DependenciesMatch &&
+        left.Context.OrganisationName == right.Context.OrganisationName &&
+        string.Equals(left.Context.ActiveSavePath, right.Context.ActiveSavePath, StringComparison.OrdinalIgnoreCase) &&
+        string.Equals(left.Context.LoadedSavePath, right.Context.LoadedSavePath, StringComparison.OrdinalIgnoreCase);
+}
+
+public sealed class BusinessSaveOperationOwner
+{
+    private readonly BusinessSaveProcessModel _model;
+    internal BusinessSaveOperationOwner(BusinessSaveProcessModel model) { _model = model; }
+    public BusinessSaveModelSnapshot Snapshot => _model.CaptureSnapshot();
+    public bool TryBind(BusinessSaveModelBinding? binding, double now) => _model.Bind(binding, now);
+    public bool TryRecordIntent(BusinessSaveModelEffect effect, BusinessSaveModelStamp stamp) => _model.Intent(effect, stamp);
+    public bool RecordOutcome(BusinessSaveModelEffect effect, BusinessSaveModelOutcome outcome, BusinessSaveModelStamp stamp) =>
+        _model.Outcome(effect, outcome, stamp);
+    public bool RecordReadback(BusinessSaveModelEffect effect, bool confirmed, BusinessSaveModelStamp stamp) =>
+        _model.Readback(effect, confirmed, stamp);
+    public long EnterCallback(BusinessSaveModelStamp stamp) => _model.Enter(stamp);
+    public bool ExitCallback(long ticket, BusinessSaveModelStamp stamp) => _model.Exit(ticket, stamp);
+    public bool ObserveTelemetry(string detail, BusinessSaveModelStamp stamp) => _model.Telemetry(detail, stamp);
+    public bool ObserveContext(BusinessSaveModelBinding? current, BusinessSaveModelStamp stamp) => _model.ObserveBinding(current, stamp);
+    public bool ObserveUnexpectedSave(BusinessSaveModelStamp stamp) => _model.UnexpectedSave(stamp);
+    public void Revoke(string reason) => _model.Revoke(reason);
+    public bool Tick(double now) => _model.Tick(now);
+}
+#endregion
+

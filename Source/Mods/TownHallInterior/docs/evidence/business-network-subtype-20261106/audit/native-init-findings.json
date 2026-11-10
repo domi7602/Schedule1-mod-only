@@ -1,0 +1,203 @@
+{
+  "capturedDate": "2026-11-06",
+  "auditor": "/root/active_business_audit",
+  "scope": "Read-only native Business initialization and API audit. No production/test/docs edits, target execution, builds, install, game access or save reads.",
+  "provenance": {
+    "fresh": [
+      "Native map and Iced disassembly from currently installed GameAssembly.dll/global-metadata.dat",
+      "ILSpy decompiles of installed S1API BusinessWrapper, BusinessManager and PropertyWrapper"
+    ],
+    "inherited": [
+      "Analysis-library selection and PE section parser configuration were reused from the previous world-exit/native-save audit, after fresh input/tool hash equality checks",
+      "Active no-base lifecycle live success is parent-reported/documented evidence; this audit did not repeat it"
+    ],
+    "inputManifest": "input-manifest.json",
+    "nativeMap": "native-map-init2.json",
+    "limitation": "Linear decode windows end at the next distinct parsed method pointer, with .pdata primary bounds recorded. Windows can contain padding/cold fragments; they are not complete CFG/EH/transitive proofs. Generated Assembly-CSharp proxy bodies alone establish bindings, not native implementation."
+  },
+  "findings": [
+    {
+      "id": "original-awake-publishes-early",
+      "severity": "blocker-for-blind-native-init",
+      "claim": "Property Awake user logic creates a contents container, appends this to Properties and resets/appends UnownedProperties before dereferencing mandatory PoI and ForSaleSign children. A late missing dependency can leave already-published partial state.",
+      "evidence": [
+        {
+          "path": "native-disassembly-init2/0x0600145A-Property-Awake_UserLogic_ScheduleOne_Property_Prope.txt",
+          "lines": "142-265",
+          "rva": "0x553B67-0x553D9E"
+        },
+        {
+          "path": "native-disassembly-init2/0x0600145A-Property-Awake_UserLogic_ScheduleOne_Property_Prope.txt",
+          "lines": "266-332",
+          "rva": "0x553DA3-0x553ED8"
+        }
+      ],
+      "dependencies": [
+        "BoundingBox GameObject and child BoxColliders (sets trigger and Invisible layer)",
+        "PoI with usable SetMainText state",
+        "ForSaleSign with Name and Price child TextMeshPro",
+        "EmployeeIdlePoints array",
+        "outside tutorial: ManagementWorldspaceCanvas singleton and its canvas",
+        "optional ListingPoster with Title, Price, Parking/Text, Employee/Text",
+        "Switches and Toggleables lists and usable event objects for nonempty lists"
+      ]
+    },
+    {
+      "id": "awake-registration-and-network",
+      "claim": "Business Awake wraps user logic with virtual early/late initialization; its user logic again invokes early/late around Property user logic and then appends Business/UnownedBusiness lists. Property user logic ends in virtual slot 43 InitializeSaveable; native Property.InitializeSaveable tailcalls SaveManager.RegisterSaveable.",
+      "evidence": [
+        {
+          "path": "native-disassembly-init2/0x0600139B-Business-Awake.txt",
+          "lines": "6-18"
+        },
+        {
+          "path": "native-disassembly-init2/0x060013B7-Business-Awake_UserLogic_ScheduleOne_Property_Busin.txt",
+          "lines": "17-110"
+        },
+        {
+          "path": "native-disassembly-init2/0x0600145A-Property-Awake_UserLogic_ScheduleOne_Property_Prope.txt",
+          "lines": "687-690",
+          "rva": "0x55453B-0x554548"
+        },
+        {
+          "path": "native-disassembly-init2/0x06001420-Property-InitializeSaveable.txt",
+          "lines": "24-31",
+          "rva": "0x554F6D-0x554F87"
+        }
+      ]
+    },
+    {
+      "id": "start-and-teardown-asymmetric",
+      "claim": "Property.Start subscribes GetNetworth to MoneyManager.onNetworthCalculation. Business.Start calls Property.Start then adds MinPass and TimeSkipped callbacks to TimeManager.onMinutePass/onTimeSkip. The decoded Business.OnDestroy body removes three Business lists and tailcalls Property.OnDestroy; the latter unsubscribes MoneyManager and removes three Property lists. No TimeManager unsubscribe is present in these bounded OnDestroy bodies; future use requires explicit lifetime accounting, not an assumed symmetric base cleanup.",
+      "evidence": [
+        {
+          "path": "native-disassembly-init2/0x06001421-Property-Start.txt",
+          "lines": "28-66"
+        },
+        {
+          "path": "native-disassembly-init2/0x0600139C-Business-Start.txt",
+          "lines": "21-101"
+        },
+        {
+          "path": "native-disassembly-init2/0x0600139D-Business-OnDestroy.txt",
+          "lines": "19-46"
+        },
+        {
+          "path": "native-disassembly-init2/0x06001427-Property-OnDestroy.txt",
+          "lines": "43-113"
+        }
+      ],
+      "fieldIdentity": "native-map-init2 FieldMap: TimeManager.onMinutePass=0x158, onTimeSkip=0x178; MoneyManager.onNetworthCalculation=0x158"
+    },
+    {
+      "id": "ctor-state-not-established-by-shell",
+      "claim": "Native Business ctor sets capacity 1000, allocates LaunderingOperations and BusinessLoader, then Property ctor. Property ctor allocates Employees, BuildableItems, Configurables, Grids, PropertyLoader and four save-path/extra lists, sets default fields, and tailcalls NetworkBehaviour ctor. The injected shell constructor only accepts IntPtr; the shown mod Prepare sets code/name/two extra lists. Successful shell lifecycle alone does not establish these native constructor effects.",
+      "evidence": [
+        {
+          "path": "native-disassembly-init2/0x060013AA-Business-_ctor.txt",
+          "lines": "18-52"
+        },
+        {
+          "path": "native-disassembly-init2/0x06001444-Property-_ctor.txt",
+          "lines": "38-156"
+        },
+        {
+          "path": "../../../Source/Mods/TownHallInterior/src/BusinessConstruction.cs",
+          "lines": "2718-2722,3286-3303"
+        }
+      ],
+      "notAProposal": "1000 native default is not approved TownHall balancing. Do not blindly call a Component ctor on an existing injected Unity component."
+    },
+    {
+      "id": "network-cache-not-fishnet-ready",
+      "claim": "Native NetworkBehaviour ctor initializes component index 255 plus replicate/reconcile, RPC link/server/client/buffer, sync collections and a connection hashset. Business/Property early initializers populate RPC handlers. Linking an owned NetworkObject and component cache is a distinct bounded stage; it does not prove dictionaries, RPC handlers, spawn/server ownership, or net lifecycle are ready.",
+      "evidence": [
+        {
+          "path": "native-disassembly-init2/0x060006B3-NetworkBehaviour-_ctor.txt",
+          "lines": "46-164",
+          "rva": "0xCCAD59-0xCCAFA3"
+        },
+        {
+          "path": "native-disassembly-init2/0x060013AC-Business-NetworkInitialize___Early.txt",
+          "lines": "22-77"
+        },
+        {
+          "path": "native-disassembly-init2/0x06001449-Property-NetworkInitialize___Early.txt",
+          "lines": "28-100"
+        }
+      ]
+    },
+    {
+      "id": "usable-native-data-seam",
+      "claim": "PropertyContentsContainer.SetProperty checks Unity null and assigns its own Property backing reference (or logs error). Native currentLaunderTotal sums LaunderingOperations; appliedLaunderLimit subtracts that total from LaunderCapacity. DoBoundsContainPoint iterates propertyBoundsColliders and calls IsPointInsideBox. These are concrete callable existing APIs with narrow owned-data dependencies.",
+      "evidence": [
+        {
+          "path": "native-disassembly-init2/0x06001475-PropertyContentsContainer-SetProperty.txt",
+          "lines": "21-33"
+        },
+        {
+          "path": "native-disassembly-init2/0x06001398-Business-get_currentLaunderTotal.txt",
+          "lines": "19-63"
+        },
+        {
+          "path": "native-disassembly-init2/0x06001399-Business-get_appliedLaunderLimit.txt",
+          "lines": "3-13"
+        },
+        {
+          "path": "native-disassembly-init2/0x0600143E-Property-DoBoundsContainPoint.txt",
+          "lines": "17-69"
+        }
+      ]
+    },
+    {
+      "id": "s1api-wraps-existing-native-objects",
+      "claim": "Installed S1API BusinessWrapper ctor stores an existing native Business via PropertyWrapper; manager APIs enumerate existing native static lists. CurrentLaunderTotal/AppliedLaunderLimit are native getters; PropertyWrapper.IsPointInside calls native DoBoundsContainPoint. AddLaunderingOperation invokes native StartLaunderingOperation (RPC), so it is outside an uninitialized shell data seam. These APIs provide no Business factory or native lifecycle initializer.",
+      "evidence": [
+        {
+          "path": "S1API.BusinessWrapper.fresh.cs.txt",
+          "lines": "282-290,320-329"
+        },
+        {
+          "path": "S1API.PropertyWrapper.fresh.cs.txt",
+          "lines": "243-256"
+        },
+        {
+          "path": "S1API.BusinessManager.fresh.cs.txt",
+          "lines": "9-45"
+        }
+      ]
+    },
+    {
+      "id": "serialization-later-only",
+      "claim": "Native Business.GetSaveString reads Switches, Toggleables, LaunderingOperations, propertyCode/IsOwned, employee/object save datas and constructs BusinessData. Current injected GetSaveString intentionally returns empty; calling the generated virtual proxy/base wrapper is not evidence that the native implementation was invoked. Preserve the no-IO override in the next NetworkObject binding slice; a separate explicit serializer trial needs its own dispatch and dependency evidence.",
+      "evidence": [
+        {
+          "path": "native-disassembly-init2/0x060013A3-Business-GetSaveString.txt",
+          "lines": "36-202"
+        },
+        {
+          "path": "../../../Source/Mods/TownHallInterior/src/BusinessConstruction.cs",
+          "lines": "2754-2755"
+        }
+      ]
+    }
+  ],
+  "nextDataStepProposal": {
+    "order": "After the bounded owned NetworkObject/cache-binding slice, not a parallel change in this audit.",
+    "implementation": [
+      "Keep the proved no-base lifecycle, save suppression and own cleanup; do not call original Awake/Start/InitializeSaveable, SetOwned, Load or RPC bodies.",
+      "Construct owned, nonpublished field state explicitly on the inactive shell: empty native Business/Property lists, both loaders, IsOwned=false and OwnedByDefault=false, capacity/price zero pending approved balancing, owned container, bounds, spawn points and UI container as required by the selected getter surface.",
+      "Use the actual PropertyContentsContainer.SetProperty(shell), read back both reference directions, and wrap this same native Business with S1API.Property.BusinessWrapper.",
+      "Read actual native current total/applied limit (empty list gives zero), plus a clearly interior and exterior point through IsPointInside. Keep all world registries and external subscriptions unchanged.",
+      "Retain native pointer identity, context generation, metadata/invoker target and ownership checks; any uncertain native effect stops reuse and requires exact cleanup readback."
+    ],
+    "acceptance": [
+      "Offline tests cover partial preparation and cleanup/context failures; builds prove matching API names only.",
+      "A future explicitly scoped live trial verifies native getter values and inside/outside results, own object identities, unchanged world/SaveManager/TimeManager/MoneyManager state and full owned object cleanup.",
+      "Do not claim purchasability, laundering execution, persistence, network readiness or early world publication from this stage."
+    ]
+  },
+  "nativeSaveWriteAllowed": false,
+  "gameInvoked": false,
+  "nativeSaveFilesRead": false
+}

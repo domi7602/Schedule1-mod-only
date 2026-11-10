@@ -1,0 +1,85 @@
+{
+  "schema": 1,
+  "checkedUtc": "2026-11-06T13:15:18.3686450Z",
+  "reviewer": "/root/data_install_review",
+  "status": "passed",
+  "scope": "Prepared candidate and exact three deployed entries; official receipt/attempt identity; normal predecessor helper backup; production/test source hashes; closed game. No native save files or live reports inspected.",
+  "attemptId": "20261106T131352952Z-d1a1ce5b3e60",
+  "deployedAtUtc": "2026-11-06T13:13:53.1603504Z",
+  "receiptSha256": "409723232c4d285a138394c2fb25810c05ef690a35bf197d641578ba1b529625",
+  "attemptReceiptSha256": "409723232c4d285a138394c2fb25810c05ef690a35bf197d641578ba1b529625",
+  "backupId": "20261106T131352988Z-TownHallInterior-5a525519",
+  "backupManifestSha256": "879f6c8b6ecefb674cc3be5c98f37354dc8ba3525838321fa422790021f2b2ea",
+  "sourceHashes": [
+    {
+      "path": "Source/Mods/TownHallInterior/src/BusinessConstruction.cs",
+      "sha256": "2ce4f35fe695fe7bec8a8524a00744ae49edfa4b4edd41b69b0835a658af2873",
+      "matchesVerifiedSource": true
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/TownHallInterior.csproj",
+      "sha256": "9ca3fa493371986cad141d9096d2d1751630586417943b1673f70136c8ec0132",
+      "matchesVerifiedSource": true
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/BusinessBindingProbe.cs",
+      "sha256": "228e290ed3a9f32594ba1a3c2d237f571bf85f46da149fe5735e453380d90347",
+      "matchesVerifiedSource": true
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/BusinessDataTests.cs",
+      "sha256": "93b64e5730232dc9c62e8546c241fd8a418339e799682de46a5d0941b60e2854",
+      "matchesVerifiedSource": true
+    }
+  ],
+  "entries": [
+    {
+      "destinationRelative": "Mods\\TownHallInterior.dll",
+      "source": "C:\\Users\\pc\\Schedule1-mod-only\\.backups\\townhall-business-data-prepared\\20261106T125743151244Z\\TownHallInterior.dll",
+      "sourceSha256": "2e519ccfdc58053281dc67ffd91e2c1b53d523aa2941657e7b8e1fcd7dd81357",
+      "installedSha256": "2e519ccfdc58053281dc67ffd91e2c1b53d523aa2941657e7b8e1fcd7dd81357",
+      "action": "Copied",
+      "state": "Copied",
+      "matches": true
+    },
+    {
+      "destinationRelative": "UserData\\TownHallInterior\\TownHallInterior.pdb",
+      "source": "C:\\Users\\pc\\Schedule1-mod-only\\.backups\\townhall-business-data-prepared\\20261106T125743151244Z\\TownHallInterior.pdb",
+      "sourceSha256": "724340a903ac5719dbd333c33d8eab1f8fbffa1b92c3eb1415261f83e0a40f49",
+      "installedSha256": "724340a903ac5719dbd333c33d8eab1f8fbffa1b92c3eb1415261f83e0a40f49",
+      "action": "Copied",
+      "state": "Copied",
+      "matches": true
+    },
+    {
+      "destinationRelative": "UserData\\TownHallInterior\\mod.json",
+      "source": "C:\\Users\\pc\\Schedule1-mod-only\\Source\\Mods\\TownHallInterior\\docs\\mod.json",
+      "sourceSha256": "65938002b7273ef77dedbadf9092a186e6742f1e40fe404ef91576d3e4f81660",
+      "installedSha256": "65938002b7273ef77dedbadf9092a186e6742f1e40fe404ef91576d3e4f81660",
+      "action": "Unchanged",
+      "state": "NotAttempted",
+      "matches": true
+    }
+  ],
+  "backupChecks": [
+    {
+      "destinationRelative": "Mods\\TownHallInterior.dll",
+      "backupSha256": "614b81fd584040d4cebe7a18929bca09eabae478a6487ec6d846ea01d6062003",
+      "matchesNormalPredecessor": true
+    },
+    {
+      "destinationRelative": "UserData\\TownHallInterior\\TownHallInterior.pdb",
+      "backupSha256": "8126ae65f5c12f6e8261af0a1734e622d8c0ab5522a91e6653c7b1ffd7d8c497",
+      "matchesNormalPredecessor": true
+    }
+  ],
+  "copied": 2,
+  "unchanged": 1,
+  "staleCount": 0,
+  "gameClosedBeforeAndAfter": true,
+  "nativeSaveFilesRead": false,
+  "gameLaunched": false,
+  "buildsPerformed": false,
+  "runtimeDataQueriesVerified": false,
+  "findings": []
+}

@@ -1,0 +1,23 @@
+; FishNet.Managing.Object.ManagedObjects::RemoveFromSceneObjects/1, token 0x06000D89, RVA 0xD14B60, .pdata primary extent 0x54 bytes
+; Raw native bytes decoded without invoking the game. .pdata primary extent is not a proof of full transitive/exception-path coverage.
+0xD14B60     48 89 5C 24 08                  mov [rsp+8],rbx
+0xD14B65     57                              push rdi
+0xD14B66     48 83 EC 20                     sub rsp,20h
+0xD14B6A     80 3D D6 C3 EE 02 00            cmp byte ptr [183C00F47h],0
+0xD14B71     48 8B FA                        mov rdi,rdx
+0xD14B74     48 8B D9                        mov rbx,rcx
+0xD14B77     75 13                           jne short 0000000180D14B8Ch
+0xD14B79     48 8D 0D 50 9F CF 02            lea rcx,[183A0EAD0h]
+0xD14B80     E8 1B 2D 60 FF                  call 00000001803178A0h
+0xD14B85     C6 05 BB C3 EE 02 01            mov byte ptr [183C00F47h],1
+0xD14B8C     48 8B 4B 20                     mov rcx,[rbx+20h]
+0xD14B90     48 85 C9                        test rcx,rcx
+0xD14B93     74 19                           je short 0000000180D14BAEh
+0xD14B95     4C 8B 05 34 9F CF 02            mov r8,[183A0EAD0h]
+0xD14B9C     48 8B D7                        mov rdx,rdi
+0xD14B9F     48 8B 5C 24 30                  mov rbx,[rsp+30h]
+0xD14BA4     48 83 C4 20                     add rsp,20h
+0xD14BA8     5F                              pop rdi
+0xD14BA9     E9 22 8D 85 00                  jmp near ptr 000000018156D8D0h
+0xD14BAE     E8 CD 2F 60 FF                  call 0000000180317B80h
+0xD14BB3     CC                              int 3

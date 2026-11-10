@@ -1,0 +1,499 @@
+{
+  "schema": 1,
+  "reviewer": {
+    "name": "GPT-6.1 Sol",
+    "role": "Unabhängiger Code-/Testverifizierer nach AGENTS.md §6",
+    "wasImplementationAuthor": false,
+    "wasCandidateTestAuthor": false,
+    "authoredOnlyIndependentScratchProbes": true,
+    "spawnedSubagents": false,
+    "firstRecordedIndependentCheckUtc": "2026-11-05T18:21:52.238367Z",
+    "closingInputVerificationUtc": "2026-11-05T18:26:20.743567Z",
+    "supplementalIsolationArtifactVerificationUtc": "2026-11-05T18:31:31.162280Z"
+  },
+  "verdict": "needs-correction",
+  "semanticVerdict": "accepted",
+  "verdictScope": "Ausschließlich eingefrorene reine synthetische Implementierung V2 und Qualität ihrer neuen Offline-Modelltests; keine native oder Repository-Gesamtfreigabe.",
+  "summary": "Semantik des reinen V2-Modells akzeptiert, kein festgestellter Logik-/Sicherheitsdefekt in diesem Slice. Eine Pflichtkorrektur ist offen: ausschließlich Whitespace im neuen Testinitializer T:828-829 (neun Formatterdiagnosen). 14 Kriterien accepted, 1 limited, 1 needs-correction. Der später übermittelte isolierte Pure-Lauf ist fehlgeschlagen (20 pass, 2 fail: eigener Formatfehler und fremder Versionsdrift), trotz 4740 bestandener xUnit-Fälle, 265 Konsolenchecks und 14 Toolsuiten. Eigene Proben: 33/33 Gruppen einschließlich 200 Modellrennen bestanden. V3 ist weder verändert noch vorab freigegeben; alle nativen Ziele bleiben unknown und NativeSaveWriteAllowed=false.",
+  "criteriaCounts": { "accepted": 14, "limited": 1, "needs-correction": 1 },
+  "requiredCorrections": [
+    {
+      "id": "R01",
+      "severity": "low",
+      "category": "formatting-only",
+      "status": "open-for-frozen-V2",
+      "target": "Source/Tests/TownHallInterior.Tests/BusinessSaveOperationOwnerTests.cs:828-829",
+      "evidence": ["../isolation/format.log:1-9", "../isolation/report.json:28-42", "isolation-artifact-check.json"],
+      "finding": "Der neue mehrzeilige Candidate-with-Initializer entspricht nicht der Repositoryformatierung; neun WHITESPACE-Diagnosen, dotnet format --verify-no-changes Exit 2. Das ist eine eigene neue Abweichung und darf nicht dem vorhandenen Versionsdrift zugeschlagen werden.",
+      "correction": "Nur diesen Initializer auf die geforderte Blockformatierung umstellen: öffnende/abschließende Klammer auf eigene Zeile, jedes der acht Zuweisungsfelder auf eigene eingerückte Zeile. Keine C#-Tokens, Werte, Assertions oder anderen Dateien ändern.",
+      "verificationAfterCorrection": "V2-Archive/Originalbericht behalten; V3-Testbytes separat hashen, unveränderte Tokens und Assertions sowie unveränderten Produktionshash nachweisen und Formatterkorrektur separat prüfen. Dieser Bericht bewertet ausschließlich V2 und erklärt die noch nicht geprüfte V3 nicht nachträglich für bestanden.",
+      "notRequested": "Keine HitmanPhone-/Minimap-/PoliceTestMode-Versionen reparieren, keine native Anbindung oder Freigabe daraus ableiten."
+    }
+  ],
+  "nativeSaveWriteAllowed": false,
+  "safeToUnregister": false,
+  "safeToDestroy": false,
+  "nativeProofs": {
+    "ReferenceProof": "unknown",
+    "NativeWriteProof": "unknown",
+    "ModDataProof": "unknown"
+  },
+  "repository": {
+    "path": "C:/Users/pc/Schedule1-mod-only",
+    "revision": "b2c6c7e6c6ecc778da9624cdb68a6578b9db471a",
+    "worktree": "dirty",
+    "preservationBaselineUtc": "2026-11-05T18:05:20.629723Z",
+    "preservationScope": "Vergleich gegen den beauftragten Aufgaben-Vorstand und dessen Eingabemanifest, NICHT gegen einen vermeintlich sauberen HEAD. Bereits zuvor vorhandene Änderungen, darunter ältere BusinessManager-Tests und native Audits, bleiben unverändert und werden nicht neu abgenommen.",
+    "candidateFrozenUtc": "2026-11-05T18:17:04.861519Z",
+    "candidateFreeze": ".scratch/townhall-save-operation-owner-impl-20261105/candidate-v2/freeze.json",
+    "liveMatchesFrozenCandidate": true,
+    "productionFileCount": 20,
+    "protectedOtherSourcesUnchanged": 40,
+    "priorArtifactsUnchanged": 237,
+    "priorManifestsUnchanged": 3,
+    "onlyProductionDelta": "BusinessConstruction.cs:250-667, #region DataOnlySaveOperationOwnership; Entfernen einschließlich der nachfolgenden Leerzeile reproduziert BusinessConstruction.before.cs bytegleich."
+  },
+  "reviewedHashes": [
+    {
+      "path": "Source/Mods/TownHallInterior/src/BusinessConstruction.cs",
+      "frozenPath": ".scratch/townhall-save-operation-owner-impl-20261105/candidate-v2/source.txt",
+      "sha256": "e4bb1d13324a3d61419d26ba172e88ba2ea53e30b15d3c6b6f43fb3e72212f50"
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/BusinessSaveOperationOwnerTests.cs",
+      "frozenPath": ".scratch/townhall-save-operation-owner-impl-20261105/candidate-v2/tests.txt",
+      "sha256": "c92e90af755b8feadbd77282ccf0a852b0e1cedaf25ec63eea8a354f3d9ce198"
+    },
+    {
+      "path": ".scratch/townhall-save-operation-owner-impl-20261105/candidate-v2/ownership-block.txt",
+      "sha256": "7683e61d725f8a89e766de4e1d92dcdb0f3295c8ed301bf8815042a2d6efb102"
+    },
+    {
+      "path": ".scratch/townhall-save-operation-owner-impl-20261105/BusinessConstruction.before.cs",
+      "sha256": "8964512eeb94ae63acadbe5cd47caa7c36a325e10cd75af73cc5c1091c4db5d2"
+    },
+    {
+      "path": ".scratch/townhall-save-operation-owner-impl-20261105/implementation-contract.md",
+      "sha256": "03cb9ad799c42475236caecb7ad1795ad4ecb00776b1b0ae0b3fa68bcda8cd53"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/docs/business-save-operation-owner.md",
+      "sha256": "985642354836f8a8eb6b4109277261e42b196c4ab2f3f7641407b2347b954549"
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/TownHallInterior.Tests.csproj",
+      "sha256": "dc582cf6a85f3c98417c83cd67a65f28b8f8739bb1a1507fe665eaa52ceec26c"
+    }
+  ],
+  "evidenceLegend": {
+    "S": "Source/Mods/TownHallInterior/src/BusinessConstruction.cs, identisch mit candidate-v2/source.txt; Zeilen beziehen sich auf V2.",
+    "T": "Source/Tests/TownHallInterior.Tests/BusinessSaveOperationOwnerTests.cs, identisch mit candidate-v2/tests.txt.",
+    "C": ".scratch/townhall-save-operation-owner-impl-20261105/implementation-contract.md",
+    "D": "Source/Mods/TownHallInterior/docs/business-save-operation-owner.md",
+    "P": ".scratch/townhall-save-operation-owner-impl-20261105/review/probe/Program.cs",
+    "localArtifactBase": ".scratch/townhall-save-operation-owner-impl-20261105/review/"
+  },
+  "criteria": [
+    {
+      "id": "C01",
+      "criterion": "Freeze, eigener Byteabgleich und Bestandserhaltung",
+      "status": "accepted",
+      "evidence": ["integrity-open.json", "integrity-close.json", "verify-integrity.py", "C:7-16", "S:250-669"],
+      "reason": "Je 329 eigenständige Vergleiche bestanden. Nicht den Freeze-Helper wiederverwendet: Region über Zeilenpositionen entfernt und resultierende Bytes gegen den hashgeprüften Before-Snapshot verglichen. V1/V2-Archive, Live-Source/Tests, Vertrag, Entwurf, Projekt-/Builddateien, 40 andere Quellen und 237 Altartefakte samt drei Manifesten stimmen. Produktionsbudget bleibt 20.",
+      "limit": "Hashgleichheit belegt Identität, nicht Wahrheit früherer Befunde oder sauberen Git-Gesamtzustand."
+    },
+    {
+      "id": "C02",
+      "criterion": "Gemeinsamer künstlicher Prozessslot, Tombstone, frühes Revoke und neue Fassaden",
+      "status": "accepted",
+      "evidence": ["S:277-345", "S:546-555", "S:648-665", "T:73-92", "T:195-222", "T:796-807"],
+      "reason": "Alle Fassaden teilen dasselbe Modell mit unveränderlicher Bindung; kein öffentlich zurücksetzbarer Besitzerkonstruktor. Nach Bindung kein neuer Slot, nach frühem Revoke ebenfalls keine Zulassung. Bindingslot und früher widerrufene, aber noch nicht gebundene Zulassung werden korrekt unterschieden.",
+      "limit": "Jedes neu erzeugte BusinessSaveProcessModel ist ausdrücklich eine eigene Simulation, kein Umgehen oder Nachweisen eines realen OS-Prozessbudgets."
+    },
+    {
+      "id": "C03",
+      "criterion": "Unveränderliche feste Zielbindung und rein wertbasierte Pfadkanonisierung",
+      "status": "accepted",
+      "evidence": ["S:252-256", "S:591-645", "S:944-977", "T:94-193", "T:824-835", "probe.log:canonical stamp aliases accepted without rebinding identity labels", "probe.log:controls in paths are denied, controls in bounded diagnostics are sanitized"],
+      "reason": "Sieben Identitätslabels und positive Epoche werden geprüft; Strings/versiegelte Records halten keine veränderbaren fremden Objekte. Pfade müssen absolut, kontrollzeichenfrei und höchstens 32767 Zeichen lang sein; GetFullPath/TrimEndingDirectorySeparator transformieren nur Werte. CheckSave wird mit festen TownHallTest/SaveGame_2-Argumenten aufgerufen. Ungültige Kandidaten verbrauchen keinen Slot. Pfadäquivalenz ist von exakter Label-/Epochenidentität getrennt.",
+      "limit": "Keine Dateiexistenz-, Reparsepoint-, Weltcheckpoint- oder echte Instanzbestätigung. Pfadwerte sind synthetisch; case-insensitive Pfadvergleich entspricht dem vorhandenen Zielvertrag."
+    },
+    {
+      "id": "C04",
+      "criterion": "ABA-/Weltverlust- und Stamp-Key-/Binding-Bindung",
+      "status": "accepted",
+      "evidence": ["S:465-473", "S:506-523", "S:637-645", "T:224-282", "T:778-807"],
+      "reason": "Beobachtungen verlangen exakt die künstliche Prozesskennung und Auftragsnummer 1 sowie die kanonisch gleiche vollständige Bindung. Gleicher Pfad bei neuer Epoche oder Ersatzlabel wird nicht übernommen. ObserveContext mit Verlust oder Änderung widerruft und bewahrt die alte Bindung.",
+      "limit": "Das Modell erkennt nur gemeldeten Verlust; es beobachtet keine Engine und erzeugt aus Labels/Pointergleichheit keine native Identität."
+    },
+    {
+      "id": "C05",
+      "criterion": "Folgen, Clock, maximale Werte und endliche Grenzen",
+      "status": "accepted",
+      "evidence": ["S:421-438", "S:506-535", "S:558-577", "T:160-172", "T:616-659", "T:809-835", "probe.log:maximum message sequence", "probe.log:ticket exhaustion", "probe.log:diagnostic sequence exhaustion", "probe.log:huge finite clock"],
+      "reason": "Stamps brauchen positive strikt steigende long-Folge und endliche nichtnegative, nicht rückläufige Zeit. Maximalfolge wird noch beobachtet, sperrt aber neue Intents. Ticket-/Diagnosezähler prüfen MaxValue vor weiterem Inkrement; letzter darstellbarer Wert schließt Zulassung, ohne Wrap. Fixe Auftragsnummer und beibehaltene Bindung können keinen Nummernreset auslösen. Eigene Proben prüfen maximale Folge, extreme Enumwerte, double.MaxValue und beide internen Zählergrenzen.",
+      "limit": "Die beiden praktisch nicht auslaufbaren internen Zähler wurden ausschließlich im privaten Scratchmodell per Reflection an die Grenze gesetzt; kein Beleg für reale Laufdauer oder native Zähler."
+    },
+    {
+      "id": "C06",
+      "criterion": "Intent gegen Revoke unter einem Modelllock, ohne externe Reentranz",
+      "status": "accepted",
+      "evidence": ["S:285-310", "S:313-365", "S:487-504", "T:387-423", "T:588-614", "probe.log:concurrent revoke versus main-thread intent", "P:Worker/SetCounter/Main"],
+      "reason": "Alle Modellmutationen und Snapshotkopien nutzen denselben privaten Lock; Revoke kann von jedem Thread darunter monoton setzen. Der einzige Intentübergang liegt unter diesem Lock und kontrolliert Revoke auch nach Diagnoseeintrag. Versiegelte Datenrecords und bekannte reine Helfer führen keine delegierte fremde Arbeit aus; keine Ports/Tasks/Timer/Events. Neben den geordneten Tests erfüllten 200 konkurrierende Modellversuche die beiden zulässigen Ordnungen (12 eingelassen, 188 unterdrückt).",
+      "limit": "Der Lock linearisiert nur Modelldaten. Kein nativer Aufruf liegt darin oder danach im getesteten Vertrag; daraus folgt keinerlei linearisierter Engine-Eintritt, Callbackstack- oder Last-Use-Beweis."
+    },
+    {
+      "id": "C07",
+      "criterion": "Sechs geordnete Effekte mit einmaligem monotonem Intent und unbekannter Teilwirkung",
+      "status": "accepted",
+      "evidence": ["S:257-259", "S:349-365", "S:371-417", "T:284-385", "T:721-741"],
+      "reason": "Alle sechs Enumwerte sind fest begrenzt. Neue Intents brauchen für jeden Vorgänger Returned plus bestätigtes Readback ohne Failure sowie keinen aktiven/unsicheren Callback. Intent wird nie gelöscht; Fehler, Duplikate und ungültige Werte widerrufen statt kompensierend zu mutieren oder blind zu wiederholen. Eigene Save-/Remove-/Destroy-Intents sind nur Bits, keine Befehle.",
+      "limit": "Ein Modell kann selbst bei bestätigten sechs Effekten nie echte Registrierung, Save, Entfernung oder Destroy freigeben."
+    },
+    {
+      "id": "C08",
+      "criterion": "Späte Outcomes/Readbacks und V1-Fehlerkorrektur",
+      "status": "accepted",
+      "evidence": ["S:287-288", "S:369-417", "T:406-441", "T:743-776", "integrity-close.json:sourceV1V2Delta", "integrity-close.json:testsV1V2Delta", "probe.log:late failure after confirmed return", "probe.log:failed readback before return retained"],
+      "reason": "Returned nutzt die eigene monotone Returned-Marke; FailedOutcome hat separat _failedOutcomes, getrennt von der einmaligen Readbacknachricht. Damit bleiben Return und Failure in beiden Ordnungen erhalten. Late Return/Readback nach Revoke, Timeout, bereits fehlgeschlagenem Outcome oder Diagnoseüberlauf kann für vorhandenen Intent gebucht werden, niemals wieder zulassen. Bestätigtes Readback braucht Return. Ein Readback ist insgesamt einmalig; ein späteres widersprechendes zweites Readback ist deshalb ungültig und widerruft, keine Ersatzbestätigung. Eigene Proben decken späte Failure nach bestätigtem Readback für alle sechs Effekte und failed Readback vor Return ab.",
+      "limit": "Methoden-Bools zeigen akzeptierte Buchführung, nicht Erfolg/Erlaubnis in der Engine. Failure ist kein Beweis, dass vorher nichts gewirkt hat."
+    },
+    {
+      "id": "C09",
+      "criterion": "Callbacktickets: verschachtelt, ungebunden, off-thread, unsicher, cap 64 und finally",
+      "status": "accepted",
+      "evidence": ["S:421-451", "S:503-523", "S:538-543", "T:469-596", "T:778-807", "probe.log:off-thread callback exit", "probe.log:unbound exit", "probe.log:invalid callback entry and exit"],
+      "reason": "Positive eindeutige Tickets zählen höchstens 64 aktive Nachrichten. Ungültiger/ungebundener/off-thread Eintritt oder Austritt setzt Uncertainty und Revoke, ohne fremde oder noch lebende Tickets zu entfernen. Gültige späte Ein-/Austritte bleiben nach Quarantäne zählbar. Verschachtelte finally-Schließung und untracked/duplicate Exit erhalten korrekte Restzahlen. Eigene Probe bestätigt die Erhaltung eines real im Modell aktiven Tickets bei off-thread Exit.",
+      "limit": "Es laufen keine Callbackrümpfe im Modell. ActiveCallbacks=0 ist ausdrücklich keine reale Callback-Quieszenz; Unsicherheit und native Sperren bleiben auch bei null bestehen."
+    },
+    {
+      "id": "C10",
+      "criterion": "Begrenzte Diagnose, Überlauf und 60 Sekunden ohne Berechtigungsgewinn",
+      "status": "accepted",
+      "evidence": ["S:492-499", "S:526-588", "T:598-719", "probe.log:64th diagnostic fits", "probe.log:late returned outcome remains recorded at ring overflow"],
+      "reason": "Höchstens 64 letzte Einträge, Felder/erste Ursache höchstens 160 Zeichen und kontrollzeichenbereinigt. Überlauf/Folgen-/Clockfehler latches incomplete und Revoke, erste Ursache bleibt erhalten. Beim Überlauf unmittelbar im neuen Intentdiagnoseeintrag wird der Intent nicht mehr gesetzt. Ab gebunden elapsed >=60 widerrufen Tick und Beobachtungen diagnostisch; Bindung, vorhandene Intents und späte Daten bleiben erhalten.",
+      "limit": "Zeitablauf ist kein Abbruch, kein Drain, kein Timeout-basiertes Remove/Destroy und keine Saveerfolgsaussage. Es gibt keine interne Pumpe oder automatische Wiederholung."
+    },
+    {
+      "id": "C11",
+      "criterion": "Unabhängige schreibgeschützte Snapshots und fehlende Proofsetter",
+      "status": "accepted",
+      "evidence": ["S:251-274", "S:313-324", "S:944-945", "T:284-298", "T:837-856", "probe.log:snapshot copies cannot mutate live data or computed native proofs"],
+      "reason": "Snapshot erzeugt eigene Dictionary-/Arraykopien mit ReadOnly-Wrappern; enthaltene Werte, Bindung und Context sind versiegelte immutable Datenrecords/Strings. Init/with erzeugt nur getrennte Records. Die sieben Autoritäts-/Proofproperties sind ausschließlich berechnet, ohne Setter. Selbst ein frei erzeugter/geänderter Snapshot kann native Flags und Proofstrings nicht wahr/established setzen oder das Modell mutieren.",
+      "limit": "Ein erzeugter Snapshot ist kein Zertifikat für externe Zustände und ersetzt keine konkrete native Evidenz."
+    },
+    {
+      "id": "C12",
+      "criterion": "Telemetrie und unerwarteter fremder Save erzeugen keine falsche Korrelation",
+      "status": "accepted",
+      "evidence": ["S:455-484", "T:300-314", "T:443-467", "T:661-684"],
+      "reason": "Complete/Idle/queue-empty/Frame-Text landet ausschließlich in begrenzter Diagnose. ObserveUnexpectedSave widerruft, ohne Saveintent zu setzen, fremde Aufrufe abzufangen oder externe Subscriber auszuführen. Keine Telemetrie kann Returned/Readback oder einen nativen Requesttoken erzeugen.",
+      "limit": "Keine globale Autosave-/Fremdmod-Sperre und keine reale Fremdsave-Erkennung installiert."
+    },
+    {
+      "id": "C13",
+      "criterion": "Keine Runtime-/Port-/Unity-/Handle-/FileIO-Anbindung oder Altcodeänderung",
+      "status": "accepted",
+      "evidence": ["S:250-667", "S:615-632", "Source/Mods/TownHallInterior/src/Mod.cs:13-89", "integrity-close.json", "build.log", "probe/ReviewProbes.csproj"],
+      "reason": "Neuer Block enthält keine Port-, Unity-, IntPtr-, File-/Directory-, Task-/Timer- oder SaveTrial-Referenz. Einzige Nutzung des bestehenden Gates ist reine CheckSave-Validierung. Identifiersuche in den 20 Produktionsdateien findet 53 neue Modelltreffer ausschließlich innerhalb der Region; keine Callsite in Mod/Loaded/Stop. Projektdatei und Buildprops/-targets unverändert. Die Scratch-Kompilation verlinkt nur eingefrorenen Source ohne native Präprozessorsymbole und eigene Proben; keine Spiel-/Frameworkreferenzen.",
+      "limit": "Der interne object-Lock ist Synchronisationsbesitz, kein frei gespeicherter Objektpayload oder nativer Handle. Bestehender Code außerhalb der Region wurde nur auf Erhaltung und relevante reine Verträge geprüft, nicht umfassend neu abgenommen."
+    },
+    {
+      "id": "C14",
+      "criterion": "Qualität und Unabhängigkeit der neuen 128 Modellfälle",
+      "status": "accepted",
+      "evidence": ["T:1-858", "integrity-close.json:testsV1V2Delta", "../owner-targeted-v1/results.trx:47-53", "../owner-targeted-v2/report.json", "../townhall-regression-v2/report.json", "probe-run.json"],
+      "reason": "Tests formulieren Vertragszustände und exakte Ledgerwerte statt nur Rückgabewerte: feste Ziele, sieben Labels, Bindung/ABA, beide Widerrufsordnungen, alle sechs Teilwirkungs-/Readbackfehler, ungültige Nachrichten, echte Workerthreads, Ticket-Finally, Grenzen und konstante native Sperren. Der ursprüngliche V1-Test blieb unverändert rot nachweisbar (121 total, 120 pass, 1 fail); V2 ergänzt nur sechs parametrische Fälle plus einen Fact, ohne entfernte/abgeschwächte Zeilen. Die 40 alten Quellen einschließlich Tests/proj sind gegenüber Aufgabenbeginn unverändert. Parentberichte/TRX stimmen auf 128/128 bzw. 809/809 überein; die zusätzlichen 33 eigenen Probegruppen prüfen unabhängig eingefrorenen Source.",
+      "limit": "128/809 sind vom Parent ausgeführte Offline-Läufe, hier nur Artefakt-/Counterabgleich, keine erneut ausgeführten Haupttests. Die 809 enthalten die 128, also nicht addieren. Eigene 33 Gruppen enthalten 200 Renniterationen; auch diese Zahlen nicht als zusätzliche xUnit-Fälle addieren."
+    },
+    {
+      "id": "C15",
+      "criterion": "Gegenfallabdeckung aller 15 Entwurfsfälle ohne Pseudobeweis",
+      "status": "limited",
+      "evidence": ["D:201-223", "designCounterexamples dieses Berichts", "T:6-18", "T:195-298", "T:387-550"],
+      "reason": "Alle 15 Fälle sind unten zugeordnet; die reinen Projektionen sind plausibel geprüft. Tatsächlich ausbleibende Weltereignisse, Hallenfehler/Altmanagerlesbarkeit, Codeunload und konkrete fremde Save-/Sidecarfehler sind im absichtlich unverdrahteten Modell nicht ausführbar. Diese Grenzen sind zulässig und kein Codeblocker für diesen Slice, aber verhindern native oder vollständige Lifecycle-Aussagen.",
+      "limit": "Weder Erfolgsbits noch Prozessmodelle, Lock, Callbacktickets, Zählernull oder Testgrün schließen die drei nativen Beweisziele. Keine neue Live-Zulassung."
+    },
+    {
+      "id": "C16",
+      "criterion": "Formatkonformität der neuen Tests und korrektes fehlgeschlagenes Pure-Gesamturteil",
+      "status": "needs-correction",
+      "evidence": ["T:828-829", "../isolation/format.log:1-9", "../isolation/report.json:1-42,63-77", "../isolated-verification.json:1-29", "isolation-artifact-check.json"],
+      "reason": "Isoliertes Pure für denselben V2-Quell-/Testhash ist tatsächlich fehlgeschlagen: Format Exit 2 ausschließlich im neuen Initializer; Versionsprüfung Exit 1 mit bekanntem fremdem Drift. Die neun Whitespacefehler sind zu korrigieren (R01), kein semantischer Modellfehler. Die 20 erfolgreichen Teilschritte und grünen Testzahlen heben den fehlgeschlagenen Gesamtstatus nicht auf.",
+      "limit": "Die angekündigte token-/assertionsgleiche V3-Korrektur folgt erst nach diesem Review und ist nicht vorab verifiziert. Weder ein rotes noch ein später vollständig grünes Repositorygate ersetzt native Nachweise."
+    }
+  ],
+  "designCounterexamples": [
+    {
+      "id": "D01",
+      "designLine": 205,
+      "case": "Reentrant Begin während Bindung/Registrierung/Save",
+      "status": "accepted",
+      "evidence": ["S:328-365", "T:195-222", "T:796-807"],
+      "assessment": "Synthetisch: zweiter Bind über neue Fassade während aktivem Ticket scheitert am gemeinsamen Slot; Schlüssel/Bindung bleiben. Kein externer reentranter Aufruf existiert im reinen Block. Reale native Reentranz wird nicht behauptet."
+    },
+    {
+      "id": "D02",
+      "designLine": 206,
+      "case": "Widerruf vor beziehungsweise nach Intentzulassung",
+      "status": "accepted",
+      "evidence": ["T:387-423", "probe-run.json:probeResults.raceTrials"],
+      "assessment": "Beide geordneten Fälle sowie 200 tatsächlich konkurrierende Modellversuche erhalten entweder keinen Intent oder den eingelassenen Intent; späte Rückkehr reaktiviert nicht. Nur Modelllinearisation."
+    },
+    {
+      "id": "D03",
+      "designLine": 207,
+      "case": "Synthetischer Konstruktorcallback vor Besitzerbindung",
+      "status": "accepted",
+      "evidence": ["T:501-512", "S:506-508"],
+      "assessment": "Ungebundener Eintritt liefert 0, setzt Uncertainty/Revoke und verhindert spätere Bindung auch über neue Fassade. Kein Konstruktor-/Rückgabevertrag für Unity daraus abgeleitet."
+    },
+    {
+      "id": "D04",
+      "designLine": 208,
+      "case": "Neue Besitzerinstanz nach Tombstone",
+      "status": "accepted",
+      "evidence": ["T:195-222", "S:304-324", "S:648-665"],
+      "assessment": "Neue Fassaden desselben Modellobjekts übernehmen Slot/Revocation, neue Modellobjekte sind ausdrücklich separate Simulationen. Kein echter Prozessreset behauptet."
+    },
+    {
+      "id": "D05",
+      "designLine": 209,
+      "case": "Gleicher Pfad/Pointer nach Menüreload, ABA",
+      "status": "accepted",
+      "evidence": ["T:224-282", "S:637-645"],
+      "assessment": "Gleiche Pfade bei neuer Epoche oder geänderten künstlichen Instanz-/Listenlabels widerrufen, ohne Retargeting. Labels bleiben reine Daten, keine Garantie gegen native Adresswiederverwendung."
+    },
+    {
+      "id": "D06",
+      "designLine": 210,
+      "case": "Register/AddComponent wirkt und wirft",
+      "status": "accepted",
+      "evidence": ["T:329-347", "T:721-741", "S:349-417"],
+      "assessment": "Die Exception ist als FailedOutcome/FailedReadback modelliert. Intent aller sechs Effekte bleibt möglich wirksam; weder kompensierender Aufruf noch Wiederholung. Kein echter AddComponent/Registrierungsaufruf ausgeführt."
+    },
+    {
+      "id": "D07",
+      "designLine": 211,
+      "case": "Save wirft vor oder nach sichtbarer Rückkehr",
+      "status": "accepted",
+      "evidence": ["T:329-347", "T:425-441", "T:743-776", "probe.log:late failure after confirmed return"],
+      "assessment": "Fehler-vor-Return, Return-vor-Fehler und bestätigtes Readback-vor-spätem-Fehler bleiben getrennt erhalten. Eigenes Saveintent ist einmalig. Eigene Probe prüft Return/Readback/Failed für alle Effekte."
+    },
+    {
+      "id": "D08",
+      "designLine": 212,
+      "case": "Fremder/automatischer Save während Exposition",
+      "status": "accepted",
+      "evidence": ["T:443-456", "S:477-484"],
+      "assessment": "Unerwartete Save-Nachricht nach modellierter Registrierung sperrt eigenen Save und erfindet keine Korrelation/Exklusivität. Keine reale Autosaveinterzeption."
+    },
+    {
+      "id": "D09",
+      "designLine": 213,
+      "case": "Completion vor Fehlerauswertung, doppelt, verspätet oder ohne Start",
+      "status": "accepted",
+      "evidence": ["T:458-467", "T:661-684", "T:425-441", "S:455-462"],
+      "assessment": "Wiederholte/ungünstig geordnete Completiontexte bleiben Telemetrie; späte Daten schaffen weder Freigabe noch Return/Readback aus einem Event. Native Completionreihenfolge nicht erneut untersucht."
+    },
+    {
+      "id": "D10",
+      "designLine": 214,
+      "case": "Queue leer, Completed/Batch hält Instanz",
+      "status": "accepted",
+      "evidence": ["T:300-314", "T:443-467", "T:284-298"],
+      "assessment": "Die Projektion hält Queue-/Frame-/Completed-Hinweise ohne Effektberechtigung; selbst vollständig gefaktes Ledger erlaubt keine Entfernung/Destroy. Kein tatsächlicher Batch-/Referenzhalter ausgelesen und kein Last-Use-Inventar bewiesen."
+    },
+    {
+      "id": "D11",
+      "designLine": 215,
+      "case": "Weltwechsel während Callback, vor Event oder ohne Zustellung",
+      "status": "limited",
+      "evidence": ["T:224-259", "T:406-423", "S:465-473"],
+      "assessment": "Gemeldeter Weltverlust und Widerruf während synthetischem Ticket bleiben terminal. Nicht zugestellter tatsächlicher Verlust wird von diesem unverdrahteten Datenspeicher nicht erkannt. Da keine Engineaktion zugelassen ist, behauptet der Code auch keine erhaltene native Freigabe; die native Zulassungssperre bleibt nötig."
+    },
+    {
+      "id": "D12",
+      "designLine": 216,
+      "case": "Stop/Main-Unload, Hallenfehler oder unlesbarer Altmanager",
+      "status": "limited",
+      "evidence": ["T:195-222", "T:598-614", "T:837-856", "S:487-499"],
+      "assessment": "Revoke und neue Fassaden verlieren den gespeicherten Auftrag nicht; kein Manager wird neu aufgelöst oder automatisch zerstört. Tatsächliche Stop-/Unload-Aufrufer, Erreichbarkeit vor Hallenfehlern und native Lesbarkeit sind hier ausdrücklich nicht verdrahtet/getestet."
+    },
+    {
+      "id": "D13",
+      "designLine": 217,
+      "case": "Remove/Destroy teilwirksam, Readback wirft",
+      "status": "accepted",
+      "evidence": ["T:329-347", "T:721-763", "S:371-417"],
+      "assessment": "Failed-Nachrichten für Removal und Destroy erhalten Intent und unbekannte Teilwirkung; kein zweiter Intent oder automatischer Cleanup. Ein modelliertes confirmed-Bit bleibt weiterhin ohne native Beweiskraft."
+    },
+    {
+      "id": "D14",
+      "designLine": 218,
+      "case": "Off-thread/nestender Callback, Überlauf und Clockrücklauf",
+      "status": "accepted",
+      "evidence": ["T:469-659", "T:686-719", "T:778-835", "probe.log:off-thread callback exit", "probe.log:ticket exhaustion", "probe.log:diagnostic sequence exhaustion"],
+      "assessment": "Zählung/Uncertainty, endlich begrenzte Tickets/Diagnose, monotone Zeit/Folge und Maximalwerte unterscheiden gültige finally-Buchführung von verlorener Vollständigkeit. Nullzählung führt niemals zu nativer Freigabe."
+    },
+    {
+      "id": "D15",
+      "designLine": 219,
+      "case": "Eigene Referenzen getrennt, fremder Save-/Sidecarfehler",
+      "status": "limited",
+      "evidence": ["T:284-298", "S:268-274", "probe.log:snapshot copies cannot mutate live data or computed native proofs"],
+      "assessment": "Vollständig positives Modellledger und selbst frei erzeugte Snapshotkopien lassen alle drei nativen Ziele unknown und alle Freigaben false. Ein tatsächlicher fremder Save-/Sidecarfehler oder wirklich abgetrennte Referenzen sind mangels Ports/IO nicht ausführbar. Keine übergreifende Transaktion oder Konsistenz nachgewiesen."
+    }
+  ],
+  "designCounterexampleCounts": { "accepted": 12, "limited": 3, "needs-correction": 0 },
+  "independentlyExecutedChecks": [
+    {
+      "name": "SDK-Inventar",
+      "command": "dotnet --list-sdks",
+      "exitCode": 0,
+      "result": "8.0.426 in C:/Program Files/dotnet/sdk; DOTNET_ROOT unverändert/nicht gesetzt."
+    },
+    {
+      "name": "Eingangs-Integritätsabgleich",
+      "command": "C:/Users/pc/Documents/LLM-WIKI/.venv/Scripts/python.exe .scratch/townhall-save-operation-owner-impl-20261105/review/verify-integrity.py integrity-open.json",
+      "exitCode": 0,
+      "counters": { "total": 329, "passed": 329, "failed": 0 },
+      "artifact": "integrity-open.json"
+    },
+    {
+      "name": "Scratch-only Offline-Restore, Build und eigene Proben",
+      "command": "C:/Users/pc/Documents/LLM-WIKI/.venv/Scripts/python.exe .scratch/townhall-save-operation-owner-impl-20261105/review/run-probes.py",
+      "exitCode": 0,
+      "stepExitCodes": { "scratchRestore": 0, "scratchBuild": 0, "probeExecution": 0 },
+      "counters": { "probeGroups": 33, "passed": 33, "failed": 0, "raceIterationsIncluded": 200, "raceIntentAdmitted": 12, "raceIntentSuppressed": 188 },
+      "buildWarnings": 0,
+      "buildErrors": 0,
+      "gameProcessCountObservedBeforeBuild": 0,
+      "targetFramework": "net6.0",
+      "artifact": "probe-run.json",
+      "logs": ["restore.log", "build.log", "probe.log"],
+      "limits": "Nur privates ReviewProbes.csproj mit eingefrorenem V2-Source und neuen Proben. Sämtliche Paketquellen via eigenem NuGet.Config geleert, Audit aus, bestehende SDK-/Refpack-Caches benutzt; keine PackageReferences oder Projektverweise (project.assets.json: libraries leer, net6.0-Ziel ohne Packageitems, DependencyGroup leer). Deklarierte Framework-DownloadDependencies nutzen vorhandene Refpacks/Caches, keine externen Feeds. Kein Hauptprojekt-Build/Restore, keine neuen Downloads oder Spielreferenzen. Zwei Proben injizieren nur interne Scratch-Zählergrenzen; die übrigen benutzen öffentliche Modell-API."
+    },
+    {
+      "name": "Abschluss-Integritätsabgleich",
+      "command": "C:/Users/pc/Documents/LLM-WIKI/.venv/Scripts/python.exe .scratch/townhall-save-operation-owner-impl-20261105/review/verify-integrity.py integrity-close.json",
+      "exitCode": 0,
+      "counters": { "total": 329, "passed": 329, "failed": 0 },
+      "artifact": "integrity-close.json"
+    },
+    {
+      "name": "Manueller Code-/Testreview und Referenzsuche",
+      "exitCode": null,
+      "status": "completed",
+      "result": "Gesamten neuen Block, 858 Zeilen neue Tests, CheckSave/ConstructionContext und Modaufrufer gelesen. Neue Modellbezeichner in Produktionsquellen: 53 Treffer ausschließlich im neuen Block. Alle geforderten Projektregeln/Skills/Vertragsreferenzen geladen."
+    },
+    {
+      "name": "Enger Nachabgleich der später übermittelten Pure-Artefakte",
+      "command": "C:/Users/pc/Documents/LLM-WIKI/.venv/Scripts/python.exe .scratch/townhall-save-operation-owner-impl-20261105/review/check-isolation-artifacts.py",
+      "exitCode": 0,
+      "counters": { "total": 26, "passed": 26, "failed": 0 },
+      "artifact": "isolation-artifact-check.json",
+      "result": "Der Artefaktabgleich selbst besteht; der darin ausgewertete Pure-Lauf bleibt failed. Gleicher V2-Hash in Live und isoliertem Snapshot; 20/2 Schritte, neun eigene Formatterdiagnosen, 18 xUnit-Projekte mit 4740 bestandenen Fällen, 14 erfolgreiche Toolsuiten und lokaler TownHall-TRX 809/809 bestätigt. Den Elternagenten-Nachlaufvergleich aller 1910 Dateien/zwei Submodule nicht selbst dupliziert."
+    }
+  ],
+  "inheritedRunsNotReexecuted": [
+    {
+      "attribution": "Elternagent; Bericht und TRX hier unabhängig auf Identität/Counterkonsistenz geprüft",
+      "path": ".scratch/townhall-save-operation-owner-impl-20261105/owner-targeted-v1",
+      "exitCode": 1,
+      "counters": { "total": 121, "passed": 120, "failed": 1 },
+      "failedCase": "Failure_after_return_does_not_erase_return_or_prior_confirmed_readback(confirmed: True)",
+      "assessment": "Archivierter Ausgangsfehler, nicht der Reviewkandidat. Gemeinsame _outcomes-Marke lehnte Failed nach Returned ab; V1-Originale und Fehler-TRX erhalten."
+    },
+    {
+      "attribution": "Elternagent; keine eigene Wiederholung der 128 Tests",
+      "path": ".scratch/townhall-save-operation-owner-impl-20261105/owner-targeted-v2",
+      "exitCode": 0,
+      "counters": { "total": 128, "passed": 128, "failed": 0 }
+    },
+    {
+      "attribution": "Elternagent; keine eigene Wiederholung der Gesamtsuite",
+      "path": ".scratch/townhall-save-operation-owner-impl-20261105/townhall-regression-v2",
+      "exitCode": 0,
+      "counters": { "total": 809, "passed": 809, "failed": 0 },
+      "assessment": "Beinhaltet die neuen 128 Fälle. Kein nativer Lauf oder vollständiges Repositorygate."
+    },
+    {
+      "attribution": "Elternagent; nachträglich übermittelte reale Prüfinformation, ausgewählte Artefakte/Logs und Snapshotbindung hier unabhängig gegengeprüft, nicht neu ausgeführt",
+      "path": ".scratch/townhall-save-operation-owner-impl-20261105/isolated-verification.json",
+      "snapshotDigest": "917416c62f7530dc53f803a0628f2414fda0d419152556a2efbbf98a6df64ea2",
+      "snapshotCapturedUtc": "2026-11-05T18:18:52.3523720Z",
+      "startedUtc": "2026-11-05T18:20:09.5490121Z",
+      "finishedUtc": "2026-11-05T18:24:56.2857969Z",
+      "exitCode": 1,
+      "status": "failed",
+      "passedSteps": 20,
+      "failedSteps": 2,
+      "failedStepExitCodes": { "format": 2, "versions": 1 },
+      "xunitProjects": 18,
+      "xunitPassed": 4740,
+      "consolePassed": 265,
+      "toolSuitesPassed": 14,
+      "townhallPassed": 809,
+      "ownFailure": "Nur neuer Testinitializer Zeilen 828-829, neun WHITESPACE-Diagnosen: R01.",
+      "unrelatedFailure": "Bekannter HitmanPhone-/Minimap-/PoliceTestMode-Versionsdrift, außerhalb dieses Auftrags, keine Änderung beauftragt.",
+      "reportedParentIntegrityFollowup": "Alle 1910 erfassten Dateien und zwei gepinnte Submodule nach dem Lauf passend; in isolated-verification.json dem Elternagenten zugeschrieben, nicht durch den Verifizierer vollständig wiederholt.",
+      "assessment": "Kein grünes Gesamt-Pure. 4740/265/14 sind erfolgreiche Teilmengen dieses fehlgeschlagenen Gates und dürfen nicht zu anderen Läufen addiert oder als native Freigabe verstanden werden."
+    }
+  ],
+  "optionalImprovements": [
+    {
+      "id": "O01",
+      "priority": "optional",
+      "target": "Source/Tests/TownHallInterior.Tests/BusinessSaveOperationOwnerTests.cs, nach Ende dieses eingefrorenen Reviews",
+      "suggestion": "Bei Bedarf die öffentlichen Randfallproben '64th diagnostic fits, 65th intent is not admitted', 'off-thread callback exit cannot remove the live ticket' und 'late failure after confirmed return' für alle sechs Effekte in den dauerhaften neuen Testbestand übernehmen. Keine alte Assertion ändern; Scratch-Whiteboxzähler und Rennstress müssen dafür nicht übernommen werden.",
+      "reason": "Dauerhafte zusätzliche Präzision an den im unabhängigen Review bestätigten Grenzen, keine derzeitige Pflichtkorrektur."
+    }
+  ],
+  "notExecuted": [
+    "Keine Builds oder Restores im Haupt-Testprojekt, kein TownHall-Mod-/Lösungsbuild, keine Deploymenttargets.",
+    "128er- und 809er-Haupttests nicht erneut gestartet; deren vorhandene Ergebnisse sind dem Elternagenten zugeordnet.",
+    "Kein eigener Quick/Pure/Full-/isolated-clean-checkout-Gesamtlauf. Der abgeschlossene Parent-Pure-Lauf ist als fremdausgeführt fehlgeschlagen ausgewertet, nicht vom Verifizierer wiederholt; der komplette 1910-Dateien-/Submodulnachlaufabgleich bleibt dem Elternagenten zugeschrieben.",
+    "Keine Formatänderung/V3-Erstellung oder Prüfung einer späteren V3 durch diesen Verifizierer; Kandidat bleibt V2.",
+    "Keine native Dekodierung, kein installiertes GameAssembly-/Metadaten-/S1API-/Mod-DLL-Lesen oder Abgleich.",
+    "Keine Installation, Downloads, Spielstarts/-steuerung, Bridge-/Konsolenaktionen oder Spielmethodenaufrufe.",
+    "Keine Saves-/UserData-/Sidecarzugriffe; synthetische Pfade nur als Strings verarbeitet.",
+    "Keine reale Registrierung, Konstruktion, Save-, Remove-, Destroy- oder Callbackausführung; keine Engine-Quieszenz-/Weltwechsel-/Shutdownprüfung.",
+    "Keine Commits, Pushes oder Branchänderungen, keine Produktions-/Test-/Docs-/Vaultänderungen durch diesen Verifizierer.",
+    "Keine Vault-Strukturprüfung: keine Vaultänderung, dauerhafte Übernahme bleibt beim Elternagenten."
+  ],
+  "nativeEvidenceBoundary": {
+    "inheritedSourcesOnly": [
+      "Source/Mods/TownHallInterior/docs/native-save-completion-audit.md",
+      "Source/Mods/TownHallInterior/docs/native-world-exit-audit.md",
+      "Source/Mods/TownHallInterior/docs/business-save-operation-owner.md:24-47,246-264"
+    ],
+    "attribution": "Vorangegangene Native- und Entwurfsreviews bleiben ihren ursprünglichen Prüfern, Versionen und Zeitpunkten zugeschrieben. Hier nur über den vereinbarten Entwurf als Kontext übernommen; Altbelegdateien ausschließlich auf Hashintegrität verglichen. Keine neue Zustimmung, Dekodierung oder native Zulassung durch diesen Review.",
+    "stillUnknown": [
+      "Vollständiger nativer Letztnutzungs-/Referenz-/Entfernungsvertrag der eingefrorenen Instanz einschließlich alter Manager, Listen, Requests, Completed, Batch/Coroutine/Delegate-/Callbackkontexte.",
+      "Callbacksichere Konstruktion und rechtzeitige Bindung vor möglichen Konstruktor-/AddComponent-Eintritten.",
+      "Erreichbarer Nicht-IO-/Nicht-Retarget-Vertrag aller nativen Default-/Interface-/Fremdsavepfade.",
+      "Gültige Code-/Callbacklebensdauer über Weltwechsel, Shutdown und mögliche Codeentladung.",
+      "Getrennt korrelierter nativer Schreiberfolg und Moddaten-/Checkpointkonsistenz."
+    ],
+    "prohibitedInference": "Separate ProcessModels sind separate Simulationen; der Lock ordnet nur Modelldaten; Callbacktickets zählen nur Nachrichten; Boolreturns sind Buchführung; selbst sechs vollständig positive Effekte beweisen kein Nativeziel.",
+    "existingAcceptance": "Innenraum-/Gameplayabnahmen, begrenzter Start-/Lade-/Handy-Basistest, frühere Modellabnahmen und Nativeaudits bleiben geschlossen und werden weder erweitert noch neu eröffnet."
+  },
+  "authoredOutputScope": ".scratch/townhall-save-operation-owner-impl-20261105/review/ einschließlich privater Probequellen, Logs, generierter bin/obj-Daten und dieses Berichts. Keine Änderungen am Kandidaten.",
+  "reportArtifacts": [
+    "impl-review.json",
+    "verify-integrity.py",
+    "integrity-open.json",
+    "integrity-close.json",
+    "run-probes.py",
+    "probe-run.json",
+    "restore.log",
+    "build.log",
+    "probe.log",
+    "probe/ReviewProbes.csproj",
+    "probe/NuGet.Config",
+    "probe/Program.cs",
+    "check-isolation-artifacts.py",
+    "isolation-artifact-check.json"
+  ]
+}

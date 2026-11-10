@@ -1,0 +1,135 @@
+; ScheduleOne.Money.MoneyManager::Load/1, token 0x06001CC1, RVA 0x5E5130, next-pointer window 0x230 bytes
+; No target execution. Parser-pointer window can contain padding/cold fragments and is not exact/full function, EH or transitive coverage. Shared direct aliases are truncated to eight names.
+0x5E5130     48 89 5C 24 08                  mov [rsp+8],rbx
+0x5E5135     57                              push rdi
+0x5E5136     48 83 EC 50                     sub rsp,50h
+0x5E513A     80 3D 23 68 61 03 00            cmp byte ptr [183BFB964h],0
+0x5E5141     48 8B FA                        mov rdi,rdx
+0x5E5144     48 8B D9                        mov rbx,rcx
+0x5E5147     75 1F                           jne short 00000001805E5168h
+0x5E5149     48 8D 0D 50 C3 3E 03            lea rcx,[1839D14A0h] ; TypeInfo: ScheduleOne.Money.ATM
+0x5E5150     E8 4B 27 D3 FF                  call 00000001803178A0h
+0x5E5155     48 8D 0D FC 43 40 03            lea rcx,[1839E9558h] ; MethodRef: T ScheduleOne.DevUtilities.Singleton`1<ScheduleOne.UI.HUD>.get_Instance
+0x5E515C     E8 3F 27 D3 FF                  call 00000001803178A0h
+0x5E5161     C6 05 FC 67 61 03 01            mov byte ptr [183BFB964h],1
+0x5E5168     0F 29 74 24 40                  movaps [rsp+40h],xmm6
+0x5E516D     0F 29 7C 24 30                  movaps [rsp+30h],xmm7
+0x5E5172     44 0F 29 44 24 20               movaps [rsp+20h],xmm8
+0x5E5178     48 85 FF                        test rdi,rdi
+0x5E517B     0F 84 CD 01 00 00               je near ptr 00000001805E534Eh
+0x5E5181     F3 0F 10 77 28                  movss xmm6,dword ptr [rdi+28h]
+0x5E5186     45 0F 57 C0                     xorps xmm8,xmm8
+0x5E518A     44 0F 2F C6                     comiss xmm8,xmm6
+0x5E518E     F3 0F 10 3D F2 7A 87 02         movss xmm7,dword ptr [182E5CC88h]
+0x5E5196     77 0A                           ja short 00000001805E51A2h
+0x5E5198     0F 2F F7                        comiss xmm6,xmm7
+0x5E519B     76 08                           jbe short 00000001805E51A5h
+0x5E519D     0F 28 F7                        movaps xmm6,xmm7
+0x5E51A0     EB 03                           jmp short 00000001805E51A5h
+0x5E51A2     0F 57 F6                        xorps xmm6,xmm6
+0x5E51A5     80 3D C4 67 61 03 00            cmp byte ptr [183BFB970h],0
+0x5E51AC     75 1F                           jne short 00000001805E51CDh
+0x5E51AE     48 8D 0D B3 1F 3F 03            lea rcx,[1839D7168h] ; TypeInfo: UnityEngine.Application
+0x5E51B5     E8 E6 26 D3 FF                  call 00000001803178A0h
+0x5E51BA     48 8D 0D 3F 8A 42 03            lea rcx,[183A0DC00h] ; MethodRef: System.Void FishNet.Object.Synchronizing.SyncVar`1<System.Single>.SetValue
+0x5E51C1     E8 DA 26 D3 FF                  call 00000001803178A0h
+0x5E51C6     C6 05 A3 67 61 03 01            mov byte ptr [183BFB970h],1
+0x5E51CD     F3 0F 11 B3 28 01 00 00         movss dword ptr [rbx+128h],xmm6
+0x5E51D5     48 8B 0D 8C 1F 3F 03            mov rcx,[1839D7168h] ; TypeInfo: UnityEngine.Application
+0x5E51DC     83 B9 E0 00 00 00 00            cmp dword ptr [rcx+0E0h],0
+0x5E51E3     75 05                           jne short 00000001805E51EAh
+0x5E51E5     E8 46 2A D3 FF                  call 0000000180317C30h
+0x5E51EA     33 C9                           xor ecx,ecx
+0x5E51EC     E8 5F 68 55 02                  call 0000000182B3BA50h ; UnityEngine.Application::get_isPlaying/0
+0x5E51F1     84 C0                           test al,al
+0x5E51F3     74 22                           je short 00000001805E5217h
+0x5E51F5     48 8B 8B 80 01 00 00            mov rcx,[rbx+180h]
+0x5E51FC     48 85 C9                        test rcx,rcx
+0x5E51FF     0F 84 49 01 00 00               je near ptr 00000001805E534Eh
+0x5E5205     4C 8B 0D F4 89 42 03            mov r9,[183A0DC00h] ; MethodRef: System.Void FishNet.Object.Synchronizing.SyncVar`1<System.Single>.SetValue
+0x5E520C     41 B0 01                        mov r8b,1
+0x5E520F     0F 28 CE                        movaps xmm1,xmm6
+0x5E5212     E8 69 CB FE FF                  call 00000001805D1D80h
+0x5E5217     F3 0F 10 77 30                  movss xmm6,dword ptr [rdi+30h]
+0x5E521C     44 0F 2F C6                     comiss xmm8,xmm6
+0x5E5220     77 0A                           ja short 00000001805E522Ch
+0x5E5222     0F 2F F7                        comiss xmm6,xmm7
+0x5E5225     76 08                           jbe short 00000001805E522Fh
+0x5E5227     0F 28 F7                        movaps xmm6,xmm7
+0x5E522A     EB 03                           jmp short 00000001805E522Fh
+0x5E522C     0F 57 F6                        xorps xmm6,xmm6
+0x5E522F     80 3D 3C 67 61 03 00            cmp byte ptr [183BFB972h],0
+0x5E5236     75 1F                           jne short 00000001805E5257h
+0x5E5238     48 8D 0D 29 1F 3F 03            lea rcx,[1839D7168h] ; TypeInfo: UnityEngine.Application
+0x5E523F     E8 5C 26 D3 FF                  call 00000001803178A0h
+0x5E5244     48 8D 0D B5 89 42 03            lea rcx,[183A0DC00h] ; MethodRef: System.Void FishNet.Object.Synchronizing.SyncVar`1<System.Single>.SetValue
+0x5E524B     E8 50 26 D3 FF                  call 00000001803178A0h
+0x5E5250     C6 05 1B 67 61 03 01            mov byte ptr [183BFB972h],1
+0x5E5257     F3 0F 11 B3 2C 01 00 00         movss dword ptr [rbx+12Ch],xmm6
+0x5E525F     48 8B 0D 02 1F 3F 03            mov rcx,[1839D7168h] ; TypeInfo: UnityEngine.Application
+0x5E5266     83 B9 E0 00 00 00 00            cmp dword ptr [rcx+0E0h],0
+0x5E526D     75 05                           jne short 00000001805E5274h
+0x5E526F     E8 BC 29 D3 FF                  call 0000000180317C30h
+0x5E5274     33 C9                           xor ecx,ecx
+0x5E5276     E8 D5 67 55 02                  call 0000000182B3BA50h ; UnityEngine.Application::get_isPlaying/0
+0x5E527B     84 C0                           test al,al
+0x5E527D     74 22                           je short 00000001805E52A1h
+0x5E527F     48 8B 8B 88 01 00 00            mov rcx,[rbx+188h]
+0x5E5286     48 85 C9                        test rcx,rcx
+0x5E5289     0F 84 BF 00 00 00               je near ptr 00000001805E534Eh
+0x5E528F     4C 8B 0D 6A 89 42 03            mov r9,[183A0DC00h] ; MethodRef: System.Void FishNet.Object.Synchronizing.SyncVar`1<System.Single>.SetValue
+0x5E5296     41 B0 01                        mov r8b,1
+0x5E5299     0F 28 CE                        movaps xmm1,xmm6
+0x5E529C     E8 DF CA FE FF                  call 00000001805D1D80h
+0x5E52A1     48 8B 05 B0 42 40 03            mov rax,[1839E9558h] ; MethodRef: T ScheduleOne.DevUtilities.Singleton`1<ScheduleOne.UI.HUD>.get_Instance
+0x5E52A8     48 8B 40 20                     mov rax,[rax+20h]
+0x5E52AC     F6 80 35 01 00 00 01            test byte ptr [rax+135h],1
+0x5E52B3     75 08                           jne short 00000001805E52BDh
+0x5E52B5     48 8B C8                        mov rcx,rax
+0x5E52B8     E8 83 75 D3 FF                  call 000000018031C840h
+0x5E52BD     48 8B 80 C0 00 00 00            mov rax,[rax+0C0h]
+0x5E52C4     48 8B 40 10                     mov rax,[rax+10h]
+0x5E52C8     F6 80 35 01 00 00 01            test byte ptr [rax+135h],1
+0x5E52CF     75 08                           jne short 00000001805E52D9h
+0x5E52D1     48 8B C8                        mov rcx,rax
+0x5E52D4     E8 67 75 D3 FF                  call 000000018031C840h
+0x5E52D9     48 8B 80 B8 00 00 00            mov rax,[rax+0B8h]
+0x5E52E0     48 8B 08                        mov rcx,[rax]
+0x5E52E3     48 85 C9                        test rcx,rcx
+0x5E52E6     74 66                           je short 00000001805E534Eh
+0x5E52E8     48 8B 89 E0 00 00 00            mov rcx,[rcx+0E0h]
+0x5E52EF     48 85 C9                        test rcx,rcx
+0x5E52F2     74 5A                           je short 00000001805E534Eh
+0x5E52F4     F3 0F 10 8B 28 01 00 00         movss xmm1,dword ptr [rbx+128h]
+0x5E52FC     45 33 C0                        xor r8d,r8d
+0x5E52FF     E8 3C 48 3C 00                  call 00000001809A9B40h ; ScheduleOne.UI.BalanceDisplay::SetBalance/1
+0x5E5304     48 8B 05 95 C1 3E 03            mov rax,[1839D14A0h] ; TypeInfo: ScheduleOne.Money.ATM
+0x5E530B     F3 0F 10 77 34                  movss xmm6,dword ptr [rdi+34h]
+0x5E5310     83 B8 E0 00 00 00 00            cmp dword ptr [rax+0E0h],0
+0x5E5317     75 0F                           jne short 00000001805E5328h
+0x5E5319     48 8B C8                        mov rcx,rax
+0x5E531C     E8 0F 29 D3 FF                  call 0000000180317C30h
+0x5E5321     48 8B 05 78 C1 3E 03            mov rax,[1839D14A0h] ; TypeInfo: ScheduleOne.Money.ATM
+0x5E5328     48 8B 80 B8 00 00 00            mov rax,[rax+0B8h]
+0x5E532F     44 0F 28 44 24 20               movaps xmm8,[rsp+20h]
+0x5E5335     0F 28 7C 24 30                  movaps xmm7,[rsp+30h]
+0x5E533A     48 8B 5C 24 60                  mov rbx,[rsp+60h]
+0x5E533F     F3 0F 11 30                     movss dword ptr [rax],xmm6
+0x5E5343     0F 28 74 24 40                  movaps xmm6,[rsp+40h]
+0x5E5348     48 83 C4 50                     add rsp,50h
+0x5E534C     5F                              pop rdi
+0x5E534D     C3                              ret
+0x5E534E     E8 2D 28 D3 FF                  call 0000000180317B80h
+0x5E5353     CC                              int 3
+0x5E5354     CC                              int 3
+0x5E5355     CC                              int 3
+0x5E5356     CC                              int 3
+0x5E5357     CC                              int 3
+0x5E5358     CC                              int 3
+0x5E5359     CC                              int 3
+0x5E535A     CC                              int 3
+0x5E535B     CC                              int 3
+0x5E535C     CC                              int 3
+0x5E535D     CC                              int 3
+0x5E535E     CC                              int 3
+0x5E535F     CC                              int 3

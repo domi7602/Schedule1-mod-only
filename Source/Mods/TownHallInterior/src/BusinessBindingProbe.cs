@@ -388,6 +388,14 @@ internal static class BusinessBindingProbe
                 Schema = 2,
 #if TOWNHALL_BUSINESS_ACTIVATION
                 Mode = "observation-with-controlled-activation", NativeMutationAllowed = true, WorldPublicationAllowed = true,
+#elif TOWNHALL_BUSINESS_DATA
+                Mode = "observation-with-owned-business-data-queries",
+                NativeMutationAllowed = true,
+                WorldPublicationAllowed = false,
+#elif TOWNHALL_BUSINESS_NETWORK_SUBTYPE
+                Mode = "observation-with-owned-network-business-binding", NativeMutationAllowed = true, WorldPublicationAllowed = false,
+#elif TOWNHALL_BUSINESS_ACTIVE_SUBTYPE
+                Mode = "observation-with-active-own-subtype", NativeMutationAllowed = true, WorldPublicationAllowed = false,
 #elif TOWNHALL_BUSINESS_SUBTYPE
                 Mode = "observation-with-inactive-subtype", NativeMutationAllowed = true, WorldPublicationAllowed = false,
 #elif TOWNHALL_BUSINESS_CONSTRUCTION
@@ -395,10 +403,15 @@ internal static class BusinessBindingProbe
 #else
                 Mode = "observation-only", NativeMutationAllowed = false,
 #endif
-                RunId = Path.GetFileName(_reportBase), MainGeneration = _generation,
-                RecordingKind = _generation == 0 ? "setup" : "load", PreviousReport = _previousReport,
-                AssemblySha256 = _assemblyHash, NativeProxySha256 = _nativeHash, S1ApiSha256 = _apiHash,
-                CapturedUtc = DateTime.UtcNow, DroppedLoaderEvents = LoaderTrace.DroppedEvents,
+                RunId = Path.GetFileName(_reportBase),
+                MainGeneration = _generation,
+                RecordingKind = _generation == 0 ? "setup" : "load",
+                PreviousReport = _previousReport,
+                AssemblySha256 = _assemblyHash,
+                NativeProxySha256 = _nativeHash,
+                S1ApiSha256 = _apiHash,
+                CapturedUtc = DateTime.UtcNow,
+                DroppedLoaderEvents = LoaderTrace.DroppedEvents,
                 Hooks = Targets.Select(t => new
                 {
                     Method = MethodName(t),
@@ -407,10 +420,13 @@ internal static class BusinessBindingProbe
                     RecordedExits = events.Count(e => e.Method == MethodName(t) && e.Phase == "exit")
                 }).ToArray(),
                 Assessment = new ProbeAssessment(findings.Length == 0 ? "observed" : "incomplete", findings),
-                SnapshotAssessment = snapshotAssessment, LoaderAssessment = loaderAssessment,
+                SnapshotAssessment = snapshotAssessment,
+                LoaderAssessment = loaderAssessment,
                 HasLoadCompleteInventory = Trace.Snapshots.Any(s => s.Phase == "load-complete"),
                 HasSettledInventory = Trace.Snapshots.Any(s => s.Phase == "settled-five-seconds"),
-                Trace.Truncated, Trace.Snapshots, LoaderEvents = events,
+                Trace.Truncated,
+                Trace.Snapshots,
+                LoaderEvents = events,
                 Limitation = "Only recorded callbacks are assessed. Zero method sightings do not prove absence of native calls. No creation, early registration, persistence or binding proof."
             };
             File.WriteAllText(_report + ".tmp", JsonSerializer.Serialize(report, new JsonSerializerOptions { WriteIndented = true }));

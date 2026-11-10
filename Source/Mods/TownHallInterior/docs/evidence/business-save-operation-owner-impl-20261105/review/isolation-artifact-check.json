@@ -1,0 +1,219 @@
+{
+  "schema": 1,
+  "checkedUtc": "2026-11-05T18:31:31.162280+00:00",
+  "reviewer": "GPT-6.1 Sol, independent verifier",
+  "reranPure": false,
+  "scope": "Counter/log/input identity check only; no complete checkout rehash or test rerun",
+  "reportedManualAfterRunComparison": {
+    "allCapturedFileHashesStillMatchSourceAndCheckout": true,
+    "currentNonignoredFileSetMatches": true,
+    "files": 1910,
+    "pinnedSubmoduleHeadsMatch": 2
+  },
+  "independentlyRehashed1910Files": false,
+  "inputs": [
+    {
+      "path": "isolated-verification.json",
+      "sha256": "7901d707b827ca724381779e3fad964e650f83dc0d9cdffc6b6a62ba277b0e6f"
+    },
+    {
+      "path": "isolation/docs.log",
+      "sha256": "95f5802f96664dc82c5df3526c9a4f558a85ff15fc8fc5ecffdc3d5bd7965419"
+    },
+    {
+      "path": "isolation/format.log",
+      "sha256": "392046126d687d9efc821b0f8129cd0fd431cc9049f676bb5bd88a31924be850"
+    },
+    {
+      "path": "isolation/report.json",
+      "sha256": "5e87d9fc602cf35cbd756e32a365fca58a6f6feaaf375b3c6f5b5ef0c9359840"
+    },
+    {
+      "path": "isolation/snapshot.json",
+      "sha256": "94ebd20fec5c030469d70b3debc77dd9438f1fbf21b504bda15992cb65f37265"
+    },
+    {
+      "path": "isolation/tests.log",
+      "sha256": "e3f39d0074a76c8806eef073451ccbe1effed576fe8b8a65000325d98e814a16"
+    },
+    {
+      "path": "isolation/townhall.trx",
+      "sha256": "ca0269afb137d47138968dd9b580e9865a2b8b8edfd57ca631ce540c16a49de1"
+    },
+    {
+      "path": "isolation/versions.log",
+      "sha256": "9a0ab34fd86a534eec7ee6413f158a008b9ae05c4d09ced60842201a549dddaf"
+    }
+  ],
+  "checks": [
+    {
+      "check": "same snapshot digest",
+      "passed": true,
+      "actual": "917416c62f7530dc53f803a0628f2414fda0d419152556a2efbbf98a6df64ea2",
+      "expected": "917416c62f7530dc53f803a0628f2414fda0d419152556a2efbbf98a6df64ea2"
+    },
+    {
+      "check": "specified isolated snapshot",
+      "passed": true,
+      "actual": "917416c62f7530dc53f803a0628f2414fda0d419152556a2efbbf98a6df64ea2",
+      "expected": "917416c62f7530dc53f803a0628f2414fda0d419152556a2efbbf98a6df64ea2"
+    },
+    {
+      "check": "isolated source matches V2",
+      "passed": true,
+      "actual": "e4bb1d13324a3d61419d26ba172e88ba2ea53e30b15d3c6b6f43fb3e72212f50",
+      "expected": "e4bb1d13324a3d61419d26ba172e88ba2ea53e30b15d3c6b6f43fb3e72212f50"
+    },
+    {
+      "check": "isolated tests match V2",
+      "passed": true,
+      "actual": "c92e90af755b8feadbd77282ccf0a852b0e1cedaf25ec63eea8a354f3d9ce198",
+      "expected": "c92e90af755b8feadbd77282ccf0a852b0e1cedaf25ec63eea8a354f3d9ce198"
+    },
+    {
+      "check": "snapshot source",
+      "passed": true,
+      "actual": "e4bb1d13324a3d61419d26ba172e88ba2ea53e30b15d3c6b6f43fb3e72212f50",
+      "expected": "e4bb1d13324a3d61419d26ba172e88ba2ea53e30b15d3c6b6f43fb3e72212f50"
+    },
+    {
+      "check": "live source remains V2",
+      "passed": true,
+      "actual": "e4bb1d13324a3d61419d26ba172e88ba2ea53e30b15d3c6b6f43fb3e72212f50",
+      "expected": "e4bb1d13324a3d61419d26ba172e88ba2ea53e30b15d3c6b6f43fb3e72212f50"
+    },
+    {
+      "check": "snapshot test",
+      "passed": true,
+      "actual": "c92e90af755b8feadbd77282ccf0a852b0e1cedaf25ec63eea8a354f3d9ce198",
+      "expected": "c92e90af755b8feadbd77282ccf0a852b0e1cedaf25ec63eea8a354f3d9ce198"
+    },
+    {
+      "check": "live test remains V2",
+      "passed": true,
+      "actual": "c92e90af755b8feadbd77282ccf0a852b0e1cedaf25ec63eea8a354f3d9ce198",
+      "expected": "c92e90af755b8feadbd77282ccf0a852b0e1cedaf25ec63eea8a354f3d9ce198"
+    },
+    {
+      "check": "snapshot captured files",
+      "passed": true,
+      "actual": 1910,
+      "expected": 1910
+    },
+    {
+      "check": "overall failed exit retained",
+      "passed": true,
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "check": "parent overall exit",
+      "passed": true,
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "check": "passed steps",
+      "passed": true,
+      "actual": 20,
+      "expected": 20
+    },
+    {
+      "check": "failed steps",
+      "passed": true,
+      "actual": 2,
+      "expected": 2
+    },
+    {
+      "check": "failed names",
+      "passed": true,
+      "actual": [
+        "format",
+        "versions"
+      ],
+      "expected": [
+        "format",
+        "versions"
+      ]
+    },
+    {
+      "check": "formatter exit",
+      "passed": true,
+      "actual": 2,
+      "expected": 2
+    },
+    {
+      "check": "version drift exit",
+      "passed": true,
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "check": "14 tool suites passed",
+      "passed": true,
+      "actual": 14,
+      "expected": 14
+    },
+    {
+      "check": "xunit projects",
+      "passed": true,
+      "actual": 18,
+      "expected": 18
+    },
+    {
+      "check": "xunit passed total",
+      "passed": true,
+      "actual": 4740,
+      "expected": 4740
+    },
+    {
+      "check": "xunit failed total",
+      "passed": true,
+      "actual": 0,
+      "expected": 0
+    },
+    {
+      "check": "console passed in report",
+      "passed": true,
+      "actual": 265,
+      "expected": 265
+    },
+    {
+      "check": "nine whitespace diagnostics only",
+      "passed": true,
+      "actual": 9,
+      "expected": 9
+    },
+    {
+      "check": "all format errors target only new initializer",
+      "passed": true,
+      "actual": true,
+      "expected": true
+    },
+    {
+      "check": "isolated TownHall TRX hash",
+      "passed": true,
+      "actual": "ca0269afb137d47138968dd9b580e9865a2b8b8edfd57ca631ce540c16a49de1",
+      "expected": "ca0269afb137d47138968dd9b580e9865a2b8b8edfd57ca631ce540c16a49de1"
+    },
+    {
+      "check": "isolated TownHall passed",
+      "passed": true,
+      "actual": 809,
+      "expected": 809
+    },
+    {
+      "check": "isolated TownHall failed",
+      "passed": true,
+      "actual": 0,
+      "expected": 0
+    }
+  ],
+  "counters": {
+    "total": 26,
+    "passed": 26,
+    "failed": 0
+  },
+  "candidateHasRequiredWhitespaceCorrection": true,
+  "nativeSaveWriteAllowed": false
+}

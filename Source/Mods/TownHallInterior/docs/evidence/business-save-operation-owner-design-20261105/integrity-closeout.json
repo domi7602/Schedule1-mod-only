@@ -1,0 +1,34 @@
+{
+  "schema": 1,
+  "checkedUtc": "2026-11-05T17:38:34.329460+00:00",
+  "sourceRevision": "b2c6c7e6c6ecc778da9624cdb68a6578b9db471a",
+  "sourceWorktree": "dirty",
+  "protectedSourcesUnchanged": 41,
+  "priorEvidenceUnchangedExcludingManifests": 226,
+  "priorManifestsUnchanged": 2,
+  "protectedAuditDocumentsUnchanged": 2,
+  "unchangedDesignInputs": 12,
+  "authorizedDocumentationInputChanges": [
+    {
+      "path": "Source/Mods/TownHallInterior/docs/business-manager-save-probe.md",
+      "beforeSha256": "e542f4b5752c52922b8562fc139ec563459deb04728dc1228a543fb8b3d46dea",
+      "afterSha256": "922016338bcdd09b67dbae202904d70ca41269bfdaff5057e4cfc6a63db19895",
+      "reason": "Authorized design navigation/next-step update, not original audit rewrite"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/docs/business-completion-plan.md",
+      "beforeSha256": "7f29dc32f5208fe238da02fe387d552a2c495ae50b2cee294466c3af03f421bc",
+      "afterSha256": "9f5cf240dbae647756f218884a404c1343e5ac21672d2596de8816bc90b4e642",
+      "reason": "Authorized design navigation/next-step update, not original audit rewrite"
+    }
+  ],
+  "draftV1Sha256": "cd9517772af6c65a21968f812bed7d371420a1f13b674196663f4503287a58cb",
+  "originalReviewSha256": "a4f6292cac3a03c8f066fba5e7c1b36bdcc1e13a40ec93a3902df33371652f5e",
+  "finalDesignSha256": "985642354836f8a8eb6b4109277261e42b196c4ab2f3f7641407b2347b954549",
+  "nativeSaveWriteAllowed": false,
+  "installedFilesRead": false,
+  "targetAssembliesLoadedOrInvoked": false,
+  "productionOrTestChanged": false,
+  "buildOrTestsuiteExecuted": false,
+  "status": "pass-source-and-archive-preservation-not-native-proof"
+}

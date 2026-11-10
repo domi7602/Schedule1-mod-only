@@ -1,0 +1,9 @@
+{
+  "repository": "schedule1-mod-only",
+  "sourceRevision": "b2c6c7e6c6ecc778da9624cdb68a6578b9db471a",
+  "sourceWorktree": "dirty",
+  "note": "Native-init findings that cite ../../../Source/Mods/TownHallInterior/src/BusinessConstruction.cs refer to the repository-relative source at the baseline hash below; those line numbers precede this network-subtype implementation.",
+  "sourcePath": "Source/Mods/TownHallInterior/src/BusinessConstruction.cs",
+  "baselineSourceSha256": "32724b5085d1d6ca6bb34340e6b95198f450c4f67a2c5e5bbb187b68286ad708",
+  "currentSourceSha256": "9a62ceefc8808888a226a979801425e98d1130aa1ea385034afce08fdc3be12b"
+}

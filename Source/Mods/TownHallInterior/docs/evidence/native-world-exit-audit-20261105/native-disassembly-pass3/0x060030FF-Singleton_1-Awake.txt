@@ -1,0 +1,145 @@
+; ScheduleOne.DevUtilities.Singleton`1::Awake/0, token 0x060030FF, RVA 0x11357D0, next-pointer window 0x250 bytes
+; No target execution. Parser-pointer window can contain padding/cold fragments and is not exact/full function, EH or transitive coverage. Shared direct aliases are truncated to eight names.
+0x11357D0    48 89 5C 24 10                  mov [rsp+10h],rbx
+0x11357D5    48 89 74 24 18                  mov [rsp+18h],rsi
+0x11357DA    57                              push rdi
+0x11357DB    48 83 EC 20                     sub rsp,20h
+0x11357DF    80 3D A5 C0 AC 02 00            cmp byte ptr [183C0188Bh],0
+0x11357E6    48 8B F2                        mov rsi,rdx
+0x11357E9    48 8B D9                        mov rbx,rcx
+0x11357EC    75 37                           jne short 0000000181135825h
+0x11357EE    48 8D 0D 73 45 8C 02            lea rcx,[1839F9D68h] ; TypeInfo: ScheduleOne.Console
+0x11357F5    E8 A6 20 1E FF                  call 00000001803178A0h
+0x11357FA    48 8D 0D F7 A7 8B 02            lea rcx,[1839EFFF8h] ; TypeInfo: UnityEngine.Object
+0x1135801    E8 9A 20 1E FF                  call 00000001803178A0h
+0x1135806    48 8D 0D 33 3B 86 02            lea rcx,[183999340h] ; StringLiteral:  exist. Destroying this instance.
+0x113580D    E8 8E 20 1E FF                  call 00000001803178A0h
+0x1135812    48 8D 0D 67 DB 89 02            lea rcx,[1839D3380h] ; StringLiteral: Multiple instances of 
+0x1135819    E8 82 20 1E FF                  call 00000001803178A0h
+0x113581E    C6 05 66 C0 AC 02 01            mov byte ptr [183C0188Bh],1
+0x1135825    48 8B 46 20                     mov rax,[rsi+20h]
+0x1135829    48 8B 88 C0 00 00 00            mov rcx,[rax+0C0h]
+0x1135830    48 8B 41 10                     mov rax,[rcx+10h]
+0x1135834    F6 80 35 01 00 00 01            test byte ptr [rax+135h],1
+0x113583B    75 08                           jne short 0000000181135845h
+0x113583D    48 8B C8                        mov rcx,rax
+0x1135840    E8 FB 6F 1E FF                  call 000000018031C840h
+0x1135845    48 8B 0D AC A7 8B 02            mov rcx,[1839EFFF8h] ; TypeInfo: UnityEngine.Object
+0x113584C    48 8B 80 B8 00 00 00            mov rax,[rax+0B8h]
+0x1135853    83 B9 E0 00 00 00 00            cmp dword ptr [rcx+0E0h],0
+0x113585A    48 8B 38                        mov rdi,[rax]
+0x113585D    75 05                           jne short 0000000181135864h
+0x113585F    E8 CC 23 1E FF                  call 0000000180317C30h
+0x1135864    45 33 C0                        xor r8d,r8d
+0x1135867    33 D2                           xor edx,edx
+0x1135869    48 8B CF                        mov rcx,rdi
+0x113586C    E8 CF 69 A4 01                  call 0000000182B7C240h ; UnityEngine.Object::op_Inequality/2
+0x1135871    84 C0                           test al,al
+0x1135873    0F 85 F8 00 00 00               jne near ptr 0000000181135971h
+0x1135879    48 8B 46 20                     mov rax,[rsi+20h]
+0x113587D    48 8B 88 C0 00 00 00            mov rcx,[rax+0C0h]
+0x1135884    48 8B 79 08                     mov rdi,[rcx+8]
+0x1135888    F6 87 35 01 00 00 01            test byte ptr [rdi+135h],1
+0x113588F    75 0B                           jne short 000000018113589Ch
+0x1135891    48 8B CF                        mov rcx,rdi
+0x1135894    E8 A7 6F 1E FF                  call 000000018031C840h
+0x1135899    48 8B F8                        mov rdi,rax
+0x113589C    48 89 6C 24 30                  mov [rsp+30h],rbp
+0x11358A1    48 85 DB                        test rbx,rbx
+0x11358A4    75 04                           jne short 00000001811358AAh
+0x11358A6    33 ED                           xor ebp,ebp
+0x11358A8    EB 17                           jmp short 00000001811358C1h
+0x11358AA    48 8B D7                        mov rdx,rdi
+0x11358AD    48 8B CB                        mov rcx,rbx
+0x11358B0    E8 1B 12 1E FF                  call 0000000180316AD0h
+0x11358B5    48 8B E8                        mov rbp,rax
+0x11358B8    48 85 C0                        test rax,rax
+0x11358BB    0F 84 52 01 00 00               je near ptr 0000000181135A13h
+0x11358C1    48 8B 4E 20                     mov rcx,[rsi+20h]
+0x11358C5    48 8B 91 C0 00 00 00            mov rdx,[rcx+0C0h]
+0x11358CC    48 8B 42 10                     mov rax,[rdx+10h]
+0x11358D0    F6 80 35 01 00 00 01            test byte ptr [rax+135h],1
+0x11358D7    75 08                           jne short 00000001811358E1h
+0x11358D9    48 8B C8                        mov rcx,rax
+0x11358DC    E8 5F 6F 1E FF                  call 000000018031C840h
+0x11358E1    48 8B 80 B8 00 00 00            mov rax,[rax+0B8h]
+0x11358E8    48 89 28                        mov [rax],rbp
+0x11358EB    48 8B 46 20                     mov rax,[rsi+20h]
+0x11358EF    48 8B 88 C0 00 00 00            mov rcx,[rax+0C0h]
+0x11358F6    48 8B 79 08                     mov rdi,[rcx+8]
+0x11358FA    F6 87 35 01 00 00 01            test byte ptr [rdi+135h],1
+0x1135901    75 0B                           jne short 000000018113590Eh
+0x1135903    48 8B CF                        mov rcx,rdi
+0x1135906    E8 35 6F 1E FF                  call 000000018031C840h
+0x113590B    48 8B F8                        mov rdi,rax
+0x113590E    48 85 DB                        test rbx,rbx
+0x1135911    75 04                           jne short 0000000181135917h
+0x1135913    33 ED                           xor ebp,ebp
+0x1135915    EB 17                           jmp short 000000018113592Eh
+0x1135917    48 8B D7                        mov rdx,rdi
+0x113591A    48 8B CB                        mov rcx,rbx
+0x113591D    E8 AE 11 1E FF                  call 0000000180316AD0h
+0x1135922    48 8B E8                        mov rbp,rax
+0x1135925    48 85 C0                        test rax,rax
+0x1135928    0F 84 D9 00 00 00               je near ptr 0000000181135A07h
+0x113592E    48 8B 46 20                     mov rax,[rsi+20h]
+0x1135932    48 8B 88 C0 00 00 00            mov rcx,[rax+0C0h]
+0x1135939    48 8B 41 10                     mov rax,[rcx+10h]
+0x113593D    F6 80 35 01 00 00 01            test byte ptr [rax+135h],1
+0x1135944    75 08                           jne short 000000018113594Eh
+0x1135946    48 8B C8                        mov rcx,rax
+0x1135949    E8 F2 6E 1E FF                  call 000000018031C840h
+0x113594E    48 8B 88 B8 00 00 00            mov rcx,[rax+0B8h]
+0x1135955    48 8B D5                        mov rdx,rbp
+0x1135958    48 8B 6C 24 30                  mov rbp,[rsp+30h]
+0x113595D    48 8B 5C 24 38                  mov rbx,[rsp+38h]
+0x1135962    48 8B 74 24 40                  mov rsi,[rsp+40h]
+0x1135967    48 83 C4 20                     add rsp,20h
+0x113596B    5F                              pop rdi
+0x113596C    E9 3F 11 1E FF                  jmp near ptr 0000000180316AB0h
+0x1135971    48 85 DB                        test rbx,rbx
+0x1135974    0F 84 87 00 00 00               je near ptr 0000000181135A01h
+0x113597A    33 D2                           xor edx,edx
+0x113597C    48 8B CB                        mov rcx,rbx
+0x113597F    E8 AC 66 A4 01                  call 0000000182B7C030h ; UnityEngine.Object::get_name/0
+0x1135984    4C 8B 05 B5 39 86 02            mov r8,[183999340h] ; StringLiteral:  exist. Destroying this instance.
+0x113598B    45 33 C9                        xor r9d,r9d
+0x113598E    48 8B 0D EB D9 89 02            mov rcx,[1839D3380h] ; StringLiteral: Multiple instances of 
+0x1135995    48 8B D0                        mov rdx,rax
+0x1135998    E8 73 DE 8A 00                  call 00000001819E3810h ; System.String::Concat/3
+0x113599D    48 8B 0D C4 43 8C 02            mov rcx,[1839F9D68h] ; TypeInfo: ScheduleOne.Console
+0x11359A4    48 8B F8                        mov rdi,rax
+0x11359A7    83 B9 E0 00 00 00 00            cmp dword ptr [rcx+0E0h],0
+0x11359AE    75 05                           jne short 00000001811359B5h
+0x11359B0    E8 7B 22 1E FF                  call 0000000180317C30h
+0x11359B5    45 33 C0                        xor r8d,r8d
+0x11359B8    33 D2                           xor edx,edx
+0x11359BA    48 8B CF                        mov rcx,rdi
+0x11359BD    E8 7E 31 77 FF                  call 00000001808A8B40h ; ScheduleOne.Console::LogWarning/2
+0x11359C2    33 D2                           xor edx,edx
+0x11359C4    C6 43 20 01                     mov byte ptr [rbx+20h],1
+0x11359C8    48 8B CB                        mov rcx,rbx
+0x11359CB    E8 E0 E9 A3 01                  call 0000000182B743B0h ; UnityEngine.Component::get_gameObject/0
+0x11359D0    48 8B 0D 21 A6 8B 02            mov rcx,[1839EFFF8h] ; TypeInfo: UnityEngine.Object
+0x11359D7    48 8B D8                        mov rbx,rax
+0x11359DA    83 B9 E0 00 00 00 00            cmp dword ptr [rcx+0E0h],0
+0x11359E1    75 05                           jne short 00000001811359E8h
+0x11359E3    E8 48 22 1E FF                  call 0000000180317C30h
+0x11359E8    33 D2                           xor edx,edx
+0x11359EA    48 8B CB                        mov rcx,rbx
+0x11359ED    48 8B 5C 24 38                  mov rbx,[rsp+38h]
+0x11359F2    48 8B 74 24 40                  mov rsi,[rsp+40h]
+0x11359F7    48 83 C4 20                     add rsp,20h
+0x11359FB    5F                              pop rdi
+0x11359FC    E9 EF 4F A4 01                  jmp near ptr 0000000182B7A9F0h ; UnityEngine.Object::Destroy/1
+0x1135A01    E8 7A 21 1E FF                  call 0000000180317B80h
+0x1135A06    CC                              int 3
+0x1135A07    48 8B D7                        mov rdx,rdi
+0x1135A0A    48 8B CB                        mov rcx,rbx
+0x1135A0D    E8 DE 10 1E FF                  call 0000000180316AF0h
+0x1135A12    CC                              int 3
+0x1135A13    48 8B D7                        mov rdx,rdi
+0x1135A16    48 8B CB                        mov rcx,rbx
+0x1135A19    E8 D2 10 1E FF                  call 0000000180316AF0h
+0x1135A1E    CC                              int 3
+0x1135A1F    CC                              int 3

@@ -1,0 +1,87 @@
+﻿{
+    "CapturedUtc":  "2026-11-05T08:23:19.9507787Z",
+    "IlspyCommand":  "C:\\Users\\pc\\.dotnet\\tools\\ilspycmd.exe",
+    "IlspyShimSha256":  "ca22578c2cdb27213438a4daf843b1a9c2b868878689e963e260528e90373fb6",
+    "Files":  [
+                  {
+                      "Path":  "ilspy-help.stdout.txt",
+                      "Sha256":  "26e88e1779dd795a2add7398e277bfcde61b10ee69cdf64a224889a0b100f8e3",
+                      "Length":  6964
+                  },
+                  {
+                      "Path":  "ilspy-help.stderr.txt",
+                      "Sha256":  "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                      "Length":  0
+                  },
+                  {
+                      "Path":  "GameLifecycle.decompiled.cs",
+                      "Sha256":  "710e72c436bc1a65bc8cbad0534b80292cae2bef5247159686132ea43d53d9f6",
+                      "Length":  9726
+                  },
+                  {
+                      "Path":  "GameLifecycle.reading.cs",
+                      "Sha256":  "77f0840dcef0853ca93a5ee288c465fe8dc7f9b23b41fe7dd56dd9fc1fdb8cf2",
+                      "Length":  4862
+                  },
+                  {
+                      "Path":  "GameLifecycle.stderr.txt",
+                      "Sha256":  "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                      "Length":  0
+                  },
+                  {
+                      "Path":  "S1API.decompiled.cs",
+                      "Sha256":  "3e96f2c8ab82f38e0c1a9377b8444ccbc63a170dc28fbc38a860f96ddcb807cc",
+                      "Length":  5248
+                  },
+                  {
+                      "Path":  "S1API.reading.cs",
+                      "Sha256":  "382784a607e08cfa582803b94a9ef400c253548bdfdb174d62a86a7c020b1485",
+                      "Length":  2623
+                  },
+                  {
+                      "Path":  "S1API.stderr.txt",
+                      "Sha256":  "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                      "Length":  0
+                  },
+                  {
+                      "Path":  "GenericSaveablesPatches.decompiled.cs",
+                      "Sha256":  "555d208b26f56693a3d95663642cc01a25d50eff23ccd5f5fe79453b0fe137dc",
+                      "Length":  10602
+                  },
+                  {
+                      "Path":  "GenericSaveablesPatches.reading.cs",
+                      "Sha256":  "9a7b0c7a9415a728afebca826f78fd5811214b50567cd86a58817b711ea54cd2",
+                      "Length":  5300
+                  },
+                  {
+                      "Path":  "GenericSaveablesPatches.stderr.txt",
+                      "Sha256":  "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                      "Length":  0
+                  },
+                  {
+                      "Path":  "Saveable.decompiled.cs",
+                      "Sha256":  "fd22a4a62c4e1490ad3577649e74cc66afeeda6b2d51abc15dfa5b54248bc984",
+                      "Length":  9688
+                  },
+                  {
+                      "Path":  "Saveable.reading.cs",
+                      "Sha256":  "f6cb10619dcaa867a629649a89ff9121782cdfa3c01ae0af7032531c3703397c",
+                      "Length":  4843
+                  },
+                  {
+                      "Path":  "Saveable.stderr.txt",
+                      "Sha256":  "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                      "Length":  0
+                  },
+                  {
+                      "Path":  "input-snapshot.json",
+                      "Sha256":  "6f85b052df3d491cd12d4d492cd15fd34d1b7979cdd3e9135fc76d210d91dda0",
+                      "Length":  10511
+                  },
+                  {
+                      "Path":  "final-input-verification.json",
+                      "Sha256":  "3bd2bab0aa042ce005a1c20bda5c84fe50267925c1092d3222cd8e834eec9569",
+                      "Length":  7629
+                  }
+              ]
+}

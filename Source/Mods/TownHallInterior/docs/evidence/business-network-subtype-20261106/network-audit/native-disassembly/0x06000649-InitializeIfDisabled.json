@@ -1,0 +1,278 @@
+{
+  "Method": {
+    "Type": "FishNet.Object.NetworkBehaviour",
+    "Name": "InitializeIfDisabled",
+    "Token": "0x06000649",
+    "ParameterCount": 0,
+    "Va": "0x180CC51E0",
+    "Rva": "0xCC51E0",
+    "NativePointerPresent": true
+  },
+  "Bounds": {
+    "BeginRva": 13390304,
+    "EndRva": 13390376,
+    "UnwindRva": 57295328
+  },
+  "RawOffset": "0xCC43E0",
+  "ByteLength": 72,
+  "BytesSha256": "1251be8dc5c270928fc546a0345cfb195d914f06323c276c2c75a70518ef7776",
+  "Instructions": [
+    {
+      "Va": "0x180CC51E0",
+      "Rva": "0xCC51E0",
+      "Bytes": "40 53",
+      "Text": "push rbx",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CC51E2",
+      "Rva": "0xCC51E2",
+      "Bytes": "48 83 EC 20",
+      "Text": "sub rsp,20h",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CC51E6",
+      "Rva": "0xCC51E6",
+      "Bytes": "33 D2",
+      "Text": "xor edx,edx",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CC51E8",
+      "Rva": "0xCC51E8",
+      "Bytes": "48 8B D9",
+      "Text": "mov rbx,rcx",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CC51EB",
+      "Rva": "0xCC51EB",
+      "Bytes": "E8 C0 F1 EA 01",
+      "Text": "call 0000000182B743B0h",
+      "FlowControl": "Call",
+      "DirectTarget": "0x182B743B0",
+      "TargetMethods": [
+        "UnityEngine.Component::get_gameObject/0"
+      ],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CC51F0",
+      "Rva": "0xCC51F0",
+      "Bytes": "48 85 C0",
+      "Text": "test rax,rax",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CC51F3",
+      "Rva": "0xCC51F3",
+      "Bytes": "74 2D",
+      "Text": "je short 0000000180CC5222h",
+      "FlowControl": "ConditionalBranch",
+      "DirectTarget": "0x180CC5222",
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CC51F5",
+      "Rva": "0xCC51F5",
+      "Bytes": "33 D2",
+      "Text": "xor edx,edx",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CC51F7",
+      "Rva": "0xCC51F7",
+      "Bytes": "48 8B C8",
+      "Text": "mov rcx,rax",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CC51FA",
+      "Rva": "0xCC51FA",
+      "Bytes": "E8 01 37 EB 01",
+      "Text": "call 0000000182B78900h",
+      "FlowControl": "Call",
+      "DirectTarget": "0x182B78900",
+      "TargetMethods": [
+        "UnityEngine.GameObject::get_activeInHierarchy/0"
+      ],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CC51FF",
+      "Rva": "0xCC51FF",
+      "Bytes": "84 C0",
+      "Text": "test al,al",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CC5201",
+      "Rva": "0xCC5201",
+      "Bytes": "75 19",
+      "Text": "jne short 0000000180CC521Ch",
+      "FlowControl": "ConditionalBranch",
+      "DirectTarget": "0x180CC521C",
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CC5203",
+      "Rva": "0xCC5203",
+      "Bytes": "48 8B 03",
+      "Text": "mov rax,[rbx]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CC5206",
+      "Rva": "0xCC5206",
+      "Bytes": "48 8B CB",
+      "Text": "mov rcx,rbx",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CC5209",
+      "Rva": "0xCC5209",
+      "Bytes": "48 8B 90 20 02 00 00",
+      "Text": "mov rdx,[rax+220h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CC5210",
+      "Rva": "0xCC5210",
+      "Bytes": "48 83 C4 20",
+      "Text": "add rsp,20h",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CC5214",
+      "Rva": "0xCC5214",
+      "Bytes": "5B",
+      "Text": "pop rbx",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CC5215",
+      "Rva": "0xCC5215",
+      "Bytes": "48 FF A0 18 02 00 00",
+      "Text": "jmp qword ptr [rax+218h]",
+      "FlowControl": "IndirectBranch",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CC521C",
+      "Rva": "0xCC521C",
+      "Bytes": "48 83 C4 20",
+      "Text": "add rsp,20h",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CC5220",
+      "Rva": "0xCC5220",
+      "Bytes": "5B",
+      "Text": "pop rbx",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CC5221",
+      "Rva": "0xCC5221",
+      "Bytes": "C3",
+      "Text": "ret",
+      "FlowControl": "Return",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CC5222",
+      "Rva": "0xCC5222",
+      "Bytes": "E8 59 29 65 FF",
+      "Text": "call 0000000180317B80h",
+      "FlowControl": "Call",
+      "DirectTarget": "0x180317B80",
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CC5227",
+      "Rva": "0xCC5227",
+      "Bytes": "CC",
+      "Text": "int 3",
+      "FlowControl": "Interrupt",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    }
+  ]
+}

@@ -1,0 +1,264 @@
+# TownHall: Besitzvertrag für einen einzelnen Speicherauftrag
+
+Stand: 2026-11-05. **Entwurf, keine Implementierung oder native Freigabe.**
+`NativeSaveWriteAllowed=false` bleibt unverändert. Dieser Auftrag spezifiziert
+Besitz, Widerruf und Beweisgrenzen; keine Produktions-/Teständerungen, Builds,
+Testsuiten, Installation, Spielsteuerung oder Spielstanddateizugriffe.
+
+## Entscheidung und erreichbares nächstes Ergebnis
+
+**Zuerst einen rein verwalteten, nichtschreibenden Auftragsbesitzer vorsehen.**
+Er hält höchstens einen Auftrag pro Prozess, unveränderliche Bindungen und ein
+monotones Wirkungs-/Beweisprotokoll. Er erhält in diesem ersten Baustein keine
+Unity-Objekte, nativen Ports oder Berechtigung zu Registrierung, Save, Remove
+oder Destroy. Ein eigener Zustandsvertrag ist damit prüfbar, ohne die offenen
+nativen Voraussetzungen durch ein Fake-`true` zu ersetzen.
+
+Für eine spätere native Anbindung bleibt die transiente Probe **gesperrt**,
+solange deren vollständiger Lebensdauer-/Entfernungsvertrag fehlt. Ein persistenter
+„inert gewordener“ Teilnehmer wird **nicht** als Ersatzlösung ausgewählt: Ein
+solcher eigener Architekturwechsel müsste alle erreichbaren Nicht-IO-/Nicht-
+Retarget-Pfade sowie Shutdown separat belegen. Retain/DontDestroyOnLoad allein
+erfüllt das nicht. Der neue Besitzer löst die native Beweislücke nicht von selbst.
+
+### Ausgangslage und Quellenart
+
+Aktueller Quellstand, Basis `b2c6c7e6c6ecc778da9624cdb68a6578b9db471a`, dirty:
+
+- `BusinessConstruction.cs:120–249`: reine `BusinessManagerSaveTrial` mit
+  vorausgesetztem `CompletionContractVerified`; kein nativer Vertrag durch
+  Event/Idle/Queue/Folgeframe. Ihre positiven Modellfälle bleiben historische
+  konditionale Nachweise, keine neuen Laufzeitannahmen.
+- `BusinessConstruction.cs:264–275`: vorgeschaltete Save-Sperre, bevor der Port
+  gelesen, ein Typ registriert oder eine Instanz gebaut wird.
+- `BusinessConstruction.cs:1783–1812,1834–1936`: eigene Overrides sind Zähler;
+  Leaving/Stop invalidieren, halten aber keinen eingefrorenen Altauftrag. Tick
+  ist ein einmaliger Versuch nach Loaded, keine fortlaufende Save-Verwaltung.
+- `BusinessConstruction.cs:2118–2225,2380–2423`: Wrapper-/Rootbesitz,
+  aktueller Singletonzugriff und synchrones Cleanup sind kein asynchroner
+  Altwelt-Lebensdauervertrag. `Mod.cs:49–89` enthält die tatsächlichen Aufrufer.
+
+Übernommene native Teilbefunde, **hier nicht neu dekodiert oder live geprüft**:
+[Speicherabschlussaudit](native-save-completion-audit.md), Abschnitte
+„Konkrete Referenzhalter“/„Managed-Grenze“, und
+[Weltwechselaudit](native-world-exit-audit.md), WX-01 bis WX-08 einschließlich
+der dokumentierten `allowLoadStacking`-Präzisierung. Clean leert nur zwei Listen,
+aktive Identität geht vor PreSceneChange verloren, Manager kann persistent sein;
+Unity-Abbruch und vollständige letzte Nutzung bleiben unbelegt.
+
+## Bindung und Beweiszustand sind getrennte Daten
+
+Die folgenden Namen sind **Entwurfsfelder**, keine vorhandene API und keine
+ausgerufenen nativen Quittungen.
+
+| Datengruppe | Vertrag |
+|---|---|
+| `OperationKey` | Eigene Prozesskennung plus nicht wiederverwendete Auftragsnummer. Ein Prozess besitzt nur einen belegbaren Auftragsslot; Zahlenüberlauf sperrt statt zurückzusetzen. Kein nativer Requesttoken. |
+| `WorldBinding` | Bestätigte eigene Ladeepoche, Singleplayer-/Testslotfreigabe TownHallTest / SaveGame_2 und eingefrorene absolute Active-/Loaded-Pfade. Gleiches Slotlabel/Pfad bei Reload ist keine gleiche Ladeepoche. Keine neue Welt-ID aus einem Dateinamen erfinden. |
+| `ManagerBinding` | Für spätere native Arbeit konkrete alte LoadManager-/SaveManager- und relevante Listeninstanzen. Zeigerwerte sind nur Diagnose: Wrapperbesitz/Pointergleichheit allein verhindert weder native Zerstörung noch Adresswiederverwendung. Kein späteres Neuauflösen am Singleton. |
+| `ParticipantReservation` | Eigene einmalige Instanzreservierung vor möglicher Konstruktion. Reale native Root-/Komponentenbindung später genau einmal, nach nachgewiesen sicherer Konstruktion und vor Veröffentlichung; keine Ersatzinstanz mit gleichem Namen/Pointer. |
+| `EffectLedger` | Getrennte monotone Intent-/Rückkehr-/Readbackmarken für Konstruktion, Listenregistrierung, eigenen Save, Entfernung und Destroy. „Kann gewirkt haben“ bleibt bei Exception erhalten. Typregistrierung separat prozessweit irreversibel. |
+| `Revocation` | Einweg-Latch mit Grund und eigener Beobachtungsfolge. Nicht von Loaded/gleichem Slot, Zeitablauf oder verspäteter Completion zurücksetzbar. |
+| `Observations` | Herkunft, eigene Folge, Thread, gebundener Auftrag und Geltungsbereich jedes Hinweises. Parameterloses Save-Event erhält dadurch keinen nachgewiesenen nativen Operationstoken. |
+| `Proofs` | Eigene letzte Nutzung/Entfernung, nativer Schreiberfolg und Moddatenkonsistenz jeweils `unknown`, `established` oder `contradicted` mit konkreter Quelle/Version/Scope. Standard `unknown`; ein Record oder injizierter Bool stellt den Beweis nicht her. |
+
+Bindung erfolgt als validierter Kandidat vor Zulassung. Ein zweiter gleicher
+Snapshot ist allenfalls ein Konsistenzhinweis, keine atomare Engine-Weltaufnahme.
+Nicht belegbare Bindung bleibt blockiert. Im ersten reinen Baustein sind alle
+Instanz-/Managerkennungen künstliche Daten; niemals native Handles dereferenzieren.
+Später wären echte gebundene Referenzen intern zu halten, nicht nur deren Zahlen.
+
+**Konstruktionsgrenze:** AddComponent/Konstruktor kann vor seiner Rückkehr bereits
+eigene Callbacks ermöglichen. „Nach AddComponent den Besitzer eintragen“ beweist
+deshalb keine rechtzeitige Bindung. Vor einem solchen Einstieg muss ein konkreter
+Vertrag für callbacksichere Bindung oder nachweislich wirkungsfreie ungebundene
+Eintritte bestehen. Die Reservierung allein ist kein solcher Vertrag. Heute fehlt
+er für den geplanten asynchronen Teilnehmer; kein neuer Konstruktionseinstieg.
+
+## Besitzer und Aufrufer
+
+Ein zukünftiger äußerer Besitzer gehört zur Mod-/Prozessverwaltung, **nicht zur
+Halle oder einer Szenenwurzel**. Er hält den alten Auftrag auch dann, wenn Halle,
+aktuelle Ladeidentität oder Listener verschwinden. Ein terminaler Auftrag lässt
+einen Tombstone im einzigen Prozessslot zurück; kein neuer Besitzer als Retry.
+
+| Eigener Eintritt | Geplante Zuständigkeit, keine heutige Verdrahtung |
+|---|---|
+| Zulassung | Bindung prüfen und Slot vor jedem möglicherweise reentranten/teilwirksamen Eintritt reservieren. Kein nativer Effekt im reinen Baustein. |
+| `Mod.OnUpdate` | Verwaltungszweig vor Hallen-/Readiness-Gates und isoliert von Hallenfehlern vorsehen. Der aktuelle Aufruf `_hall?.Tick` steht davor; bloßes Anhängen wäre kein garantierter Pump-Aufruf. Nach Widerruf nur verwaltete Diagnose, kein Zugriff auf alte/aktuelle native Handles ohne gesonderten Lesbarkeitsvertrag. |
+| OnPreLoad/OnPreSceneChange, passender Main-Unload | Eigenen Widerruf monoton setzen; alte Bindung nicht erst dort erfassen. Mehrfachsignale sind idempotenter Widerruf, kein Requestabschluss. Nicht jedes Hilfsszenen-Unload ist Weltwechsel. |
+| Loaded | Nur neuen aktuellen Kontext beobachten; alten Auftrag nicht übernehmen, nicht neu freigeben und Prozessbudget nicht zurücksetzen. |
+| Stop/Deinitialize | Zuerst widerrufen und neue Eintritte schließen, danach nur eigene Abonnements entfernen. Kein automatisches Remove/Destroy/finally-Cleanup und kein behaupteter Drain. |
+
+Ein Auftrag kann keine Managed-Callbacks sicher weiterbedienen, wenn sein Code
+oder Loader tatsächlich entladen ist. Statischer Besitz über Deinitialize hinweg
+ist dafür kein Beweis. **Vor nativer Zulassung** muss entweder letzte mögliche
+Nutzung vor Codeentladung oder eine anderweitig belegte gültige Callbacklebensdauer
+feststehen. Prozessende, Listenerabmeldung und fehlende weitere Meldungen sind
+keine Erfolgs-/Abbruchquittungen. Ohne diesen Vertrag kein registrierter Teilnehmer.
+
+## Zustände und monotone Wirkung
+
+Zustand, Widerruf, mögliche Nebenwirkung und Beweislage werden nicht in einem
+einzigen `observed`-Flag zusammengezogen. Zukunftszustände mit nativen Effekten
+sind hier nur Spezifikation; der reine Baustein darf sie allein mit ausdrücklich
+synthetischen Nachrichten simulieren, niemals durch Spielaufrufe erreichen.
+
+| Zustand | Erlaubte Entwicklung |
+|---|---|
+| `empty` | Kandidaten ohne Nebenwirkung prüfen; Ablehnung lässt keinen nativen Versuch entstehen. |
+| `bound-data-only` | Unveränderlicher Auftrag plus belegter Prozessslot; reentrant keinen zweiten Auftrag zulassen. Keine native Aktionsberechtigung. |
+| `native-preparing` | Nur später mit vorab bewiesenen Zulassungsbedingungen. Intent vor erster Typ-/Root-/Komponentenoperation setzen; bei Teilwirkung Altbesitz erhalten. |
+| `registered-possible` | Registrierungsintent vor dem Aufruf. Auch ohne Rückkehr sind Halter möglich; unerwarteter eigener Callback oder fremder Save widerruft den noch nicht ausgeführten eigenen Save. |
+| `save-issued` | Eigene Save-Intentmarke vor Aufruf, maximal einmal. Rückkehr wird separat notiert. Keine Wiederholung bei Exception/Transportverlust. |
+| `pending` | Nur zulässige korrelierte Beobachtungen; unkorrelierte Events bleiben Hinweise. Keine Entfernung aus Idle/Queue/Framebedingungen. |
+| `quarantined` | Terminal für native Aktionen: widerrufen, unklare Teilwirkung erhalten, kein Save/Remove/Destroy, kein Retargeting. Späte Hinweise nur anfügen, kein automatisches Wiederöffnen. |
+| `detached-proven` | Nur später bei vollständigem, auf diese Bindung bezogenem Letztnutzungs-/Entfernungsnachweis samt bestätigter Wirkung. Kein Übergang aus Quarantäne allein durch spätes Event. |
+| `released-proven` | Erst nach zusätzlich sicher ausführbarem, bestätigtem eigenem Destroy. Prozessslot bleibt verbraucht. Keine Aussage über Saveerfolg oder Sidecars. |
+
+Abbruch vor jeglichem nativen Intent kann rein verwalteten Auftragsinhalt
+freigeben; der nach Bindung belegte Prozessslot bleibt reserviert. Das ist **keine
+native Destroyfreigabe**. `blocked` vor Bindung zählt dagegen keinen nativen
+Versuch. Zulassungsslot und Saveversuch sind getrennte Zähler/Marker.
+
+Mögliche Wirkung wird vor dem jeweiligen externen Aufruf markiert, Rückkehr und
+Readback danach. Werfende Konstruktion/Registrierung darf nicht als „nichts
+passiert“ gewertet werden. Kein zweites Remove oder Destroy bei unbekanntem
+Ergebnis. Der gesamte mögliche Rückbau muss bereits vor nativer Exposition
+vertraglich abgesichert sein; Quarantäne allein heilt keine unsichere Lebensdauer.
+Jeder weitere Effekt braucht unmittelbar davor erneut gültige eigene Bindung/
+Freigabe. Nach externer Rückkehr zuerst Widerruf/Teilwirkung abgleichen: Ein im
+Callback reentrant widerrufener Auftrag darf nicht durch die Rückkehr aus Save
+wieder auf `pending` gesetzt werden. Keine Sperre halten, deren Rückerwerb durch
+einen reentranten Callback denselben Thread blockieren würde.
+
+Für jede spätere Effektart ist ihr geordneter beziehungsweise linearisierter
+Eintritt gegenüber Widerruf festzulegen: Gewinnt Widerruf vor diesem Eintritt,
+unterbleibt der Effekt. Ein bereits eingelassener Eintritt kann mögliche
+Teilwirkung hinterlassen; Rückkehr hebt Widerruf nicht auf. Ein separater
+Boolcheck vor dem Aufruf beweist diese Grenze nicht. Das reine Modell kann beide
+Ordnungen darstellen; konkrete Synchronisation und nativer Mechanismus sind
+damit noch nicht gewählt oder nachgewiesen und bleiben vor Anbindung zu klären.
+
+## Callback-, Fremdsave- und Ereignisvertrag
+
+1. Entscheidungen auf dem eigenen festgelegten Hauptthread serialisieren;
+   Reentranzsperre **vor** jedem externen Eintritt. Eigene Callbackbuchführung
+   muss auch verschachtelte Eintritte korrekt zählen und in `finally` austreten.
+2. Callbacks an konkrete eigene Instanz und deren unveränderlichen Besitzer
+   binden, nicht an `CurrentOperation`, aktuellen Singleton oder Slotnamen.
+   Ungebundene, fremde oder off-thread Eintritte dürfen keine Unity-/Dateiarbeit
+   auslösen; thread-sicher widerrufen/Diagnose vormerken. Welche Rückgaben und
+   Ausnahmegrenzen tatsächlich sicher sind, ist vor nativer Zulassung zu beweisen.
+3. Widerruf sperrt zukünftige eigene Mutationen; ein schon eingetretener Callback
+   wird dadurch nicht rückwirkend ungeschehen. Eigene Zähler null beweisen weder
+   das Ende des nativen Dispatchstacks noch das Ausbleiben späterer Callbacks.
+4. Höchstens ein **eigener expliziter** Save-Aufruf ist keine Sperre für Autosaves,
+   fremde Mods oder reentrante Saves. Diese dürfen nicht global abgefangen werden.
+   Der Teilnehmervertrag muss auch ihre möglichen Zugriffe während Registrierung,
+   Pending und Widerruf behandeln; bisher nicht bewiesen. Busy=false bei Preflight
+   garantiert kein exklusives Registrierungsfenster. Unerwartete Teilnahme vor
+   eigenem Saveintent verbietet danach den eigenen Save, beweist aber keinen Drain.
+5. Start/Complete aus dem parameterlosen Relay sind nur Telemetrie. Eigener
+   `OperationKey` am Empfang macht daraus keine native Batch-/Erfolgsquittung.
+   Auch ein eigener Instanzcallback beweist nicht automatisch die Zugehörigkeit
+   zum expliziten Save statt zu einem fremden/älteren Durchlauf.
+6. Bound: ein Auftrag, höchstens 64 jüngste Diagnoseeinträge mit Textfeldern bis
+   160 Zeichen plus begrenzte erste Ursache und feste Wirkungs-/Widerrufslatches.
+   Keine vollständigen Callbackpayloads/SaveStrings puffern. Überlauf oder
+   rückläufige Folge/Zeit macht die
+   Beobachtung unvollständig und widerruft; Pflichtbeweise nicht durch Ringverlust
+   ersetzen. 60 Sekunden sind nur vorgeschlagene Diagnosefrist wie im alten
+   Modell, kein Abbruch-/Freigabezeitpunkt. Keine unbeschränkte Retry-/Tickschleife.
+
+Ein leerer SaveString, `ShouldSave=false` oder no-base in eigenen Overrides belegt
+nicht den Nicht-IO-Vertrag aller nativen Default-/Interfacepfade. Das tatsächliche
+Dispatchinventar vor und nach eigenen Rümpfen bleibt Zulassungsvoraussetzung.
+
+## Letzte Nutzung, Entfernung und Erfolg
+
+Ein zukünftiger Freigabenachweis muss **alle tatsächlich relevanten Halter**
+dieser Instanz einschließen: Saveables/BaseSaveables, Completed, Requests mit
+Pfad, unabhängige Batch-/lokale Dispatchreferenzen, Coroutine-/Delegatekontexte
+und nachfolgende/reentrante Verbraucher. Quellen: Speicherabschlussaudit,
+Abschnitt „Konkrete Referenzhalter“, und Weltwechselaudit WX-01/02/05/07.
+
+| Beweisziel | Erforderlich; heute nicht hergestellt |
+|---|---|
+| Zulässige Entfernung | Für eingefrorene alte Instanz gültige Lesbarkeit und gegen konkurrierende Erfassung/Enumeration abgesicherter gezielter Abmeldeübergang. Bereits erfasste Requests/Callbacks bleiben lebensdauerpflichtig; neue Akquisitionen müssen vertraglich ausgeschlossen werden, nicht aus Busy=false abgeleitet. Keine globalen Clears/StopAllCoroutines oder Mutation fremder Listen. |
+| Bestätigte Entfernung | Intent nur einmal; eigene Mitgliedschaften/Referenzen und fremden Bestand am passenden alten Besitzer prüfen. Fehlender Eintrag in einer Liste oder gleich gebliebener Fingerprint ist kein vollständiges Halter-/Quieszenzinventar. Readbackfehler → quarantined, keine Wiederholung. |
+| Sicherer Destroy | Native letzte Nutzung und Entfernung bereits bestätigt, eigene gültige Root-/Komponentenbindung und Callback-/Shutdowngrenze weiterhin gültig. Ausbleibendes OnDestroy ist weder Erfolg noch Erlaubnis zum Wiederholen. |
+| Nativer Schreiberfolg | Ziel, Daten und Ergebnis separat korrelieren; Completion vor Fehlerauswertung reicht nicht. Erfolgreicher Write hebt einen Widerruf oder fehlende Entfernung nicht auf. |
+| Konsistente Moddaten | Separater zur ursprünglichen Welt/Checkpoint passender Vertrag; keine neue Sidecardatei oder gemeinsame Transaktion aus dem S1API-Postfix ableiten. |
+
+Zulassungsbelege müssen Version, konkrete Pfade/Instanzen, Abdeckungsumfang und
+Fehler-/Weltwechsel-/Shutdownannahmen benennen. Das Design bietet keinen frei
+setzbaren Ersatz für `CompletionContractVerified=true`. Bis diese Belege vorliegen
+bleibt jede native Aktionsfreigabe false. Eine spätere Änderung des reinen
+Modellvertrags braucht eigene neue Prüfungen; alte bestandene Modellfälle werden
+hier weder umgedeutet noch erneut geöffnet.
+
+## Gegenfälle für spätere Prüfungen — geplant, nicht ausgeführt
+
+| Fall | Erwartetes unterscheidendes Ergebnis |
+|---|---|
+| Reentrant Begin während Bindung/Registrierung/Save | Ein Prozessslot; kein zweiter Konstruktionseintritt, keine zweite Registrierung/Saveaktion. |
+| Widerruf vor Effektzulassung versus bereits eingelassener Eintritt vor Widerruf | Erstere Ordnung unterdrückt den Effekt; letztere behält mögliche Teilwirkung. Reentrante Rückkehr öffnet den Auftrag nicht wieder. Nur abstrakte Modellordnung, kein nativer Synchronisationsnachweis. |
+| Synthetischer Konstruktorcallback vor Besitzerbindung | Keine nachträgliche automatische Bindung oder Freigabe; tatsächlicher sicherer Rückgabevertrag bleibt vor nativer Konstruktion zu belegen. |
+| Neue Besitzerinstanz nach Prozess-Tombstone | Gleicher künstlicher Prozess behält seinen belegten Slot; Neuerzeugung ist kein Budgetreset oder Retry. |
+| Gleicher Pfad/Pointer nach Menüreload (ABA) | Neue Epoche/Ersatzinstanz ist nicht alter Auftrag; keine Wiederbindung. |
+| Register oder AddComponent wirkt und wirft | Intent bleibt möglich wirksam; Besitz nicht verwerfen, keine kompensierende Blindmutation. |
+| Save wirft vor/nach sichtbarer Rückkehr | Saveintent bleibt verbraucht; Erfolg unbekannt, kein zweiter Aufruf. |
+| Fremder/automatischer Save während Exposition | Eigenen geplanten Save gegebenenfalls widerrufen; keine falsche Korrelations-/Exklusivitätsannahme. |
+| Completion vor Fehlerauswertung, doppelt, verspätet oder ohne Start | Telemetrie allein erzeugt weder Writeerfolg noch Freigabe. |
+| Queue leer, Completed/Batch hält Instanz | Keine Entfernung/Destroy trotz Idle und späterem Frame. |
+| Weltwechsel während Callback, vor Event oder ohne dessen Zustellung | Bei erkanntem Verlust monotones Revoke; Zustellungsverlust darf nicht als Erhaltung der Freigabe gelten. Native Sicherheit muss vor Exposition auch diesen Fall abdecken. |
+| Stop/Main-Unload, Hallenfehler oder unlesbarer Altmanager | Verwaltungsauftrag nicht verlieren; keine native Ersatzabfrage, kein finally-Destroy. |
+| Remove/Destroy teilwirksam, Readback wirft | Terminal unbekannt, kein zweiter Versuch, kein Erfolg aus fehlender Meldung. |
+| Off-thread/nestender Callback; Überlauf/Clock-Rücklauf | Lokale Buchführung korrekt beziehungsweise widerrufen; keine Freigabe aus Zählernull/Diagnoselücke. |
+| Sicher getrennte eigene Referenzen, fremder Save/Sidecarfehler | Referenzziel gegebenenfalls separat bewiesen, globale Speicherung/Konsistenz nicht automatisch wahr. |
+
+Diese Tabelle ist eine Abnahmevorgabe, keine ausgeführte Testsuite oder Behauptung
+bereits sicherer nativer Fallbacks. Im späteren reinen Modell nur künstliche
+Identitäten/Nachrichten verwenden; echte Spielpfade/-dateien bleiben außen vor.
+
+## Reihenfolge und verbleibende Freigabesperren
+
+1. **Dieser Schritt:** Vertrag dokumentieren und unabhängig gegen die bestehenden
+   Quellen/Gegenfälle prüfen; kein Source-/Build-/Runtimebeitrag.
+2. **Nächster gesonderter Implementierungsschritt:** Nur verwalteten Besitzer,
+   Bindungs-/Widerrufs-/Intentlogik und begrenzte Diagnose mit neuen gezielten
+   reinen Modellprüfungen umsetzen. Kein `IBusinessSavePort`, Unity-Wrapper,
+   Dateischreiber oder Aufruf von `BusinessManagerSaveTrial.Begin` in diesem
+   Baustein; noch keine Verdrahtung in Mod/Loaded/Stop und keine Deploymentfolge.
+3. **Native Anbindung weiterhin blockiert:** Konkrete Konstruktion/Bindung,
+   native Lebensdauer über Weltwechsel/Shutdown, vollständiger erreichbarer
+   Callback-/Nicht-IO-/Nicht-Retarget-Vertrag und korrelierte letzte Nutzung/
+   Entfernung müssen vor einem Liveeinstieg belegt sein. Weitere allgemeine
+   Event-/Warteframeheuristik ist dafür kein Arbeitsergebnis.
+
+Die getrennte native Erfolgskorrelation und Konsistenz zusätzlicher Moddaten
+bleiben eigene Beweisziele, nicht Voraussetzungen dafür, einen reinen Besitzer
+zu entwerfen. Ein späterer Liveversuch benötigt weiterhin einen eigenen Auftrag,
+frischen geprüften Checkpoint und Rückweg. Innenraum, Start-/Lade-/Handy-Basistest
+und frühere Modellprüfungen bleiben abgeschlossen; kein neuer Save für diesen Entwurf.
+
+## Entwurfsreview und Fassungsnachweis
+
+Der [unabhängige Review](evidence/business-save-operation-owner-design-20261105/owner-design-review.json)
+vom `2026-11-05T17:28:45.9034925Z` beurteilt ausschließlich den eingefrorenen
+233-Zeilen-[Entwurf V1](evidence/business-save-operation-owner-design-20261105/business-save-operation-owner-v1.txt),
+SHA-256 `cd9517772af6c65a21968f812bed7d371420a1f13b674196663f4503287a58cb`:
+**9 accepted, 1 limited, keine Pflichtkorrektur**. 41 geschützte Quellhashes und
+14 Eingabequellen eigenständig bestätigt. Native Vorbefunde nur zugeordnet,
+nicht erneut gegen Spielbytes geprüft.
+
+Die zwei optionalen Präzisierungen sind übernommen: ausdrückliche Effekt-/
+Widerrufsordnung und ergänzende Gegenfälle. Die fehlende konkrete Synchronisation
+bleibt eine Grenze; `limited` wird nicht nachträglich in `accepted` geändert.
+Fünfzehn Gegenfälle sind jetzt spezifiziert, nicht ausgeführt. V1 und Originalreview
+bleiben unverändert; [Disposition](evidence/business-save-operation-owner-design-20261105/owner-design-disposition.json)
+und [Archivmanifest](evidence/business-save-operation-owner-design-20261105/manifest.json)
+identifizieren den Nachtrag und den endgültigen Dokumentstand. Kein weiterer
+unabhängiger Nachreview der Ergänzungen oder Implementierungs-/Nativefreigabe
+behauptet. [Quell-/Belegintegrität](evidence/business-save-operation-owner-design-20261105/integrity-closeout.json).

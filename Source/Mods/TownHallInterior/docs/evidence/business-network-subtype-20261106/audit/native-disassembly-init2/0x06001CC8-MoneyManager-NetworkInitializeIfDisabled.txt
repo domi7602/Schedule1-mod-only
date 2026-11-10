@@ -1,0 +1,28 @@
+; ScheduleOne.Money.MoneyManager::NetworkInitializeIfDisabled/0, token 0x06001CC8, RVA 0x51FE10, next-pointer window 0x40 bytes
+; No target execution. Parser-pointer window can contain padding/cold fragments and is not exact/full function, EH or transitive coverage. Shared direct aliases are truncated to eight names.
+0x51FE10     40 53                           push rbx
+0x51FE12     48 83 EC 20                     sub rsp,20h
+0x51FE16     48 8B 01                        mov rax,[rcx]
+0x51FE19     48 8B D9                        mov rbx,rcx
+0x51FE1C     48 8B 90 A0 02 00 00            mov rdx,[rax+2A0h]
+0x51FE23     FF 90 98 02 00 00               call qword ptr [rax+298h]
+0x51FE29     48 8B 03                        mov rax,[rbx]
+0x51FE2C     48 8B CB                        mov rcx,rbx
+0x51FE2F     48 8B 90 B0 02 00 00            mov rdx,[rax+2B0h]
+0x51FE36     48 83 C4 20                     add rsp,20h
+0x51FE3A     5B                              pop rbx
+0x51FE3B     48 FF A0 A8 02 00 00            jmp qword ptr [rax+2A8h]
+0x51FE42     CC                              int 3
+0x51FE43     CC                              int 3
+0x51FE44     CC                              int 3
+0x51FE45     CC                              int 3
+0x51FE46     CC                              int 3
+0x51FE47     CC                              int 3
+0x51FE48     CC                              int 3
+0x51FE49     CC                              int 3
+0x51FE4A     CC                              int 3
+0x51FE4B     CC                              int 3
+0x51FE4C     CC                              int 3
+0x51FE4D     CC                              int 3
+0x51FE4E     CC                              int 3
+0x51FE4F     CC                              int 3

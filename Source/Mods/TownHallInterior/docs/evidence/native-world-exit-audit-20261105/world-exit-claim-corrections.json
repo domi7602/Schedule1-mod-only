@@ -1,0 +1,34 @@
+{
+  "schema": 1,
+  "recordedDate": "2026-11-05",
+  "kind": "Parent disposition of independent counterreview; original claims and review unchanged",
+  "sourceRevision": "b2c6c7e6c6ecc778da9624cdb68a6578b9db471a",
+  "sourceWorktree": "dirty",
+  "originalClaimsSha256": "91615648a1dbea3a90c3628bcd840e26a8c784b60670c78deb2311630a1752cb",
+  "reviewSha256": "a0370f7a02b2687fde0ef53b25113ed53ef12eb1c9f49c938931c0bdd5dc7ec9",
+  "reviewVerdictsUnchanged": {"agree": 7, "limited": 1, "disagree": 0},
+  "dispositions": [
+    {
+      "reviewId": "C-01",
+      "claim": "WX-06",
+      "disposition": "accepted-required-wording-correction",
+      "correctedClaim": "StartGame locally rejects an already loaded world only if allowLoadStacking=false. Both inspected ExitToMenu.MoveNext -> StartGame callsites pass false. No use/safety claim about the true path follows.",
+      "parentReadback": "Native rows 0x5881D0 and 0x5882AD..0x5882B6 re-read after review: bpl captures r8b; loaded && !bpl leads to warning/return. Nonzero bpl bypasses that return.",
+      "sources": ["native-disassembly-pass2/0x060017B5-LoadManager-StartGame.txt:9,52-68", "native-disassembly-pass2/0x06001806-__ExitToMenu_g__Load_0_d-MoveNext.txt:343-354,410-421", "native-world-exit-review.json:WX-06"],
+      "appliedTo": ["Source/Mods/TownHallInterior/docs/native-world-exit-audit.md", "vault:raw/townhall-business-probe-2026-11-03.md"]
+    },
+    {
+      "reviewId": "C-02",
+      "claim": "WX-04",
+      "disposition": "accepted-optional-order-clarification",
+      "correctedClaim": "On its normal nonnull Player path the client waits for acknowledgement OR elapsed >3 seconds; after WaitUntil resume it also reaches the shared fixed 1.25-second realtime wait. The server reaches that fixed wait directly. None is an own-business drain acknowledgement.",
+      "sources": ["native-disassembly-pass2/0x06001806-__ExitToMenu_g__Load_0_d-MoveNext.txt:445-485", "native-disassembly-pass3/0x0600180B-__c__DisplayClass81_1-_ExitToMenu_b__1.txt:17-35", "native-world-exit-review.json:WX-04"],
+      "appliedTo": ["Source/Mods/TownHallInterior/docs/native-world-exit-audit.md", "vault:raw/townhall-business-probe-2026-11-03.md"]
+    }
+  ],
+  "originalEvidenceRewritten": false,
+  "nativeSaveWriteAllowed": false,
+  "safeNativeUnregisterOrDestroyEstablished": false,
+  "productionOrTestChanged": false,
+  "limit": "Documentation corrections accepted by parent against existing bytes; no new independent post-correction semantic review, runtime observation or release approval."
+}

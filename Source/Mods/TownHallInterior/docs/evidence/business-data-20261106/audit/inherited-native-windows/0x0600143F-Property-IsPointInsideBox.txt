@@ -1,0 +1,115 @@
+; ScheduleOne.Property.Property::IsPointInsideBox/2, token 0x0600143F, RVA 0x554FA0, next-pointer window 0x1B0 bytes
+; No target execution. Parser-pointer window can contain padding/cold fragments and is not exact/full function, EH or transitive coverage. Shared direct aliases are truncated to eight names.
+0x554FA0     48 89 5C 24 08                  mov [rsp+8],rbx
+0x554FA5     57                              push rdi
+0x554FA6     48 83 EC 70                     sub rsp,70h
+0x554FAA     80 3D B6 65 6A 03 00            cmp byte ptr [183BFB567h],0
+0x554FB1     49 8B D8                        mov rbx,r8
+0x554FB4     48 8B FA                        mov rdi,rdx
+0x554FB7     75 2B                           jne short 0000000180554FE4h
+0x554FB9     48 8D 0D A8 4D 4A 03            lea rcx,[1839F9D68h] ; TypeInfo: ScheduleOne.Console
+0x554FC0     E8 DB 28 DC FF                  call 00000001803178A0h
+0x554FC5     48 8D 0D 2C B0 49 03            lea rcx,[1839EFFF8h] ; TypeInfo: UnityEngine.Object
+0x554FCC     E8 CF 28 DC FF                  call 00000001803178A0h
+0x554FD1     48 8D 0D D8 DA 45 03            lea rcx,[1839B2AB0h] ; StringLiteral: BoxCollider is null.
+0x554FD8     E8 C3 28 DC FF                  call 00000001803178A0h
+0x554FDD     C6 05 83 65 6A 03 01            mov byte ptr [183BFB567h],1
+0x554FE4     48 8B 0D 0D B0 49 03            mov rcx,[1839EFFF8h] ; TypeInfo: UnityEngine.Object
+0x554FEB     83 B9 E0 00 00 00 00            cmp dword ptr [rcx+0E0h],0
+0x554FF2     75 05                           jne short 0000000180554FF9h
+0x554FF4     E8 37 2C DC FF                  call 0000000180317C30h
+0x554FF9     45 33 C0                        xor r8d,r8d
+0x554FFC     33 D2                           xor edx,edx
+0x554FFE     48 8B CB                        mov rcx,rbx
+0x555001     E8 9A 70 62 02                  call 0000000182B7C0A0h ; UnityEngine.Object::op_Equality/2
+0x555006     84 C0                           test al,al
+0x555008     0F 85 F7 00 00 00               jne near ptr 0000000180555105h
+0x55500E     48 85 DB                        test rbx,rbx
+0x555011     0F 84 24 01 00 00               je near ptr 000000018055513Bh
+0x555017     33 D2                           xor edx,edx
+0x555019     48 8B CB                        mov rcx,rbx
+0x55501C     E8 3F F4 61 02                  call 0000000182B74460h ; UnityEngine.Component::get_transform/0
+0x555021     48 85 C0                        test rax,rax
+0x555024     0F 84 11 01 00 00               je near ptr 000000018055513Bh
+0x55502A     8B 4F 08                        mov ecx,[rdi+8]
+0x55502D     4C 8D 44 24 20                  lea r8,[rsp+20h]
+0x555032     F2 0F 10 07                     movsd xmm0,qword ptr [rdi]
+0x555036     45 33 C9                        xor r9d,r9d
+0x555039     0F 29 74 24 60                  movaps [rsp+60h],xmm6
+0x55503E     48 8B D0                        mov rdx,rax
+0x555041     89 4C 24 28                     mov [rsp+28h],ecx
+0x555045     48 8D 4C 24 30                  lea rcx,[rsp+30h]
+0x55504A     0F 29 7C 24 50                  movaps [rsp+50h],xmm7
+0x55504F     44 0F 29 44 24 40               movaps [rsp+40h],xmm8
+0x555055     F2 0F 11 44 24 20               movsd qword ptr [rsp+20h],xmm0
+0x55505B     E8 C0 0F 63 02                  call 0000000182B86020h ; UnityEngine.Transform::InverseTransformPoint/1
+0x555060     45 33 C0                        xor r8d,r8d
+0x555063     48 8D 4C 24 30                  lea rcx,[rsp+30h]
+0x555068     48 8B D3                        mov rdx,rbx
+0x55506B     F3 0F 10 30                     movss xmm6,dword ptr [rax]
+0x55506F     F3 44 0F 10 40 04               movss xmm8,dword ptr [rax+4]
+0x555075     F3 0F 10 78 08                  movss xmm7,dword ptr [rax+8]
+0x55507A     E8 31 05 69 02                  call 0000000182BE55B0h ; UnityEngine.BoxCollider::get_center/0
+0x55507F     F3 0F 5C 30                     subss xmm6,dword ptr [rax]
+0x555083     F3 44 0F 5C 40 04               subss xmm8,dword ptr [rax+4]
+0x555089     F3 0F 5C 78 08                  subss xmm7,dword ptr [rax+8]
+0x55508E     45 33 C0                        xor r8d,r8d
+0x555091     48 8D 4C 24 30                  lea rcx,[rsp+30h]
+0x555096     48 8B D3                        mov rdx,rbx
+0x555099     E8 B2 05 69 02                  call 0000000182BE5650h ; UnityEngine.BoxCollider::get_size/0
+0x55509E     F3 0F 10 0D 9A 7A 90 02         movss xmm1,dword ptr [182E5CB40h]
+0x5550A6     F3 0F 10 60 04                  movss xmm4,dword ptr [rax+4]
+0x5550AB     F3 0F 10 58 08                  movss xmm3,dword ptr [rax+8]
+0x5550B0     F3 0F 59 E1                     mulss xmm4,xmm1
+0x5550B4     F3 0F 59 D9                     mulss xmm3,xmm1
+0x5550B8     F3 0F 10 00                     movss xmm0,dword ptr [rax]
+0x5550BC     66 0F 6F 15 DC 7A 90 02         movdqa xmm2,[182E5CBA0h]
+0x5550C4     0F 54 F2                        andps xmm6,xmm2
+0x5550C7     F3 0F 59 C1                     mulss xmm0,xmm1
+0x5550CB     0F 2F C6                        comiss xmm0,xmm6
+0x5550CE     0F 28 74 24 60                  movaps xmm6,[rsp+60h]
+0x5550D3     72 2C                           jb short 0000000180555101h
+0x5550D5     44 0F 54 C2                     andps xmm8,xmm2
+0x5550D9     41 0F 2F E0                     comiss xmm4,xmm8
+0x5550DD     72 22                           jb short 0000000180555101h
+0x5550DF     0F 54 FA                        andps xmm7,xmm2
+0x5550E2     0F 2F DF                        comiss xmm3,xmm7
+0x5550E5     0F 93 C0                        setae al
+0x5550E8     0F 28 7C 24 50                  movaps xmm7,[rsp+50h]
+0x5550ED     44 0F 28 44 24 40               movaps xmm8,[rsp+40h]
+0x5550F3     48 8B 9C 24 80 00 00 00         mov rbx,[rsp+80h]
+0x5550FB     48 83 C4 70                     add rsp,70h
+0x5550FF     5F                              pop rdi
+0x555100     C3                              ret
+0x555101     32 C0                           xor al,al
+0x555103     EB E3                           jmp short 00000001805550E8h
+0x555105     48 8B 0D 5C 4C 4A 03            mov rcx,[1839F9D68h] ; TypeInfo: ScheduleOne.Console
+0x55510C     83 B9 E0 00 00 00 00            cmp dword ptr [rcx+0E0h],0
+0x555113     75 05                           jne short 000000018055511Ah
+0x555115     E8 16 2B DC FF                  call 0000000180317C30h
+0x55511A     48 8B 0D 8F D9 45 03            mov rcx,[1839B2AB0h] ; StringLiteral: BoxCollider is null.
+0x555121     45 33 C0                        xor r8d,r8d
+0x555124     33 D2                           xor edx,edx
+0x555126     E8 15 3A 35 00                  call 00000001808A8B40h ; ScheduleOne.Console::LogWarning/2
+0x55512B     48 8B 9C 24 80 00 00 00         mov rbx,[rsp+80h]
+0x555133     32 C0                           xor al,al
+0x555135     48 83 C4 70                     add rsp,70h
+0x555139     5F                              pop rdi
+0x55513A     C3                              ret
+0x55513B     E8 40 2A DC FF                  call 0000000180317B80h
+0x555140     CC                              int 3
+0x555141     CC                              int 3
+0x555142     CC                              int 3
+0x555143     CC                              int 3
+0x555144     CC                              int 3
+0x555145     CC                              int 3
+0x555146     CC                              int 3
+0x555147     CC                              int 3
+0x555148     CC                              int 3
+0x555149     CC                              int 3
+0x55514A     CC                              int 3
+0x55514B     CC                              int 3
+0x55514C     CC                              int 3
+0x55514D     CC                              int 3
+0x55514E     CC                              int 3
+0x55514F     CC                              int 3

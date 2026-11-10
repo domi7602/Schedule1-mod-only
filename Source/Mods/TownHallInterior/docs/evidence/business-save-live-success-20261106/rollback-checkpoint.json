@@ -1,0 +1,83 @@
+{
+  "schema": 1,
+  "capturedUtc": "2026-11-06T09:01:16.108125+00:00",
+  "project": "schedule1-mod-only",
+  "sourceRevision": "b2c6c7e6c6ecc778da9624cdb68a6578b9db471a",
+  "sourceWorktree": "dirty",
+  "backupId": "20261106T090114908982Z-de2fcefd",
+  "backupRelativePath": ".backups/townhall-launch-prep/20261106T090114908982Z-de2fcefd",
+  "manifestSha256": "922dae7364ab9efe89c6430f7d1a9ecb0e65d6897fced1c2aabde31b84c95e69",
+  "organisation": "TownHallTest",
+  "slot": "SaveGame_2",
+  "savedGameVersion": "0.4.7f12",
+  "nativeFiles": 39,
+  "userDataFiles": 172,
+  "payloadFiles": 3,
+  "totalBytes": 67769804,
+  "backupVerified": true,
+  "sourcesUnchanged": true,
+  "nativeSlot1Accessed": false,
+  "sourceSaveWrites": false,
+  "deploymentPerformed": false,
+  "gameLaunched": false,
+  "steamCloud": {
+    "checkedUtc": "2026-11-06T09:01:16.108125+00:00",
+    "source": "Steam/userdata/<account>/7/remote/sharedconfig.vdf: UserRoamingConfigStore/Software/Valve/Steam/CloudEnabled",
+    "globalCloudEnabled": false,
+    "configSha256": "f17a5d3437d115375445bfb0dad12db954ea1726f6d8c393e8e8a82a190a8e78",
+    "appLastSyncState": null,
+    "recentAppSignals": [
+      {
+        "timestamp": "2026-11-06 09:59:49",
+        "kind": "conflict",
+        "syncDisabled": false
+      },
+      {
+        "timestamp": "2026-11-06 09:59:49",
+        "kind": "conflict",
+        "syncDisabled": false
+      },
+      {
+        "timestamp": "2026-11-06 09:59:49",
+        "kind": "conflict",
+        "syncDisabled": false
+      },
+      {
+        "timestamp": "2026-11-06 09:59:49",
+        "kind": "conflict",
+        "syncDisabled": false
+      },
+      {
+        "timestamp": "2026-11-06 09:59:49",
+        "kind": "conflict",
+        "syncDisabled": false
+      },
+      {
+        "timestamp": "2026-11-06 09:59:49",
+        "kind": "conflict",
+        "syncDisabled": false
+      },
+      {
+        "timestamp": "2026-11-06 09:59:49",
+        "kind": "conflict",
+        "syncDisabled": false
+      },
+      {
+        "timestamp": "2026-11-06 09:59:49",
+        "kind": "conflict",
+        "syncDisabled": false
+      }
+    ],
+    "settingsChanged": false,
+    "remoteStateChecked": false,
+    "conflictsResolved": false
+  },
+  "nativeSaveProbeAllowed": false,
+  "limitations": [
+    "Backup contains private config locally under a gitignored directory; no backup contents are knowledge imports.",
+    "Shared UserData can include sidecars of other slots; copied unchanged, not loaded or mutated.",
+    "Cloud remote state and existing conflict markers were not changed or resolved.",
+    "Baseline launch still requires the separate installed-binary audit; no save-probe readiness is implied.",
+    "Normal game autosaves are not disabled by preparation."
+  ]
+}

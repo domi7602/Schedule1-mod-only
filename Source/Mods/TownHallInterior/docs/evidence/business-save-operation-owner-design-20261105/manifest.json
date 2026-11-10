@@ -1,0 +1,75 @@
+{
+  "schema": 1,
+  "capturedUtc": "2026-11-05T17:38:34.341030+00:00",
+  "project": "schedule1-mod-only",
+  "sourceRevision": "b2c6c7e6c6ecc778da9624cdb68a6578b9db471a",
+  "sourceWorktree": "dirty",
+  "scope": "Offline ownership design, immutable reviewed draft, independent review, disposition and source integrity; no implementation or native approval",
+  "archivedPathBindings": {
+    "originalReviewedMarkdownSnapshot": "business-save-operation-owner-v1.txt",
+    "finalMaintainedDesignSnapshot": "business-save-operation-owner-final.txt",
+    "primaryFreeze": "input-manifest.json",
+    "independentReview": "owner-design-review.json",
+    "reviewDisposition": "owner-design-disposition.json",
+    "finalSourceIntegrity": "integrity-closeout.json"
+  },
+  "nativeSaveWriteAllowed": false,
+  "installedBinariesMetadataSavesOrConfigurationCopied": false,
+  "files": [
+    {
+      "path": "archive-design-evidence.py",
+      "sha256": "f87aae3454cc4ab37eff3e7bf0f8cb6f61e264519d9dfc2a45b77e5fce271392",
+      "bytes": 7616
+    },
+    {
+      "path": "business-save-operation-owner-final.txt",
+      "sha256": "985642354836f8a8eb6b4109277261e42b196c4ab2f3f7641407b2347b954549",
+      "bytes": 21927
+    },
+    {
+      "path": "business-save-operation-owner-v1.txt",
+      "sha256": "cd9517772af6c65a21968f812bed7d371420a1f13b674196663f4503287a58cb",
+      "bytes": 19290
+    },
+    {
+      "path": "capture-inputs.py",
+      "sha256": "3f6642f601e384ac7f25a2f72a80eec2f0cfa8185e32ee96fcefac44614b0e58",
+      "bytes": 3924
+    },
+    {
+      "path": "design-freeze.json",
+      "sha256": "b905b06fbf7ca584948002203b583f365a50c7732a4a9df7f8281fba9b579c9f",
+      "bytes": 438
+    },
+    {
+      "path": "design-review/final-input-verification.json",
+      "sha256": "58d5286d46360cb2b2abe6ba4e776cf2ae12527a68e715f2fe1fe242b1019568",
+      "bytes": 1549
+    },
+    {
+      "path": "input-manifest.json",
+      "sha256": "8a027724ef0ae3c502dda56b80decf86d7827a64f36fe89849111b970be737c7",
+      "bytes": 10773
+    },
+    {
+      "path": "integrity-closeout.json",
+      "sha256": "3ddd51654960bae71395f9580efde662cc65a325143f0779caa6fe73163d0942",
+      "bytes": 1653
+    },
+    {
+      "path": "owner-design-disposition.json",
+      "sha256": "f8b1ea6aa6f718b1cd96fe1f3f0ce1f815c38082b262c65e40acee1803e0ab5f",
+      "bytes": 2335
+    },
+    {
+      "path": "owner-design-review.json",
+      "sha256": "a4f6292cac3a03c8f066fba5e7c1b36bdcc1e13a40ec93a3902df33371652f5e",
+      "bytes": 34831
+    },
+    {
+      "path": "source-documents.json",
+      "sha256": "ee9791692b3ad9bfa168ba510953a82b8a66566c58cfdb33bc4df045c1c1d353",
+      "bytes": 1695
+    }
+  ]
+}

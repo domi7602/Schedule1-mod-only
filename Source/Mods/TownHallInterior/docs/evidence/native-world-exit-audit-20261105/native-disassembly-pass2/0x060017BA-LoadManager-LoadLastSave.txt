@@ -1,0 +1,44 @@
+; ScheduleOne.Persistence.LoadManager::LoadLastSave/0, token 0x060017BA, RVA 0x587B00, next-pointer window 0x90 bytes
+; No target execution. Parser-pointer window can contain padding/cold fragments and is not exact/full function, EH or transitive coverage. Shared direct aliases are truncated to eight names.
+0x587B00     40 53                           push rbx
+0x587B02     48 83 EC 30                     sub rsp,30h
+0x587B06     80 3D 0E 3C 67 03 00            cmp byte ptr [183BFB71Bh],0
+0x587B0D     48 8B D9                        mov rbx,rcx
+0x587B10     75 1F                           jne short 0000000180587B31h
+0x587B12     48 8D 0D 4F 22 47 03            lea rcx,[1839F9D68h] ; TypeInfo: ScheduleOne.Console
+0x587B19     E8 82 FD D8 FF                  call 00000001803178A0h
+0x587B1E     48 8D 0D 33 AD 45 03            lea rcx,[1839E2858h] ; StringLiteral: No active save info, cannot load last save
+0x587B25     E8 76 FD D8 FF                  call 00000001803178A0h
+0x587B2A     C6 05 EA 3B 67 03 01            mov byte ptr [183BFB71Bh],1
+0x587B31     48 83 7B 40 00                  cmp qword ptr [rbx+40h],0
+0x587B36     74 22                           je short 0000000180587B5Ah
+0x587B38     48 8B 53 40                     mov rdx,[rbx+40h]
+0x587B3C     41 B1 01                        mov r9b,1
+0x587B3F     45 0F B6 C1                     movzx r8d,r9b
+0x587B43     48 C7 44 24 20 00 00 00 00      mov qword ptr [rsp+20h],0
+0x587B4C     48 8B CB                        mov rcx,rbx
+0x587B4F     E8 6C 06 00 00                  call 00000001805881C0h ; ScheduleOne.Persistence.LoadManager::StartGame/3
+0x587B54     48 83 C4 30                     add rsp,30h
+0x587B58     5B                              pop rbx
+0x587B59     C3                              ret
+0x587B5A     48 8B 0D 07 22 47 03            mov rcx,[1839F9D68h] ; TypeInfo: ScheduleOne.Console
+0x587B61     83 B9 E0 00 00 00 00            cmp dword ptr [rcx+0E0h],0
+0x587B68     75 05                           jne short 0000000180587B6Fh
+0x587B6A     E8 C1 00 D9 FF                  call 0000000180317C30h
+0x587B6F     48 8B 0D E2 AC 45 03            mov rcx,[1839E2858h] ; StringLiteral: No active save info, cannot load last save
+0x587B76     45 33 C0                        xor r8d,r8d
+0x587B79     33 D2                           xor edx,edx
+0x587B7B     48 83 C4 30                     add rsp,30h
+0x587B7F     5B                              pop rbx
+0x587B80     E9 BB 0F 32 00                  jmp near ptr 00000001808A8B40h ; ScheduleOne.Console::LogWarning/2
+0x587B85     CC                              int 3
+0x587B86     CC                              int 3
+0x587B87     CC                              int 3
+0x587B88     CC                              int 3
+0x587B89     CC                              int 3
+0x587B8A     CC                              int 3
+0x587B8B     CC                              int 3
+0x587B8C     CC                              int 3
+0x587B8D     CC                              int 3
+0x587B8E     CC                              int 3
+0x587B8F     CC                              int 3

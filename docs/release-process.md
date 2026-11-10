@@ -36,8 +36,10 @@ Then verify the mod in-game (Main Menu → load save → use the mod → Main Me
 
 ```pwsh
 pwsh Tools/package-release.ps1 -Mod NotesApp      # one mod
-pwsh Tools/package-release.ps1                    # every active mod
+pwsh Tools/package-release.ps1                    # every release-eligible mod
 ```
+
+TownHallInterior embeds local game assets. Both release commands exclude it from packaging and publication.
 
 The script forces a Release rebuild with deployment disabled and writes `Release/<ModName>-v<version>.zip` (the `Release/` folder is git-ignored). Missing or invalid metadata, an absent/empty mod DLL or `Shared.dll`, missing game assemblies, an uninitialized submodule or source changes during the build/copy abort packaging. A previous ZIP is replaced only after the new archive passes verification. Each attempt uses a unique temporary directory; cleanup is confined to that owned directory.
 

@@ -1,0 +1,74 @@
+; ScheduleOne.Money.MoneyManager::.ctor/0, token 0x06001CC4, RVA 0x5E7240, next-pointer window 0x150 bytes
+; No target execution. Parser-pointer window can contain padding/cold fragments and is not exact/full function, EH or transitive coverage. Shared direct aliases are truncated to eight names.
+0x5E7240     48 89 5C 24 08                  mov [rsp+8],rbx
+0x5E7245     57                              push rdi
+0x5E7246     48 83 EC 20                     sub rsp,20h
+0x5E724A     80 3D 16 47 61 03 00            cmp byte ptr [183BFB967h],0
+0x5E7251     48 8B F9                        mov rdi,rcx
+0x5E7254     75 4F                           jne short 00000001805E72A5h
+0x5E7256     48 8D 0D 3B 99 3E 03            lea rcx,[1839D0B98h] ; MethodRef: System.Void System.Collections.Generic.List`1<ScheduleOne.Money.Transaction>..ctor
+0x5E725D     E8 3E 06 D3 FF                  call 00000001803178A0h
+0x5E7262     48 8D 0D 2F 9F 3D 03            lea rcx,[1839C1198h] ; MethodRef: System.Void System.Collections.Generic.List`1<System.String>..ctor
+0x5E7269     E8 32 06 D3 FF                  call 00000001803178A0h
+0x5E726E     48 8D 0D 0B 3B 42 03            lea rcx,[183A0AD80h] ; TypeInfo: System.Collections.Generic.List`1<System.String>
+0x5E7275     E8 26 06 D3 FF                  call 00000001803178A0h
+0x5E727A     48 8D 0D 07 66 42 03            lea rcx,[183A0D888h] ; TypeInfo: System.Collections.Generic.List`1<ScheduleOne.Money.Transaction>
+0x5E7281     E8 1A 06 D3 FF                  call 00000001803178A0h
+0x5E7286     48 8D 0D 43 9D 3F 03            lea rcx,[1839E0FD0h] ; TypeInfo: ScheduleOne.Persistence.Loaders.MoneyLoader
+0x5E728D     E8 0E 06 D3 FF                  call 00000001803178A0h
+0x5E7292     48 8D 0D 97 C0 3B 03            lea rcx,[1839A3330h] ; MethodRef: System.Void ScheduleOne.DevUtilities.NetworkSingleton`1<ScheduleOne.Money.MoneyManager>..ctor
+0x5E7299     E8 02 06 D3 FF                  call 00000001803178A0h
+0x5E729E     C6 05 C2 46 61 03 01            mov byte ptr [183BFB967h],1
+0x5E72A5     48 8B 0D DC 65 42 03            mov rcx,[183A0D888h] ; TypeInfo: System.Collections.Generic.List`1<ScheduleOne.Money.Transaction>
+0x5E72AC     E8 6F 08 D3 FF                  call 0000000180317B20h
+0x5E72B1     48 8B 15 E0 98 3E 03            mov rdx,[1839D0B98h] ; MethodRef: System.Void System.Collections.Generic.List`1<ScheduleOne.Money.Transaction>..ctor
+0x5E72B8     48 8B C8                        mov rcx,rax
+0x5E72BB     48 8B D8                        mov rbx,rax
+0x5E72BE     E8 6D CB 9C 00                  call 0000000180FB3E30h ; System.Collections.Generic.List`1::.ctor/0 | System.Collections.Generic.LowLevelList`1::.ctor/0
+0x5E72C3     48 8D 8F 20 01 00 00            lea rcx,[rdi+120h]
+0x5E72CA     48 89 9F 20 01 00 00            mov [rdi+120h],rbx
+0x5E72D1     48 8B D3                        mov rdx,rbx
+0x5E72D4     E8 D7 F7 D2 FF                  call 0000000180316AB0h
+0x5E72D9     48 8B 0D F0 9C 3F 03            mov rcx,[1839E0FD0h] ; TypeInfo: ScheduleOne.Persistence.Loaders.MoneyLoader
+0x5E72E0     E8 3B 08 D3 FF                  call 0000000180317B20h
+0x5E72E5     33 D2                           xor edx,edx
+0x5E72E7     48 8B C8                        mov rcx,rax
+0x5E72EA     48 8B D8                        mov rbx,rax
+0x5E72ED     E8 8E 62 E3 FF                  call 000000018041D580h ; DeveloperManager::OnStartServer/0 | DeveloperManager+LiveFloatVariable::.ctor/0 | DeveloperManager+LiveStringVariable::.ctor/0 | DeveloperManager+<>c__DisplayClass11_0::.ctor/0 | DeveloperManager+<>c__DisplayClass15_0::.ctor/0 | DeveloperManager+<>c__DisplayClass16_0::.ctor/0 | DeveloperSettings+Item::.ctor/0 | InvertMouseSetter+<>c::.ctor/0 | ... SHARED TARGET: 2614 aliases
+0x5E72F2     48 8D 8F 60 01 00 00            lea rcx,[rdi+160h]
+0x5E72F9     48 89 9F 60 01 00 00            mov [rdi+160h],rbx
+0x5E7300     48 8B D3                        mov rdx,rbx
+0x5E7303     E8 A8 F7 D2 FF                  call 0000000180316AB0h
+0x5E7308     48 8B 0D 71 3A 42 03            mov rcx,[183A0AD80h] ; TypeInfo: System.Collections.Generic.List`1<System.String>
+0x5E730F     E8 0C 08 D3 FF                  call 0000000180317B20h
+0x5E7314     48 8B 15 7D 9E 3D 03            mov rdx,[1839C1198h] ; MethodRef: System.Void System.Collections.Generic.List`1<System.String>..ctor
+0x5E731B     48 8B C8                        mov rcx,rax
+0x5E731E     48 8B D8                        mov rbx,rax
+0x5E7321     E8 0A CB 9C 00                  call 0000000180FB3E30h ; System.Collections.Generic.List`1::.ctor/0 | System.Collections.Generic.LowLevelList`1::.ctor/0
+0x5E7326     48 8D 8F 68 01 00 00            lea rcx,[rdi+168h]
+0x5E732D     48 89 9F 68 01 00 00            mov [rdi+168h],rbx
+0x5E7334     48 8B D3                        mov rdx,rbx
+0x5E7337     E8 74 F7 D2 FF                  call 0000000180316AB0h
+0x5E733C     48 8B 0D 3D 3A 42 03            mov rcx,[183A0AD80h] ; TypeInfo: System.Collections.Generic.List`1<System.String>
+0x5E7343     E8 D8 07 D3 FF                  call 0000000180317B20h
+0x5E7348     48 8B 15 49 9E 3D 03            mov rdx,[1839C1198h] ; MethodRef: System.Void System.Collections.Generic.List`1<System.String>..ctor
+0x5E734F     48 8B C8                        mov rcx,rax
+0x5E7352     48 8B D8                        mov rbx,rax
+0x5E7355     E8 D6 CA 9C 00                  call 0000000180FB3E30h ; System.Collections.Generic.List`1::.ctor/0 | System.Collections.Generic.LowLevelList`1::.ctor/0
+0x5E735A     48 8D 8F 70 01 00 00            lea rcx,[rdi+170h]
+0x5E7361     48 89 9F 70 01 00 00            mov [rdi+170h],rbx
+0x5E7368     48 8B D3                        mov rdx,rbx
+0x5E736B     E8 40 F7 D2 FF                  call 0000000180316AB0h
+0x5E7370     48 8B 15 B9 BF 3B 03            mov rdx,[1839A3330h] ; MethodRef: System.Void ScheduleOne.DevUtilities.NetworkSingleton`1<ScheduleOne.Money.MoneyManager>..ctor
+0x5E7377     48 8B CF                        mov rcx,rdi
+0x5E737A     48 8B 5C 24 30                  mov rbx,[rsp+30h]
+0x5E737F     48 83 C4 20                     add rsp,20h
+0x5E7383     5F                              pop rdi
+0x5E7384     E9 B7 B1 00 00                  jmp near ptr 00000001805F2540h ; ScheduleOne.Vehicles.VehicleInitializer::.ctor/0 | ScheduleOne.Management.ConfigurationReplicator::.ctor/0 | ScheduleOne.DevUtilities.NetworkSingleton`1::.ctor/0 | ScheduleOne.DevUtilities.PropertyTestTool::.ctor/0 | ScheduleOne.Configuration.ConfigurationServiceNetworker::.ctor/0 | ScheduleOne.Casino.CasinoGameController::.ctor/0 | ScheduleOne.Equipping.EquippedItemHandler::.ctor/0 | ScheduleOne.ObjectScripts.Bed::.ctor/0 | ... SHARED TARGET: 11 aliases
+0x5E7389     CC                              int 3
+0x5E738A     CC                              int 3
+0x5E738B     CC                              int 3
+0x5E738C     CC                              int 3
+0x5E738D     CC                              int 3
+0x5E738E     CC                              int 3
+0x5E738F     CC                              int 3

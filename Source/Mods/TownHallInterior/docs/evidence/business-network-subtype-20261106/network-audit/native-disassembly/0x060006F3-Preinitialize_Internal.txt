@@ -1,0 +1,204 @@
+; FishNet.Object.NetworkObject::Preinitialize_Internal/4, token 0x060006F3, RVA 0xCCD980, .pdata primary extent 0x367 bytes
+; Raw native bytes decoded without invoking the game. .pdata primary extent is not a proof of full transitive/exception-path coverage.
+0xCCD980     48 89 5C 24 10                  mov [rsp+10h],rbx
+0xCCD985     48 89 6C 24 18                  mov [rsp+18h],rbp
+0xCCD98A     57                              push rdi
+0xCCD98B     41 56                           push r14
+0xCCD98D     41 57                           push r15
+0xCCD98F     48 83 EC 20                     sub rsp,20h
+0xCCD993     80 3D D9 32 F3 02 00            cmp byte ptr [183C00C73h],0
+0xCCD99A     4D 8B F9                        mov r15,r9
+0xCCD99D     41 8B F8                        mov edi,r8d
+0xCCD9A0     4C 8B F2                        mov r14,rdx
+0xCCD9A3     48 8B D9                        mov rbx,rcx
+0xCCD9A6     75 13                           jne short 0000000180CCD9BBh
+0xCCD9A8     48 8D 0D C9 30 D0 02            lea rcx,[1839D0A78h]
+0xCCD9AF     E8 EC 9E 64 FF                  call 00000001803178A0h
+0xCCD9B4     C6 05 B8 32 F3 02 01            mov byte ptr [183C00C73h],1
+0xCCD9BB     0F B6 6C 24 60                  movzx ebp,byte ptr [rsp+60h]
+0xCCD9C0     45 33 C0                        xor r8d,r8d
+0xCCD9C3     40 0F B6 D5                     movzx edx,bpl
+0xCCD9C7     48 89 74 24 40                  mov [rsp+40h],rsi
+0xCCD9CC     49 8B CE                        mov rcx,r14
+0xCCD9CF     E8 6C E5 FD FF                  call 0000000180CABF40h ; FishNet.Utility.Extension.NetworksFN::DoubleLogic/2
+0xCCD9D4     84 C0                           test al,al
+0xCCD9D6     0F 85 4F 01 00 00               jne near ptr 0000000180CCDB2Bh
+0xCCD9DC     33 D2                           xor edx,edx
+0xCCD9DE     C6 83 A0 00 00 00 01            mov byte ptr [rbx+0A0h],1
+0xCCD9E5     48 8B CB                        mov rcx,rbx
+0xCCD9E8     E8 E3 F0 FF FF                  call 0000000180CCCAD0h ; FishNet.Object.NetworkObject::InitializeNetworkBehavioursIfDisabled/0
+0xCCD9ED     48 8D 8B 10 01 00 00            lea rcx,[rbx+110h]
+0xCCD9F4     C6 43 38 00                     mov byte ptr [rbx+38h],0
+0xCCD9F8     49 8B D6                        mov rdx,r14
+0xCCD9FB     4C 89 B3 10 01 00 00            mov [rbx+110h],r14
+0xCCDA02     E8 A9 90 64 FF                  call 0000000180316AB0h
+0xCCDA07     4D 85 F6                        test r14,r14
+0xCCDA0A     0F 84 CB 02 00 00               je near ptr 0000000180CCDCDBh
+0xCCDA10     49 8B 56 30                     mov rdx,[r14+30h]
+0xCCDA14     48 8D 8B 18 01 00 00            lea rcx,[rbx+118h]
+0xCCDA1B     48 89 93 18 01 00 00            mov [rbx+118h],rdx
+0xCCDA22     E8 89 90 64 FF                  call 0000000180316AB0h
+0xCCDA27     49 8B 56 38                     mov rdx,[r14+38h]
+0xCCDA2B     48 8D 8B 20 01 00 00            lea rcx,[rbx+120h]
+0xCCDA32     48 89 93 20 01 00 00            mov [rbx+120h],rdx
+0xCCDA39     E8 72 90 64 FF                  call 0000000180316AB0h
+0xCCDA3E     49 8B 56 58                     mov rdx,[r14+58h]
+0xCCDA42     48 8D 8B 28 01 00 00            lea rcx,[rbx+128h]
+0xCCDA49     48 89 93 28 01 00 00            mov [rbx+128h],rdx
+0xCCDA50     E8 5B 90 64 FF                  call 0000000180316AB0h
+0xCCDA55     49 8B 56 40                     mov rdx,[r14+40h]
+0xCCDA59     48 8D 8B 30 01 00 00            lea rcx,[rbx+130h]
+0xCCDA60     48 89 93 30 01 00 00            mov [rbx+130h],rdx
+0xCCDA67     E8 44 90 64 FF                  call 0000000180316AB0h
+0xCCDA6C     49 8B 56 48                     mov rdx,[r14+48h]
+0xCCDA70     48 8D 8B 38 01 00 00            lea rcx,[rbx+138h]
+0xCCDA77     48 89 93 38 01 00 00            mov [rbx+138h],rdx
+0xCCDA7E     E8 2D 90 64 FF                  call 0000000180316AB0h
+0xCCDA83     49 8B 56 50                     mov rdx,[r14+50h]
+0xCCDA87     48 8D 8B 40 01 00 00            lea rcx,[rbx+140h]
+0xCCDA8E     48 89 93 40 01 00 00            mov [rbx+140h],rdx
+0xCCDA95     E8 16 90 64 FF                  call 0000000180316AB0h
+0xCCDA9A     49 8B 56 28                     mov rdx,[r14+28h]
+0xCCDA9E     48 8D 8B 48 01 00 00            lea rcx,[rbx+148h]
+0xCCDAA5     48 89 93 48 01 00 00            mov [rbx+148h],rdx
+0xCCDAAC     E8 FF 8F 64 FF                  call 0000000180316AB0h
+0xCCDAB1     49 8B 96 90 00 00 00            mov rdx,[r14+90h]
+0xCCDAB8     48 8D 8B 50 01 00 00            lea rcx,[rbx+150h]
+0xCCDABF     48 89 93 50 01 00 00            mov [rbx+150h],rdx
+0xCCDAC6     E8 E5 8F 64 FF                  call 0000000180316AB0h
+0xCCDACB     48 8D 8B 08 01 00 00            lea rcx,[rbx+108h]
+0xCCDAD2     4C 89 BB 08 01 00 00            mov [rbx+108h],r15
+0xCCDAD9     49 8B D7                        mov rdx,r15
+0xCCDADC     E8 CF 8F 64 FF                  call 0000000180316AB0h
+0xCCDAE1     80 BB D0 00 00 00 00            cmp byte ptr [rbx+0D0h],0
+0xCCDAE8     89 7B 34                        mov [rbx+34h],edi
+0xCCDAEB     75 3E                           jne short 0000000180CCDB2Bh
+0xCCDAED     48 8B 83 10 01 00 00            mov rax,[rbx+110h]
+0xCCDAF4     48 85 C0                        test rax,rax
+0xCCDAF7     0F 84 DE 01 00 00               je near ptr 0000000180CCDCDBh
+0xCCDAFD     48 8B 48 58                     mov rcx,[rax+58h]
+0xCCDB01     48 85 C9                        test rcx,rcx
+0xCCDB04     0F 84 D1 01 00 00               je near ptr 0000000180CCDCDBh
+0xCCDB0A     45 33 C0                        xor r8d,r8d
+0xCCDB0D     48 8B D3                        mov rdx,rbx
+0xCCDB10     E8 6B 82 04 00                  call 0000000180D15D80h ; FishNet.Managing.Observing.ObserverManager::AddDefaultConditions/1
+0xCCDB15     48 8D 8B B8 00 00 00            lea rcx,[rbx+0B8h]
+0xCCDB1C     48 89 83 B8 00 00 00            mov [rbx+0B8h],rax
+0xCCDB23     48 8B D0                        mov rdx,rax
+0xCCDB26     E8 85 8F 64 FF                  call 0000000180316AB0h
+0xCCDB2B     40 84 ED                        test bpl,bpl
+0xCCDB2E     75 45                           jne short 0000000180CCDB75h
+0xCCDB30     33 D2                           xor edx,edx
+0xCCDB32     48 8B CB                        mov rcx,rbx
+0xCCDB35     E8 C6 28 00 00                  call 0000000180CD0400h ; FishNet.Object.NetworkObject::get_IsServer/0
+0xCCDB3A     84 C0                           test al,al
+0xCCDB3C     75 37                           jne short 0000000180CCDB75h
+0xCCDB3E     38 83 00 01 00 00               cmp [rbx+100h],al
+0xCCDB44     74 21                           je short 0000000180CCDB67h
+0xCCDB46     33 D2                           xor edx,edx
+0xCCDB48     48 8B CB                        mov rcx,rbx
+0xCCDB4B     E8 70 2A 00 00                  call 0000000180CD05C0h ; FishNet.Object.NetworkObject::get_Owner/0
+0xCCDB50     48 85 C0                        test rax,rax
+0xCCDB53     0F 84 82 01 00 00               je near ptr 0000000180CCDCDBh
+0xCCDB59     33 D2                           xor edx,edx
+0xCCDB5B     48 8B C8                        mov rcx,rax
+0xCCDB5E     E8 AD 71 06 00                  call 0000000180D34D10h ; FishNet.Connection.NetworkConnection::get_IsLocalClient/0
+0xCCDB63     84 C0                           test al,al
+0xCCDB65     75 0E                           jne short 0000000180CCDB75h
+0xCCDB67     48 83 BB 38 01 00 00 00         cmp qword ptr [rbx+138h],0
+0xCCDB6F     0F 84 66 01 00 00               je near ptr 0000000180CCDCDBh
+0xCCDB75     48 8B 43 48                     mov rax,[rbx+48h]
+0xCCDB79     48 85 C0                        test rax,rax
+0xCCDB7C     0F 84 59 01 00 00               je near ptr 0000000180CCDCDBh
+0xCCDB82     33 F6                           xor esi,esi
+0xCCDB84     33 C9                           xor ecx,ecx
+0xCCDB86     3B 48 18                        cmp ecx,[rax+18h]
+0xCCDB89     7D 76                           jge short 0000000180CCDC01h
+0xCCDB8B     48 8B 7B 48                     mov rdi,[rbx+48h]
+0xCCDB8F     48 85 FF                        test rdi,rdi
+0xCCDB92     0F 84 43 01 00 00               je near ptr 0000000180CCDCDBh
+0xCCDB98     3B 77 18                        cmp esi,[rdi+18h]
+0xCCDB9B     0F 83 40 01 00 00               jae near ptr 0000000180CCDCE1h
+0xCCDBA1     48 63 C6                        movsxd rax,esi
+0xCCDBA4     48 8B 7C C7 20                  mov rdi,[rdi+rax*8+20h]
+0xCCDBA9     48 85 FF                        test rdi,rdi
+0xCCDBAC     0F 84 29 01 00 00               je near ptr 0000000180CCDCDBh
+0xCCDBB2     48 8B 93 30 01 00 00            mov rdx,[rbx+130h]
+0xCCDBB9     48 8D 4F 28                     lea rcx,[rdi+28h]
+0xCCDBBD     48 89 57 28                     mov [rdi+28h],rdx
+0xCCDBC1     E8 EA 8E 64 FF                  call 0000000180316AB0h
+0xCCDBC6     45 33 C0                        xor r8d,r8d
+0xCCDBC9     40 0F B6 D5                     movzx edx,bpl
+0xCCDBCD     48 8B CF                        mov rcx,rdi
+0xCCDBD0     E8 5B 76 FF FF                  call 0000000180CC5230h ; FishNet.Object.NetworkBehaviour::InitializeOnceSyncTypes/1
+0xCCDBD5     40 84 ED                        test bpl,bpl
+0xCCDBD8     75 06                           jne short 0000000180CCDBE0h
+0xCCDBDA     C6 47 39 01                     mov byte ptr [rdi+39h],1
+0xCCDBDE     EB 0E                           jmp short 0000000180CCDBEEh
+0xCCDBE0     33 D2                           xor edx,edx
+0xCCDBE2     48 8B CF                        mov rcx,rdi
+0xCCDBE5     E8 B6 7E FF FF                  call 0000000180CC5AA0h ; FishNet.Object.NetworkBehaviour::InitializeRpcLinks/0
+0xCCDBEA     C6 47 38 01                     mov byte ptr [rdi+38h],1
+0xCCDBEE     48 8B 43 48                     mov rax,[rbx+48h]
+0xCCDBF2     FF C6                           inc esi
+0xCCDBF4     8B CE                           mov ecx,esi
+0xCCDBF6     48 85 C0                        test rax,rax
+0xCCDBF9     0F 84 DC 00 00 00               je near ptr 0000000180CCDCDBh
+0xCCDBFF     EB 85                           jmp short 0000000180CCDB86h
+0xCCDC01     40 84 ED                        test bpl,bpl
+0xCCDC04     0F 84 9E 00 00 00               je near ptr 0000000180CCDCA8h
+0xCCDC0A     4D 85 F6                        test r14,r14
+0xCCDC0D     0F 84 C8 00 00 00               je near ptr 0000000180CCDCDBh
+0xCCDC13     4C 8B 05 5E 2E D0 02            mov r8,[1839D0A78h]
+0xCCDC1A     48 8D 93 E8 00 00 00            lea rdx,[rbx+0E8h]
+0xCCDC21     49 8B CE                        mov rcx,r14
+0xCCDC24     E8 77 1B 1D 00                  call 0000000180E9F7A0h ; FishNet.Managing.NetworkManager::TryGetInstance/1
+0xCCDC29     84 C0                           test al,al
+0xCCDC2B     74 64                           je short 0000000180CCDC91h
+0xCCDC2D     48 8B 8B E8 00 00 00            mov rcx,[rbx+0E8h]
+0xCCDC34     48 85 C9                        test rcx,rcx
+0xCCDC37     0F 84 9E 00 00 00               je near ptr 0000000180CCDCDBh
+0xCCDC3D     45 33 C0                        xor r8d,r8d
+0xCCDC40     48 8B D3                        mov rdx,rbx
+0xCCDC43     E8 68 19 FF FF                  call 0000000180CBF5B0h ; FishNet.Component.Observing.HashGrid::GetHashGridPosition/1
+0xCCDC48     48 8B BB E8 00 00 00            mov rdi,[rbx+0E8h]
+0xCCDC4F     48 89 83 F8 00 00 00            mov [rbx+0F8h],rax
+0xCCDC56     48 85 FF                        test rdi,rdi
+0xCCDC59     0F 84 7C 00 00 00               je near ptr 0000000180CCDCDBh
+0xCCDC5F     45 33 C0                        xor r8d,r8d
+0xCCDC62     48 8B D3                        mov rdx,rbx
+0xCCDC65     48 8B CF                        mov rcx,rdi
+0xCCDC68     E8 43 19 FF FF                  call 0000000180CBF5B0h ; FishNet.Component.Observing.HashGrid::GetHashGridPosition/1
+0xCCDC6D     45 33 C0                        xor r8d,r8d
+0xCCDC70     48 8B D0                        mov rdx,rax
+0xCCDC73     48 8B CF                        mov rcx,rdi
+0xCCDC76     E8 A5 18 FF FF                  call 0000000180CBF520h ; FishNet.Component.Observing.HashGrid::GetGridEntry/1
+0xCCDC7B     48 8D 8B C8 00 00 00            lea rcx,[rbx+0C8h]
+0xCCDC82     48 89 83 C8 00 00 00            mov [rbx+0C8h],rax
+0xCCDC89     48 8B D0                        mov rdx,rax
+0xCCDC8C     E8 1F 8E 64 FF                  call 0000000180316AB0h
+0xCCDC91     48 8B 8B B8 00 00 00            mov rcx,[rbx+0B8h]
+0xCCDC98     48 85 C9                        test rcx,rcx
+0xCCDC9B     74 3E                           je short 0000000180CCDCDBh
+0xCCDC9D     45 33 C0                        xor r8d,r8d
+0xCCDCA0     48 8B D3                        mov rdx,rbx
+0xCCDCA3     E8 28 2F 00 00                  call 0000000180CD0BD0h ; FishNet.Observing.NetworkObserver::Initialize/1
+0xCCDCA8     C6 83 D0 00 00 00 01            mov byte ptr [rbx+0D0h],1
+0xCCDCAF     4D 85 FF                        test r15,r15
+0xCCDCB2     74 0E                           je short 0000000180CCDCC2h
+0xCCDCB4     45 33 C0                        xor r8d,r8d
+0xCCDCB7     48 8B D3                        mov rdx,rbx
+0xCCDCBA     49 8B CF                        mov rcx,r15
+0xCCDCBD     E8 0E D0 FE FF                  call 0000000180CBACD0h
+0xCCDCC2     48 8B 74 24 40                  mov rsi,[rsp+40h]
+0xCCDCC7     48 8B 5C 24 48                  mov rbx,[rsp+48h]
+0xCCDCCC     48 8B 6C 24 50                  mov rbp,[rsp+50h]
+0xCCDCD1     48 83 C4 20                     add rsp,20h
+0xCCDCD5     41 5F                           pop r15
+0xCCDCD7     41 5E                           pop r14
+0xCCDCD9     5F                              pop rdi
+0xCCDCDA     C3                              ret
+0xCCDCDB     E8 A0 9E 64 FF                  call 0000000180317B80h
+0xCCDCE0     CC                              int 3
+0xCCDCE1     E8 8A 9E 64 FF                  call 0000000180317B70h
+0xCCDCE6     CC                              int 3

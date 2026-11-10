@@ -1,0 +1,370 @@
+{
+  "schema": 1,
+  "capturedUtc": "2026-11-05T08:21:03.570944+00:00",
+  "project": "schedule1-mod-only",
+  "sourceRevision": "b2c6c7e6c6ecc778da9624cdb68a6578b9db471a",
+  "sourceWorktree": "dirty",
+  "gameDirectory": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Schedule I",
+  "gameProcessCount": 0,
+  "scope": "Read-only native audit inputs and protected production/test-source hashes; no save-file reads.",
+  "inputs": [
+    {
+      "path": "GameAssembly.dll",
+      "sha256": "61829050e56ca180d67be592e4bfe61ec97d2e9573f720d90a54e318a7e4381d",
+      "bytes": 66477568,
+      "modifiedUtc": "2026-10-25T20:07:34.159312+00:00"
+    },
+    {
+      "path": "Schedule I_Data/il2cpp_data/Metadata/global-metadata.dat",
+      "sha256": "e775c97da277da8eb1a90265478f3b65c9c3d6464aff4f7255d45280a1d1181f",
+      "bytes": 18689168,
+      "modifiedUtc": "2026-10-25T20:07:34.161310+00:00"
+    },
+    {
+      "path": "MelonLoader/Il2CppAssemblies/Assembly-CSharp.dll",
+      "sha256": "346205306273805a78b01a917f14b94518498af1361595c4c417baa0b32b4bd8",
+      "bytes": 14168576,
+      "modifiedUtc": "2026-10-25T21:06:27.413269+00:00"
+    },
+    {
+      "path": "MelonLoader/Dependencies/Il2CppAssemblyGenerator/Cpp2IL/Cpp2IL.exe",
+      "sha256": "663fb432433b4371fd1ee0ebc321a8fff2a9aac5ac4230c843f9e03ddee4e04c",
+      "bytes": 15137811,
+      "modifiedUtc": "2026-10-25T21:05:47.550173+00:00"
+    },
+    {
+      "path": "MelonLoader/Dependencies/Il2CppAssemblyGenerator/Cpp2IL/cpp2il_out/Assembly-CSharp.dll",
+      "sha256": "1aec8c918c39ff75f0e4d8e2c38bd11752c593119701d7e524a4ee82fdc30f21",
+      "bytes": 5888000,
+      "modifiedUtc": "2026-10-25T21:06:00.501624+00:00"
+    },
+    {
+      "path": "Mods/TownHallInterior.dll",
+      "sha256": "614b81fd584040d4cebe7a18929bca09eabae478a6487ec6d846ea01d6062003",
+      "bytes": 1760768,
+      "modifiedUtc": "2026-11-05T05:45:57.200409+00:00"
+    },
+    {
+      "path": "UserData/TownHallInterior/TownHallInterior.pdb",
+      "sha256": "8126ae65f5c12f6e8261af0a1734e622d8c0ab5522a91e6653c7b1ffd7d8c497",
+      "bytes": 58828,
+      "modifiedUtc": "2026-11-05T05:45:57.188899+00:00"
+    },
+    {
+      "path": "UserData/TownHallInterior/mod.json",
+      "sha256": "65938002b7273ef77dedbadf9092a186e6742f1e40fe404ef91576d3e4f81660",
+      "bytes": 395,
+      "modifiedUtc": "2026-10-29T07:57:05.422349+00:00"
+    }
+  ],
+  "pe": {
+    "machine": "0x8664",
+    "imageBase": "0x180000000",
+    "timestamp": 1791436001,
+    "characteristics": "0x2022",
+    "sections": [
+      {
+        "name": ".text",
+        "rva": "0x1000",
+        "virtualBytes": 4304060,
+        "rawBytes": 4304384,
+        "rawOffset": "0x400"
+      },
+      {
+        "name": "il2cpp",
+        "rva": "0x41c000",
+        "virtualBytes": 44300460,
+        "rawBytes": 44300800,
+        "rawOffset": "0x41b200"
+      },
+      {
+        "name": ".rdata",
+        "rva": "0x2e5c000",
+        "virtualBytes": 10787522,
+        "rawBytes": 10787840,
+        "rawOffset": "0x2e5ac00"
+      },
+      {
+        "name": ".data",
+        "rva": "0x38a6000",
+        "virtualBytes": 6370380,
+        "rawBytes": 3493376,
+        "rawOffset": "0x38a4800"
+      },
+      {
+        "name": ".pdata",
+        "rva": "0x3eba000",
+        "virtualBytes": 2543400,
+        "rawBytes": 2543616,
+        "rawOffset": "0x3bf9600"
+      },
+      {
+        "name": ".fptable",
+        "rva": "0x4127000",
+        "virtualBytes": 256,
+        "rawBytes": 512,
+        "rawOffset": "0x3e66600"
+      },
+      {
+        "name": ".reloc",
+        "rva": "0x4128000",
+        "virtualBytes": 1045560,
+        "rawBytes": 1046016,
+        "rawOffset": "0x3e66800"
+      }
+    ]
+  },
+  "metadataVersion": 31,
+  "protectedSources": [
+    {
+      "path": "Source/Mods/TownHallInterior/src/BusinessBindingProbe.cs",
+      "sha256": "fb82cfafbee2f92b7c52d76edc9a3fe417cb905ad7f20a90a082ce681efa7fa1",
+      "bytes": 21182,
+      "modifiedUtc": "2026-11-03T14:24:17.748946+00:00"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/BusinessConstruction.cs",
+      "sha256": "8964512eeb94ae63acadbe5cd47caa7c36a325e10cd75af73cc5c1091c4db5d2",
+      "bytes": 157035,
+      "modifiedUtc": "2026-11-05T05:40:37.133151+00:00"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/BusinessProbeEvidence.cs",
+      "sha256": "37ce332858d00368ebde93c3f13af3b20482d0de15f07b559e34078597603458",
+      "bytes": 12674,
+      "modifiedUtc": "2026-11-03T11:50:34.499402+00:00"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/CleanupJournal.cs",
+      "sha256": "310955ae9d1f5115941ef5bf7920ed49f6ff47086d8187fe050f444f63f09b76",
+      "bytes": 1199,
+      "modifiedUtc": "2026-10-28T20:26:12.514293+00:00"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/DoorAdapter.cs",
+      "sha256": "6d5e638b3217b24d3d4a86ea768912e26bdf73449cef98196502586f036a6341",
+      "bytes": 3846,
+      "modifiedUtc": "2026-10-28T16:07:31.420217+00:00"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/DoorChoice.cs",
+      "sha256": "42093f9e71f5c4fe832dac0eff888654163389b86dac1d6be494f7f715943201",
+      "bytes": 2593,
+      "modifiedUtc": "2026-11-05T03:01:46.482140+00:00"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/DoorHook.cs",
+      "sha256": "10bfdd035b414e0727c01aef12a08b1fb0a33abbd897a6c3efc79e7da006934c",
+      "bytes": 5297,
+      "modifiedUtc": "2026-10-28T16:07:31.417215+00:00"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/FacadePortal.cs",
+      "sha256": "4b2cc05e14353fddccc2ddb404fed35b1859d950f5e80e6a6735a8d196cf2270",
+      "bytes": 9088,
+      "modifiedUtc": "2026-10-29T04:18:02.492059+00:00"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/FurniturePlan.cs",
+      "sha256": "17e8402738ff124a54f1e61a076618894a6ca5b3d3e6733242f71217a5a18e6b",
+      "bytes": 16772,
+      "modifiedUtc": "2026-10-30T14:05:16.866137+00:00"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/HallFittings.cs",
+      "sha256": "210301b0663b1a0b3fdbedbcb2231a007d62f2d0bb19828250c4ffd6fddc7492",
+      "bytes": 2876,
+      "modifiedUtc": "2026-10-30T06:28:23.968467+00:00"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/Mod.cs",
+      "sha256": "82323dd725b033b124c0f5edd6252730676f3f1910bdd402441945f0fe4e9385",
+      "bytes": 4096,
+      "modifiedUtc": "2026-11-03T14:24:17.748445+00:00"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/NativeFacadeSwap.cs",
+      "sha256": "58542a588017f540a7b546845b038174d96ef761acfacd7101c0004a5ceae5e3",
+      "bytes": 13398,
+      "modifiedUtc": "2026-10-28T20:26:15.074599+00:00"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/NativeSceneSwap.cs",
+      "sha256": "a526e26ffb62fbf08ad8e3725779c83dbc85558fcb22a1b34cb12dc061bed6aa",
+      "bytes": 4280,
+      "modifiedUtc": "2026-10-27T20:30:39.944204+00:00"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/PublicEntrance.cs",
+      "sha256": "4fdb304a13cd24a496e9368c211bf09f8aaf1da9041a8912fdb364f46ec9dd5f",
+      "bytes": 7155,
+      "modifiedUtc": "2026-10-30T04:42:53.593388+00:00"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/PublicHallHost.cs",
+      "sha256": "d85708f66705a1ac87aec2d1def1f4daff0cebabd78b459b93a589418be65bcc",
+      "bytes": 15859,
+      "modifiedUtc": "2026-10-30T04:42:53.593388+00:00"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/RoomBuilder.cs",
+      "sha256": "44b555668aecbb0055b902d204716861399ee59e439971f842d5f0b4a3a48f68",
+      "bytes": 622,
+      "modifiedUtc": "2026-10-27T20:14:26.918230+00:00"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/RoomPlan.cs",
+      "sha256": "ebe89aa2620044c170f08c33382aa420bb1aa22e78d56ed74b97a4561f864233",
+      "bytes": 4398,
+      "modifiedUtc": "2026-10-29T11:09:19.640721+00:00"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/TownHallInterior.csproj",
+      "sha256": "c730506d8c85e9d9fb88def2c397920f408b7771576a59aacc2c4b183bcde9df",
+      "bytes": 1942,
+      "modifiedUtc": "2026-11-04T07:07:55.956632+00:00"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/UnityRoomSink.cs",
+      "sha256": "646b693e349e61126bc548c59e9bdf8e4f978787eeab1173a8535323f9588d17",
+      "bytes": 2795,
+      "modifiedUtc": "2026-10-28T19:15:59.437647+00:00"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/VanillaFurnishings.cs",
+      "sha256": "c434ab9c4b0055c531250b5a45b672703e266fbe962e3934ffa58f951cce98aa",
+      "bytes": 12934,
+      "modifiedUtc": "2026-10-29T20:22:41.446842+00:00"
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/BusinessActivationTests.cs",
+      "sha256": "c43b5aa08c51a151d042f4a8e4a0c56cd79892ed98723e4fb883bba57b1b8a7f",
+      "bytes": 17330,
+      "modifiedUtc": "2026-11-03T13:33:42.368664+00:00"
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/BusinessConstructionTests.cs",
+      "sha256": "43ac3184d66a64bfc6ae9b6ba6587df6a3eb333575d93cc187c291e45e7630b8",
+      "bytes": 13767,
+      "modifiedUtc": "2026-11-03T12:36:58.213247+00:00"
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/BusinessInterfaceTests.cs",
+      "sha256": "d1b13f70314555a2702d732b078bafb9cef7e9b71eaea8249b74ae8736bd2abf",
+      "bytes": 15297,
+      "modifiedUtc": "2026-11-04T05:25:38.406920+00:00"
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/BusinessManagerAuditTests.cs",
+      "sha256": "164eaeb014c1d63b776c47d0dd105f4f12bec79d4ffb02a135d3da5f5f82323d",
+      "bytes": 22770,
+      "modifiedUtc": "2026-11-05T05:35:26.037431+00:00"
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/BusinessManagerSafetyTests.cs",
+      "sha256": "ead2dbe76be2679c8be006b114075c55d58b1cddfe08e292f8551c225f70a035",
+      "bytes": 8068,
+      "modifiedUtc": "2026-11-05T05:35:21.656673+00:00"
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/BusinessManagerSaveTests.cs",
+      "sha256": "0d9fe4fe204e20a6850945b4a7c32c3285cc060942140b9837ac3aafc34aa963",
+      "bytes": 35802,
+      "modifiedUtc": "2026-11-05T05:47:52.449466+00:00"
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/BusinessManagerTests.cs",
+      "sha256": "d62a8ad7a82e9cedd7554e7e489cba55fee62409dd3de347130575fb69524b1e",
+      "bytes": 3813,
+      "modifiedUtc": "2026-11-05T05:29:48.513370+00:00"
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/BusinessProbeEvidenceTests.cs",
+      "sha256": "71797f12c5f96f633d44127a08cbdaf93dba26dc75a521c648d130f6b5b3d9de",
+      "bytes": 19150,
+      "modifiedUtc": "2026-11-03T11:52:54.603239+00:00"
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/BusinessSubtypeTests.cs",
+      "sha256": "d58b1b960098861782725d71811fa17f27b0bf195d8e25ef37a5c586674f380a",
+      "bytes": 11073,
+      "modifiedUtc": "2026-11-03T14:47:03.435928+00:00"
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/BusinessTypeResolutionTests.cs",
+      "sha256": "58325e28dc822ffe2cc493c1f426d1c3acf3147efa457edc32f93e317aa82c46",
+      "bytes": 14018,
+      "modifiedUtc": "2026-11-04T03:42:49.503984+00:00"
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/CleanupJournalTests.cs",
+      "sha256": "1fc594bb24f1ac542d5ee8878ce88b54b7d295b132cce3112dc0d40c4708f1cb",
+      "bytes": 2963,
+      "modifiedUtc": "2026-10-28T20:25:54.552893+00:00"
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/DoorAdapterTests.cs",
+      "sha256": "97e44aee74c74d5ba2f5672deec7319876eb3b1b2b8c71a12ca516f839ed907e",
+      "bytes": 6573,
+      "modifiedUtc": "2026-10-28T16:07:58.779430+00:00"
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/DoorChoiceTests.cs",
+      "sha256": "6f9f493e814b8a6db340d916f3932d5b68b77a48b608c86e6bdaa6bb85d01946",
+      "bytes": 3302,
+      "modifiedUtc": "2026-10-28T16:07:46.290207+00:00"
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/EnclosureTests.cs",
+      "sha256": "cc381927c62e5bdbb2f412bab72abd88a66ccd6780f5f260d26003caaa3814db",
+      "bytes": 14608,
+      "modifiedUtc": "2026-10-30T04:43:09.264672+00:00"
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/FacadePortalTests.cs",
+      "sha256": "876eff42444821a38103b7b97173b30b4d2bb3c94aa8856b48510ff81f7bbced",
+      "bytes": 9526,
+      "modifiedUtc": "2026-10-30T04:43:09.265172+00:00"
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/FurniturePlanTests.cs",
+      "sha256": "99f99db70533724fe939aa73b6b2bafac295d361d9280f92a42f6001eb4594aa",
+      "bytes": 17084,
+      "modifiedUtc": "2026-11-04T16:28:39.373999+00:00"
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/HallFittingsTests.cs",
+      "sha256": "8d18df41130233be9543c38d419ef36273f2ae2d09bba520e6abfc57799a7209",
+      "bytes": 3875,
+      "modifiedUtc": "2026-10-30T06:27:58.035121+00:00"
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/NativeSceneSwapTests.cs",
+      "sha256": "d77efe579cd909c42dc48245b427d30c59874955c1b0dcdb6652a110f441d37c",
+      "bytes": 4003,
+      "modifiedUtc": "2026-10-28T05:00:47.194026+00:00"
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/PublicEntranceTests.cs",
+      "sha256": "1ab9d7d8825911ea4777ea56fd109bf2f7a4ef679f258108c98a42580e80d6c3",
+      "bytes": 7557,
+      "modifiedUtc": "2026-10-29T19:54:37.906417+00:00"
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/RoomPlanTests.cs",
+      "sha256": "fdeb4a9c49d2e83b71e0edeb50ed3f0f5e68ce6508801198bedca997638a71a3",
+      "bytes": 12065,
+      "modifiedUtc": "2026-10-30T04:43:09.265672+00:00"
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/TownHallInterior.Tests.csproj",
+      "sha256": "dc582cf6a85f3c98417c83cd67a65f28b8f8739bb1a1507fe665eaa52ceec26c",
+      "bytes": 2005,
+      "modifiedUtc": "2026-11-03T12:33:49.713121+00:00"
+    }
+  ],
+  "nativeSaveFilesAccessed": false,
+  "gameLaunchedOrControlled": false,
+  "buildDeploymentOrInstallation": false,
+  "nativeWriteRouteAllowed": false
+}

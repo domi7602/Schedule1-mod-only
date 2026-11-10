@@ -1,0 +1,63 @@
+; ScheduleOne.UI.PauseMenu::Exit/1, token 0x0600628F, RVA 0x9F5CF0, next-pointer window 0xD0 bytes
+; No target execution. Parser-pointer window can contain padding/cold fragments and is not exact/full function, EH or transitive coverage. Shared direct aliases are truncated to eight names.
+0x9F5CF0     48 89 5C 24 08                  mov [rsp+8],rbx
+0x9F5CF5     57                              push rdi
+0x9F5CF6     48 83 EC 20                     sub rsp,20h
+0x9F5CFA     80 3D 22 7D 20 03 00            cmp byte ptr [183BFDA23h],0
+0x9F5D01     48 8B DA                        mov rbx,rdx
+0x9F5D04     48 8B F9                        mov rdi,rcx
+0x9F5D07     75 13                           jne short 00000001809F5D1Ch
+0x9F5D09     48 8D 0D F8 2E FA 02            lea rcx,[183998C08h] ; TypeInfo: ScheduleOne.GameInput
+0x9F5D10     E8 8B 1B 92 FF                  call 00000001803178A0h
+0x9F5D15     C6 05 07 7D 20 03 01            mov byte ptr [183BFDA23h],1
+0x9F5D1C     33 D2                           xor edx,edx
+0x9F5D1E     48 8B CF                        mov rcx,rdi
+0x9F5D21     E8 6A FE FF FF                  call 00000001809F5B90h ; ScheduleOne.UI.PauseMenu::CanTogglePause/0
+0x9F5D26     84 C0                           test al,al
+0x9F5D28     74 78                           je short 00000001809F5DA2h
+0x9F5D2A     48 85 DB                        test rbx,rbx
+0x9F5D2D     74 7E                           je short 00000001809F5DADh
+0x9F5D2F     83 7B 10 00                     cmp dword ptr [rbx+10h],0
+0x9F5D33     75 6D                           jne short 00000001809F5DA2h
+0x9F5D35     48 8B 0D CC 2E FA 02            mov rcx,[183998C08h] ; TypeInfo: ScheduleOne.GameInput
+0x9F5D3C     83 B9 E0 00 00 00 00            cmp dword ptr [rcx+0E0h],0
+0x9F5D43     75 05                           jne short 00000001809F5D4Ah
+0x9F5D45     E8 E6 1E 92 FF                  call 0000000180317C30h
+0x9F5D4A     80 3D 11 59 20 03 00            cmp byte ptr [183BFB662h],0
+0x9F5D51     75 13                           jne short 00000001809F5D66h
+0x9F5D53     48 8D 0D AE 2E FA 02            lea rcx,[183998C08h] ; TypeInfo: ScheduleOne.GameInput
+0x9F5D5A     E8 41 1B 92 FF                  call 00000001803178A0h
+0x9F5D5F     C6 05 FC 58 20 03 01            mov byte ptr [183BFB662h],1
+0x9F5D66     48 8B 0D 9B 2E FA 02            mov rcx,[183998C08h] ; TypeInfo: ScheduleOne.GameInput
+0x9F5D6D     83 B9 E0 00 00 00 00            cmp dword ptr [rcx+0E0h],0
+0x9F5D74     75 05                           jne short 00000001809F5D7Bh
+0x9F5D76     E8 B5 1E 92 FF                  call 0000000180317C30h
+0x9F5D7B     48 8B 05 86 2E FA 02            mov rax,[183998C08h] ; TypeInfo: ScheduleOne.GameInput
+0x9F5D82     48 8B 88 B8 00 00 00            mov rcx,[rax+0B8h]
+0x9F5D89     83 39 01                        cmp dword ptr [rcx],1
+0x9F5D8C     75 06                           jne short 00000001809F5D94h
+0x9F5D8E     80 7F 28 00                     cmp byte ptr [rdi+28h],0
+0x9F5D92     74 0E                           je short 00000001809F5DA2h
+0x9F5D94     33 D2                           xor edx,edx
+0x9F5D96     48 8B CB                        mov rcx,rbx
+0x9F5D99     E8 F2 53 EB FF                  call 00000001808AB190h ; ScheduleOne.ExitAction::Use/0 | Unity.Collections.NativeParallelMultiHashMap`2+Enumerator::Reset/0 | Unity.Collections.LowLevel.Unsafe.UnsafeParallelMultiHashMap`2+Enumerator::Reset/0
+0x9F5D9E     C6 47 70 01                     mov byte ptr [rdi+70h],1
+0x9F5DA2     48 8B 5C 24 30                  mov rbx,[rsp+30h]
+0x9F5DA7     48 83 C4 20                     add rsp,20h
+0x9F5DAB     5F                              pop rdi
+0x9F5DAC     C3                              ret
+0x9F5DAD     E8 CE 1D 92 FF                  call 0000000180317B80h
+0x9F5DB2     CC                              int 3
+0x9F5DB3     CC                              int 3
+0x9F5DB4     CC                              int 3
+0x9F5DB5     CC                              int 3
+0x9F5DB6     CC                              int 3
+0x9F5DB7     CC                              int 3
+0x9F5DB8     CC                              int 3
+0x9F5DB9     CC                              int 3
+0x9F5DBA     CC                              int 3
+0x9F5DBB     CC                              int 3
+0x9F5DBC     CC                              int 3
+0x9F5DBD     CC                              int 3
+0x9F5DBE     CC                              int 3
+0x9F5DBF     CC                              int 3

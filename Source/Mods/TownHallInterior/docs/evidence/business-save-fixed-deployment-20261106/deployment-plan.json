@@ -1,0 +1,41 @@
+[
+  {
+    "Kind": "dll",
+    "Source": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-save-fix-20261106\\artifacts\\Manager\\TownHallInterior.dll",
+    "DestinationRelative": "Mods\\TownHallInterior.dll",
+    "Destination": null,
+    "SourceSha256": "38bd7da3159c4ab9363695e0f9717e659322ca68e852d316a13181fa9eaab72a",
+    "DestinationSha256": "3ffbc248f631162956eddaafb4f5144d0d90a56aa6b4c7d52342dd6b4c4505fe",
+    "Action": null,
+    "ExistedBefore": false,
+    "BackupPath": null,
+    "OriginalSha256": null,
+    "State": "Pending"
+  },
+  {
+    "Kind": "pdb",
+    "Source": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-save-fix-20261106\\artifacts\\Manager\\TownHallInterior.pdb",
+    "DestinationRelative": "UserData\\TownHallInterior\\TownHallInterior.pdb",
+    "Destination": null,
+    "SourceSha256": "109bdd92623f553c48b0569d9bd373235220ba4894a463187361dc73c2e62334",
+    "DestinationSha256": "978f8eca012fb214d3d4a3d35c4f73135822049a6d9f24f2663c1450e2cde459",
+    "Action": null,
+    "ExistedBefore": false,
+    "BackupPath": null,
+    "OriginalSha256": null,
+    "State": "Pending"
+  },
+  {
+    "Kind": "metadata",
+    "Source": "C:\\Users\\pc\\Schedule1-mod-only\\Source\\Mods\\TownHallInterior\\docs\\mod.json",
+    "DestinationRelative": "UserData\\TownHallInterior\\mod.json",
+    "Destination": null,
+    "SourceSha256": "65938002b7273ef77dedbadf9092a186e6742f1e40fe404ef91576d3e4f81660",
+    "DestinationSha256": "65938002b7273ef77dedbadf9092a186e6742f1e40fe404ef91576d3e4f81660",
+    "Action": null,
+    "ExistedBefore": false,
+    "BackupPath": null,
+    "OriginalSha256": null,
+    "State": "Pending"
+  }
+]

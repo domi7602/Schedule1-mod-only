@@ -1,0 +1,49 @@
+{
+    "DataType": "SpecialCustomerSaveData",
+    "DataVersion": 0,
+    "GameVersion": "0.4.7f12",
+    "GroupId": "",
+    "Phase": 0,
+    "DaysLeftInPhase": 7,
+    "RunningBudget": 0,
+    "ChanceToAppear": 0.25,
+    "GroupData": [
+        {
+            "GroupId": "businessmen",
+            "DaySinceLastVisit": 0,
+            "VisitCount": 0,
+            "GroupInventory": {
+                "Items": [],
+                "SlotFilters": []
+            }
+        },
+        {
+            "GroupId": "hippies",
+            "DaySinceLastVisit": 0,
+            "VisitCount": 0,
+            "GroupInventory": {
+                "Items": [],
+                "SlotFilters": []
+            }
+        },
+        {
+            "GroupId": "partybus",
+            "DaySinceLastVisit": 0,
+            "VisitCount": 0,
+            "GroupInventory": {
+                "Items": [],
+                "SlotFilters": []
+            }
+        },
+        {
+            "GroupId": "bikers",
+            "DaySinceLastVisit": 0,
+            "VisitCount": 0,
+            "GroupInventory": {
+                "Items": [],
+                "SlotFilters": []
+            }
+        }
+    ],
+    "DesiredEffects": []
+}

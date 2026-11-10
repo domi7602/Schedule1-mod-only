@@ -1,0 +1,14 @@
+[
+  {
+    "Kind": "dll",
+    "DestinationRelative": "Mods\\TownHallInterior.dll"
+  },
+  {
+    "Kind": "pdb",
+    "DestinationRelative": "UserData\\TownHallInterior\\TownHallInterior.pdb"
+  },
+  {
+    "Kind": "metadata",
+    "DestinationRelative": "UserData\\TownHallInterior\\mod.json"
+  }
+]

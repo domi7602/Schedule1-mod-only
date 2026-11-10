@@ -1,0 +1,286 @@
+diff --git "a/C:\\Users\\pc\\.cache\\Schedule1Tools\\clean-checkouts\\clean-checkout-5ca924881f38\\checkout\\Source\\Mods\\TownHallInterior\\src\\BusinessConstruction.cs" "b/C:\\Users\\pc\\Schedule1-mod-only\\Source\\Mods\\TownHallInterior\\src\\BusinessConstruction.cs"
+index 49dec88..8480997 100644
+--- "a/C:\\Users\\pc\\.cache\\Schedule1Tools\\clean-checkouts\\clean-checkout-5ca924881f38\\checkout\\Source\\Mods\\TownHallInterior\\src\\BusinessConstruction.cs"
++++ "b/C:\\Users\\pc\\Schedule1-mod-only\\Source\\Mods\\TownHallInterior\\src\\BusinessConstruction.cs"
+@@ -431,8 +431,11 @@ public sealed class BusinessActiveSubtypeTrial
+             !DataCollections.All(data.CollectionCounts.ContainsKey) || data.Collections.Values.Any(p => p <= 0) ||
+             data.CollectionCounts.Any(p => p.Value != (p.Key == "bounds" ? 1 : 0)))
+             throw new InvalidOperationException("data-collections-unconfirmed");
+-        return data with { Collections = new ReadOnlyDictionary<string, long>(new Dictionary<string, long>(data.Collections, StringComparer.Ordinal)),
+-            CollectionCounts = new ReadOnlyDictionary<string, int>(new Dictionary<string, int>(data.CollectionCounts, StringComparer.Ordinal)) };
++        return data with
++        {
++            Collections = new ReadOnlyDictionary<string, long>(new Dictionary<string, long>(data.Collections, StringComparer.Ordinal)),
++            CollectionCounts = new ReadOnlyDictionary<string, int>(new Dictionary<string, int>(data.CollectionCounts, StringComparer.Ordinal))
++        };
+     }
+     private void RequireDataState(ActiveSubtypeState state)
+     {
+@@ -3162,13 +3165,24 @@ internal static class BusinessSubtypeRuntime
+             var result = ActiveTrial.Result;
+             var report = new
+             {
+-                Schema = 1, Mode = ProbeMode, CapturedUtc = DateTime.UtcNow,
+-                AssemblySha256 = _assemblyHash, NativeProxySha256 = NativeHash, FishNetSha256 = FishNetHash,
+-                S1ApiSha256 = ApiHash, InteropRuntimeSha256 = InteropHash, HarmonySha256 = HarmonyHash,
+-                Target = ExpectedOrganisation + " / " + ExpectedSlot, Context = _activeContext, Generation = _activeGeneration,
+-                WorldPublicationAllowed = false, NativeSaveWriteAllowed = false,
++                Schema = 1,
++                Mode = ProbeMode,
++                CapturedUtc = DateTime.UtcNow,
++                AssemblySha256 = _assemblyHash,
++                NativeProxySha256 = NativeHash,
++                FishNetSha256 = FishNetHash,
++                S1ApiSha256 = ApiHash,
++                InteropRuntimeSha256 = InteropHash,
++                HarmonySha256 = HarmonyHash,
++                Target = ExpectedOrganisation + " / " + ExpectedSlot,
++                Context = _activeContext,
++                Generation = _activeGeneration,
++                WorldPublicationAllowed = false,
++                NativeSaveWriteAllowed = false,
+ #if TOWNHALL_BUSINESS_DATA
+-                BusinessDataProbeEnabled = true, GameAssemblySha256 = _dataGameAssemblyHash, NativeMetadataSha256 = _dataMetadataHash,
++                BusinessDataProbeEnabled = true,
++                GameAssemblySha256 = _dataGameAssemblyHash,
++                NativeMetadataSha256 = _dataMetadataHash,
+ #endif
+ #if TOWNHALL_BUSINESS_NETWORK_SUBTYPE
+                 NetworkObjectProbeEnabled = true,
+@@ -3178,8 +3192,10 @@ internal static class BusinessSubtypeRuntime
+ #else
+                 NetworkObjectAdded = false,
+ #endif
+-                GameMethodDetoursAdded = false, FrameSource = "UnityEngine.Time.frameCount; no synthetic advancement",
+-                Result = result, Native = _port?.Details,
++                GameMethodDetoursAdded = false,
++                FrameSource = "UnityEngine.Time.frameCount; no synthetic advancement",
++                Result = result,
++                Native = _port?.Details,
+                 NativeEvidenceFromThisAttempt = result.AttemptConsumed,
+                 Limitation =
+ #if TOWNHALL_BUSINESS_DATA
+@@ -3240,10 +3256,20 @@ internal sealed unsafe class ManagedSubtypeTypeResolution : ITypeResolutionPatch
+     private IntPtr _networkClass, _networkType;
+     private bool _originalResolved, _postScopeReadback, _preflightComplete;
+     private string? _postScopeFailure, _qualifiedProxy;
+-    public object Details => new { Mapping = SubtypeTypeNamePolicy.NativeName, NativeClass = _networkClass.ToInt64().ToString("X"),
+-        ProxyQualifiedName = _qualifiedProxy, ManagedPatchOwner = Owner, ManagedTargets = new[] { _nameHelper.ToString(), _registrar.ToString() },
+-        ParameterInventory = _inventory.ToArray(), PreflightComplete = _preflightComplete, OriginalResolverAlreadyResolves = _originalResolved,
+-        PostScopeOriginalResolutionConfirmed = _postScopeReadback, PostScopeFailure = _postScopeFailure, Outcome = _lease.Outcome };
++    public object Details => new
++    {
++        Mapping = SubtypeTypeNamePolicy.NativeName,
++        NativeClass = _networkClass.ToInt64().ToString("X"),
++        ProxyQualifiedName = _qualifiedProxy,
++        ManagedPatchOwner = Owner,
++        ManagedTargets = new[] { _nameHelper.ToString(), _registrar.ToString() },
++        ParameterInventory = _inventory.ToArray(),
++        PreflightComplete = _preflightComplete,
++        OriginalResolverAlreadyResolves = _originalResolved,
++        PostScopeOriginalResolutionConfirmed = _postScopeReadback,
++        PostScopeFailure = _postScopeFailure,
++        Outcome = _lease.Outcome
++    };
+ 
+     internal ManagedSubtypeTypeResolution()
+     {
+@@ -3374,9 +3400,17 @@ internal sealed unsafe class ManagedSubtypeTypeResolution : ITypeResolutionPatch
+             void Add(string kind, IEnumerable<HarmonyLib.Patch> patches)
+             {
+                 foreach (var patch in patches.Where(p => p.owner != Owner))
+-                    result.Add(JsonSerializer.Serialize(new { Target = target.Name, Kind = kind, Owner = patch.owner,
++                    result.Add(JsonSerializer.Serialize(new
++                    {
++                        Target = target.Name,
++                        Kind = kind,
++                        Owner = patch.owner,
+                         Method = patch.PatchMethod.Module.ModuleVersionId + ":" + patch.PatchMethod.MetadataToken,
+-                        Priority = patch.priority, Index = patch.index, Before = patch.before, After = patch.after }));
++                        Priority = patch.priority,
++                        Index = patch.index,
++                        Before = patch.before,
++                        After = patch.after
++                    }));
+             }
+             Add("prefix", info.Prefixes); Add("postfix", info.Postfixes); Add("transpiler", info.Transpilers); Add("finalizer", info.Finalizers);
+         }
+@@ -3500,27 +3534,51 @@ internal sealed unsafe class NativeSubtypePort : IBusinessSubtypePort, IBusiness
+     private ManagedSubtypeTypeResolution? _resolution;
+     public object Details => new
+     {
+-        RootPointer = Hex(_rootPointer), BusinessPointer = Hex(_businessPointer), OwnClassPointer = Hex(_ownClass),
+-        ClassInjectorReturned = _registrationReturned, TypeSlotsValidated = _registered, TypeRegistrationReversible = false,
+-        RootDestroyed = _destroyed, CleanupVerified = _cleanupVerified,
+-        Components = _components.ToArray(), NativeTargets = _targets.ToArray(), LifecycleBeforeCleanup = _beforeCleanup,
+-        CountersAfterCleanup = _business?.Counters(), TypeResolution = _resolution?.Details,
+-        InterfaceEnabled = _probeInterface, InterfaceInvocationAttempted = _interfaceAttempted,
+-        InterfaceStages = _interfaceStages.ToArray(), ExpectedInterfaceCallbacks = _expectedInterfaceCallbacks
++        RootPointer = Hex(_rootPointer),
++        BusinessPointer = Hex(_businessPointer),
++        OwnClassPointer = Hex(_ownClass),
++        ClassInjectorReturned = _registrationReturned,
++        TypeSlotsValidated = _registered,
++        TypeRegistrationReversible = false,
++        RootDestroyed = _destroyed,
++        CleanupVerified = _cleanupVerified,
++        Components = _components.ToArray(),
++        NativeTargets = _targets.ToArray(),
++        LifecycleBeforeCleanup = _beforeCleanup,
++        CountersAfterCleanup = _business?.Counters(),
++        TypeResolution = _resolution?.Details,
++        InterfaceEnabled = _probeInterface,
++        InterfaceInvocationAttempted = _interfaceAttempted,
++        InterfaceStages = _interfaceStages.ToArray(),
++        ExpectedInterfaceCallbacks = _expectedInterfaceCallbacks
+ #if TOWNHALL_BUSINESS_ACTIVE_SUBTYPE
+-        , UnityMessages = _unityMessageEvidence.ToArray(), LastObservedUnityFrame = _lastObservedUnityFrame
++        ,
++        UnityMessages = _unityMessageEvidence.ToArray(),
++        LastObservedUnityFrame = _lastObservedUnityFrame
+ #endif
+ #if TOWNHALL_BUSINESS_NETWORK_SUBTYPE
+-        , NetworkPointer = Hex(_networkPointer), NetworkClass = Hex(_networkClass), BehaviourArray = Hex(_behaviourArrayPointer),
+-        NetworkTypeRegistrationAttempted = _networkRegistrationAttempted, NetworkTypeRegistrationReturned = _networkRegistrationReturned,
+-        NetworkUnityMessages = _networkUnityEvidence.ToArray(), NetworkBinding = _networkBindingDetails,
+-        NetworkCountersBeforeCleanup = _networkBeforeCleanup, NetworkCountersAfterCleanup = _network?.Counters()
++        ,
++        NetworkPointer = Hex(_networkPointer),
++        NetworkClass = Hex(_networkClass),
++        BehaviourArray = Hex(_behaviourArrayPointer),
++        NetworkTypeRegistrationAttempted = _networkRegistrationAttempted,
++        NetworkTypeRegistrationReturned = _networkRegistrationReturned,
++        NetworkUnityMessages = _networkUnityEvidence.ToArray(),
++        NetworkBinding = _networkBindingDetails,
++        NetworkCountersBeforeCleanup = _networkBeforeCleanup,
++        NetworkCountersAfterCleanup = _network?.Counters()
+ #endif
+ #if TOWNHALL_BUSINESS_DATA
+-        , DataPreparationAttempted = _dataPreparationAttempted, DataPreparationConfirmed = _dataPrepared,
+-        SetPropertyAttempted = _dataSetPropertyAttempted, SetPropertyReturned = _dataSetPropertyReturned,
+-        DataQueryAttempted = _dataQueryAttempted, DataCalls = _dataCalls.ToArray(), DataLastRead = _dataLastRead,
+-        DataNativeMethods = new Dictionary<string, string>(_dataMethods), DataCleanupVerified = _dataCleanupVerified,
++        ,
++        DataPreparationAttempted = _dataPreparationAttempted,
++        DataPreparationConfirmed = _dataPrepared,
++        SetPropertyAttempted = _dataSetPropertyAttempted,
++        SetPropertyReturned = _dataSetPropertyReturned,
++        DataQueryAttempted = _dataQueryAttempted,
++        DataCalls = _dataCalls.ToArray(),
++        DataLastRead = _dataLastRead,
++        DataNativeMethods = new Dictionary<string, string>(_dataMethods),
++        DataCleanupVerified = _dataCleanupVerified,
+         DataUnityResources = _dataUnity.ToDictionary(p => p.Key, p => Hex(p.Value.Pointer)),
+         DataGcHandlesReleased = _dataCleanupVerified && _dataHandles.Count == 0 && _dataWrapper == null,
+         DataUnconfirmedHandlesRetained = _dataPendingHandles.Count,
+@@ -3563,8 +3621,10 @@ internal sealed unsafe class NativeSubtypePort : IBusinessSubtypePort, IBusiness
+             ["businesses"] = Fingerprint(Il2CppScheduleOne.Property.Business.Businesses, classes),
+             ["businesses-owned"] = Fingerprint(Il2CppScheduleOne.Property.Business.OwnedBusinesses, classes),
+             ["businesses-unowned"] = Fingerprint(Il2CppScheduleOne.Property.Business.UnownedBusinesses, classes),
+-            ["saveables"] = Fingerprint(save.Saveables), ["base-saveables"] = Fingerprint(save.BaseSaveables),
+-            ["completed-saveables"] = Fingerprint(save.CompletedSaveables), ["save-requests"] = Fingerprint(save.QueuedSaveRequests)
++            ["saveables"] = Fingerprint(save.Saveables),
++            ["base-saveables"] = Fingerprint(save.BaseSaveables),
++            ["completed-saveables"] = Fingerprint(save.CompletedSaveables),
++            ["save-requests"] = Fingerprint(save.QueuedSaveRequests)
+         };
+ #if TOWNHALL_BUSINESS_NETWORK_SUBTYPE
+         foreach (var item in CaptureNetworkHolders(out _)) registries.Add(item.Key, item.Value);
+@@ -3628,8 +3688,16 @@ internal sealed unsafe class NativeSubtypePort : IBusinessSubtypePort, IBusiness
+                 throw new InvalidOperationException("own-slot-mismatch:" + name);
+             _baseMethods.Add(name, source); _ownMethods.Add(name, candidate); _ownMethodPointers.Add(name, slot.methodPtr);
+             _baseSlots.Add(name, original.Slot);
+-            _targets.Add(new { Name = name, BaseMethod = Hex(source), BasePointer = Hex(original.MethodPointer),
+-                BaseSlot = original.Slot, OwnMethod = Hex(candidate), OwnPointer = Hex(slot.methodPtr), DeclaringClass = Hex(_ownClass) });
++            _targets.Add(new
++            {
++                Name = name,
++                BaseMethod = Hex(source),
++                BasePointer = Hex(original.MethodPointer),
++                BaseSlot = original.Slot,
++                OwnMethod = Hex(candidate),
++                OwnPointer = Hex(slot.methodPtr),
++                DeclaringClass = Hex(_ownClass)
++            });
+         }
+     }
+     public void Prepare()
+@@ -4213,14 +4281,27 @@ internal sealed unsafe class NativeSubtypePort : IBusinessSubtypePort, IBusiness
+             NullNativeReference(_network._hashGrid) && NullNativeReference(_network.HashGridEntry) && !_business._initializedOnceServer && !_business._initializedOnceClient &&
+             NullNativeReference(_business._transportManagerCache);
+         var holders = CaptureNetworkHolders(out bool referencesAbsent);
+-        _networkBindingDetails = new { Network = Hex(_networkPointer), BusinessNetworkObject = Hex(cache.Pointer),
+-            BusinessComponentIndex = _business._componentIndexCache, BehaviourArray = Hex(behaviours.Pointer), BehaviourCount = behaviours.Length,
+-            FirstBehaviour = Hex(first.Pointer), ObjectId = _network._ObjectId_k__BackingField,
+-            ExpectedUnsetObjectId = Il2CppFishNet.Object.NetworkObject.UNSET_OBJECTID_VALUE, SceneId = _network._SceneId_k__BackingField,
+-            State = _network.State.ToString(), IsNetworked = _network._isNetworked,
+-            IsClientInitialized = _network._IsClientInitialized_k__BackingField, IsServerInitialized = _network._IsServerInitialized_k__BackingField,
+-            Detached = detached, Unspawned = unspawned, KnownReferencesAbsent = referencesAbsent, KnownHolderFingerprints = holders,
+-            Scope = "Direct known FishNet object/connection registries and empty client cache; not arbitrary delegate closure or native last-use proof" };
++        _networkBindingDetails = new
++        {
++            Network = Hex(_networkPointer),
++            BusinessNetworkObject = Hex(cache.Pointer),
++            BusinessComponentIndex = _business._componentIndexCache,
++            BehaviourArray = Hex(behaviours.Pointer),
++            BehaviourCount = behaviours.Length,
++            FirstBehaviour = Hex(first.Pointer),
++            ObjectId = _network._ObjectId_k__BackingField,
++            ExpectedUnsetObjectId = Il2CppFishNet.Object.NetworkObject.UNSET_OBJECTID_VALUE,
++            SceneId = _network._SceneId_k__BackingField,
++            State = _network.State.ToString(),
++            IsNetworked = _network._isNetworked,
++            IsClientInitialized = _network._IsClientInitialized_k__BackingField,
++            IsServerInitialized = _network._IsServerInitialized_k__BackingField,
++            Detached = detached,
++            Unspawned = unspawned,
++            KnownReferencesAbsent = referencesAbsent,
++            KnownHolderFingerprints = holders,
++            Scope = "Direct known FishNet object/connection registries and empty client cache; not arbitrary delegate closure or native last-use proof"
++        };
+         return new(_networkPointer.ToInt64(), _networkClass.ToInt64(), cache.Pointer.ToInt64(), _business._componentIndexCache,
+             behaviours.Pointer.ToInt64(), behaviours.Length, first.Pointer.ToInt64(),
+             Il2CppInterop.Runtime.IL2CPP.il2cpp_object_get_class(_networkPointer) == _networkClass && _network.ConstructedWhileArmed &&
+@@ -4249,9 +4330,17 @@ internal sealed unsafe class NativeSubtypePort : IBusinessSubtypePort, IBusiness
+             {
+                 if (_activeSetAttempted) throw new InvalidOperationException("network-message-not-bound-before-activation");
+                 _networkUnityMessages.Add(name, current);
+-                _networkUnityEvidence.Add(new { Name = name, OwnClass = Hex(_networkClass), Method = Hex(pointer), MethodPointer = Hex(info.MethodPointer),
+-                    InvokerMethod = Hex(info.InvokerMethod), VirtualMethodPointer = Hex(info.VirtualMethodPointer),
+-                    NonvirtualBaseShadow = name is "OnDisable" or "OnDestroy", NativeDeliveryObservedByCountersOnly = true });
++                _networkUnityEvidence.Add(new
++                {
++                    Name = name,
++                    OwnClass = Hex(_networkClass),
++                    Method = Hex(pointer),
++                    MethodPointer = Hex(info.MethodPointer),
++                    InvokerMethod = Hex(info.InvokerMethod),
++                    VirtualMethodPointer = Hex(info.VirtualMethodPointer),
++                    NonvirtualBaseShadow = name is "OnDisable" or "OnDestroy",
++                    NativeDeliveryObservedByCountersOnly = true
++                });
+             }
+         }
+         if (!NetworkVirtualTargetsMatch()) throw new InvalidOperationException("network-virtual-targets-mismatch");
+@@ -4422,9 +4511,18 @@ internal sealed unsafe class NativeSubtypePort : IBusinessSubtypePort, IBusiness
+             {
+                 if (_activeSetAttempted) throw new InvalidOperationException("unity-message-not-bound-before-activation:" + name);
+                 _unityMessages.Add(name, current);
+-                _unityMessageEvidence.Add(new { Name = name, Method = Hex(pointer), OwnClass = Hex(_ownClass),
+-                    MethodPointer = Hex(info.MethodPointer), InvokerMethod = Hex(info.InvokerMethod), VirtualMethodPointer = Hex(info.VirtualMethodPointer),
+-                    Parameters = info.ParametersCount, ReturnType = "System.Void", NativeDeliveryObservedByCountersOnly = true });
++                _unityMessageEvidence.Add(new
++                {
++                    Name = name,
++                    Method = Hex(pointer),
++                    OwnClass = Hex(_ownClass),
++                    MethodPointer = Hex(info.MethodPointer),
++                    InvokerMethod = Hex(info.InvokerMethod),
++                    VirtualMethodPointer = Hex(info.VirtualMethodPointer),
++                    Parameters = info.ParametersCount,
++                    ReturnType = "System.Void",
++                    NativeDeliveryObservedByCountersOnly = true
++                });
+             }
+         }
+     }

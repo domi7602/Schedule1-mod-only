@@ -1,0 +1,29 @@
+{
+  "capturedUtc": "2026-11-06T14:37:42.476Z",
+  "files": {
+    "build-guards.json": {
+      "sha256": "ed6b2719fbfccce1ea3bef7ed0303f272f842519abf59f74c3c0ae9b7ac200ed",
+      "bytes": 773
+    },
+    "build-results.json": {
+      "sha256": "1f19da31565a79b1e5a8c4ccb6ff1a51871c689c2f0c401ece91227bcaf12515",
+      "bytes": 1759
+    },
+    "format.log.txt": {
+      "sha256": "f0b1bb86ecdae34fcba147ee02b25b154106bb62e0a2e0fb9d3bf60521a3def7",
+      "bytes": 2884
+    },
+    "townhall-capacity.trx": {
+      "sha256": "c9195064acfa23239f80b105a83e28249ae3e6f50aac93bc12ba8ba292c1efa6",
+      "bytes": 1723007
+    },
+    "townhall-tests.log.txt": {
+      "sha256": "eb8f477469fed0384333daa2525c8f1187d86b16ac27fec37fdd4e7ae4727c00",
+      "bytes": 1342
+    },
+    "verification.json": {
+      "sha256": "554ce496c2aeacc93567f15b01ef5dff33792d00812d422e64c3133cfaf9b43c",
+      "bytes": 8981
+    }
+  }
+}

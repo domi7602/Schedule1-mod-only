@@ -1,0 +1,30 @@
+{
+  "checkedUtc": "2026-11-06T09:12:32.202466+00:00",
+  "sourceRevision": "b2c6c7e6c6ecc778da9624cdb68a6578b9db471a",
+  "sourceWorktree": "dirty",
+  "repoDocumentHashes": {
+    "Source/Mods/TownHallInterior/docs/README.md": "3d529beb389f5e34bed60e3b83444a29c333afde8e53aa51c79c0366d63a4f69",
+    "Source/Mods/TownHallInterior/docs/CHANGELOG.md": "2c7810db78d52fd779b09d5227c7e15f21beb1d98caa93a28861ae82a5f27f24",
+    "Source/Mods/TownHallInterior/docs/business-completion-plan.md": "b22414407f430fbd78fa1f6bd6e210f198f3d84bf9428bad50d82e133c27f642",
+    "Source/Mods/TownHallInterior/docs/business-manager-save-probe.md": "84325538798f47208137a65f85a239b13957f16f95fbafa904a132e8eca8a1bd",
+    "Source/Mods/TownHallInterior/docs/business-save-transition-plan.md": "7f12c4d64a572a36ec629af2bdc36a6164e955d15b5e219d843016443df126da",
+    "docs/compatibility.md": "b87b47d0b516466304083f25cc5661a6edb9fd0bf78653f8c0355613c3581f0a"
+  },
+  "productionAndRegressionSourceHashesStillMatchOfflineEvidence": true,
+  "docPathCheck": {
+    "status": "passed",
+    "reviewer": "townhall_evidence_review",
+    "markdownFiles": 326,
+    "sourceTargetPairs": 1620
+  },
+  "gitDiffCheck": "passed",
+  "vaultCheck": {
+    "status": "passed",
+    "markdownFiles": 46,
+    "errors": 0,
+    "warnings": 0
+  },
+  "buildsTestsFullPureRerun": false,
+  "committed": false,
+  "pushed": false
+}

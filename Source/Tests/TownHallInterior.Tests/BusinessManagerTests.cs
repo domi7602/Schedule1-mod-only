@@ -33,17 +33,15 @@ public sealed class BusinessManagerTests
     }
 
     [Fact]
-    public void Settled_save_is_observed_and_an_unfinished_save_fails()
+    public void Legacy_save_route_is_blocked_even_in_the_confirmed_test_world()
     {
         var port = new Port();
-        var result = new BusinessSubtypeTrial().Run(World("SaveGame_1", "Dominik"), port, organisation: "Dominik", slot: "SaveGame_1", probeSave: true);
-        Assert.Equal("observed", result.Status);
-        Assert.True(result.Manager!.SaveCalled);
-        Assert.False(result.Manager.SavingAfter);
-        port = new Port { SavingAfter = true };
-        var failed = new BusinessSubtypeTrial().Run(World("SaveGame_1", "Dominik"), port, organisation: "Dominik", slot: "SaveGame_1", probeSave: true);
-        Assert.Equal("failed", failed.Status);
-        Assert.Contains("manager-save-not-settled", failed.Findings[0]);
+        var result = new BusinessSubtypeTrial().Run(World("SaveGame_2", "TownHallTest"), port, probeSave: true);
+        Assert.Equal("blocked", result.Status);
+        Assert.Contains("native-save-completion-contract-unverified", result.Findings);
+        Assert.False(result.AttemptConsumed);
+        Assert.Null(result.Manager);
+        Assert.Equal(0, port.Registrations);
     }
 
     [Fact]
@@ -72,12 +70,6 @@ public sealed class BusinessManagerTests
             Registrations++;
             return new(5, 1, Remaining, Removed, false);
         }
-        public ManagerRegistration SaveRegistered()
-        {
-            Registrations++;
-            return new(5, 1, Remaining, Removed, true, SavingAfter: SavingAfter);
-        }
-        public bool SavingAfter;
         public void Cleanup() { }
         public bool IsClean => true;
     }

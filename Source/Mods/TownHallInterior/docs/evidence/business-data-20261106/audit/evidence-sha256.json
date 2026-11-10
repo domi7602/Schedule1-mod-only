@@ -1,0 +1,215 @@
+{
+  "capturedUtc": "2026-11-06T12:28:39.367753+00:00",
+  "files": [
+    {
+      "path": "ActionList.fresh.cs.txt",
+      "bytes": 30438,
+      "sha256": "50b88074dd801ac6c13ad82209f4c2f67d47cf018a76b8a6a8b0ce09ce31f1d8"
+    },
+    {
+      "path": "Business.fresh.cs.txt",
+      "bytes": 47870,
+      "sha256": "2b8cc743ac3f67e5cf819a2bd713bc83627c3ab5dc82ff7e07d1b1f057836c64"
+    },
+    {
+      "path": "BusinessLoader.fresh.cs.txt",
+      "bytes": 2641,
+      "sha256": "912fd5eeed3697ac2c370732d127ae42db8dfee6c2d45394a819027398c0327a"
+    },
+    {
+      "path": "Delegate.fresh.cs.txt",
+      "bytes": 55700,
+      "sha256": "de356dd9323b79ff0aeaacdb847f24fe450dfcf912254b67dd5b2c566dac0d36"
+    },
+    {
+      "path": "inherited-evidence.json",
+      "bytes": 6116,
+      "sha256": "3742fa59462101fb3c4c740b3c4bbca820faf1edb20b1bad396595a904d16cb5"
+    },
+    {
+      "path": "inherited-native-windows/0x06001398-Business-get_currentLaunderTotal.json",
+      "bytes": 23565,
+      "sha256": "bc56407490059d3cbadca0e5b6c9e6d747fcd82b8e9d355613d2c13ca301470f"
+    },
+    {
+      "path": "inherited-native-windows/0x06001398-Business-get_currentLaunderTotal.txt",
+      "bytes": 5418,
+      "sha256": "e38df3815c2f923f1a483157c9714aba0876a1b1f0c68e42589dc91f0a684f25"
+    },
+    {
+      "path": "inherited-native-windows/0x06001399-Business-get_appliedLaunderLimit.json",
+      "bytes": 5964,
+      "sha256": "2b42de5815e54de3438defcef749c57538c647e6e4351f0f9598965634d2b188"
+    },
+    {
+      "path": "inherited-native-windows/0x06001399-Business-get_appliedLaunderLimit.txt",
+      "bytes": 1371,
+      "sha256": "cec9cbd378e58b07380cf2142e4b0e268297f3811cbf83d31698318d3aafb413"
+    },
+    {
+      "path": "inherited-native-windows/0x060013AA-Business-_ctor.json",
+      "bytes": 20841,
+      "sha256": "944523b5bb6c19070aa6cab624a48b7b1627374287ff576945a78cb61a1b9ddd"
+    },
+    {
+      "path": "inherited-native-windows/0x060013AA-Business-_ctor.txt",
+      "bytes": 5098,
+      "sha256": "a0d1bbec264e382189de0ff5fd1dee7f6ad08bf134b1566f9e5a7d4196804227"
+    },
+    {
+      "path": "inherited-native-windows/0x0600143E-Property-DoBoundsContainPoint.json",
+      "bytes": 21418,
+      "sha256": "8d1ed7f39b9baa841c9b6eb3a524fd40dcd80cb210f44a238ba5dc01a51e6989"
+    },
+    {
+      "path": "inherited-native-windows/0x0600143E-Property-DoBoundsContainPoint.txt",
+      "bytes": 4592,
+      "sha256": "bfcc3750a91c43101d2d27220f232221abd44a90a359c56e2e385a9cded5b6d3"
+    },
+    {
+      "path": "inherited-native-windows/0x0600143F-Property-IsPointInsideBox.json",
+      "bytes": 37021,
+      "sha256": "0c52d34c5e8bf3b682ceeea211ac585fc56d2ad177a3dc9b4067caa263ca957f"
+    },
+    {
+      "path": "inherited-native-windows/0x0600143F-Property-IsPointInsideBox.txt",
+      "bytes": 7937,
+      "sha256": "b376cdba113f2e00dcc8a6e4a25e2ffd7392d11c06a29703d39fb665f16a2795"
+    },
+    {
+      "path": "inherited-native-windows/0x06001444-Property-_ctor.json",
+      "bytes": 56156,
+      "sha256": "46ad8dd3272d2b80ffe2232182cb036765788733654b49cba5fce05901039466"
+    },
+    {
+      "path": "inherited-native-windows/0x06001444-Property-_ctor.txt",
+      "bytes": 14170,
+      "sha256": "d619fe9b81cec878602570550ba30985aa275a012a00511b5180348528cd60f1"
+    },
+    {
+      "path": "inherited-native-windows/0x06001475-PropertyContentsContainer-SetProperty.json",
+      "bytes": 18882,
+      "sha256": "20491d5141f8595b7435ef2efb18c92588587ee889f072950bd785af5bd66ef8"
+    },
+    {
+      "path": "inherited-native-windows/0x06001475-PropertyContentsContainer-SetProperty.txt",
+      "bytes": 4125,
+      "sha256": "61b0659370dfbe51d878aced491cd49a537c01f4d2544fea5505fac9314f9b0e"
+    },
+    {
+      "path": "inherited-native-windows/0x06001476-PropertyContentsContainer-_ctor.json",
+      "bytes": 4211,
+      "sha256": "9aa6abd5c5a39884c00612c9280a382a890e4d389048847e8d5204bcb6d9804d"
+    },
+    {
+      "path": "inherited-native-windows/0x06001476-PropertyContentsContainer-_ctor.txt",
+      "bytes": 1130,
+      "sha256": "7c3c18d15e602edf4f7a9fe4efdc61d508aa177613f87ab1bc2cbc52658357a2"
+    },
+    {
+      "path": "input-manifest.json",
+      "bytes": 4507,
+      "sha256": "311c5900da5cd63e7e8f95debd2cca5856933485132bf264f16b3de9557a7475"
+    },
+    {
+      "path": "Loader.fresh.cs.txt",
+      "bytes": 10275,
+      "sha256": "7c7b8d9fe49cdc9a6e1f78fcbad612dfed88e116ee7574225e28cb86b7b48d74"
+    },
+    {
+      "path": "map-business-data.ps1",
+      "bytes": 14819,
+      "sha256": "7d530c3695e7644a1579019122f5c547f43664b0a4b2378d4028491a2ea73b72"
+    },
+    {
+      "path": "MoneyManager.fresh.cs.txt",
+      "bytes": 117337,
+      "sha256": "36dd110343e77ac40ca325d4082476578dcfd80c0c4f4eed365c5470b842b11c"
+    },
+    {
+      "path": "MulticastDelegate.fresh.cs.txt",
+      "bytes": 12656,
+      "sha256": "86f95b231273c6fa003754df6b261217f0ec58492f009e30b97a3788b7b74ea2"
+    },
+    {
+      "path": "native-data-contract.json",
+      "bytes": 13699,
+      "sha256": "f18ff24fcb8fca03ade7f23e5cf7b6811fc217f8d36c366c8391a95da42fc754"
+    },
+    {
+      "path": "native-disassembly-loaders/0x06001862-BusinessLoader-_ctor.json",
+      "bytes": 4464,
+      "sha256": "726393a4186c79ffce44965813da42d3f00c57c31751088cec4f127ae619e528"
+    },
+    {
+      "path": "native-disassembly-loaders/0x06001862-BusinessLoader-_ctor.txt",
+      "bytes": 1394,
+      "sha256": "94a685a4d6d66f4a5f6f842cb155b37da4741194721e879b234734d1a6713132"
+    },
+    {
+      "path": "native-disassembly-loaders/0x0600187A-Loader-_ctor.json",
+      "bytes": 4456,
+      "sha256": "17d93bd1f6ddde8a4149f028446adf023b887d28b00ea13cc00091c90a06443b"
+    },
+    {
+      "path": "native-disassembly-loaders/0x0600187A-Loader-_ctor.txt",
+      "bytes": 1386,
+      "sha256": "8250dffafa10fb2dce038dcfc8fd9d9d9d2100f14a19a323b4571db6732c0249"
+    },
+    {
+      "path": "native-disassembly-loaders/0x06001899-PropertyLoader-_ctor.json",
+      "bytes": 4464,
+      "sha256": "33a817737e5c4cc5a64fe327c44d37ed4c80f596a1a145943ffea7bacfa5ecf4"
+    },
+    {
+      "path": "native-disassembly-loaders/0x06001899-PropertyLoader-_ctor.txt",
+      "bytes": 1394,
+      "sha256": "55831285820ec35aeca53ac24f9729644e548c3569fc8102a6c9eec87ff87add"
+    },
+    {
+      "path": "native-map-loaders.json",
+      "bytes": 5637,
+      "sha256": "d28818258c5d4c5b0344aff4095a760ab6d0cd15e407286106264471a68cf27a"
+    },
+    {
+      "path": "Property.fresh.cs.txt",
+      "bytes": 185795,
+      "sha256": "5d8c91a9ac3676cd1299be6d8e11304b6ad36c82dad7b827082486b4fb728aac"
+    },
+    {
+      "path": "PropertyContentsContainer.fresh.cs.txt",
+      "bytes": 5573,
+      "sha256": "14631b5b4fab17d04b3ad76c50691c5596f90a22edb83eff854dd2b7b9c7c280"
+    },
+    {
+      "path": "PropertyLoader.fresh.cs.txt",
+      "bytes": 11216,
+      "sha256": "4b8bd47d869e61f831d7211338d9369b257752f3d1ab566be13d734382a793fa"
+    },
+    {
+      "path": "references.json",
+      "bytes": 20,
+      "sha256": "9c5c2cbe56724eb1e122bac45812374ab6d21dbf3217ef9b22e8ece627accf93"
+    },
+    {
+      "path": "resume-input-and-loader-tail.json",
+      "bytes": 2186,
+      "sha256": "9997a2de6bb3e7d1a1dcdfb4167a4999a9caf27e34b4790a79243460f1a3753a"
+    },
+    {
+      "path": "S1API.BusinessWrapper.fresh.cs.txt",
+      "bytes": 8420,
+      "sha256": "d15c0258c0c9e9c0d6bbdfdd8fce1646cf9b22790f32fabd7e2e32c90b66f64c"
+    },
+    {
+      "path": "S1API.PropertyWrapper.fresh.cs.txt",
+      "bytes": 10244,
+      "sha256": "e7a07dbc1dc492c31664d385c129e0e7598b308c9ca167cb68a2ad76f4022088"
+    },
+    {
+      "path": "TimeManager.fresh.cs.txt",
+      "bytes": 145751,
+      "sha256": "2d5c4d082168a138a519dc63179b4d0955de008246c38cc8c969da622dc83ae9"
+    }
+  ]
+}

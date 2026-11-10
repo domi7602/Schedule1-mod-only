@@ -1,0 +1,273 @@
+{
+  "Method": {
+    "Type": "ScheduleOne.GameTime.TimeManager",
+    "Name": "NetworkInitialize__Late",
+    "Token": "0x06000C00",
+    "ParameterCount": 0,
+    "InterfaceOrVirtualSlot": 23,
+    "Va": "0x1809C9720",
+    "Rva": "0x9C9720",
+    "NativePointerPresent": true
+  },
+  "PrimaryPdataBounds": {
+    "BeginRva": 10262304,
+    "EndRva": 10262383,
+    "UnwindRva": 57295328
+  },
+  "WindowEndVa": "0x1809C9770",
+  "WindowKind": "Next distinct parser method pointer, not an exact/full function extent",
+  "RawOffset": "0x9C8920",
+  "ByteLength": 80,
+  "BytesSha256": "154f2130112315516e3d492c694136d93ea6524b02ef0b2c6aac7def5052687e",
+  "Instructions": [
+    {
+      "Va": "0x1809C9720",
+      "Rva": "0x9C9720",
+      "Bytes": "40 53",
+      "Text": "push rbx",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1809C9722",
+      "Rva": "0x9C9722",
+      "Bytes": "48 83 EC 20",
+      "Text": "sub rsp,20h",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1809C9726",
+      "Rva": "0x9C9726",
+      "Bytes": "80 3D A4 41 23 03 00",
+      "Text": "cmp byte ptr [183BFD8D1h],0",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": "0x183BFD8D1",
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1809C972D",
+      "Rva": "0x9C972D",
+      "Bytes": "48 8B D9",
+      "Text": "mov rbx,rcx",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1809C9730",
+      "Rva": "0x9C9730",
+      "Bytes": "75 13",
+      "Text": "jne short 00000001809C9745h",
+      "FlowControl": "ConditionalBranch",
+      "DirectTarget": "0x1809C9745",
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1809C9732",
+      "Rva": "0x9C9732",
+      "Bytes": "48 8D 0D B7 D8 FD 02",
+      "Text": "lea rcx,[1839A6FF0h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": "0x1839A6FF0",
+      "MetadataGlobal": {
+        "Kind": "MethodRef",
+        "Value": "System.Void ScheduleOne.DevUtilities.NetworkSingleton`1<ScheduleOne.GameTime.TimeManager>.NetworkInitialize__Late"
+      }
+    },
+    {
+      "Va": "0x1809C9739",
+      "Rva": "0x9C9739",
+      "Bytes": "E8 62 E1 94 FF",
+      "Text": "call 00000001803178A0h",
+      "FlowControl": "Call",
+      "DirectTarget": "0x1803178A0",
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1809C973E",
+      "Rva": "0x9C973E",
+      "Bytes": "C6 05 8C 41 23 03 01",
+      "Text": "mov byte ptr [183BFD8D1h],1",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": "0x183BFD8D1",
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1809C9745",
+      "Rva": "0x9C9745",
+      "Bytes": "80 BB D1 01 00 00 00",
+      "Text": "cmp byte ptr [rbx+1D1h],0",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1809C974C",
+      "Rva": "0x9C974C",
+      "Bytes": "75 1B",
+      "Text": "jne short 00000001809C9769h",
+      "FlowControl": "ConditionalBranch",
+      "DirectTarget": "0x1809C9769",
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1809C974E",
+      "Rva": "0x9C974E",
+      "Bytes": "C6 83 D1 01 00 00 01",
+      "Text": "mov byte ptr [rbx+1D1h],1",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1809C9755",
+      "Rva": "0x9C9755",
+      "Bytes": "48 8B CB",
+      "Text": "mov rcx,rbx",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1809C9758",
+      "Rva": "0x9C9758",
+      "Bytes": "48 8B 15 91 D8 FD 02",
+      "Text": "mov rdx,[1839A6FF0h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": "0x1839A6FF0",
+      "MetadataGlobal": {
+        "Kind": "MethodRef",
+        "Value": "System.Void ScheduleOne.DevUtilities.NetworkSingleton`1<ScheduleOne.GameTime.TimeManager>.NetworkInitialize__Late"
+      }
+    },
+    {
+      "Va": "0x1809C975F",
+      "Rva": "0x9C975F",
+      "Bytes": "48 83 C4 20",
+      "Text": "add rsp,20h",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1809C9763",
+      "Rva": "0x9C9763",
+      "Bytes": "5B",
+      "Text": "pop rbx",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1809C9764",
+      "Rva": "0x9C9764",
+      "Bytes": "E9 77 E6 64 00",
+      "Text": "jmp near ptr 0000000181017DE0h",
+      "FlowControl": "UnconditionalBranch",
+      "DirectTarget": "0x181017DE0",
+      "TargetMethodCount": 1,
+      "TargetMethods": [
+        "ScheduleOne.DevUtilities.NetworkSingleton`1::NetworkInitialize__Late/0"
+      ],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1809C9769",
+      "Rva": "0x9C9769",
+      "Bytes": "48 83 C4 20",
+      "Text": "add rsp,20h",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1809C976D",
+      "Rva": "0x9C976D",
+      "Bytes": "5B",
+      "Text": "pop rbx",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1809C976E",
+      "Rva": "0x9C976E",
+      "Bytes": "C3",
+      "Text": "ret",
+      "FlowControl": "Return",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1809C976F",
+      "Rva": "0x9C976F",
+      "Bytes": "CC",
+      "Text": "int 3",
+      "FlowControl": "Interrupt",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    }
+  ],
+  "UndecodedTail": null
+}

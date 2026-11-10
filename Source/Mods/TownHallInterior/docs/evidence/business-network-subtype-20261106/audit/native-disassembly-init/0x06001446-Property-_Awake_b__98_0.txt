@@ -1,0 +1,12 @@
+; ScheduleOne.Property.Property::<Awake>b__98_0/1, token 0x06001446, RVA 0x5572E0, next-pointer window 0x10 bytes
+; No target execution. Parser-pointer window can contain padding/cold fragments and is not exact/full function, EH or transitive coverage. Shared direct aliases are truncated to eight names.
+0x5572E0     C6 81 48 02 00 00 01            mov byte ptr [rcx+248h],1
+0x5572E7     C3                              ret
+0x5572E8     CC                              int 3
+0x5572E9     CC                              int 3
+0x5572EA     CC                              int 3
+0x5572EB     CC                              int 3
+0x5572EC     CC                              int 3
+0x5572ED     CC                              int 3
+0x5572EE     CC                              int 3
+0x5572EF     CC                              int 3

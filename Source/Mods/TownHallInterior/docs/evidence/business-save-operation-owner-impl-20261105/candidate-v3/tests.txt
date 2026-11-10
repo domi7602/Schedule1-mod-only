@@ -1,0 +1,867 @@
+using TownHallInterior;
+using Xunit;
+
+namespace TownHallInterior.Tests;
+
+// Synthetic messages only: no callback body, game object, save file or native port is exercised.
+public sealed class BusinessSaveOperationOwnerTests
+{
+    private const double BeganAt = 100;
+    private static readonly BusinessSaveModelEffect[] Effects = Enum.GetValues<BusinessSaveModelEffect>();
+
+    // Path values, not fixtures. Nothing creates or opens these directories.
+    private static string SlotPath(string slot = "SaveGame_2", string profile = "profile-a") =>
+        Path.Combine(Path.GetTempPath(), "TownHallSaveOwnerModelTests", profile, slot);
+
+    private static BusinessSaveModelBinding Candidate => new(
+        new ConstructionContext(true, true, true, true, SlotPath(), SlotPath(), "TownHallTest"),
+        17, "load-101", "save-202", "saveables-303", "base-404", "completed-505", "requests-606", "participant-707");
+
+    private sealed class Scenario
+    {
+        private long _sequence;
+        public BusinessSaveProcessModel Process { get; } = new();
+        public BusinessSaveOperationOwner Owner { get; }
+        public BusinessSaveModelBinding Binding { get; }
+        public Scenario()
+        {
+            Owner = Process.CreateOwner();
+            Assert.True(Owner.TryBind(Candidate, BeganAt));
+            Binding = Owner.Snapshot.Binding!;
+        }
+        public BusinessSaveModelStamp Stamp(double now = BeganAt) =>
+            new(Owner.Snapshot.Key!.Value, Binding, ++_sequence, now);
+        public void Complete(BusinessSaveModelEffect effect)
+        {
+            Assert.True(Owner.TryRecordIntent(effect, Stamp()));
+            Assert.True(Owner.RecordOutcome(effect, BusinessSaveModelOutcome.Returned, Stamp()));
+            Assert.True(Owner.RecordReadback(effect, true, Stamp()));
+        }
+        public void Before(BusinessSaveModelEffect effect)
+        {
+            foreach (var previous in Effects.TakeWhile(value => value != effect)) Complete(previous);
+        }
+    }
+
+    private static void AssertNoNativeAuthority(BusinessSaveModelSnapshot snapshot)
+    {
+        Assert.True(snapshot.SimulationOnly);
+        Assert.False(snapshot.NativeSaveWriteAllowed);
+        Assert.False(snapshot.SafeToUnregister);
+        Assert.False(snapshot.SafeToDestroy);
+        Assert.Equal("unknown", snapshot.ReferenceProof);
+        Assert.Equal("unknown", snapshot.NativeWriteProof);
+        Assert.Equal("unknown", snapshot.ModDataProof);
+    }
+
+    private static void AssertNoIntents(BusinessSaveModelSnapshot snapshot) =>
+        Assert.All(snapshot.Effects.Values, effect => Assert.Equal(new(false, false, false, false), effect));
+
+    private static void OnOtherThread(Action action)
+    {
+        Exception? failure = null;
+        var thread = new Thread(() =>
+        {
+            try { action(); }
+            catch (Exception error) { failure = error; }
+        });
+        thread.Start();
+        Assert.True(thread.Join(TimeSpan.FromSeconds(5)), "Synthetic worker did not finish.");
+        Assert.Null(failure);
+    }
+
+    [Fact]
+    public void Empty_model_has_no_authority_or_publicly_resettable_owner()
+    {
+        var process = new BusinessSaveProcessModel();
+        var snapshot = process.CreateOwner().Snapshot;
+        Assert.NotEqual(Guid.Empty, process.ProcessId);
+        Assert.Equal(process.ProcessId, snapshot.ProcessId);
+        Assert.Equal("empty", snapshot.Status);
+        Assert.False(snapshot.SlotConsumed);
+        Assert.False(snapshot.Revoked);
+        Assert.Null(snapshot.Key);
+        Assert.Null(snapshot.Binding);
+        Assert.Null(snapshot.LastTime);
+        Assert.Equal(0, snapshot.LastSequence);
+        Assert.Equal(6, snapshot.Effects.Count);
+        Assert.Empty(snapshot.Diagnostics);
+        Assert.Empty(typeof(BusinessSaveOperationOwner).GetConstructors());
+        AssertNoIntents(snapshot);
+        AssertNoNativeAuthority(snapshot);
+    }
+
+    [Theory]
+    [InlineData("binding")]
+    [InlineData("context")]
+    [InlineData("load")]
+    [InlineData("singleplayer")]
+    [InlineData("hall")]
+    [InlineData("dependencies")]
+    [InlineData("world")]
+    [InlineData("world-case")]
+    [InlineData("slot")]
+    [InlineData("relative")]
+    [InlineData("missing-path")]
+    [InlineData("different-path")]
+    [InlineData("long-path")]
+    [InlineData("epoch-zero")]
+    [InlineData("epoch-negative")]
+    [InlineData("load-manager")]
+    [InlineData("save-manager")]
+    [InlineData("saveables")]
+    [InlineData("base-saveables")]
+    [InlineData("completed")]
+    [InlineData("requests")]
+    [InlineData("participant")]
+    [InlineData("label-control")]
+    [InlineData("label-length")]
+    public void Invalid_candidate_consumes_no_slot_and_valid_candidate_can_still_bind(string cause)
+    {
+        var binding = Candidate;
+        var context = binding.Context;
+        BusinessSaveModelBinding? invalid = cause switch
+        {
+            "binding" => null,
+            "context" => binding with { Context = null! },
+            "load" => binding with { Context = context with { LoadComplete = false } },
+            "singleplayer" => binding with { Context = context with { Singleplayer = false } },
+            "hall" => binding with { Context = context with { HallReady = false } },
+            "dependencies" => binding with { Context = context with { DependenciesMatch = false } },
+            "world" => binding with { Context = context with { OrganisationName = "Dominik" } },
+            "world-case" => binding with { Context = context with { OrganisationName = "townhalltest" } },
+            "slot" => binding with { Context = context with { ActiveSavePath = SlotPath("SaveGame_1"), LoadedSavePath = SlotPath("SaveGame_1") } },
+            "relative" => binding with { Context = context with { ActiveSavePath = "SaveGame_2" } },
+            "missing-path" => binding with { Context = context with { LoadedSavePath = null } },
+            "different-path" => binding with { Context = context with { LoadedSavePath = SlotPath(profile: "profile-b") } },
+            "long-path" => binding with { Context = context with { ActiveSavePath = new string('x', 32768) } },
+            "epoch-zero" => binding with { Epoch = 0 },
+            "epoch-negative" => binding with { Epoch = -1 },
+            "load-manager" => binding with { LoadManager = "" },
+            "save-manager" => binding with { SaveManager = null! },
+            "saveables" => binding with { Saveables = " " },
+            "base-saveables" => binding with { BaseSaveables = "" },
+            "completed" => binding with { Completed = "" },
+            "requests" => binding with { Requests = "" },
+            "participant" => binding with { Participant = "" },
+            "label-control" => binding with { Participant = "participant\n707" },
+            "label-length" => binding with { LoadManager = new string('a', 161) },
+            _ => throw new ArgumentOutOfRangeException(nameof(cause))
+        };
+        var owner = new BusinessSaveProcessModel().CreateOwner();
+        Assert.False(owner.TryBind(invalid, BeganAt));
+        Assert.False(owner.Snapshot.SlotConsumed);
+        Assert.Null(owner.Snapshot.Binding);
+        AssertNoIntents(owner.Snapshot);
+        Assert.True(owner.TryBind(binding, BeganAt));
+        AssertNoNativeAuthority(owner.Snapshot);
+    }
+
+    [Theory]
+    [InlineData(-1)]
+    [InlineData(double.NaN)]
+    [InlineData(double.PositiveInfinity)]
+    [InlineData(double.NegativeInfinity)]
+    public void Invalid_bind_time_never_reserves_a_slot(double time)
+    {
+        var owner = new BusinessSaveProcessModel().CreateOwner();
+        Assert.False(owner.TryBind(Candidate, time));
+        Assert.False(owner.Snapshot.SlotConsumed);
+        AssertNoIntents(owner.Snapshot);
+        AssertNoNativeAuthority(owner.Snapshot);
+    }
+
+    [Fact]
+    public void Binding_is_canonical_frozen_data_and_does_not_open_a_save()
+    {
+        var candidate = Candidate;
+        var alternate = Path.Combine(Path.GetDirectoryName(SlotPath())!, "alias", "..", "SaveGame_2") + Path.DirectorySeparatorChar;
+        candidate = candidate with { Context = candidate.Context with { ActiveSavePath = alternate } };
+        var process = new BusinessSaveProcessModel();
+        var owner = process.CreateOwner();
+        Assert.True(owner.TryBind(candidate, BeganAt));
+        var frozen = owner.Snapshot;
+        Assert.Equal(new BusinessSaveModelKey(process.ProcessId, 1), frozen.Key);
+        Assert.Equal(Path.GetFullPath(SlotPath()), frozen.Binding!.Context.ActiveSavePath);
+        Assert.Equal(Path.GetFullPath(SlotPath()), frozen.Binding.Context.LoadedSavePath);
+        candidate = candidate with { Participant = "replacement", Context = candidate.Context with { OrganisationName = "Dominik" } };
+        Assert.NotEqual(candidate, owner.Snapshot.Binding);
+        Assert.Equal("participant-707", owner.Snapshot.Binding!.Participant);
+        var equivalent = frozen.Binding with { Context = frozen.Binding.Context with { ActiveSavePath = alternate } };
+        Assert.True(owner.ObserveContext(equivalent, new(frozen.Key!.Value, frozen.Binding, 1, BeganAt)));
+        Assert.False(owner.Snapshot.Revoked);
+    }
+
+    [Fact]
+    public void All_facades_share_operation_and_tombstone_but_separate_models_are_separate_simulations()
+    {
+        var scenario = new Scenario();
+        var second = scenario.Process.CreateOwner();
+        Assert.Equal(scenario.Owner.Snapshot.Key, second.Snapshot.Key);
+        second.Revoke("leaving");
+        Assert.True(scenario.Owner.Snapshot.Revoked);
+        Assert.False(scenario.Process.CreateOwner().TryBind(Candidate, BeganAt));
+        Assert.Equal(scenario.Binding, scenario.Owner.Snapshot.Binding);
+        Assert.True(scenario.Owner.Snapshot.SlotConsumed);
+        var other = new BusinessSaveProcessModel();
+        Assert.NotEqual(scenario.Process.ProcessId, other.ProcessId);
+        Assert.True(other.CreateOwner().TryBind(Candidate, BeganAt));
+    }
+
+    [Fact]
+    public void Early_revocation_also_survives_owner_recreation_without_consuming_a_binding_slot()
+    {
+        var process = new BusinessSaveProcessModel();
+        process.CreateOwner().Revoke("stop-before-bind");
+        var replacement = process.CreateOwner();
+        Assert.False(replacement.TryBind(Candidate, BeganAt));
+        Assert.Equal("quarantined", replacement.Snapshot.Status);
+        Assert.False(replacement.Snapshot.SlotConsumed);
+        Assert.Equal("stop-before-bind", replacement.Snapshot.FirstRevocationReason);
+        AssertNoIntents(replacement.Snapshot);
+    }
+
+    [Theory]
+    [InlineData("epoch")]
+    [InlineData("load-manager")]
+    [InlineData("save-manager")]
+    [InlineData("saveables")]
+    [InlineData("base-saveables")]
+    [InlineData("completed")]
+    [InlineData("requests")]
+    [InlineData("participant")]
+    [InlineData("world-lost")]
+    [InlineData("context-lost")]
+    public void Same_slot_reload_or_replacement_cannot_retarget_frozen_operation(string changed)
+    {
+        var scenario = new Scenario();
+        var old = scenario.Binding;
+        BusinessSaveModelBinding? current = changed switch
+        {
+            "epoch" => old with { Epoch = old.Epoch + 1 },
+            "load-manager" => old with { LoadManager = "load-new" },
+            "save-manager" => old with { SaveManager = "save-new" },
+            "saveables" => old with { Saveables = "saveables-new" },
+            "base-saveables" => old with { BaseSaveables = "base-new" },
+            "completed" => old with { Completed = "completed-new" },
+            "requests" => old with { Requests = "requests-new" },
+            "participant" => old with { Participant = "participant-new" },
+            "world-lost" => old with { Context = old.Context with { LoadComplete = false } },
+            "context-lost" => null,
+            _ => throw new ArgumentOutOfRangeException(nameof(changed))
+        };
+        Assert.False(scenario.Owner.ObserveContext(current, scenario.Stamp()));
+        Assert.Equal(old, scenario.Owner.Snapshot.Binding);
+        Assert.True(scenario.Owner.Snapshot.Revoked);
+        Assert.False(scenario.Owner.TryBind(current, BeganAt));
+        Assert.False(scenario.Owner.TryRecordIntent(BusinessSaveModelEffect.TypeRegistration, scenario.Stamp()));
+        AssertNoIntents(scenario.Owner.Snapshot);
+    }
+
+    [Theory]
+    [InlineData("process")]
+    [InlineData("operation")]
+    [InlineData("binding")]
+    [InlineData("null")]
+    public void Message_requires_the_exact_bound_operation(string mismatch)
+    {
+        var scenario = new Scenario();
+        var stamp = scenario.Stamp();
+        BusinessSaveModelStamp invalid = mismatch switch
+        {
+            "process" => stamp with { Key = new(Guid.NewGuid(), 1) },
+            "operation" => stamp with { Key = stamp.Key with { Operation = 2 } },
+            "binding" => stamp with { Binding = stamp.Binding with { Epoch = 18 } },
+            "null" => null!,
+            _ => throw new ArgumentOutOfRangeException(nameof(mismatch))
+        };
+        Assert.False(scenario.Owner.TryRecordIntent(BusinessSaveModelEffect.TypeRegistration, invalid));
+        Assert.True(scenario.Owner.Snapshot.Revoked);
+        Assert.Equal(scenario.Binding, scenario.Owner.Snapshot.Binding);
+        AssertNoIntents(scenario.Owner.Snapshot);
+    }
+
+    [Fact]
+    public void Successful_synthetic_ledger_does_not_grant_any_native_permission_or_proof()
+    {
+        var scenario = new Scenario();
+        foreach (var effect in Effects) scenario.Complete(effect);
+        var snapshot = scenario.Owner.Snapshot;
+        Assert.Equal("bound-data-only", snapshot.Status);
+        Assert.False(snapshot.Revoked);
+        Assert.True(snapshot.SlotConsumed);
+        Assert.All(snapshot.Effects.Values, effect => Assert.Equal(new(true, true, true, false), effect));
+        AssertNoNativeAuthority(snapshot);
+        foreach (var name in new[] { "SimulationOnly", "NativeSaveWriteAllowed", "SafeToUnregister", "SafeToDestroy", "ReferenceProof", "NativeWriteProof", "ModDataProof" })
+            Assert.Null(typeof(BusinessSaveModelSnapshot).GetProperty(name)!.SetMethod);
+        Assert.False(scenario.Process.CreateOwner().TryBind(Candidate, BeganAt));
+    }
+
+    [Theory]
+    [InlineData(BusinessSaveModelEffect.Construction)]
+    [InlineData(BusinessSaveModelEffect.Registration)]
+    [InlineData(BusinessSaveModelEffect.Save)]
+    [InlineData(BusinessSaveModelEffect.Removal)]
+    [InlineData(BusinessSaveModelEffect.Destroy)]
+    public void Each_effect_requires_all_predecessors_instead_of_just_idle_or_a_completion_hint(BusinessSaveModelEffect effect)
+    {
+        var scenario = new Scenario();
+        Assert.True(scenario.Owner.ObserveTelemetry("Complete; idle; queue empty; later frame", scenario.Stamp()));
+        Assert.False(scenario.Owner.TryRecordIntent(effect, scenario.Stamp()));
+        AssertNoIntents(scenario.Owner.Snapshot);
+        Assert.True(scenario.Owner.Snapshot.Revoked);
+        AssertNoNativeAuthority(scenario.Owner.Snapshot);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Return_without_confirmed_readback_does_not_admit_the_next_effect(bool returned)
+    {
+        var scenario = new Scenario();
+        Assert.True(scenario.Owner.TryRecordIntent(BusinessSaveModelEffect.TypeRegistration, scenario.Stamp()));
+        if (returned) Assert.True(scenario.Owner.RecordOutcome(BusinessSaveModelEffect.TypeRegistration, BusinessSaveModelOutcome.Returned, scenario.Stamp()));
+        Assert.False(scenario.Owner.TryRecordIntent(BusinessSaveModelEffect.Construction, scenario.Stamp()));
+        Assert.True(scenario.Owner.Snapshot.Effects[BusinessSaveModelEffect.TypeRegistration].Intent);
+        Assert.False(scenario.Owner.Snapshot.Effects[BusinessSaveModelEffect.Construction].Intent);
+    }
+
+    [Theory]
+    [InlineData(BusinessSaveModelEffect.TypeRegistration)]
+    [InlineData(BusinessSaveModelEffect.Construction)]
+    [InlineData(BusinessSaveModelEffect.Registration)]
+    [InlineData(BusinessSaveModelEffect.Save)]
+    [InlineData(BusinessSaveModelEffect.Removal)]
+    [InlineData(BusinessSaveModelEffect.Destroy)]
+    public void Failed_effect_preserves_possible_partial_action_and_prevents_blind_repeat(BusinessSaveModelEffect effect)
+    {
+        var scenario = new Scenario();
+        scenario.Before(effect);
+        Assert.True(scenario.Owner.TryRecordIntent(effect, scenario.Stamp()));
+        Assert.True(scenario.Owner.RecordOutcome(effect, BusinessSaveModelOutcome.Failed, scenario.Stamp()));
+        Assert.Equal(new(true, false, false, true), scenario.Owner.Snapshot.Effects[effect]);
+        Assert.False(scenario.Owner.TryRecordIntent(effect, scenario.Stamp()));
+        Assert.Equal(new(true, false, false, true), scenario.Owner.Snapshot.Effects[effect]);
+        Assert.True(scenario.Owner.Snapshot.Revoked);
+        AssertNoNativeAuthority(scenario.Owner.Snapshot);
+    }
+
+    [Theory]
+    [InlineData("outcome-without-intent")]
+    [InlineData("readback-without-intent")]
+    [InlineData("readback-before-return")]
+    [InlineData("duplicate-intent")]
+    [InlineData("duplicate-return")]
+    [InlineData("duplicate-readback")]
+    [InlineData("undefined-intent")]
+    [InlineData("undefined-effect-outcome")]
+    [InlineData("undefined-outcome")]
+    [InlineData("undefined-readback")]
+    public void Invalid_or_duplicate_effect_messages_revoke_without_retry(string cause)
+    {
+        var scenario = new Scenario();
+        var owner = scenario.Owner;
+        var effect = BusinessSaveModelEffect.TypeRegistration;
+        if (cause is "readback-before-return" or "duplicate-intent" or "duplicate-return" or "duplicate-readback" or "undefined-outcome")
+            Assert.True(owner.TryRecordIntent(effect, scenario.Stamp()));
+        if (cause is "duplicate-return" or "duplicate-readback")
+            Assert.True(owner.RecordOutcome(effect, BusinessSaveModelOutcome.Returned, scenario.Stamp()));
+        if (cause == "duplicate-readback") Assert.True(owner.RecordReadback(effect, true, scenario.Stamp()));
+        bool accepted = cause switch
+        {
+            "outcome-without-intent" or "duplicate-return" => owner.RecordOutcome(effect, BusinessSaveModelOutcome.Returned, scenario.Stamp()),
+            "readback-without-intent" or "readback-before-return" or "duplicate-readback" => owner.RecordReadback(effect, true, scenario.Stamp()),
+            "duplicate-intent" => owner.TryRecordIntent(effect, scenario.Stamp()),
+            "undefined-intent" => owner.TryRecordIntent((BusinessSaveModelEffect)999, scenario.Stamp()),
+            "undefined-effect-outcome" => owner.RecordOutcome((BusinessSaveModelEffect)999, BusinessSaveModelOutcome.Returned, scenario.Stamp()),
+            "undefined-outcome" => owner.RecordOutcome(effect, (BusinessSaveModelOutcome)999, scenario.Stamp()),
+            "undefined-readback" => owner.RecordReadback((BusinessSaveModelEffect)999, true, scenario.Stamp()),
+            _ => throw new ArgumentOutOfRangeException(nameof(cause))
+        };
+        Assert.False(accepted);
+        Assert.True(owner.Snapshot.Revoked);
+        Assert.Equal(6, owner.Snapshot.Effects.Count);
+        AssertNoNativeAuthority(owner.Snapshot);
+    }
+
+    [Fact]
+    public void Revocation_before_intent_suppresses_it_but_revocation_after_admission_keeps_the_intent()
+    {
+        var first = new Scenario();
+        OnOtherThread(() => first.Owner.Revoke("worker-first"));
+        Assert.False(first.Owner.TryRecordIntent(BusinessSaveModelEffect.TypeRegistration, first.Stamp()));
+        AssertNoIntents(first.Owner.Snapshot);
+
+        var second = new Scenario();
+        Assert.True(second.Owner.TryRecordIntent(BusinessSaveModelEffect.TypeRegistration, second.Stamp()));
+        OnOtherThread(() => second.Owner.Revoke("worker-after-admission"));
+        Assert.True(second.Owner.RecordOutcome(BusinessSaveModelEffect.TypeRegistration, BusinessSaveModelOutcome.Returned, second.Stamp()));
+        Assert.True(second.Owner.RecordReadback(BusinessSaveModelEffect.TypeRegistration, true, second.Stamp()));
+        Assert.Equal(new(true, true, true, false), second.Owner.Snapshot.Effects[BusinessSaveModelEffect.TypeRegistration]);
+        Assert.Equal("quarantined", second.Owner.Snapshot.Status);
+        Assert.False(second.Owner.TryRecordIntent(BusinessSaveModelEffect.Construction, second.Stamp()));
+        AssertNoNativeAuthority(second.Owner.Snapshot);
+    }
+
+    [Fact]
+    public void Reentrant_style_revocation_inside_an_entered_callback_is_not_undone_by_late_return()
+    {
+        var scenario = new Scenario();
+        scenario.Before(BusinessSaveModelEffect.Save);
+        Assert.True(scenario.Owner.TryRecordIntent(BusinessSaveModelEffect.Save, scenario.Stamp()));
+        long ticket = scenario.Owner.EnterCallback(scenario.Stamp());
+        Assert.True(ticket > 0);
+        scenario.Owner.Revoke("world-exit-during-callback");
+        Assert.True(scenario.Owner.ExitCallback(ticket, scenario.Stamp()));
+        Assert.True(scenario.Owner.RecordOutcome(BusinessSaveModelEffect.Save, BusinessSaveModelOutcome.Returned, scenario.Stamp()));
+        Assert.True(scenario.Owner.RecordReadback(BusinessSaveModelEffect.Save, true, scenario.Stamp()));
+        Assert.Equal("quarantined", scenario.Owner.Snapshot.Status);
+        Assert.Equal("world-exit-during-callback", scenario.Owner.Snapshot.FirstRevocationReason);
+        Assert.False(scenario.Owner.TryRecordIntent(BusinessSaveModelEffect.Removal, scenario.Stamp()));
+        Assert.Equal(0, scenario.Owner.Snapshot.ActiveCallbacks);
+        AssertNoNativeAuthority(scenario.Owner.Snapshot);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Failure_after_return_does_not_erase_return_or_prior_confirmed_readback(bool confirmed)
+    {
+        var scenario = new Scenario();
+        var effect = BusinessSaveModelEffect.TypeRegistration;
+        Assert.True(scenario.Owner.TryRecordIntent(effect, scenario.Stamp()));
+        Assert.True(scenario.Owner.RecordOutcome(effect, BusinessSaveModelOutcome.Returned, scenario.Stamp()));
+        if (confirmed) Assert.True(scenario.Owner.RecordReadback(effect, true, scenario.Stamp()));
+        Assert.True(confirmed
+            ? scenario.Owner.RecordOutcome(effect, BusinessSaveModelOutcome.Failed, scenario.Stamp())
+            : scenario.Owner.RecordReadback(effect, false, scenario.Stamp()));
+        Assert.Equal(new(true, true, confirmed, true), scenario.Owner.Snapshot.Effects[effect]);
+        Assert.True(scenario.Owner.Snapshot.Revoked);
+        Assert.False(scenario.Owner.TryRecordIntent(BusinessSaveModelEffect.Construction, scenario.Stamp()));
+    }
+
+    [Fact]
+    public void Foreign_save_observation_consumes_no_own_save_intent_and_cannot_become_a_completion_proof()
+    {
+        var scenario = new Scenario();
+        scenario.Before(BusinessSaveModelEffect.Save);
+        Assert.True(scenario.Owner.ObserveUnexpectedSave(scenario.Stamp()));
+        Assert.False(scenario.Owner.TryRecordIntent(BusinessSaveModelEffect.Save, scenario.Stamp()));
+        Assert.False(scenario.Owner.Snapshot.Effects[BusinessSaveModelEffect.Save].Intent);
+        Assert.True(scenario.Owner.Snapshot.Effects[BusinessSaveModelEffect.Registration].Intent);
+        Assert.True(scenario.Owner.ObserveTelemetry("Complete from foreign/autosave; queued=0; Completed still holds participant", scenario.Stamp()));
+        Assert.False(scenario.Owner.Snapshot.Effects[BusinessSaveModelEffect.Removal].Intent);
+        Assert.Equal("quarantined", scenario.Owner.Snapshot.Status);
+        AssertNoNativeAuthority(scenario.Owner.Snapshot);
+    }
+
+    [Fact]
+    public void Repeated_parameterless_telemetry_cannot_invent_returns_readbacks_or_a_native_operation_token()
+    {
+        var scenario = new Scenario();
+        for (int index = 0; index < 12; index++)
+            Assert.True(scenario.Owner.ObserveTelemetry("Complete before Start; idle; queue empty; later frame", scenario.Stamp()));
+        AssertNoIntents(scenario.Owner.Snapshot);
+        Assert.False(scenario.Owner.Snapshot.Revoked);
+        AssertNoNativeAuthority(scenario.Owner.Snapshot);
+    }
+
+    [Fact]
+    public void Nested_callback_tickets_can_be_closed_in_finally_without_claiming_native_quiescence()
+    {
+        var scenario = new Scenario();
+        long outer = scenario.Owner.EnterCallback(scenario.Stamp());
+        Assert.True(outer > 0);
+        try
+        {
+            long inner = scenario.Owner.EnterCallback(scenario.Stamp());
+            Assert.NotEqual(outer, inner);
+            Assert.Equal(2, scenario.Owner.Snapshot.ActiveCallbacks);
+            try { throw new InvalidOperationException("synthetic-body-failure"); }
+            catch (InvalidOperationException) { scenario.Owner.Revoke("synthetic-body-failure"); }
+            finally { Assert.True(scenario.Owner.ExitCallback(inner, scenario.Stamp())); }
+        }
+        finally { Assert.True(scenario.Owner.ExitCallback(outer, scenario.Stamp())); }
+        Assert.Equal(0, scenario.Owner.Snapshot.ActiveCallbacks);
+        Assert.False(scenario.Owner.Snapshot.CallbacksUncertain);
+        AssertNoNativeAuthority(scenario.Owner.Snapshot);
+    }
+
+    [Fact]
+    public void Active_callback_blocks_a_new_intent_instead_of_becoming_an_implicit_effect_entry()
+    {
+        var scenario = new Scenario();
+        long ticket = scenario.Owner.EnterCallback(scenario.Stamp());
+        Assert.False(scenario.Owner.TryRecordIntent(BusinessSaveModelEffect.TypeRegistration, scenario.Stamp()));
+        AssertNoIntents(scenario.Owner.Snapshot);
+        Assert.True(scenario.Owner.ExitCallback(ticket, scenario.Stamp()));
+        AssertNoNativeAuthority(scenario.Owner.Snapshot);
+    }
+
+    [Fact]
+    public void Constructor_style_callback_before_binding_closes_admission_and_marks_uncertainty()
+    {
+        var process = new BusinessSaveProcessModel();
+        var owner = process.CreateOwner();
+        Assert.Equal(0, owner.EnterCallback(new(new(process.ProcessId, 1), Candidate, 1, BeganAt)));
+        Assert.True(owner.Snapshot.CallbacksUncertain);
+        Assert.True(owner.Snapshot.Revoked);
+        Assert.False(process.CreateOwner().TryBind(Candidate, BeganAt));
+        Assert.False(owner.Snapshot.SlotConsumed);
+        AssertNoIntents(owner.Snapshot);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Unknown_or_duplicate_callback_exit_never_decrements_a_different_live_ticket(bool duplicate)
+    {
+        var scenario = new Scenario();
+        long outer = scenario.Owner.EnterCallback(scenario.Stamp());
+        long inner = scenario.Owner.EnterCallback(scenario.Stamp());
+        if (duplicate) Assert.True(scenario.Owner.ExitCallback(inner, scenario.Stamp()));
+        Assert.False(scenario.Owner.ExitCallback(duplicate ? inner : 99999, scenario.Stamp()));
+        Assert.Equal(duplicate ? 1 : 2, scenario.Owner.Snapshot.ActiveCallbacks);
+        Assert.True(scenario.Owner.Snapshot.CallbacksUncertain);
+        Assert.True(scenario.Owner.ExitCallback(outer, scenario.Stamp()));
+        Assert.True(scenario.Owner.Snapshot.Revoked);
+        AssertNoNativeAuthority(scenario.Owner.Snapshot);
+    }
+
+    [Fact]
+    public void Callback_capacity_is_bounded_even_when_late_entries_arrive_after_quarantine()
+    {
+        var scenario = new Scenario();
+        var tickets = new List<long>();
+        for (int index = 0; index < BusinessSaveProcessModel.DiagnosticCapacity; index++)
+        {
+            long ticket = scenario.Owner.EnterCallback(scenario.Stamp());
+            Assert.True(ticket > 0);
+            tickets.Add(ticket);
+        }
+        Assert.Equal(64, tickets.Distinct().Count());
+        Assert.Equal(0, scenario.Owner.EnterCallback(scenario.Stamp()));
+        Assert.Equal(64, scenario.Owner.Snapshot.ActiveCallbacks);
+        Assert.True(scenario.Owner.Snapshot.CallbacksUncertain);
+        foreach (long ticket in tickets) Assert.True(scenario.Owner.ExitCallback(ticket, scenario.Stamp()));
+        Assert.Equal(0, scenario.Owner.Snapshot.ActiveCallbacks);
+        Assert.True(scenario.Owner.Snapshot.CallbacksUncertain);
+        Assert.True(scenario.Owner.Snapshot.Revoked);
+        AssertNoNativeAuthority(scenario.Owner.Snapshot);
+    }
+
+    [Theory]
+    [InlineData("intent")]
+    [InlineData("outcome")]
+    [InlineData("readback")]
+    [InlineData("enter")]
+    [InlineData("exit")]
+    [InlineData("telemetry")]
+    [InlineData("context")]
+    [InlineData("unexpected-save")]
+    [InlineData("tick")]
+    public void Off_thread_mutations_revoke_without_admitting_an_effect(string method)
+    {
+        var scenario = new Scenario();
+        var stamp = scenario.Stamp();
+        OnOtherThread(() =>
+        {
+            switch (method)
+            {
+                case "intent": Assert.False(scenario.Owner.TryRecordIntent(BusinessSaveModelEffect.TypeRegistration, stamp)); break;
+                case "outcome": Assert.False(scenario.Owner.RecordOutcome(BusinessSaveModelEffect.TypeRegistration, BusinessSaveModelOutcome.Returned, stamp)); break;
+                case "readback": Assert.False(scenario.Owner.RecordReadback(BusinessSaveModelEffect.TypeRegistration, true, stamp)); break;
+                case "enter": Assert.Equal(0, scenario.Owner.EnterCallback(stamp)); break;
+                case "exit": Assert.False(scenario.Owner.ExitCallback(1, stamp)); break;
+                case "telemetry": Assert.False(scenario.Owner.ObserveTelemetry("Complete", stamp)); break;
+                case "context": Assert.False(scenario.Owner.ObserveContext(scenario.Binding, stamp)); break;
+                case "unexpected-save": Assert.False(scenario.Owner.ObserveUnexpectedSave(stamp)); break;
+                case "tick": Assert.False(scenario.Owner.Tick(BeganAt)); break;
+                default: throw new ArgumentOutOfRangeException(nameof(method));
+            }
+        });
+        Assert.True(scenario.Owner.Snapshot.Revoked);
+        if (method is "enter" or "exit") Assert.True(scenario.Owner.Snapshot.CallbacksUncertain);
+        AssertNoIntents(scenario.Owner.Snapshot);
+    }
+
+    [Fact]
+    public void Facade_creation_on_another_thread_does_not_change_the_models_admission_thread()
+    {
+        var process = new BusinessSaveProcessModel();
+        OnOtherThread(() => Assert.False(process.CreateOwner().TryBind(Candidate, BeganAt)));
+        Assert.True(process.CreateOwner().Snapshot.Revoked);
+        Assert.False(process.CreateOwner().TryBind(Candidate, BeganAt));
+        Assert.False(process.CreateOwner().Snapshot.SlotConsumed);
+    }
+
+    [Fact]
+    public void Snapshot_and_immediate_revocation_are_allowed_from_another_thread()
+    {
+        var scenario = new Scenario();
+        OnOtherThread(() =>
+        {
+            Assert.Equal(scenario.Binding, scenario.Owner.Snapshot.Binding);
+            Assert.False(scenario.Owner.Snapshot.Revoked);
+            scenario.Owner.Revoke(new string('r', 10000));
+            Assert.True(scenario.Owner.Snapshot.Revoked);
+        });
+        string first = scenario.Owner.Snapshot.FirstRevocationReason!;
+        Assert.InRange(first.Length, 1, 160);
+        scenario.Owner.Revoke("later-cause");
+        Assert.Equal(first, scenario.Owner.Snapshot.FirstRevocationReason);
+        Assert.False(scenario.Owner.Tick(BeganAt));
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(-1)]
+    [InlineData(1)]
+    public void Nonadvancing_or_invalid_sequence_latches_incomplete_diagnosis(long sequence)
+    {
+        var scenario = new Scenario();
+        var first = scenario.Stamp();
+        Assert.True(scenario.Owner.ObserveTelemetry("first", first));
+        Assert.False(scenario.Owner.ObserveTelemetry("duplicate-or-backwards", first with { Sequence = sequence }));
+        Assert.True(scenario.Owner.Snapshot.Revoked);
+        Assert.True(scenario.Owner.Snapshot.DiagnosticsIncomplete);
+        Assert.Equal(1, scenario.Owner.Snapshot.LastSequence);
+        AssertNoIntents(scenario.Owner.Snapshot);
+    }
+
+    [Fact]
+    public void Sequence_exhaustion_never_wraps_into_a_new_message_or_operation()
+    {
+        var scenario = new Scenario();
+        var stamp = scenario.Stamp() with { Sequence = long.MaxValue };
+        scenario.Owner.ObserveTelemetry("last representable sequence", stamp);
+        Assert.False(scenario.Owner.TryRecordIntent(BusinessSaveModelEffect.TypeRegistration, stamp with { Sequence = long.MinValue }));
+        Assert.True(scenario.Owner.Snapshot.Revoked);
+        Assert.True(scenario.Owner.Snapshot.DiagnosticsIncomplete);
+        Assert.InRange(scenario.Owner.Snapshot.LastSequence, 0, long.MaxValue);
+        AssertNoIntents(scenario.Owner.Snapshot);
+        Assert.False(scenario.Process.CreateOwner().TryBind(Candidate, BeganAt));
+    }
+
+    [Theory]
+    [InlineData(-1)]
+    [InlineData(99)]
+    [InlineData(double.NaN)]
+    [InlineData(double.PositiveInfinity)]
+    [InlineData(double.NegativeInfinity)]
+    public void Invalid_or_backwards_observation_time_revokes_without_effect(double time)
+    {
+        var scenario = new Scenario();
+        Assert.False(scenario.Owner.TryRecordIntent(BusinessSaveModelEffect.TypeRegistration, scenario.Stamp(time)));
+        Assert.True(scenario.Owner.Snapshot.Revoked);
+        Assert.True(scenario.Owner.Snapshot.DiagnosticsIncomplete);
+        AssertNoIntents(scenario.Owner.Snapshot);
+    }
+
+    [Fact]
+    public void Timeout_is_diagnostic_quarantine_not_cancellation_cleanup_or_permission()
+    {
+        var scenario = new Scenario();
+        Assert.True(scenario.Owner.Tick(BeganAt + BusinessSaveProcessModel.TimeoutSeconds - 0.001));
+        Assert.False(scenario.Owner.Tick(BeganAt + BusinessSaveProcessModel.TimeoutSeconds));
+        Assert.Equal("quarantined", scenario.Owner.Snapshot.Status);
+        Assert.True(scenario.Owner.Snapshot.SlotConsumed);
+        Assert.True(scenario.Owner.ObserveTelemetry("late completion", scenario.Stamp(BeganAt + 61)));
+        AssertNoIntents(scenario.Owner.Snapshot);
+        AssertNoNativeAuthority(scenario.Owner.Snapshot);
+    }
+
+    [Fact]
+    public void Observation_at_timeout_records_late_partial_effect_without_reviving_operation()
+    {
+        var scenario = new Scenario();
+        Assert.True(scenario.Owner.TryRecordIntent(BusinessSaveModelEffect.TypeRegistration, scenario.Stamp()));
+        Assert.True(scenario.Owner.RecordOutcome(BusinessSaveModelEffect.TypeRegistration, BusinessSaveModelOutcome.Returned, scenario.Stamp(BeganAt + 60)));
+        Assert.True(scenario.Owner.Snapshot.Revoked);
+        Assert.Equal(new(true, true, false, false), scenario.Owner.Snapshot.Effects[BusinessSaveModelEffect.TypeRegistration]);
+        Assert.False(scenario.Owner.TryRecordIntent(BusinessSaveModelEffect.Construction, scenario.Stamp(BeganAt + 60)));
+        AssertNoNativeAuthority(scenario.Owner.Snapshot);
+    }
+
+    [Fact]
+    public void Ring_overflow_preserves_first_cause_and_bounded_latest_diagnostics_not_full_payloads()
+    {
+        var scenario = new Scenario();
+        Assert.True(scenario.Owner.ObserveTelemetry(new string('p', 10000), scenario.Stamp() with { Source = new string('s', 10000) }));
+        scenario.Owner.Revoke("first-cause");
+        for (int index = 0; index < 200; index++)
+            Assert.True(scenario.Owner.ObserveTelemetry("late-" + index, scenario.Stamp()));
+        var snapshot = scenario.Owner.Snapshot;
+        Assert.InRange(snapshot.Diagnostics.Count, 1, BusinessSaveProcessModel.DiagnosticCapacity);
+        Assert.True(snapshot.DiagnosticsIncomplete);
+        Assert.True(snapshot.Revoked);
+        Assert.Equal("first-cause", snapshot.FirstRevocationReason);
+        Assert.Equal(201, snapshot.LastSequence);
+        Assert.All(snapshot.Diagnostics, diagnostic =>
+        {
+            Assert.InRange(diagnostic.Kind.Length, 0, BusinessSaveProcessModel.MaxTextLength);
+            Assert.InRange(diagnostic.Detail.Length, 0, BusinessSaveProcessModel.MaxTextLength);
+        });
+        AssertNoNativeAuthority(snapshot);
+    }
+
+    [Fact]
+    public void Overflow_alone_revokes_without_forgetting_possible_effects()
+    {
+        var scenario = new Scenario();
+        Assert.True(scenario.Owner.TryRecordIntent(BusinessSaveModelEffect.TypeRegistration, scenario.Stamp()));
+        for (int index = 0; index < 80; index++) scenario.Owner.ObserveTelemetry("uncorrelated", scenario.Stamp());
+        Assert.True(scenario.Owner.Snapshot.DiagnosticsIncomplete);
+        Assert.True(scenario.Owner.Snapshot.Revoked);
+        Assert.True(scenario.Owner.Snapshot.Effects[BusinessSaveModelEffect.TypeRegistration].Intent);
+        Assert.False(scenario.Owner.Snapshot.Effects[BusinessSaveModelEffect.TypeRegistration].Returned);
+        AssertNoNativeAuthority(scenario.Owner.Snapshot);
+    }
+
+    [Theory]
+    [InlineData(BusinessSaveModelEffect.TypeRegistration)]
+    [InlineData(BusinessSaveModelEffect.Construction)]
+    [InlineData(BusinessSaveModelEffect.Registration)]
+    [InlineData(BusinessSaveModelEffect.Save)]
+    [InlineData(BusinessSaveModelEffect.Removal)]
+    [InlineData(BusinessSaveModelEffect.Destroy)]
+    public void Failed_readback_preserves_each_effects_unknown_result_without_automatic_compensation(BusinessSaveModelEffect effect)
+    {
+        var scenario = new Scenario();
+        scenario.Before(effect);
+        Assert.True(scenario.Owner.TryRecordIntent(effect, scenario.Stamp()));
+        Assert.True(scenario.Owner.RecordOutcome(effect, BusinessSaveModelOutcome.Returned, scenario.Stamp()));
+        Assert.True(scenario.Owner.RecordReadback(effect, false, scenario.Stamp()));
+        Assert.Equal(new(true, true, false, true), scenario.Owner.Snapshot.Effects[effect]);
+        Assert.True(scenario.Owner.Snapshot.Revoked);
+        foreach (var later in Effects.SkipWhile(value => value != effect).Skip(1))
+            Assert.Equal(new(false, false, false, false), scenario.Owner.Snapshot.Effects[later]);
+        Assert.False(scenario.Owner.TryRecordIntent(effect, scenario.Stamp()));
+        AssertNoNativeAuthority(scenario.Owner.Snapshot);
+    }
+
+    [Theory]
+    [InlineData(BusinessSaveModelEffect.TypeRegistration)]
+    [InlineData(BusinessSaveModelEffect.Construction)]
+    [InlineData(BusinessSaveModelEffect.Registration)]
+    [InlineData(BusinessSaveModelEffect.Save)]
+    [InlineData(BusinessSaveModelEffect.Removal)]
+    [InlineData(BusinessSaveModelEffect.Destroy)]
+    public void Late_return_after_failed_outcome_preserves_both_and_duplicate_failure_cannot_retry(BusinessSaveModelEffect effect)
+    {
+        var scenario = new Scenario();
+        scenario.Before(effect);
+        Assert.True(scenario.Owner.TryRecordIntent(effect, scenario.Stamp()));
+        Assert.True(scenario.Owner.RecordOutcome(effect, BusinessSaveModelOutcome.Failed, scenario.Stamp()));
+        Assert.True(scenario.Owner.RecordOutcome(effect, BusinessSaveModelOutcome.Returned, scenario.Stamp()));
+        Assert.True(scenario.Owner.RecordReadback(effect, true, scenario.Stamp()));
+        Assert.Equal(new(true, true, true, true), scenario.Owner.Snapshot.Effects[effect]);
+        Assert.False(scenario.Owner.RecordOutcome(effect, BusinessSaveModelOutcome.Failed, scenario.Stamp()));
+        Assert.Equal(new(true, true, true, true), scenario.Owner.Snapshot.Effects[effect]);
+        Assert.True(scenario.Owner.Snapshot.Revoked);
+        AssertNoNativeAuthority(scenario.Owner.Snapshot);
+    }
+
+    [Fact]
+    public void Failed_readback_and_failed_outcome_are_separately_recordable_observations()
+    {
+        var scenario = new Scenario();
+        var effect = BusinessSaveModelEffect.TypeRegistration;
+        Assert.True(scenario.Owner.TryRecordIntent(effect, scenario.Stamp()));
+        Assert.True(scenario.Owner.RecordOutcome(effect, BusinessSaveModelOutcome.Returned, scenario.Stamp()));
+        Assert.True(scenario.Owner.RecordReadback(effect, false, scenario.Stamp()));
+        Assert.True(scenario.Owner.RecordOutcome(effect, BusinessSaveModelOutcome.Failed, scenario.Stamp()));
+        Assert.Equal(new(true, true, false, true), scenario.Owner.Snapshot.Effects[effect]);
+        AssertNoNativeAuthority(scenario.Owner.Snapshot);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Invalid_callback_stamp_preserves_live_tickets_and_marks_uncertainty(bool exit)
+    {
+        var scenario = new Scenario();
+        long ticket = scenario.Owner.EnterCallback(scenario.Stamp());
+        var wrong = scenario.Stamp() with { Key = new(Guid.NewGuid(), 1) };
+        if (exit) Assert.False(scenario.Owner.ExitCallback(ticket, wrong));
+        else Assert.Equal(0, scenario.Owner.EnterCallback(wrong));
+        Assert.True(scenario.Owner.Snapshot.CallbacksUncertain);
+        Assert.True(scenario.Owner.Snapshot.Revoked);
+        Assert.Equal(1, scenario.Owner.Snapshot.ActiveCallbacks);
+        Assert.True(scenario.Owner.ExitCallback(ticket, scenario.Stamp()));
+        Assert.Equal(0, scenario.Owner.Snapshot.ActiveCallbacks);
+        Assert.True(scenario.Owner.Snapshot.CallbacksUncertain);
+    }
+
+    [Fact]
+    public void Bind_during_an_existing_synthetic_callback_cannot_create_a_reentrant_second_operation()
+    {
+        var scenario = new Scenario();
+        long ticket = scenario.Owner.EnterCallback(scenario.Stamp());
+        var key = scenario.Owner.Snapshot.Key;
+        Assert.False(scenario.Process.CreateOwner().TryBind(Candidate with { Epoch = 18 }, BeganAt));
+        Assert.Equal(key, scenario.Owner.Snapshot.Key);
+        Assert.Equal(scenario.Binding, scenario.Owner.Snapshot.Binding);
+        Assert.True(scenario.Owner.ExitCallback(ticket, scenario.Stamp()));
+        AssertNoNativeAuthority(scenario.Owner.Snapshot);
+    }
+
+    [Theory]
+    [InlineData(-1)]
+    [InlineData(99)]
+    [InlineData(double.NaN)]
+    [InlineData(double.PositiveInfinity)]
+    public void Invalid_tick_clock_is_also_a_diagnostic_gap_not_an_expiry_reset(double time)
+    {
+        var scenario = new Scenario();
+        Assert.False(scenario.Owner.Tick(time));
+        Assert.True(scenario.Owner.Snapshot.DiagnosticsIncomplete);
+        Assert.True(scenario.Owner.Snapshot.Revoked);
+        Assert.False(scenario.Owner.Tick(BeganAt));
+        AssertNoIntents(scenario.Owner.Snapshot);
+    }
+
+    [Fact]
+    public void Finite_zero_time_and_maximum_label_length_are_valid_model_boundaries()
+    {
+        string label = new('a', BusinessSaveProcessModel.MaxTextLength);
+        var binding = Candidate with
+        {
+            Epoch = long.MaxValue,
+            LoadManager = label,
+            SaveManager = label,
+            Saveables = label,
+            BaseSaveables = label,
+            Completed = label,
+            Requests = label,
+            Participant = label
+        };
+        var owner = new BusinessSaveProcessModel().CreateOwner();
+        Assert.True(owner.TryBind(binding, 0));
+        var snapshot = owner.Snapshot;
+        Assert.True(owner.TryRecordIntent(BusinessSaveModelEffect.TypeRegistration, new(snapshot.Key!.Value, snapshot.Binding!, 1, 0)));
+        AssertNoNativeAuthority(owner.Snapshot);
+    }
+
+    [Fact]
+    public void Snapshots_are_independent_read_only_copies_not_live_mutable_ledgers()
+    {
+        var scenario = new Scenario();
+        var old = scenario.Owner.Snapshot;
+        int oldDiagnosticCount = old.Diagnostics.Count;
+        scenario.Complete(BusinessSaveModelEffect.TypeRegistration);
+        scenario.Owner.Revoke("stop");
+        Assert.False(old.Revoked);
+        Assert.Equal("bound-data-only", old.Status);
+        Assert.Equal(oldDiagnosticCount, old.Diagnostics.Count);
+        AssertNoIntents(old);
+        if (old.Effects is IDictionary<BusinessSaveModelEffect, BusinessSaveModelEffectState> effects)
+            Assert.Throws<NotSupportedException>(() => effects[BusinessSaveModelEffect.TypeRegistration] = new(true, true, true, true));
+        if (old.Diagnostics is IList<BusinessSaveModelDiagnostic> diagnostics)
+            Assert.Throws<NotSupportedException>(() => diagnostics.Add(new(999, "forged", "proof")));
+        Assert.Equal(new(true, true, true, false), scenario.Owner.Snapshot.Effects[BusinessSaveModelEffect.TypeRegistration]);
+        Assert.Equal("stop", scenario.Owner.Snapshot.FirstRevocationReason);
+        AssertNoNativeAuthority(old);
+        AssertNoNativeAuthority(scenario.Owner.Snapshot);
+    }
+}

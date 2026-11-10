@@ -1,0 +1,26 @@
+; ScheduleOne.Money.MoneyManager::Awake/0, token 0x06001CAE, RVA 0x5E4300, next-pointer window 0x70 bytes
+; No target execution. Parser-pointer window can contain padding/cold fragments and is not exact/full function, EH or transitive coverage. Shared direct aliases are truncated to eight names.
+0x5E4300     40 53                           push rbx
+0x5E4302     48 83 EC 20                     sub rsp,20h
+0x5E4306     48 8B 01                        mov rax,[rcx]
+0x5E4309     48 8B D9                        mov rbx,rcx
+0x5E430C     48 8B 90 A0 02 00 00            mov rdx,[rax+2A0h]
+0x5E4313     FF 90 98 02 00 00               call qword ptr [rax+298h]
+0x5E4319     80 3D 53 76 61 03 00            cmp byte ptr [183BFB973h],0
+0x5E4320     75 13                           jne short 00000001805E4335h
+0x5E4322     48 8D 0D DF F0 3B 03            lea rcx,[1839A3408h] ; MethodRef: System.Void ScheduleOne.DevUtilities.NetworkSingleton`1<ScheduleOne.Money.MoneyManager>.Awake
+0x5E4329     E8 72 35 D3 FF                  call 00000001803178A0h
+0x5E432E     C6 05 3E 76 61 03 01            mov byte ptr [183BFB973h],1
+0x5E4335     48 8B 15 CC F0 3B 03            mov rdx,[1839A3408h] ; MethodRef: System.Void ScheduleOne.DevUtilities.NetworkSingleton`1<ScheduleOne.Money.MoneyManager>.Awake
+0x5E433C     48 8B CB                        mov rcx,rbx
+0x5E433F     E8 3C 3A A3 00                  call 0000000181017D80h ; ScheduleOne.DevUtilities.NetworkSingleton`1::Awake/0
+0x5E4344     48 8B 03                        mov rax,[rbx]
+0x5E4347     48 8B CB                        mov rcx,rbx
+0x5E434A     48 8B 90 50 04 00 00            mov rdx,[rax+450h]
+0x5E4351     FF 90 48 04 00 00               call qword ptr [rax+448h]
+0x5E4357     48 8B 03                        mov rax,[rbx]
+0x5E435A     48 8B CB                        mov rcx,rbx
+0x5E435D     48 8B 90 B0 02 00 00            mov rdx,[rax+2B0h]
+0x5E4364     48 83 C4 20                     add rsp,20h
+0x5E4368     5B                              pop rbx
+0x5E4369     48 FF A0 A8 02 00 00            jmp qword ptr [rax+2A8h]

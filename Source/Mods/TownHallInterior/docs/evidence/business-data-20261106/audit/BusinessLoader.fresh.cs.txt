@@ -1,0 +1,52 @@
+using System;
+using System.Runtime.CompilerServices;
+using Il2CppInterop.Common.Attributes;
+using Il2CppInterop.Runtime;
+using Il2CppInterop.Runtime.InteropTypes;
+
+namespace Il2CppScheduleOne.Persistence.Loaders;
+
+public class BusinessLoader : PropertyLoader
+{
+	private static readonly IntPtr NativeMethodInfoPtr__ctor_Public_Void_0;
+
+	private static readonly IntPtr NativeMethodInfoPtr_Load_Public_Virtual_Void_String_0;
+
+	static BusinessLoader()
+	{
+		Il2CppClassPointerStore<BusinessLoader>.NativeClassPtr = IL2CPP.GetIl2CppClass("Assembly-CSharp.dll", "ScheduleOne.Persistence.Loaders", "BusinessLoader");
+		IL2CPP.il2cpp_runtime_class_init(Il2CppClassPointerStore<BusinessLoader>.NativeClassPtr);
+		NativeMethodInfoPtr__ctor_Public_Void_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<BusinessLoader>.NativeClassPtr, 100669538);
+		NativeMethodInfoPtr_Load_Public_Virtual_Void_String_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<BusinessLoader>.NativeClassPtr, 100669539);
+	}
+
+	[CallerCount(2578)]
+	[CachedScanResults(RefRangeStart = 374, RefRangeEnd = 2952, XrefRangeStart = 374, XrefRangeEnd = 2952, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe BusinessLoader()
+		: this(IL2CPP.il2cpp_object_new(Il2CppClassPointerStore<BusinessLoader>.NativeClassPtr))
+	{
+		IntPtr* ptr = null;
+		Unsafe.SkipInit(out IntPtr intPtr);
+		IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr__ctor_Public_Void_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+	}
+
+	[CallerCount(0)]
+	[CachedScanResults(RefRangeStart = 0, RefRangeEnd = 0, XrefRangeStart = 133894, XrefRangeEnd = 133918, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe override void Load(string mainPath)
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		IntPtr* ptr = stackalloc IntPtr[1];
+		*ptr = IL2CPP.ManagedStringToIl2Cpp(mainPath);
+		Unsafe.SkipInit(out IntPtr intPtr);
+		IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(IL2CPP.il2cpp_object_get_virtual_method(IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)this), NativeMethodInfoPtr_Load_Public_Virtual_Void_String_0), IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+	}
+
+	public BusinessLoader(IntPtr pointer)
+		: base(pointer)
+	{
+	}
+}
+You are not using the latest version of the tool, please update.
+Latest version is '11.2.0.10050' (yours is '8.2.0.7535-95108c96')

@@ -1,0 +1,25 @@
+{
+  "capturedUtc": "2026-11-06T10:01:48.983603+00:00",
+  "files": {
+    "checkpoint-summary.json": {
+      "sha256": "c80fea126beb20e2eed0aa65f6097bd930c74c09688754c2900089d683643988",
+      "bytes": 2859
+    },
+    "deployment-plan.json": {
+      "sha256": "6a49145c3863cc9fc0950f662312bbfc8c2a01f240e3074a6fb54f28af566774",
+      "bytes": 1704
+    },
+    "deployment-receipt.json": {
+      "sha256": "ef4d69ddfd074c5ea09b135af2ddde27786ef255f69972ab0badfd283e61cded",
+      "bytes": 3254
+    },
+    "deployment-verification.json": {
+      "sha256": "29d30f7a0a6e5060404fb8a0984e1bd700145de5f13d600553734291b8edf1ec",
+      "bytes": 3499
+    },
+    "deployment.log.txt": {
+      "sha256": "e2d686bdf9c92c885920b44680cce210b9ed5cf6792b4dcb6ed892a1b9fa9efd",
+      "bytes": 170
+    }
+  }
+}

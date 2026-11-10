@@ -1,0 +1,746 @@
+{
+  "schema": 1,
+  "checkedUtc": "2026-11-05T17:11:06.002265+00:00",
+  "kind": "Independent stdlib byte/hash/RVA/relative-target check, not a second x64 decoder or semantic proof",
+  "sourceRevision": "b2c6c7e6c6ecc778da9624cdb68a6578b9db471a",
+  "sourceWorktree": "dirty",
+  "inputs": [
+    {
+      "path": "GameAssembly.dll",
+      "sha256": "61829050e56ca180d67be592e4bfe61ec97d2e9573f720d90a54e318a7e4381d",
+      "unchanged": true
+    },
+    {
+      "path": "Schedule I_Data/il2cpp_data/Metadata/global-metadata.dat",
+      "sha256": "e775c97da277da8eb1a90265478f3b65c9c3d6464aff4f7255d45280a1d1181f",
+      "unchanged": true
+    },
+    {
+      "path": "MelonLoader/Il2CppAssemblies/Assembly-CSharp.dll",
+      "sha256": "346205306273805a78b01a917f14b94518498af1361595c4c417baa0b32b4bd8",
+      "unchanged": true
+    },
+    {
+      "path": "MelonLoader/Dependencies/Il2CppAssemblyGenerator/Cpp2IL/Cpp2IL.exe",
+      "sha256": "663fb432433b4371fd1ee0ebc321a8fff2a9aac5ac4230c843f9e03ddee4e04c",
+      "unchanged": true
+    },
+    {
+      "path": "MelonLoader/Dependencies/Il2CppAssemblyGenerator/Cpp2IL/cpp2il_out/Assembly-CSharp.dll",
+      "sha256": "1aec8c918c39ff75f0e4d8e2c38bd11752c593119701d7e524a4ee82fdc30f21",
+      "unchanged": true
+    },
+    {
+      "path": "Mods/TownHallInterior.dll",
+      "sha256": "614b81fd584040d4cebe7a18929bca09eabae478a6487ec6d846ea01d6062003",
+      "unchanged": true
+    },
+    {
+      "path": "Mods/S1API.Il2Cpp.MelonLoader.dll",
+      "sha256": "d751a3cb66003f7a616eb9f8054daf34da0d9d7f23416a5005a586738a680852",
+      "unchanged": true
+    }
+  ],
+  "protectedSources": [
+    {
+      "path": "Source/Mods/TownHallInterior/src/BusinessBindingProbe.cs",
+      "sha256": "fb82cfafbee2f92b7c52d76edc9a3fe417cb905ad7f20a90a082ce681efa7fa1",
+      "unchanged": true
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/BusinessConstruction.cs",
+      "sha256": "8964512eeb94ae63acadbe5cd47caa7c36a325e10cd75af73cc5c1091c4db5d2",
+      "unchanged": true
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/BusinessProbeEvidence.cs",
+      "sha256": "37ce332858d00368ebde93c3f13af3b20482d0de15f07b559e34078597603458",
+      "unchanged": true
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/CleanupJournal.cs",
+      "sha256": "310955ae9d1f5115941ef5bf7920ed49f6ff47086d8187fe050f444f63f09b76",
+      "unchanged": true
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/DoorAdapter.cs",
+      "sha256": "6d5e638b3217b24d3d4a86ea768912e26bdf73449cef98196502586f036a6341",
+      "unchanged": true
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/DoorChoice.cs",
+      "sha256": "42093f9e71f5c4fe832dac0eff888654163389b86dac1d6be494f7f715943201",
+      "unchanged": true
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/DoorHook.cs",
+      "sha256": "10bfdd035b414e0727c01aef12a08b1fb0a33abbd897a6c3efc79e7da006934c",
+      "unchanged": true
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/FacadePortal.cs",
+      "sha256": "4b2cc05e14353fddccc2ddb404fed35b1859d950f5e80e6a6735a8d196cf2270",
+      "unchanged": true
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/FurniturePlan.cs",
+      "sha256": "17e8402738ff124a54f1e61a076618894a6ca5b3d3e6733242f71217a5a18e6b",
+      "unchanged": true
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/HallFittings.cs",
+      "sha256": "210301b0663b1a0b3fdbedbcb2231a007d62f2d0bb19828250c4ffd6fddc7492",
+      "unchanged": true
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/Mod.cs",
+      "sha256": "82323dd725b033b124c0f5edd6252730676f3f1910bdd402441945f0fe4e9385",
+      "unchanged": true
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/NativeFacadeSwap.cs",
+      "sha256": "58542a588017f540a7b546845b038174d96ef761acfacd7101c0004a5ceae5e3",
+      "unchanged": true
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/NativeSceneSwap.cs",
+      "sha256": "a526e26ffb62fbf08ad8e3725779c83dbc85558fcb22a1b34cb12dc061bed6aa",
+      "unchanged": true
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/PublicEntrance.cs",
+      "sha256": "4fdb304a13cd24a496e9368c211bf09f8aaf1da9041a8912fdb364f46ec9dd5f",
+      "unchanged": true
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/PublicHallHost.cs",
+      "sha256": "d85708f66705a1ac87aec2d1def1f4daff0cebabd78b459b93a589418be65bcc",
+      "unchanged": true
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/RoomBuilder.cs",
+      "sha256": "44b555668aecbb0055b902d204716861399ee59e439971f842d5f0b4a3a48f68",
+      "unchanged": true
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/RoomPlan.cs",
+      "sha256": "ebe89aa2620044c170f08c33382aa420bb1aa22e78d56ed74b97a4561f864233",
+      "unchanged": true
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/TownHallInterior.csproj",
+      "sha256": "c730506d8c85e9d9fb88def2c397920f408b7771576a59aacc2c4b183bcde9df",
+      "unchanged": true
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/UnityRoomSink.cs",
+      "sha256": "646b693e349e61126bc548c59e9bdf8e4f978787eeab1173a8535323f9588d17",
+      "unchanged": true
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/VanillaFurnishings.cs",
+      "sha256": "c434ab9c4b0055c531250b5a45b672703e266fbe962e3934ffa58f951cce98aa",
+      "unchanged": true
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/BusinessActivationTests.cs",
+      "sha256": "c43b5aa08c51a151d042f4a8e4a0c56cd79892ed98723e4fb883bba57b1b8a7f",
+      "unchanged": true
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/BusinessConstructionTests.cs",
+      "sha256": "43ac3184d66a64bfc6ae9b6ba6587df6a3eb333575d93cc187c291e45e7630b8",
+      "unchanged": true
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/BusinessInterfaceTests.cs",
+      "sha256": "d1b13f70314555a2702d732b078bafb9cef7e9b71eaea8249b74ae8736bd2abf",
+      "unchanged": true
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/BusinessManagerAuditTests.cs",
+      "sha256": "164eaeb014c1d63b776c47d0dd105f4f12bec79d4ffb02a135d3da5f5f82323d",
+      "unchanged": true
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/BusinessManagerSafetyTests.cs",
+      "sha256": "ead2dbe76be2679c8be006b114075c55d58b1cddfe08e292f8551c225f70a035",
+      "unchanged": true
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/BusinessManagerSaveTests.cs",
+      "sha256": "0d9fe4fe204e20a6850945b4a7c32c3285cc060942140b9837ac3aafc34aa963",
+      "unchanged": true
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/BusinessManagerTests.cs",
+      "sha256": "d62a8ad7a82e9cedd7554e7e489cba55fee62409dd3de347130575fb69524b1e",
+      "unchanged": true
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/BusinessProbeEvidenceTests.cs",
+      "sha256": "71797f12c5f96f633d44127a08cbdaf93dba26dc75a521c648d130f6b5b3d9de",
+      "unchanged": true
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/BusinessSubtypeTests.cs",
+      "sha256": "d58b1b960098861782725d71811fa17f27b0bf195d8e25ef37a5c586674f380a",
+      "unchanged": true
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/BusinessTypeResolutionTests.cs",
+      "sha256": "58325e28dc822ffe2cc493c1f426d1c3acf3147efa457edc32f93e317aa82c46",
+      "unchanged": true
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/CleanupJournalTests.cs",
+      "sha256": "1fc594bb24f1ac542d5ee8878ce88b54b7d295b132cce3112dc0d40c4708f1cb",
+      "unchanged": true
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/DoorAdapterTests.cs",
+      "sha256": "97e44aee74c74d5ba2f5672deec7319876eb3b1b2b8c71a12ca516f839ed907e",
+      "unchanged": true
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/DoorChoiceTests.cs",
+      "sha256": "6f9f493e814b8a6db340d916f3932d5b68b77a48b608c86e6bdaa6bb85d01946",
+      "unchanged": true
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/EnclosureTests.cs",
+      "sha256": "cc381927c62e5bdbb2f412bab72abd88a66ccd6780f5f260d26003caaa3814db",
+      "unchanged": true
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/FacadePortalTests.cs",
+      "sha256": "876eff42444821a38103b7b97173b30b4d2bb3c94aa8856b48510ff81f7bbced",
+      "unchanged": true
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/FurniturePlanTests.cs",
+      "sha256": "99f99db70533724fe939aa73b6b2bafac295d361d9280f92a42f6001eb4594aa",
+      "unchanged": true
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/HallFittingsTests.cs",
+      "sha256": "8d18df41130233be9543c38d419ef36273f2ae2d09bba520e6abfc57799a7209",
+      "unchanged": true
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/NativeSceneSwapTests.cs",
+      "sha256": "d77efe579cd909c42dc48245b427d30c59874955c1b0dcdb6652a110f441d37c",
+      "unchanged": true
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/PublicEntranceTests.cs",
+      "sha256": "1ab9d7d8825911ea4777ea56fd109bf2f7a4ef679f258108c98a42580e80d6c3",
+      "unchanged": true
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/RoomPlanTests.cs",
+      "sha256": "fdeb4a9c49d2e83b71e0edeb50ed3f0f5e68ce6508801198bedca997638a71a3",
+      "unchanged": true
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/TownHallInterior.Tests.csproj",
+      "sha256": "dc582cf6a85f3c98417c83cd67a65f28b8f8739bb1a1507fe665eaa52ceec26c",
+      "unchanged": true
+    }
+  ],
+  "nativeWindows": [
+    {
+      "file": "native-disassembly-pass2/0x06000A53-MonoBehaviour-StopAllCoroutines.json",
+      "token": "0x06000A53",
+      "rva": "0x2b79b50",
+      "bytes": 64,
+      "linearDecodedRows": 26,
+      "undecodedSuffixBytes": 0,
+      "relativeTransfersChecked": 2,
+      "bytesSha256": "81006996ff92089e2d279a4f4986e1babece16d5feccd4a15426b049121bd827",
+      "pdataPresenceOrBoundsMatched": true
+    },
+    {
+      "file": "native-disassembly-pass2/0x060017A8-LoadManager-Start.json",
+      "token": "0x060017A8",
+      "rva": "0x5885e0",
+      "bytes": 1552,
+      "linearDecodedRows": 338,
+      "undecodedSuffixBytes": 0,
+      "relativeTransfersChecked": 129,
+      "bytesSha256": "ba379ff685e1bb09643c894b34cb8c6d9b46d7a8be3803fe68ea27f33190fa94",
+      "pdataPresenceOrBoundsMatched": true
+    },
+    {
+      "file": "native-disassembly-pass2/0x060017B5-LoadManager-StartGame.json",
+      "token": "0x060017B5",
+      "rva": "0x5881c0",
+      "bytes": 928,
+      "linearDecodedRows": 219,
+      "undecodedSuffixBytes": 0,
+      "relativeTransfersChecked": 63,
+      "bytesSha256": "9a49823d736b6130433e14923ed3ad978ffcedebdac58ee940cf343f3e3e974d",
+      "pdataPresenceOrBoundsMatched": true
+    },
+    {
+      "file": "native-disassembly-pass2/0x060017BA-LoadManager-LoadLastSave.json",
+      "token": "0x060017BA",
+      "rva": "0x587b00",
+      "bytes": 144,
+      "linearDecodedRows": 42,
+      "undecodedSuffixBytes": 0,
+      "relativeTransfersChecked": 8,
+      "bytesSha256": "32a42ec6b57d7d851dea8423b1da4338f3c6a6bda456b28b04073302c03e74f5",
+      "pdataPresenceOrBoundsMatched": true
+    },
+    {
+      "file": "native-disassembly-pass2/0x060017BB-LoadManager-CleanUp.json",
+      "token": "0x060017BB",
+      "rva": "0x586250",
+      "bytes": 1600,
+      "linearDecodedRows": 356,
+      "undecodedSuffixBytes": 0,
+      "relativeTransfersChecked": 97,
+      "bytesSha256": "3470b87df83ea8cecdab25b64a91841d4a1bf28dfb14abb4694afc46ac9a3b7b",
+      "pdataPresenceOrBoundsMatched": true
+    },
+    {
+      "file": "native-disassembly-pass2/0x060017BC-LoadManager-ExitToMenu.json",
+      "token": "0x060017BC",
+      "rva": "0x5868f0",
+      "bytes": 928,
+      "linearDecodedRows": 214,
+      "undecodedSuffixBytes": 0,
+      "relativeTransfersChecked": 73,
+      "bytesSha256": "6ab070125cdeb9e8075875bd8dba9f93a41238fc7a841e1d22d9e712fb071a42",
+      "pdataPresenceOrBoundsMatched": true
+    },
+    {
+      "file": "native-disassembly-pass2/0x060017E4-__StartGame_g__LoadRoutine_0_d-MoveNext.json",
+      "token": "0x060017E4",
+      "rva": "0x590a80",
+      "bytes": 6928,
+      "linearDecodedRows": 1497,
+      "undecodedSuffixBytes": 23,
+      "relativeTransfersChecked": 501,
+      "bytesSha256": "3a39b54415a32ca5af6d1b43f2218a5879a6744802a3aec9ff4d087c9f071c22",
+      "pdataPresenceOrBoundsMatched": true
+    },
+    {
+      "file": "native-disassembly-pass2/0x06001806-__ExitToMenu_g__Load_0_d-MoveNext.json",
+      "token": "0x06001806",
+      "rva": "0x5ae1a0",
+      "bytes": 2304,
+      "linearDecodedRows": 555,
+      "undecodedSuffixBytes": 0,
+      "relativeTransfersChecked": 182,
+      "bytesSha256": "006caaa019e172ae332d88d04daa10f61ed7eb784c01f9298673983b21050a32",
+      "pdataPresenceOrBoundsMatched": true
+    },
+    {
+      "file": "native-disassembly-pass2/0x06001824-SaveManager-Start.json",
+      "token": "0x06001824",
+      "rva": "0x5aacb0",
+      "bytes": 272,
+      "linearDecodedRows": 72,
+      "undecodedSuffixBytes": 0,
+      "relativeTransfersChecked": 17,
+      "bytesSha256": "bc00755902a69fa83f77cb8a703ebc99e71a773a7ea7d451690cb7217d00c428",
+      "pdataPresenceOrBoundsMatched": true
+    },
+    {
+      "file": "native-disassembly-pass2/0x06001834-SaveManager-Clean.json",
+      "token": "0x06001834",
+      "rva": "0x5a94e0",
+      "bytes": 160,
+      "linearDecodedRows": 51,
+      "undecodedSuffixBytes": 0,
+      "relativeTransfersChecked": 10,
+      "bytesSha256": "0af8f80860459954ee799b804ba303fdab88504ccc4c1677e78ec83e6f083444",
+      "pdataPresenceOrBoundsMatched": true
+    },
+    {
+      "file": "native-disassembly-pass2/0x0600183B-__Save_g__SaveRoutine_0_d-System_IDisposable_Dispose.json",
+      "token": "0x0600183B",
+      "rva": "0x43fec0",
+      "bytes": 16,
+      "linearDecodedRows": 14,
+      "undecodedSuffixBytes": 0,
+      "relativeTransfersChecked": 0,
+      "bytesSha256": "28f844b5972c241e804231b0e41b93e13696e59b98dde74f19029386db5da0c5",
+      "pdataPresenceOrBoundsMatched": true
+    },
+    {
+      "file": "native-disassembly-pass2/0x06001AD2-Lobby-LeaveLobby.json",
+      "token": "0x06001AD2",
+      "rva": "0x5c0bf0",
+      "bytes": 80,
+      "linearDecodedRows": 24,
+      "undecodedSuffixBytes": 0,
+      "relativeTransfersChecked": 5,
+      "bytesSha256": "fa16e467a8b12a78c56703980063a0c1772efd541d81f20a956529b7efdd7238",
+      "pdataPresenceOrBoundsMatched": true
+    },
+    {
+      "file": "native-disassembly-pass2/0x06002516-PlayerManager-SavePlayer.json",
+      "token": "0x06002516",
+      "rva": "0x676f40",
+      "bytes": 1168,
+      "linearDecodedRows": 270,
+      "undecodedSuffixBytes": 0,
+      "relativeTransfersChecked": 76,
+      "bytesSha256": "872b77d657c42e88ee9b27c4fc94142a8038691cef761396dc7508d5d4673be6",
+      "pdataPresenceOrBoundsMatched": true
+    },
+    {
+      "file": "native-disassembly-pass2/0x0600628F-PauseMenu-Exit.json",
+      "token": "0x0600628F",
+      "rva": "0x9f5cf0",
+      "bytes": 208,
+      "linearDecodedRows": 61,
+      "undecodedSuffixBytes": 0,
+      "relativeTransfersChecked": 16,
+      "bytesSha256": "a5ed77a67cea12cc285aac63af92528af423ecdddc1698c7703eb5137547215b",
+      "pdataPresenceOrBoundsMatched": true
+    },
+    {
+      "file": "native-disassembly-pass3/0x0600180B-__c__DisplayClass81_1-_ExitToMenu_b__1.json",
+      "token": "0x0600180B",
+      "rva": "0x5b3a40",
+      "bytes": 144,
+      "linearDecodedRows": 46,
+      "undecodedSuffixBytes": 0,
+      "relativeTransfersChecked": 8,
+      "bytesSha256": "8b90169c3a1cf6402b8e27eeee615f2f9af2fd291807864259692cc66ffef36b",
+      "pdataPresenceOrBoundsMatched": true
+    },
+    {
+      "file": "native-disassembly-pass3/0x060030C9-PersistentSingleton_1-Awake.json",
+      "token": "0x060030C9",
+      "rva": "0x10709b0",
+      "bytes": 176,
+      "linearDecodedRows": 55,
+      "undecodedSuffixBytes": 0,
+      "relativeTransfersChecked": 13,
+      "bytesSha256": "d27132be3277236514544a0f6fee9855e4633b32968d4ff039b2800547199dd0",
+      "pdataPresenceOrBoundsMatched": true
+    },
+    {
+      "file": "native-disassembly-pass3/0x060030FF-Singleton_1-Awake.json",
+      "token": "0x060030FF",
+      "rva": "0x11357d0",
+      "bytes": 592,
+      "linearDecodedRows": 143,
+      "undecodedSuffixBytes": 0,
+      "relativeTransfersChecked": 41,
+      "bytesSha256": "573df25f6601da2c13f91f8af38133abd7c7d6b4b80e680bde8a0529a33bd1fa",
+      "pdataPresenceOrBoundsMatched": true
+    },
+    {
+      "file": "native-disassembly-pass3/0x06003100-Singleton_1-OnDestroy.json",
+      "token": "0x06003100",
+      "rva": "0x1135a70",
+      "bytes": 192,
+      "linearDecodedRows": 47,
+      "undecodedSuffixBytes": 0,
+      "relativeTransfersChecked": 10,
+      "bytesSha256": "4804a0cd81381bdb69fcfa7206ea16dccfb59cd6c1863bc82ca93da6bd7a4a11",
+      "pdataPresenceOrBoundsMatched": true
+    },
+    {
+      "file": "native-disassembly-pass3/0x06003CFE-ExitToMenu-Exit.json",
+      "token": "0x06003CFE",
+      "rva": "0x7dfbe0",
+      "bytes": 144,
+      "linearDecodedRows": 39,
+      "undecodedSuffixBytes": 0,
+      "relativeTransfersChecked": 9,
+      "bytesSha256": "30415c1c000c9ec7ee1c1d78b0dea4763eed29b008a010396d53b6f3662c2132",
+      "pdataPresenceOrBoundsMatched": true
+    },
+    {
+      "file": "native-disassembly-pass3/0x06006A54-ConfirmExitScreen-ConfirmExit.json",
+      "token": "0x06006A54",
+      "rva": "0xa68030",
+      "bytes": 160,
+      "linearDecodedRows": 41,
+      "undecodedSuffixBytes": 0,
+      "relativeTransfersChecked": 11,
+      "bytesSha256": "3d0113f6b3636425546d92c8a4eefab04967211fc9771923425817e38abc41ba",
+      "pdataPresenceOrBoundsMatched": true
+    },
+    {
+      "file": "native-disassembly-pass4/0x060017B6-LoadManager-LoadTutorialAsClient.json",
+      "token": "0x060017B6",
+      "rva": "0x587b90",
+      "bytes": 240,
+      "linearDecodedRows": 67,
+      "undecodedSuffixBytes": 0,
+      "relativeTransfersChecked": 16,
+      "bytesSha256": "86a04b29dff50f667c53cafa3030d9a6a34270363553fb155c670a759b917b53",
+      "pdataPresenceOrBoundsMatched": true
+    },
+    {
+      "file": "native-disassembly-pass4/0x060017B7-LoadManager-LoadAsClient.json",
+      "token": "0x060017B7",
+      "rva": "0x5879f0",
+      "bytes": 272,
+      "linearDecodedRows": 73,
+      "undecodedSuffixBytes": 0,
+      "relativeTransfersChecked": 17,
+      "bytesSha256": "a8517dfa11e1c6d95d554406f739c59ab6b431ec6b98ce5b7e823ee4d97fb01a",
+      "pdataPresenceOrBoundsMatched": true
+    },
+    {
+      "file": "native-disassembly-pass4/0x06001823-SaveManager-Awake.json",
+      "token": "0x06001823",
+      "rva": "0x5a8f70",
+      "bytes": 704,
+      "linearDecodedRows": 173,
+      "undecodedSuffixBytes": 0,
+      "relativeTransfersChecked": 59,
+      "bytesSha256": "97820d9334a7d96d29504e0d73f6ac40865b85e4059014ba7044716c55eccb22",
+      "pdataPresenceOrBoundsMatched": true
+    },
+    {
+      "file": "native-disassembly-pass4/0x06006A53-ConfirmExitScreen-Update.json",
+      "token": "0x06006A53",
+      "rva": "0xa680d0",
+      "bytes": 880,
+      "linearDecodedRows": 198,
+      "undecodedSuffixBytes": 0,
+      "relativeTransfersChecked": 53,
+      "bytesSha256": "1306427ff91b800908cb962a6c0be2c452a95da829389f731c127da0a810977a",
+      "pdataPresenceOrBoundsMatched": true
+    }
+  ],
+  "nativeSaveWriteAllowed": false,
+  "targetAssembliesLoadedOrInvoked": false,
+  "gameInvoked": false,
+  "nativeSaveFilesRead": false,
+  "earlierEvidence": {
+    "manifestSha256": "9283c0f0089391acdec90318164a56e6b9ee5c29fc7c63c88569f882d58ef795",
+    "unchangedArtifacts": 135
+  },
+  "analysisToolsUnchanged": 5,
+  "startGameDataSupplement": {
+    "dispatcherCompareRva": "0x590dd9",
+    "tableLoadRva": "0x590df2",
+    "indirectJumpRva": "0x590dfc",
+    "tableRva": "0x592560",
+    "entries": 11,
+    "bytes": "fe 0d 59 00 cb 0f 59 00 4c 13 59 00 5e 19 59 00 e9 1a 59 00 09 1c 59 00 d4 1e 59 00 a6 22 59 00 e4 22 59 00 22 23 59 00 96 23 59 00",
+    "targetRvas": [
+      "0x590dfe",
+      "0x590fcb",
+      "0x59134c",
+      "0x59195e",
+      "0x591ae9",
+      "0x591c09",
+      "0x591ed4",
+      "0x5922a6",
+      "0x5922e4",
+      "0x592322",
+      "0x592396"
+    ],
+    "targetsHaveDecodedRowBoundaries": true,
+    "linearRowsInsideTable": [
+      "0x592560",
+      "0x592566",
+      "0x592567",
+      "0x59256b",
+      "0x59256e",
+      "0x59256f",
+      "0x592571",
+      "0x592574",
+      "0x592577"
+    ],
+    "undecodedSuffix": {
+      "Va": "0x180592579",
+      "Rva": "0x592579",
+      "Bytes": "1E 59 00 A6 22 59 00 E4 22 59 00 22 23 59 00 96 23 59 00 CC CC CC CC",
+      "Length": 23,
+      "Reason": "Linear decode stopped at invalid bytes; suffix may contain data/jump tables or unanalysed code. No instruction/coverage claim for this suffix."
+    },
+    "limit": "Supplement identifies local state-switch data only; no full CFG/EH coverage or dynamic-target proof."
+  },
+  "focusedFieldOffsetsChecked": 14,
+  "genericFieldOffsetLimit": "Open-generic field offsets can be unresolved/zero; no semantic claim relies on their reported offsets.",
+  "floatConstants": [
+    {
+      "rva": "0x2e5cc60",
+      "bytes": "00 00 a0 3f",
+      "float32": 1.25
+    },
+    {
+      "rva": "0x2e5cb40",
+      "bytes": "00 00 00 3f",
+      "float32": 0.5
+    }
+  ],
+  "referenceCandidates": [
+    {
+      "rva": "0x53bc3b",
+      "target": "MonoBehaviour.StopAllCoroutines",
+      "confirmedInNewWindows": false,
+      "status": "raw-candidate-only-not-reviewed-here"
+    },
+    {
+      "rva": "0x53bc62",
+      "target": "MonoBehaviour.StopAllCoroutines",
+      "confirmedInNewWindows": false,
+      "status": "raw-candidate-only-not-reviewed-here"
+    },
+    {
+      "rva": "0x53c3df",
+      "target": "MonoBehaviour.StopAllCoroutines",
+      "confirmedInNewWindows": false,
+      "status": "raw-candidate-only-not-reviewed-here"
+    },
+    {
+      "rva": "0x53c9cf",
+      "target": "MonoBehaviour.StopAllCoroutines",
+      "confirmedInNewWindows": false,
+      "status": "raw-candidate-only-not-reviewed-here"
+    },
+    {
+      "rva": "0x587ac3",
+      "target": "LoadManager.ExitToMenu",
+      "confirmedInNewWindows": true,
+      "status": "decoded-transfer-confirmed"
+    },
+    {
+      "rva": "0x587c47",
+      "target": "LoadManager.ExitToMenu",
+      "confirmedInNewWindows": true,
+      "status": "decoded-transfer-confirmed"
+    },
+    {
+      "rva": "0x59116f",
+      "target": "LoadManager.CleanUp",
+      "confirmedInNewWindows": true,
+      "status": "decoded-transfer-confirmed"
+    },
+    {
+      "rva": "0x5aef57",
+      "target": "LoadManager.CleanUp",
+      "confirmedInNewWindows": false,
+      "status": "raw-candidate-only-not-reviewed-here"
+    },
+    {
+      "rva": "0x5aff48",
+      "target": "LoadManager.CleanUp",
+      "confirmedInNewWindows": false,
+      "status": "raw-candidate-only-not-reviewed-here"
+    },
+    {
+      "rva": "0x5b10cd",
+      "target": "SaveRequest.Complete",
+      "confirmedInNewWindows": false,
+      "status": "raw-candidate-only-not-reviewed-here"
+    },
+    {
+      "rva": "0x628eee",
+      "target": "LoadManager.ExitToMenu",
+      "confirmedInNewWindows": false,
+      "status": "raw-candidate-only-not-reviewed-here"
+    },
+    {
+      "rva": "0x677182",
+      "target": "SaveManager.ClearCompletedSaveable",
+      "confirmedInNewWindows": true,
+      "status": "decoded-transfer-confirmed"
+    },
+    {
+      "rva": "0x71265c",
+      "target": "LoadManager.ExitToMenu",
+      "confirmedInNewWindows": false,
+      "status": "raw-candidate-only-not-reviewed-here"
+    },
+    {
+      "rva": "0x7dfc58",
+      "target": "LoadManager.ExitToMenu",
+      "confirmedInNewWindows": true,
+      "status": "decoded-transfer-confirmed"
+    },
+    {
+      "rva": "0x9ebdf3",
+      "target": "LoadManager.ExitToMenu",
+      "confirmedInNewWindows": false,
+      "status": "raw-candidate-only-not-reviewed-here"
+    },
+    {
+      "rva": "0xa680ad",
+      "target": "LoadManager.ExitToMenu",
+      "confirmedInNewWindows": true,
+      "status": "decoded-transfer-confirmed"
+    },
+    {
+      "rva": "0xb2a9c1",
+      "target": "MonoBehaviour.StopAllCoroutines",
+      "confirmedInNewWindows": false,
+      "status": "raw-candidate-only-not-reviewed-here"
+    },
+    {
+      "rva": "0x1e43855",
+      "target": "MonoBehaviour.StopAllCoroutines",
+      "confirmedInNewWindows": false,
+      "status": "raw-candidate-only-not-reviewed-here"
+    },
+    {
+      "rva": "0x1e4391e",
+      "target": "MonoBehaviour.StopAllCoroutines",
+      "confirmedInNewWindows": false,
+      "status": "raw-candidate-only-not-reviewed-here"
+    },
+    {
+      "rva": "0x1e5ffd9",
+      "target": "MonoBehaviour.StopAllCoroutines",
+      "confirmedInNewWindows": false,
+      "status": "raw-candidate-only-not-reviewed-here"
+    },
+    {
+      "rva": "0x1e66a8c",
+      "target": "MonoBehaviour.StopAllCoroutines",
+      "confirmedInNewWindows": false,
+      "status": "raw-candidate-only-not-reviewed-here"
+    },
+    {
+      "rva": "0x1e6f959",
+      "target": "MonoBehaviour.StopAllCoroutines",
+      "confirmedInNewWindows": false,
+      "status": "raw-candidate-only-not-reviewed-here"
+    },
+    {
+      "rva": "0x2ac984a",
+      "target": "MonoBehaviour.StopAllCoroutines",
+      "confirmedInNewWindows": false,
+      "status": "raw-candidate-only-not-reviewed-here"
+    }
+  ],
+  "counts": {
+    "linearDecodedRows": 4621,
+    "relativeTransfers": 1416,
+    "rawWindowBytes": 19856,
+    "undecodedSuffixBytes": 23,
+    "knownDataLinearRowsExcludedFromCodeClaims": 9
+  },
+  "mapping": {
+    "globalMethods": 149349,
+    "mappedMethodsPass4": 979,
+    "mappedFieldsPass4": 446,
+    "metadataVersion": 31.1
+  },
+  "environment": {
+    "GameProcessCount": 0,
+    "DotnetRoot": null
+  },
+  "status": "pass-bounded-byte-integrity-no-save-or-release-approval",
+  "limits": [
+    "No second x64 mnemonic decode; LibCpp2IL metadata labels and semantics require separate review.",
+    "Linear decoding includes padding and potentially data; known StartGame table rows are expressly excluded from code claims.",
+    "Next-pointer windows and primary pdata are not complete function/EH/transitive coverage.",
+    "Raw xref absence is not a complete caller/abort proof; indirect calls, delegates and Unity engine internals remain outside that search.",
+    "No game/runtime observation, no last-use, write-success, durability or sidecar consistency proof."
+  ]
+}

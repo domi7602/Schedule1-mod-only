@@ -1,6 +1,6 @@
 # TownHall: inaktive Speicherlisten-Registrierungsprobe (`RegisterSaveable`)
 
-Stand 2026-11-04. Die Probe gehört zur
+Historischer Live-Nachweis vom 2026-11-04; Quellstandhinweis aktualisiert am 2026-11-05. Die Probe gehört zur
 [ISaveable-Interfaceprobe](business-interface-probe.md) und benutzt denselben
 inaktiven Business-Untertyp ohne NetworkObject. Sie prüft ausschließlich, ob die
 eigene Business-Shell **einmalig und umkehrbar** in der nativen
@@ -38,20 +38,28 @@ freigegeben), Mode `inactive-saveable-registration`, Schema 2. Ergebnis
 Der Lauf hinterlässt den Slot laut Fertigstellungsplan unverändert; der Bericht
 selbst weist keine Dateizählungen aus.
 
-## Herkunft und aktueller Quellstand
+## Herkunft und historische Save-Vorbereitung
 
 Die zum Lauf gehörende Buildvariante (`TOWNHALL_BUSINESS_MANAGER` mit
 `ProbeManager=true`/`ProbeSave=false`, `ProbeMode="inactive-saveable-registration"`)
-ist im aktuellen Arbeitsbaum **nicht mehr enthalten**. Der Stand seit
-2026-11-04 08:15 verdrahtet stattdessen die **Save-Probe**:
+ist im aktuellen Arbeitsbaum **nicht mehr enthalten**. Der am
+2026-11-04 um 08:15 dokumentierte Stand verdrahtete stattdessen die **Save-Probe**:
 `ProbeMode="inactive-saveable-save"`, `ProbeSave=true`,
 `ExpectedOrganisation="Dominik"`, `ExpectedSlot="SaveGame_1"`. `SaveRegistered()`
-in `BusinessConstruction.cs` registriert, ruft tatsächlich `save.Save()` auf
+in `BusinessConstruction.cs` registrierte und rief tatsächlich `save.Save()` auf
 (danach erneutes `if (!save.IsSaving) save.Save();`) und entfernt den Eintrag im
-`finally`. Dazu `BusinessManagerTests.cs` (Richtlinie: das Gate akzeptiert
-Dominik/Slot 1 nur bei expliziter Angabe). Dieser Stand ist **nicht gebaut,
-installiert oder ausgeführt** worden; er setzt vor jeder Ausführung eine
-frische, geprüfte Sicherung von SaveGame_1 und einen ausdrücklichen Go voraus.
+`finally`. Die damaligen `BusinessManagerTests.cs` akzeptierten Dominik/Slot 1
+bei expliziter Angabe. Laut damaliger Dokumentation war dieser Stand nicht
+gebaut, installiert oder ausgeführt; diese Aussage identifiziert nicht die
+am 2026-11-05 vorgefundene installierte DLL.
+
+**Aktuell, 2026-11-05:** Die unsichere Sofort-Abmeldung und beide nativen
+Save-Aufrufstellen sind entfernt. Der Save-Pfad akzeptiert nur TownHallTest /
+SaveGame_2 und ist zusätzlich vor Registrierung und Save gesperrt, solange
+kein nativer Abschluss-/Freigabevertrag nachgewiesen ist. Explizite Argumente
+können die Save-Probe nicht auf Slot 1 umleiten. Die allgemeine Gate-Option
+bleibt allein für die historischen nichtschreibenden Modelltests erhalten.
+Siehe [sichere Speicherprobe und Nachweisgrenzen](business-manager-save-probe.md).
 
 ## Ablauf und Grenzen (`RegisterOnce()`)
 
@@ -83,11 +91,12 @@ prüfen → Rückbau → Endvergleich`.
 
 ## Prüfstand und nächste Schritte
 
-Die Offline-Tests für den Manager-Zustand liegen in `BusinessManagerTests.cs`
-(Stand 2026-11-04, uncommitted); ihr Ergebnis ist nicht dokumentiert. Der
-Live-Lauf ist der einzige Ausführungsnachweis dieser Probe; ein unabhängiger
-Review für die Manager-Variante liegt nicht vor. Ohne ausdrücklichen Go des
-Eigentümers: kein Build und kein Start der Save-Probe (`inactive-saveable-save`).
+Die damalige Manager-Vorbereitung wurde mit dem Working-State-Snapshot erfasst;
+der Live-Lauf oben bleibt der einzige hier belegte native Registrierungsnachweis.
+Die neue [Offline-Sicherheitsarbeit vom 2026-11-05](business-manager-save-probe.md)
+ersetzt keinen nativen Save-/Load-Test. Sie umfasst keine Installation oder
+Spielbedienung. Eine Freigabe allein hebt die neue technische Schreibsperre
+nicht auf; zuerst muss der Freigabevertrag geklärt sein.
 
 Der nächste Live-Ausgangstest ist der unveränderte Start-/Lade-/Handytest mit
 S1API 3.2.2 auf TownHallTest / SaveGame_2 (siehe

@@ -1,0 +1,164 @@
+{
+  "Method": {
+    "Type": "FishNet.Object.NetworkBehaviour",
+    "Name": "SerializeComponents",
+    "Token": "0x06000648",
+    "ParameterCount": 2,
+    "Va": "0x180CC9290",
+    "Rva": "0xCC9290",
+    "NativePointerPresent": true
+  },
+  "Bounds": {
+    "BeginRva": 13406864,
+    "EndRva": 13406909,
+    "UnwindRva": 57295560
+  },
+  "RawOffset": "0xCC8490",
+  "ByteLength": 45,
+  "BytesSha256": "afb93b8119d6eda29fbdc283dd449f4546c0b52f1e05ab70888a2f8ea70a7886",
+  "Instructions": [
+    {
+      "Va": "0x180CC9290",
+      "Rva": "0xCC9290",
+      "Bytes": "48 89 5C 24 08",
+      "Text": "mov [rsp+8],rbx",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CC9295",
+      "Rva": "0xCC9295",
+      "Bytes": "57",
+      "Text": "push rdi",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CC9296",
+      "Rva": "0xCC9296",
+      "Bytes": "48 83 EC 20",
+      "Text": "sub rsp,20h",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CC929A",
+      "Rva": "0xCC929A",
+      "Bytes": "48 8B D9",
+      "Text": "mov rbx,rcx",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CC929D",
+      "Rva": "0xCC929D",
+      "Bytes": "48 89 51 30",
+      "Text": "mov [rcx+30h],rdx",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CC92A1",
+      "Rva": "0xCC92A1",
+      "Bytes": "48 83 C1 30",
+      "Text": "add rcx,30h",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CC92A5",
+      "Rva": "0xCC92A5",
+      "Bytes": "41 0F B6 F8",
+      "Text": "movzx edi,r8b",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CC92A9",
+      "Rva": "0xCC92A9",
+      "Bytes": "E8 02 D8 64 FF",
+      "Text": "call 0000000180316AB0h",
+      "FlowControl": "Call",
+      "DirectTarget": "0x180316AB0",
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CC92AE",
+      "Rva": "0xCC92AE",
+      "Bytes": "40 88 7B 24",
+      "Text": "mov [rbx+24h],dil",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CC92B2",
+      "Rva": "0xCC92B2",
+      "Bytes": "48 8B 5C 24 30",
+      "Text": "mov rbx,[rsp+30h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CC92B7",
+      "Rva": "0xCC92B7",
+      "Bytes": "48 83 C4 20",
+      "Text": "add rsp,20h",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CC92BB",
+      "Rva": "0xCC92BB",
+      "Bytes": "5F",
+      "Text": "pop rdi",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CC92BC",
+      "Rva": "0xCC92BC",
+      "Bytes": "C3",
+      "Text": "ret",
+      "FlowControl": "Return",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+; ScheduleOne.DevUtilities.Singleton`1::OnDestroy/0, token 0x06003100, RVA 0x1135A70, next-pointer window 0xC0 bytes
+; No target execution. Parser-pointer window can contain padding/cold fragments and is not exact/full function, EH or transitive coverage. Shared direct aliases are truncated to eight names.
+0x1135A70    48 89 5C 24 08                  mov [rsp+8],rbx
+0x1135A75    48 89 74 24 10                  mov [rsp+10h],rsi
+0x1135A7A    57                              push rdi
+0x1135A7B    48 83 EC 20                     sub rsp,20h
+0x1135A7F    80 3D 06 BE AC 02 00            cmp byte ptr [183C0188Ch],0
+0x1135A86    48 8B DA                        mov rbx,rdx
+0x1135A89    48 8B F1                        mov rsi,rcx
+0x1135A8C    75 13                           jne short 0000000181135AA1h
+0x1135A8E    48 8D 0D 63 A5 8B 02            lea rcx,[1839EFFF8h] ; TypeInfo: UnityEngine.Object
+0x1135A95    E8 06 1E 1E FF                  call 00000001803178A0h
+0x1135A9A    C6 05 EB BD AC 02 01            mov byte ptr [183C0188Ch],1
+0x1135AA1    48 8B 43 20                     mov rax,[rbx+20h]
+0x1135AA5    4C 8B 80 C0 00 00 00            mov r8,[rax+0C0h]
+0x1135AAC    49 8B 40 10                     mov rax,[r8+10h]
+0x1135AB0    F6 80 35 01 00 00 01            test byte ptr [rax+135h],1
+0x1135AB7    75 08                           jne short 0000000181135AC1h
+0x1135AB9    48 8B C8                        mov rcx,rax
+0x1135ABC    E8 7F 6D 1E FF                  call 000000018031C840h
+0x1135AC1    48 8B 0D 30 A5 8B 02            mov rcx,[1839EFFF8h] ; TypeInfo: UnityEngine.Object
+0x1135AC8    48 8B 80 B8 00 00 00            mov rax,[rax+0B8h]
+0x1135ACF    83 B9 E0 00 00 00 00            cmp dword ptr [rcx+0E0h],0
+0x1135AD6    48 8B 38                        mov rdi,[rax]
+0x1135AD9    75 05                           jne short 0000000181135AE0h
+0x1135ADB    E8 50 21 1E FF                  call 0000000180317C30h
+0x1135AE0    45 33 C0                        xor r8d,r8d
+0x1135AE3    48 8B D6                        mov rdx,rsi
+0x1135AE6    48 8B CF                        mov rcx,rdi
+0x1135AE9    E8 B2 65 A4 01                  call 0000000182B7C0A0h ; UnityEngine.Object::op_Equality/2
+0x1135AEE    84 C0                           test al,al
+0x1135AF0    74 2C                           je short 0000000181135B1Eh
+0x1135AF2    48 8B 43 20                     mov rax,[rbx+20h]
+0x1135AF6    48 8B 88 C0 00 00 00            mov rcx,[rax+0C0h]
+0x1135AFD    48 8B 41 10                     mov rax,[rcx+10h]
+0x1135B01    F6 80 35 01 00 00 01            test byte ptr [rax+135h],1
+0x1135B08    75 08                           jne short 0000000181135B12h
+0x1135B0A    48 8B C8                        mov rcx,rax
+0x1135B0D    E8 2E 6D 1E FF                  call 000000018031C840h
+0x1135B12    48 8B 80 B8 00 00 00            mov rax,[rax+0B8h]
+0x1135B19    33 C9                           xor ecx,ecx
+0x1135B1B    48 89 08                        mov [rax],rcx
+0x1135B1E    48 8B 5C 24 30                  mov rbx,[rsp+30h]
+0x1135B23    48 8B 74 24 38                  mov rsi,[rsp+38h]
+0x1135B28    48 83 C4 20                     add rsp,20h
+0x1135B2C    5F                              pop rdi
+0x1135B2D    C3                              ret
+0x1135B2E    CC                              int 3
+0x1135B2F    CC                              int 3

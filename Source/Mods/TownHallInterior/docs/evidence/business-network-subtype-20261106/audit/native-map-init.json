@@ -1,0 +1,2139 @@
+{
+  "CapturedUtc": "2026-11-06T11:06:04.7229980Z",
+  "NativeSha256": "61829050e56ca180d67be592e4bfe61ec97d2e9573f720d90a54e318a7e4381d",
+  "MetadataVersion": 31.1,
+  "GlobalMethodCount": 149349,
+  "Method": "Fresh LibCpp2IL mapping + Iced native-byte decode, target assemblies never loaded/invoked",
+  "FieldMap": [
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": "Businesses",
+      "Static": true,
+      "Offset": "0x0"
+    },
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": "UnownedBusinesses",
+      "Static": true,
+      "Offset": "0x8"
+    },
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": "OwnedBusinesses",
+      "Static": true,
+      "Offset": "0x10"
+    },
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": "LaunderCapacity",
+      "Static": false,
+      "Offset": "0x268"
+    },
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": "LaunderingOperations",
+      "Static": false,
+      "Offset": "0x270"
+    },
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": "onOperationStarted",
+      "Static": true,
+      "Offset": "0x18"
+    },
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": "onOperationFinished",
+      "Static": true,
+      "Offset": "0x20"
+    },
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": "loader",
+      "Static": false,
+      "Offset": "0x278"
+    },
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": "NetworkInitialize___EarlyScheduleOne.Property.BusinessAssembly-CSharp.dll_Excuted",
+      "Static": false,
+      "Offset": "0x280"
+    },
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": "NetworkInitialize__LateScheduleOne.Property.BusinessAssembly-CSharp.dll_Excuted",
+      "Static": false,
+      "Offset": "0x281"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "IdealCullsPerSecond",
+      "Static": true,
+      "Offset": "0x0"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "MaxCullDuration",
+      "Static": true,
+      "Offset": "0x0"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "CullingDistanceBuffer",
+      "Static": true,
+      "Offset": "0x0"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "DecullHardThreshold",
+      "Static": true,
+      "Offset": "0x0"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "Properties",
+      "Static": true,
+      "Offset": "0x0"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "UnownedProperties",
+      "Static": true,
+      "Offset": "0x8"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "OwnedProperties",
+      "Static": true,
+      "Offset": "0x10"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "onPropertyAcquired",
+      "Static": true,
+      "Offset": "0x18"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "onThisPropertyAcquired",
+      "Static": false,
+      "Offset": "0x118"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "<IsOwned>k__BackingField",
+      "Static": false,
+      "Offset": "0x120"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "<Employees>k__BackingField",
+      "Static": false,
+      "Offset": "0x128"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "<WorldspaceUIContainer>k__BackingField",
+      "Static": false,
+      "Offset": "0x130"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "<IsContentCulled>k__BackingField",
+      "Static": false,
+      "Offset": "0x138"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "propertyName",
+      "Static": false,
+      "Offset": "0x140"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "AvailableInDemo",
+      "Static": false,
+      "Offset": "0x148"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "propertyCode",
+      "Static": false,
+      "Offset": "0x150"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "Price",
+      "Static": false,
+      "Offset": "0x158"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "DefaultRotation",
+      "Static": false,
+      "Offset": "0x15C"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "EmployeeCapacity",
+      "Static": false,
+      "Offset": "0x160"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "OwnedByDefault",
+      "Static": false,
+      "Offset": "0x164"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "IsOwnedVariable",
+      "Static": false,
+      "Offset": "0x168"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "<AmbientTemperature>k__BackingField",
+      "Static": false,
+      "Offset": "0x170"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "ContentCullingEnabled",
+      "Static": false,
+      "Offset": "0x174"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "MinimumCullingDistance",
+      "Static": false,
+      "Offset": "0x178"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "ObjectsToCull",
+      "Static": false,
+      "Offset": "0x180"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "SpawnPoint",
+      "Static": false,
+      "Offset": "0x188"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "InteriorSpawnPoint",
+      "Static": false,
+      "Offset": "0x190"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "ForSaleSign",
+      "Static": false,
+      "Offset": "0x198"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "BoundingBox",
+      "Static": false,
+      "Offset": "0x1A0"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "PoI",
+      "Static": false,
+      "Offset": "0x1A8"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "ListingPoster",
+      "Static": false,
+      "Offset": "0x1B0"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "NPCSpawnPoint",
+      "Static": false,
+      "Offset": "0x1B8"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "EmployeeIdlePoints",
+      "Static": false,
+      "Offset": "0x1C0"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "Switches",
+      "Static": false,
+      "Offset": "0x1C8"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "Toggleables",
+      "Static": false,
+      "Offset": "0x1D0"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "DisposalArea",
+      "Static": false,
+      "Offset": "0x1D8"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "LoadingDocks",
+      "Static": false,
+      "Offset": "0x1E0"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "<Container>k__BackingField",
+      "Static": false,
+      "Offset": "0x1E8"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "BuildableItems",
+      "Static": false,
+      "Offset": "0x1F0"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "onBuildableItemAdded",
+      "Static": false,
+      "Offset": "0x1F8"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "onBuildableItemRemoved",
+      "Static": false,
+      "Offset": "0x200"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "Configurables",
+      "Static": false,
+      "Offset": "0x208"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "Grids",
+      "Static": false,
+      "Offset": "0x210"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "propertyBoundsColliders",
+      "Static": false,
+      "Offset": "0x218"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "cullingRoutine",
+      "Static": false,
+      "Offset": "0x220"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "_hasBeenLoaded",
+      "Static": false,
+      "Offset": "0x228"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "loader",
+      "Static": false,
+      "Offset": "0x230"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "<LocalExtraFiles>k__BackingField",
+      "Static": false,
+      "Offset": "0x238"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "<LocalExtraFolders>k__BackingField",
+      "Static": false,
+      "Offset": "0x240"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "<HasChanged>k__BackingField",
+      "Static": false,
+      "Offset": "0x248"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "savedObjectPaths",
+      "Static": false,
+      "Offset": "0x250"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "savedEmployeePaths",
+      "Static": false,
+      "Offset": "0x258"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "NetworkInitialize___EarlyScheduleOne.Property.PropertyAssembly-CSharp.dll_Excuted",
+      "Static": false,
+      "Offset": "0x260"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "NetworkInitialize__LateScheduleOne.Property.PropertyAssembly-CSharp.dll_Excuted",
+      "Static": false,
+      "Offset": "0x261"
+    },
+    {
+      "Type": "ScheduleOne.Property.PropertyContentsContainer",
+      "Name": "<Property>k__BackingField",
+      "Static": false,
+      "Offset": "0x20"
+    }
+  ],
+  "MethodMap": [
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": "get_currentLaunderTotal",
+      "Token": "0x06001398",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18054DE30",
+      "Rva": "0x54DE30",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": "get_appliedLaunderLimit",
+      "Token": "0x06001399",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18054DE00",
+      "Rva": "0x54DE00",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": "get_Loader",
+      "Token": "0x0600139A",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 21,
+      "Va": "0x18054DDF0",
+      "Rva": "0x54DDF0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": "Awake",
+      "Token": "0x0600139B",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 42,
+      "Va": "0x18054BFE0",
+      "Rva": "0x54BFE0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": "Start",
+      "Token": "0x0600139C",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 44,
+      "Va": "0x18054D9A0",
+      "Rva": "0x54D9A0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": "OnDestroy",
+      "Token": "0x0600139D",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 46,
+      "Va": "0x18054CCA0",
+      "Rva": "0x54CCA0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": "GetNetworth",
+      "Token": "0x0600139E",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 47,
+      "Va": "0x18054C460",
+      "Rva": "0x54C460",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": "OnSpawnServer",
+      "Token": "0x0600139F",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 9,
+      "Va": "0x18054CD70",
+      "Rva": "0x54CD70",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": "MinPass",
+      "Token": "0x060013A0",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 61,
+      "Va": "0x18054C9F0",
+      "Rva": "0x54C9F0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": "MinsPass",
+      "Token": "0x060013A1",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 62,
+      "Va": "0x18054CA10",
+      "Rva": "0x54CA10",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": "TimeSkipped",
+      "Token": "0x060013A2",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18054DBC0",
+      "Rva": "0x54DBC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": "GetSaveString",
+      "Token": "0x060013A3",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 52,
+      "Va": "0x18054C4D0",
+      "Rva": "0x54C4D0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": "Load",
+      "Token": "0x060013A4",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 55,
+      "Va": "0x18054C8E0",
+      "Rva": "0x54C8E0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": "CanDeliverToProperty",
+      "Token": "0x060013A5",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 56,
+      "Va": "0x18045FA60",
+      "Rva": "0x45FA60",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": "RecieveOwned",
+      "Token": "0x060013A6",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 48,
+      "Va": "0x18054D0E0",
+      "Rva": "0x54D0E0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": "StartLaunderingOperation",
+      "Token": "0x060013A7",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18054D6C0",
+      "Rva": "0x54D6C0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": "ReceiveLaunderingOperation",
+      "Token": "0x060013A8",
+      "ParameterCount": 3,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18054CE90",
+      "Rva": "0x54CE90",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": "CompleteOperation",
+      "Token": "0x060013A9",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18054C020",
+      "Rva": "0x54C020",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": ".ctor",
+      "Token": "0x060013AA",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18054DD00",
+      "Rva": "0x54DD00",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": ".cctor",
+      "Token": "0x060013AB",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18054DBE0",
+      "Rva": "0x54DBE0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": "NetworkInitialize___Early",
+      "Token": "0x060013AC",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 58,
+      "Va": "0x18054CB70",
+      "Rva": "0x54CB70",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": "NetworkInitialize__Late",
+      "Token": "0x060013AD",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 59,
+      "Va": "0x18054CB40",
+      "Rva": "0x54CB40",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": "NetworkInitializeIfDisabled",
+      "Token": "0x060013AE",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 14,
+      "Va": "0x18054ACE0",
+      "Rva": "0x54ACE0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": "RpcWriter___Server_StartLaunderingOperation_1481775633",
+      "Token": "0x060013AF",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18054D6C0",
+      "Rva": "0x54D6C0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": "RpcLogic___StartLaunderingOperation_1481775633",
+      "Token": "0x060013B0",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18054D370",
+      "Rva": "0x54D370",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": "RpcReader___Server_StartLaunderingOperation_1481775633",
+      "Token": "0x060013B1",
+      "ParameterCount": 3,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18054D420",
+      "Rva": "0x54D420",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": "RpcWriter___Target_ReceiveLaunderingOperation_1001022388",
+      "Token": "0x060013B2",
+      "ParameterCount": 3,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18054D830",
+      "Rva": "0x54D830",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": "RpcLogic___ReceiveLaunderingOperation_1001022388",
+      "Token": "0x060013B3",
+      "ParameterCount": 3,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18054D1F0",
+      "Rva": "0x54D1F0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": "RpcReader___Target_ReceiveLaunderingOperation_1001022388",
+      "Token": "0x060013B4",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18054D4B0",
+      "Rva": "0x54D4B0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": "RpcWriter___Observers_ReceiveLaunderingOperation_1001022388",
+      "Token": "0x060013B5",
+      "ParameterCount": 3,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18054D540",
+      "Rva": "0x54D540",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": "RpcReader___Observers_ReceiveLaunderingOperation_1001022388",
+      "Token": "0x060013B6",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18054D390",
+      "Rva": "0x54D390",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": "Awake_UserLogic_ScheduleOne.Property.Business_Assembly-CSharp.dll",
+      "Token": "0x060013B7",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 63,
+      "Va": "0x18054BE30",
+      "Rva": "0x54BE30",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "get_IsOwned",
+      "Token": "0x06001402",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1804DD930",
+      "Rva": "0x4DD930",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "set_IsOwned",
+      "Token": "0x06001403",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180557F10",
+      "Rva": "0x557F10",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "get_Employees",
+      "Token": "0x06001404",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1804ED770",
+      "Rva": "0x4ED770",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "set_Employees",
+      "Token": "0x06001405",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180557ED0",
+      "Rva": "0x557ED0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "get_WorldspaceUIContainer",
+      "Token": "0x06001406",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18054E840",
+      "Rva": "0x54E840",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "set_WorldspaceUIContainer",
+      "Token": "0x06001407",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18054E850",
+      "Rva": "0x54E850",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "get_IsContentCulled",
+      "Token": "0x06001408",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1804DD470",
+      "Rva": "0x4DD470",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "set_IsContentCulled",
+      "Token": "0x06001409",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180557F00",
+      "Rva": "0x557F00",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "get_PropertyName",
+      "Token": "0x0600140A",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180557D20",
+      "Rva": "0x557D20",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "get_PropertyCode",
+      "Token": "0x0600140B",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180557D10",
+      "Rva": "0x557D10",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "get_AmbientTemperature",
+      "Token": "0x0600140C",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180557C90",
+      "Rva": "0x557C90",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "set_AmbientTemperature",
+      "Token": "0x0600140D",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180557EA0",
+      "Rva": "0x557EA0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "get_LoadingDockCount",
+      "Token": "0x0600140E",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180557CD0",
+      "Rva": "0x557CD0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "get_Container",
+      "Token": "0x0600140F",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180557CA0",
+      "Rva": "0x557CA0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "set_Container",
+      "Token": "0x06001410",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180557EB0",
+      "Rva": "0x557EB0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "add_onBuildableItemAdded",
+      "Token": "0x06001411",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180557B30",
+      "Rva": "0x557B30",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "remove_onBuildableItemAdded",
+      "Token": "0x06001412",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180557D40",
+      "Rva": "0x557D40",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "add_onBuildableItemRemoved",
+      "Token": "0x06001413",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180557BE0",
+      "Rva": "0x557BE0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "remove_onBuildableItemRemoved",
+      "Token": "0x06001414",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180557DF0",
+      "Rva": "0x557DF0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "get_SaveFolderName",
+      "Token": "0x06001415",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 19,
+      "Va": "0x180557D20",
+      "Rva": "0x557D20",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "get_SaveFileName",
+      "Token": "0x06001416",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 20,
+      "Va": "0x180557D30",
+      "Rva": "0x557D30",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "get_Loader",
+      "Token": "0x06001417",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 21,
+      "Va": "0x180557CC0",
+      "Rva": "0x557CC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "get_ShouldSaveUnderFolder",
+      "Token": "0x06001418",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 22,
+      "Va": "0x18045FA60",
+      "Rva": "0x45FA60",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "get_LocalExtraFiles",
+      "Token": "0x06001419",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 23,
+      "Va": "0x180557CF0",
+      "Rva": "0x557CF0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "set_LocalExtraFiles",
+      "Token": "0x0600141A",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 24,
+      "Va": "0x180557F20",
+      "Rva": "0x557F20",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "get_LocalExtraFolders",
+      "Token": "0x0600141B",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 25,
+      "Va": "0x180557D00",
+      "Rva": "0x557D00",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "set_LocalExtraFolders",
+      "Token": "0x0600141C",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 26,
+      "Va": "0x180557F40",
+      "Rva": "0x557F40",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "get_HasChanged",
+      "Token": "0x0600141D",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 27,
+      "Va": "0x180557CB0",
+      "Rva": "0x557CB0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "set_HasChanged",
+      "Token": "0x0600141E",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 28,
+      "Va": "0x180557EF0",
+      "Rva": "0x557EF0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "Awake",
+      "Token": "0x0600141F",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 42,
+      "Va": "0x1805545B0",
+      "Rva": "0x5545B0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "InitializeSaveable",
+      "Token": "0x06001420",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 43,
+      "Va": "0x180554F10",
+      "Rva": "0x554F10",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "Start",
+      "Token": "0x06001421",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 44,
+      "Va": "0x180556FE0",
+      "Rva": "0x556FE0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "FixedUpdate",
+      "Token": "0x06001422",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 45,
+      "Va": "0x180554740",
+      "Rva": "0x554740",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "AddConfigurable",
+      "Token": "0x06001423",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805537C0",
+      "Rva": "0x5537C0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "RemoveConfigurable",
+      "Token": "0x06001424",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180555F20",
+      "Rva": "0x555F20",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "UpdateCulling",
+      "Token": "0x06001425",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180557380",
+      "Rva": "0x557380",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "OnSpawnServer",
+      "Token": "0x06001426",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 9,
+      "Va": "0x1805556B0",
+      "Rva": "0x5556B0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "OnDestroy",
+      "Token": "0x06001427",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 46,
+      "Va": "0x180555490",
+      "Rva": "0x555490",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "GetNetworth",
+      "Token": "0x06001428",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 47,
+      "Va": "0x1805548C0",
+      "Rva": "0x5548C0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "OnStartServer",
+      "Token": "0x06001429",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 6,
+      "Va": "0x1805557C0",
+      "Rva": "0x5557C0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "SetOwned_Server",
+      "Token": "0x0600142A",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180556C80",
+      "Rva": "0x556C80",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "ReceiveOwned_Networked",
+      "Token": "0x0600142B",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180555880",
+      "Rva": "0x555880",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "RecieveOwned",
+      "Token": "0x0600142C",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 48,
+      "Va": "0x1805559A0",
+      "Rva": "0x5559A0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "ShouldSave",
+      "Token": "0x0600142D",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 49,
+      "Va": "0x1804574D0",
+      "Rva": "0x4574D0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "SetOwned",
+      "Token": "0x0600142E",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180556D90",
+      "Rva": "0x556D90",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "CanBePurchased",
+      "Token": "0x0600142F",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 50,
+      "Va": "0x1804574D0",
+      "Rva": "0x4574D0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "SetContentCulled",
+      "Token": "0x06001430",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 51,
+      "Va": "0x180556990",
+      "Rva": "0x556990",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "RegisterEmployee",
+      "Token": "0x06001431",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180555DA0",
+      "Rva": "0x555DA0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "DeregisterEmployee",
+      "Token": "0x06001432",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805545F0",
+      "Rva": "0x5545F0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "ToggleableActioned",
+      "Token": "0x06001433",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180557140",
+      "Rva": "0x557140",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "SendToggleableState",
+      "Token": "0x06001434",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805565A0",
+      "Rva": "0x5565A0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "SetToggleableState",
+      "Token": "0x06001435",
+      "ParameterCount": 3,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180556DA0",
+      "Rva": "0x556DA0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "AddBuildableItem",
+      "Token": "0x06001436",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180553660",
+      "Rva": "0x553660",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "RemoveBuildableItem",
+      "Token": "0x06001437",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180555E70",
+      "Rva": "0x555E70",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "GetSaveString",
+      "Token": "0x06001438",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 52,
+      "Va": "0x180554A70",
+      "Rva": "0x554A70",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "GetEmployeeSaveDatas",
+      "Token": "0x06001439",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180554750",
+      "Rva": "0x554750",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "GetObjectSaveDatas",
+      "Token": "0x0600143A",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180554900",
+      "Rva": "0x554900",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "WriteData",
+      "Token": "0x0600143B",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 53,
+      "Va": "0x1805575F0",
+      "Rva": "0x5575F0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "DeleteUnapprovedFiles",
+      "Token": "0x0600143C",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 54,
+      "Va": "0x18043FEC0",
+      "Rva": "0x43FEC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "Load",
+      "Token": "0x0600143D",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 55,
+      "Va": "0x180555150",
+      "Rva": "0x555150",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "DoBoundsContainPoint",
+      "Token": "0x0600143E",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180554650",
+      "Rva": "0x554650",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "IsPointInsideBox",
+      "Token": "0x0600143F",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180554FA0",
+      "Rva": "0x554FA0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "GetUnassignedBeds",
+      "Token": "0x06001440",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180554DB0",
+      "Rva": "0x554DB0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "GetBuildablesOfType",
+      "Token": "0x06001441",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180EB03D0",
+      "Rva": "0xEB03D0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "CanDeliverToProperty",
+      "Token": "0x06001442",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 56,
+      "Va": "0x1804574D0",
+      "Rva": "0x4574D0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "CanRespawnInsideProperty",
+      "Token": "0x06001443",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 57,
+      "Va": "0x1804574D0",
+      "Rva": "0x4574D0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": ".ctor",
+      "Token": "0x06001444",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805577E0",
+      "Rva": "0x5577E0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": ".cctor",
+      "Token": "0x06001445",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805576C0",
+      "Rva": "0x5576C0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "<Awake>b__98_0",
+      "Token": "0x06001446",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805572E0",
+      "Rva": "0x5572E0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "<RecieveOwned>g__Wait|111_0",
+      "Token": "0x06001447",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180557310",
+      "Rva": "0x557310",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "<RecieveOwned>b__111_1",
+      "Token": "0x06001448",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805572F0",
+      "Rva": "0x5572F0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "NetworkInitialize___Early",
+      "Token": "0x06001449",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 58,
+      "Va": "0x1805552E0",
+      "Rva": "0x5552E0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "NetworkInitialize__Late",
+      "Token": "0x0600144A",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 59,
+      "Va": "0x1805552C0",
+      "Rva": "0x5552C0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "NetworkInitializeIfDisabled",
+      "Token": "0x0600144B",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 14,
+      "Va": "0x18054ACE0",
+      "Rva": "0x54ACE0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "RpcWriter___Server_SetOwned_Server_2166136261",
+      "Token": "0x0600144C",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180556710",
+      "Rva": "0x556710",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "RpcLogic___SetOwned_Server_2166136261",
+      "Token": "0x0600144D",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180555880",
+      "Rva": "0x555880",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "RpcReader___Server_SetOwned_Server_2166136261",
+      "Token": "0x0600144E",
+      "ParameterCount": 3,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180556200",
+      "Rva": "0x556200",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "RpcWriter___Observers_ReceiveOwned_Networked_2166136261",
+      "Token": "0x0600144F",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180556300",
+      "Rva": "0x556300",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "RpcLogic___ReceiveOwned_Networked_2166136261",
+      "Token": "0x06001450",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180555FB0",
+      "Rva": "0x555FB0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "RpcReader___Observers_ReceiveOwned_Networked_2166136261",
+      "Token": "0x06001451",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180556070",
+      "Rva": "0x556070",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "RpcWriter___Server_SendToggleableState_3658436649",
+      "Token": "0x06001452",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805565A0",
+      "Rva": "0x5565A0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "RpcLogic___SendToggleableState_3658436649",
+      "Token": "0x06001453",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180555FD0",
+      "Rva": "0x555FD0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "RpcReader___Server_SendToggleableState_3658436649",
+      "Token": "0x06001454",
+      "ParameterCount": 3,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180556160",
+      "Rva": "0x556160",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "RpcWriter___Observers_SetToggleableState_338960014",
+      "Token": "0x06001455",
+      "ParameterCount": 3,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180556420",
+      "Rva": "0x556420",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "RpcLogic___SetToggleableState_338960014",
+      "Token": "0x06001456",
+      "ParameterCount": 3,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180555FF0",
+      "Rva": "0x555FF0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "RpcReader___Observers_SetToggleableState_338960014",
+      "Token": "0x06001457",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805560C0",
+      "Rva": "0x5560C0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "RpcWriter___Target_SetToggleableState_338960014",
+      "Token": "0x06001458",
+      "ParameterCount": 3,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180556820",
+      "Rva": "0x556820",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "RpcReader___Target_SetToggleableState_338960014",
+      "Token": "0x06001459",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180556250",
+      "Rva": "0x556250",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "Awake_UserLogic_ScheduleOne.Property.Property_Assembly-CSharp.dll",
+      "Token": "0x0600145A",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 60,
+      "Va": "0x1805538A0",
+      "Rva": "0x5538A0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.PropertyContentsContainer",
+      "Name": "get_Property",
+      "Token": "0x06001473",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180421DC0",
+      "Rva": "0x421DC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.PropertyContentsContainer",
+      "Name": "set_Property",
+      "Token": "0x06001474",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180421E00",
+      "Rva": "0x421E00",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.PropertyContentsContainer",
+      "Name": "SetProperty",
+      "Token": "0x06001475",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805520E0",
+      "Rva": "0x5520E0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.PropertyContentsContainer",
+      "Name": ".ctor",
+      "Token": "0x06001476",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18041D490",
+      "Rva": "0x41D490",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.Loaders.BusinessesLoader",
+      "Name": ".ctor",
+      "Token": "0x06001860",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18041D580",
+      "Rva": "0x41D580",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.Loaders.BusinessesLoader",
+      "Name": "Load",
+      "Token": "0x06001861",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 4,
+      "Va": "0x18059C850",
+      "Rva": "0x59C850",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.Loaders.BusinessLoader",
+      "Name": ".ctor",
+      "Token": "0x06001862",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18041D580",
+      "Rva": "0x41D580",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.Loaders.BusinessLoader",
+      "Name": "Load",
+      "Token": "0x06001863",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 4,
+      "Va": "0x18059C640",
+      "Rva": "0x59C640",
+      "NativePointerPresent": true
+    }
+  ],
+  "RawReferenceOwnerCandidates": [],
+  "Disassembled": [
+    {
+      "Method": {
+        "Type": "ScheduleOne.Property.Business",
+        "Name": "Awake",
+        "Token": "0x0600139B",
+        "ParameterCount": 0,
+        "InterfaceOrVirtualSlot": 42,
+        "Va": "0x18054BFE0",
+        "Rva": "0x54BFE0",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 64,
+      "BytesSha256": "657241ecf31d9ad145b9fff67c99b851e7f89354da4e5c9bd471a1be097fb9e6",
+      "File": "0x0600139B-Business-Awake",
+      "Instructions": 19,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Property.Business",
+        "Name": "Start",
+        "Token": "0x0600139C",
+        "ParameterCount": 0,
+        "InterfaceOrVirtualSlot": 44,
+        "Va": "0x18054D9A0",
+        "Rva": "0x54D9A0",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 544,
+      "BytesSha256": "8835c33063599b3eb9b80a361d912ed93b7826176e616beae179f4432ee65222",
+      "File": "0x0600139C-Business-Start",
+      "Instructions": 135,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Property.Business",
+        "Name": "OnDestroy",
+        "Token": "0x0600139D",
+        "ParameterCount": 0,
+        "InterfaceOrVirtualSlot": 46,
+        "Va": "0x18054CCA0",
+        "Rva": "0x54CCA0",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 208,
+      "BytesSha256": "14455c90ee042d369bb132e70c2e7c74e81782fdd004b1e1d2a5807f4941b556",
+      "File": "0x0600139D-Business-OnDestroy",
+      "Instructions": 47,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Property.Business",
+        "Name": "Load",
+        "Token": "0x060013A4",
+        "ParameterCount": 2,
+        "InterfaceOrVirtualSlot": 55,
+        "Va": "0x18054C8E0",
+        "Rva": "0x54C8E0",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 272,
+      "BytesSha256": "5ae821ea284efc2ad9c09885689b507d26aee912f612201680223714edff3059",
+      "File": "0x060013A4-Business-Load",
+      "Instructions": 76,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Property.Business",
+        "Name": ".ctor",
+        "Token": "0x060013AA",
+        "ParameterCount": 0,
+        "InterfaceOrVirtualSlot": 65535,
+        "Va": "0x18054DD00",
+        "Rva": "0x54DD00",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 240,
+      "BytesSha256": "299aa202f8e81432aeed7a87113f4d778a0b53d77b1aff21e5aade3d3a02415c",
+      "File": "0x060013AA-Business-_ctor",
+      "Instructions": 59,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Property.Business",
+        "Name": "NetworkInitialize___Early",
+        "Token": "0x060013AC",
+        "ParameterCount": 0,
+        "InterfaceOrVirtualSlot": 58,
+        "Va": "0x18054CB70",
+        "Rva": "0x54CB70",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 304,
+      "BytesSha256": "85552089719b26c1be6e63726d3316aec9603fa6a32fa09b8e4253f6efb2a606",
+      "File": "0x060013AC-Business-NetworkInitialize___Early",
+      "Instructions": 74,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Property.Business",
+        "Name": "NetworkInitialize__Late",
+        "Token": "0x060013AD",
+        "ParameterCount": 0,
+        "InterfaceOrVirtualSlot": 59,
+        "Va": "0x18054CB40",
+        "Rva": "0x54CB40",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 48,
+      "BytesSha256": "c6d56588cb9fb6f1c75cc3708e90ec24c67d53e820ad99c44c4b363cd9bf0ca9",
+      "File": "0x060013AD-Business-NetworkInitialize__Late",
+      "Instructions": 22,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Property.Business",
+        "Name": "NetworkInitializeIfDisabled",
+        "Token": "0x060013AE",
+        "ParameterCount": 0,
+        "InterfaceOrVirtualSlot": 14,
+        "Va": "0x18054ACE0",
+        "Rva": "0x54ACE0",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 64,
+      "BytesSha256": "14174cfbcb67d78b9410034cf9f725f98c0adbe3b51bd5b5b50340eec69a7fea",
+      "File": "0x060013AE-Business-NetworkInitializeIfDisabled",
+      "Instructions": 26,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Property.Business",
+        "Name": "Awake_UserLogic_ScheduleOne.Property.Business_Assembly-CSharp.dll",
+        "Token": "0x060013B7",
+        "ParameterCount": 0,
+        "InterfaceOrVirtualSlot": 63,
+        "Va": "0x18054BE30",
+        "Rva": "0x54BE30",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 432,
+      "BytesSha256": "b49e584a922942c96b92b3204fe6cf918e594fbafccd551bf85ef1c4f4c770e7",
+      "File": "0x060013B7-Business-Awake_UserLogic_ScheduleOne_Property_Busin",
+      "Instructions": 102,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Property.Property",
+        "Name": "Awake",
+        "Token": "0x0600141F",
+        "ParameterCount": 0,
+        "InterfaceOrVirtualSlot": 42,
+        "Va": "0x1805545B0",
+        "Rva": "0x5545B0",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 64,
+      "BytesSha256": "056e88f96cefb8f503a94320171207ca3d19a7f656af0b8c6759ff48d0ab34aa",
+      "File": "0x0600141F-Property-Awake",
+      "Instructions": 19,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Property.Property",
+        "Name": "InitializeSaveable",
+        "Token": "0x06001420",
+        "ParameterCount": 0,
+        "InterfaceOrVirtualSlot": 43,
+        "Va": "0x180554F10",
+        "Rva": "0x554F10",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 144,
+      "BytesSha256": "2b9ad5ec87859e07cd443d4f6c2bff88c40cc62c1f4640932e00eb5daac3b329",
+      "File": "0x06001420-Property-InitializeSaveable",
+      "Instructions": 45,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Property.Property",
+        "Name": "Start",
+        "Token": "0x06001421",
+        "ParameterCount": 0,
+        "InterfaceOrVirtualSlot": 44,
+        "Va": "0x180556FE0",
+        "Rva": "0x556FE0",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 352,
+      "BytesSha256": "024058548a223b0855d995d3e82c0098bb17ca759f787cc0f2bf6c3ece4d5470",
+      "File": "0x06001421-Property-Start",
+      "Instructions": 93,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Property.Property",
+        "Name": "OnDestroy",
+        "Token": "0x06001427",
+        "ParameterCount": 0,
+        "InterfaceOrVirtualSlot": 46,
+        "Va": "0x180555490",
+        "Rva": "0x555490",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 544,
+      "BytesSha256": "18d6cc57255a0d7e6d8645abaf8438934a2ca40d89291fcc536be35d4b3cc359",
+      "File": "0x06001427-Property-OnDestroy",
+      "Instructions": 122,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Property.Property",
+        "Name": "Load",
+        "Token": "0x0600143D",
+        "ParameterCount": 2,
+        "InterfaceOrVirtualSlot": 55,
+        "Va": "0x180555150",
+        "Rva": "0x555150",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 368,
+      "BytesSha256": "673891c00e98cedd3bda7a614a1d4ae07a66f82bc83a83fa667e196692c74437",
+      "File": "0x0600143D-Property-Load",
+      "Instructions": 99,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Property.Property",
+        "Name": ".ctor",
+        "Token": "0x06001444",
+        "ParameterCount": 0,
+        "InterfaceOrVirtualSlot": 65535,
+        "Va": "0x1805577E0",
+        "Rva": "0x5577E0",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 848,
+      "BytesSha256": "bab9f1f1686727d66d082632fe12335bae9da936d0b6f00ff49cc9b098a2619e",
+      "File": "0x06001444-Property-_ctor",
+      "Instructions": 155,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Property.Property",
+        "Name": "<Awake>b__98_0",
+        "Token": "0x06001446",
+        "ParameterCount": 1,
+        "InterfaceOrVirtualSlot": 65535,
+        "Va": "0x1805572E0",
+        "Rva": "0x5572E0",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 16,
+      "BytesSha256": "57788d143af864c7836a3d9295a6c82efdca964d04997e6a1217a5b1770b9f50",
+      "File": "0x06001446-Property-_Awake_b__98_0",
+      "Instructions": 10,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Property.Property",
+        "Name": "NetworkInitialize___Early",
+        "Token": "0x06001449",
+        "ParameterCount": 0,
+        "InterfaceOrVirtualSlot": 58,
+        "Va": "0x1805552E0",
+        "Rva": "0x5552E0",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 432,
+      "BytesSha256": "2f28d98c9213d34d608829f4f4d1113d71962f4998e39c6ab04cda55ac3797cb",
+      "File": "0x06001449-Property-NetworkInitialize___Early",
+      "Instructions": 108,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Property.Property",
+        "Name": "NetworkInitialize__Late",
+        "Token": "0x0600144A",
+        "ParameterCount": 0,
+        "InterfaceOrVirtualSlot": 59,
+        "Va": "0x1805552C0",
+        "Rva": "0x5552C0",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 32,
+      "BytesSha256": "28f28e42830520288543a78f9ece301863c8b168bdf8f29f931e6f1811fd08a3",
+      "File": "0x0600144A-Property-NetworkInitialize__Late",
+      "Instructions": 19,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Property.Property",
+        "Name": "NetworkInitializeIfDisabled",
+        "Token": "0x0600144B",
+        "ParameterCount": 0,
+        "InterfaceOrVirtualSlot": 14,
+        "Va": "0x18054ACE0",
+        "Rva": "0x54ACE0",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 64,
+      "BytesSha256": "14174cfbcb67d78b9410034cf9f725f98c0adbe3b51bd5b5b50340eec69a7fea",
+      "File": "0x0600144B-Property-NetworkInitializeIfDisabled",
+      "Instructions": 26,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Property.Property",
+        "Name": "Awake_UserLogic_ScheduleOne.Property.Property_Assembly-CSharp.dll",
+        "Token": "0x0600145A",
+        "ParameterCount": 0,
+        "InterfaceOrVirtualSlot": 60,
+        "Va": "0x1805538A0",
+        "Rva": "0x5538A0",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 3344,
+      "BytesSha256": "f78715eec950e453e1b02ba7c15706908a96a314d57a0fe6a3180c69b06d5681",
+      "File": "0x0600145A-Property-Awake_UserLogic_ScheduleOne_Property_Prope",
+      "Instructions": 717,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Property.PropertyContentsContainer",
+        "Name": "SetProperty",
+        "Token": "0x06001475",
+        "ParameterCount": 1,
+        "InterfaceOrVirtualSlot": 65535,
+        "Va": "0x1805520E0",
+        "Rva": "0x5520E0",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 192,
+      "BytesSha256": "3a4242e226e4567a7f9aec6ef8ac2e39cc0f3d855f1452e374e40992f0ee6d79",
+      "File": "0x06001475-PropertyContentsContainer-SetProperty",
+      "Instructions": 56,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Property.PropertyContentsContainer",
+        "Name": ".ctor",
+        "Token": "0x06001476",
+        "ParameterCount": 0,
+        "InterfaceOrVirtualSlot": 65535,
+        "Va": "0x18041D490",
+        "Rva": "0x41D490",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 16,
+      "BytesSha256": "e1b484ff69482293a0c7bd2fbfabc49ef3eaf21179c5ade8a6025c66f305bc5e",
+      "File": "0x06001476-PropertyContentsContainer-_ctor",
+      "Instructions": 11,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Persistence.Loaders.BusinessesLoader",
+        "Name": ".ctor",
+        "Token": "0x06001860",
+        "ParameterCount": 0,
+        "InterfaceOrVirtualSlot": 65535,
+        "Va": "0x18041D580",
+        "Rva": "0x41D580",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 16,
+      "BytesSha256": "fdb8a65fbd563428552c98b3b2214f65ee6116a13f1be137e8c990c66426ad07",
+      "File": "0x06001860-BusinessesLoader-_ctor",
+      "Instructions": 11,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Persistence.Loaders.BusinessesLoader",
+        "Name": "Load",
+        "Token": "0x06001861",
+        "ParameterCount": 1,
+        "InterfaceOrVirtualSlot": 4,
+        "Va": "0x18059C850",
+        "Rva": "0x59C850",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 1632,
+      "BytesSha256": "25d52cf3b387365e2a0ab6e44c419fb1d31180cc19a98519234852a3ccd37161",
+      "File": "0x06001861-BusinessesLoader-Load",
+      "Instructions": 354,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Persistence.Loaders.BusinessLoader",
+        "Name": ".ctor",
+        "Token": "0x06001862",
+        "ParameterCount": 0,
+        "InterfaceOrVirtualSlot": 65535,
+        "Va": "0x18041D580",
+        "Rva": "0x41D580",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 16,
+      "BytesSha256": "fdb8a65fbd563428552c98b3b2214f65ee6116a13f1be137e8c990c66426ad07",
+      "File": "0x06001862-BusinessLoader-_ctor",
+      "Instructions": 11,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Persistence.Loaders.BusinessLoader",
+        "Name": "Load",
+        "Token": "0x06001863",
+        "ParameterCount": 1,
+        "InterfaceOrVirtualSlot": 4,
+        "Va": "0x18059C640",
+        "Rva": "0x59C640",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 528,
+      "BytesSha256": "4c8e20462bcad26631f09daa249954d1e89c6eeef31b15c3bef1161c3277661c",
+      "File": "0x06001863-BusinessLoader-Load",
+      "Instructions": 134,
+      "HasUndecodedTail": false
+    }
+  ],
+  "NativeSaveWriteAllowed": false,
+  "GameInvoked": false,
+  "NativeSaveFilesRead": false
+}

@@ -1,0 +1,41 @@
+{
+  "capturedUtc": "2026-11-06T08:51:18.061751+00:00",
+  "deployedAtUtc": "2026-11-06T08:48:53.8999304Z",
+  "sourceRevision": "b2c6c7e6c6ecc778da9624cdb68a6578b9db471a",
+  "sourceWorktree": "dirty",
+  "checkpointId": "20261106T084752851857Z-bc05f9f2",
+  "checkpointVerified": true,
+  "nativeSlot": "SaveGame_2",
+  "organisation": "TownHallTest",
+  "nativeFiles": 39,
+  "nativeFilesUnchanged": true,
+  "nativeSlot1Accessed": false,
+  "userDataChanged": [
+    "TownHallInterior/TownHallInterior.pdb"
+  ],
+  "modsChanged": [
+    "TownHallInterior.dll"
+  ],
+  "installedHashes": {
+    "Mods/TownHallInterior.dll": "38bd7da3159c4ab9363695e0f9717e659322ca68e852d316a13181fa9eaab72a",
+    "UserData/TownHallInterior/TownHallInterior.pdb": "109bdd92623f553c48b0569d9bd373235220ba4894a463187361dc73c2e62334",
+    "UserData/TownHallInterior/mod.json": "65938002b7273ef77dedbadf9092a186e6742f1e40fe404ef91576d3e4f81660"
+  },
+  "receiptAttemptId": "20261106T084853681Z-75f3da6a48bf",
+  "backupId": "20261106T084853718Z-TownHallInterior-b79088da",
+  "normalRollbackCheckpointId": "20261106T071352816001Z-0981b43e",
+  "normalRollbackDllSha256": "614b81fd584040d4cebe7a18929bca09eabae478a6487ec6d846ea01d6062003",
+  "normalRollbackPdbSha256": "8126ae65f5c12f6e8261af0a1734e622d8c0ab5522a91e6653c7b1ffd7d8c497",
+  "steamCloudDisabled": true,
+  "cloudSettingsUnchanged": true,
+  "gameClosedBeforeAndAfter": true,
+  "gameLaunched": false,
+  "buildPerformed": false,
+  "testsRerun": false,
+  "independentReadback": "passed; installed DLL/PDB, unchanged metadata, predecessor backup, exact 2 copied + 1 unchanged and closed game",
+  "limits": [
+    "Installation proof only; no runtime or Business persistence acceptance",
+    "Cloud remote state and existing conflict markers not modified",
+    "Private checkpoint contents are not knowledge imports"
+  ]
+}

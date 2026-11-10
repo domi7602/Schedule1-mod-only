@@ -1,0 +1,175 @@
+; ScheduleOne.Persistence.SaveManager::Awake/0, token 0x06001823, RVA 0x5A8F70, next-pointer window 0x2C0 bytes
+; No target execution. Parser-pointer window can contain padding/cold fragments and is not exact/full function, EH or transitive coverage. Shared direct aliases are truncated to eight names.
+0x5A8F70     48 89 5C 24 10                  mov [rsp+10h],rbx
+0x5A8F75     56                              push rsi
+0x5A8F76     48 83 EC 20                     sub rsp,20h
+0x5A8F7A     80 3D C7 27 65 03 00            cmp byte ptr [183BFB748h],0
+0x5A8F81     48 8B F1                        mov rsi,rcx
+0x5A8F84     75 5B                           jne short 00000001805A8FE1h
+0x5A8F86     48 8D 0D DB E1 42 03            lea rcx,[1839D7168h] ; TypeInfo: UnityEngine.Application
+0x5A8F8D     E8 0E E9 D6 FF                  call 00000001803178A0h
+0x5A8F92     48 8D 0D 5F 70 44 03            lea rcx,[1839EFFF8h] ; TypeInfo: UnityEngine.Object
+0x5A8F99     E8 02 E9 D6 FF                  call 00000001803178A0h
+0x5A8F9E     48 8D 0D 6B E6 44 03            lea rcx,[1839F7610h] ; TypeInfo: System.IO.Path
+0x5A8FA5     E8 F6 E8 D6 FF                  call 00000001803178A0h
+0x5A8FAA     48 8D 0D 8F 5B 41 03            lea rcx,[1839BEB40h] ; MethodRef: System.Void ScheduleOne.DevUtilities.PersistentSingleton`1<ScheduleOne.Persistence.SaveManager>.Awake
+0x5A8FB1     E8 EA E8 D6 FF                  call 00000001803178A0h
+0x5A8FB6     48 8D 0D 03 94 44 03            lea rcx,[1839F23C0h] ; MethodRef: T ScheduleOne.DevUtilities.Singleton`1<ScheduleOne.Persistence.SaveManager>.get_Instance
+0x5A8FBD     E8 DE E8 D6 FF                  call 00000001803178A0h
+0x5A8FC2     48 8D 0D 57 65 41 03            lea rcx,[1839BF520h] ; StringLiteral: Saves
+0x5A8FC9     E8 D2 E8 D6 FF                  call 00000001803178A0h
+0x5A8FCE     48 8D 0D CB 63 45 03            lea rcx,[1839FF3A0h] ; StringLiteral: TempPlayer
+0x5A8FD5     E8 C6 E8 D6 FF                  call 00000001803178A0h
+0x5A8FDA     C6 05 67 27 65 03 01            mov byte ptr [183BFB748h],1
+0x5A8FE1     48 8B 15 58 5B 41 03            mov rdx,[1839BEB40h] ; MethodRef: System.Void ScheduleOne.DevUtilities.PersistentSingleton`1<ScheduleOne.Persistence.SaveManager>.Awake
+0x5A8FE8     48 8B CE                        mov rcx,rsi
+0x5A8FEB     E8 C0 79 AC 00                  call 00000001810709B0h ; ScheduleOne.DevUtilities.PersistentSingleton`1::Awake/0
+0x5A8FF0     48 8B 05 C9 93 44 03            mov rax,[1839F23C0h] ; MethodRef: T ScheduleOne.DevUtilities.Singleton`1<ScheduleOne.Persistence.SaveManager>.get_Instance
+0x5A8FF7     48 8B 40 20                     mov rax,[rax+20h]
+0x5A8FFB     F6 80 35 01 00 00 01            test byte ptr [rax+135h],1
+0x5A9002     75 08                           jne short 00000001805A900Ch
+0x5A9004     48 8B C8                        mov rcx,rax
+0x5A9007     E8 34 38 D7 FF                  call 000000018031C840h
+0x5A900C     48 8B 80 C0 00 00 00            mov rax,[rax+0C0h]
+0x5A9013     48 8B 40 10                     mov rax,[rax+10h]
+0x5A9017     F6 80 35 01 00 00 01            test byte ptr [rax+135h],1
+0x5A901E     75 08                           jne short 00000001805A9028h
+0x5A9020     48 8B C8                        mov rcx,rax
+0x5A9023     E8 18 38 D7 FF                  call 000000018031C840h
+0x5A9028     48 8B 0D C9 6F 44 03            mov rcx,[1839EFFF8h] ; TypeInfo: UnityEngine.Object
+0x5A902F     48 8B 80 B8 00 00 00            mov rax,[rax+0B8h]
+0x5A9036     83 B9 E0 00 00 00 00            cmp dword ptr [rcx+0E0h],0
+0x5A903D     48 8B 18                        mov rbx,[rax]
+0x5A9040     75 05                           jne short 00000001805A9047h
+0x5A9042     E8 E9 EB D6 FF                  call 0000000180317C30h
+0x5A9047     45 33 C0                        xor r8d,r8d
+0x5A904A     33 D2                           xor edx,edx
+0x5A904C     48 8B CB                        mov rcx,rbx
+0x5A904F     E8 4C 30 5D 02                  call 0000000182B7C0A0h ; UnityEngine.Object::op_Equality/2
+0x5A9054     84 C0                           test al,al
+0x5A9056     0F 85 78 01 00 00               jne near ptr 00000001805A91D4h
+0x5A905C     48 8B 05 5D 93 44 03            mov rax,[1839F23C0h] ; MethodRef: T ScheduleOne.DevUtilities.Singleton`1<ScheduleOne.Persistence.SaveManager>.get_Instance
+0x5A9063     48 8B 40 20                     mov rax,[rax+20h]
+0x5A9067     F6 80 35 01 00 00 01            test byte ptr [rax+135h],1
+0x5A906E     75 08                           jne short 00000001805A9078h
+0x5A9070     48 8B C8                        mov rcx,rax
+0x5A9073     E8 C8 37 D7 FF                  call 000000018031C840h
+0x5A9078     48 8B 80 C0 00 00 00            mov rax,[rax+0C0h]
+0x5A907F     48 8B 40 10                     mov rax,[rax+10h]
+0x5A9083     F6 80 35 01 00 00 01            test byte ptr [rax+135h],1
+0x5A908A     75 08                           jne short 00000001805A9094h
+0x5A908C     48 8B C8                        mov rcx,rax
+0x5A908F     E8 AC 37 D7 FF                  call 000000018031C840h
+0x5A9094     48 8B 0D 5D 6F 44 03            mov rcx,[1839EFFF8h] ; TypeInfo: UnityEngine.Object
+0x5A909B     48 8B 80 B8 00 00 00            mov rax,[rax+0B8h]
+0x5A90A2     83 B9 E0 00 00 00 00            cmp dword ptr [rcx+0E0h],0
+0x5A90A9     48 8B 18                        mov rbx,[rax]
+0x5A90AC     75 05                           jne short 00000001805A90B3h
+0x5A90AE     E8 7D EB D6 FF                  call 0000000180317C30h
+0x5A90B3     45 33 C0                        xor r8d,r8d
+0x5A90B6     48 8B D6                        mov rdx,rsi
+0x5A90B9     48 8B CB                        mov rcx,rbx
+0x5A90BC     E8 7F 31 5D 02                  call 0000000182B7C240h ; UnityEngine.Object::op_Inequality/2
+0x5A90C1     84 C0                           test al,al
+0x5A90C3     0F 85 0B 01 00 00               jne near ptr 00000001805A91D4h
+0x5A90C9     48 8B 0D 98 E0 42 03            mov rcx,[1839D7168h] ; TypeInfo: UnityEngine.Application
+0x5A90D0     83 B9 E0 00 00 00 00            cmp dword ptr [rcx+0E0h],0
+0x5A90D7     75 05                           jne short 00000001805A90DEh
+0x5A90D9     E8 52 EB D6 FF                  call 0000000180317C30h
+0x5A90DE     33 C9                           xor ecx,ecx
+0x5A90E0     E8 9B 29 59 02                  call 0000000182B3BA80h ; UnityEngine.Application::get_persistentDataPath/0
+0x5A90E5     48 8B 0D 24 E5 44 03            mov rcx,[1839F7610h] ; TypeInfo: System.IO.Path
+0x5A90EC     48 8B D8                        mov rbx,rax
+0x5A90EF     83 B9 E0 00 00 00 00            cmp dword ptr [rcx+0E0h],0
+0x5A90F6     75 05                           jne short 00000001805A90FDh
+0x5A90F8     E8 33 EB D6 FF                  call 0000000180317C30h
+0x5A90FD     48 8B 15 1C 64 41 03            mov rdx,[1839BF520h] ; StringLiteral: Saves
+0x5A9104     45 33 C0                        xor r8d,r8d
+0x5A9107     48 8B CB                        mov rcx,rbx
+0x5A910A     E8 B1 0F 5C 01                  call 0000000181B6A0C0h ; System.IO.Path::Combine/2
+0x5A910F     48 8D 4E 30                     lea rcx,[rsi+30h]
+0x5A9113     48 89 46 30                     mov [rsi+30h],rax
+0x5A9117     48 8B D0                        mov rdx,rax
+0x5A911A     E8 91 D9 D6 FF                  call 0000000180316AB0h
+0x5A911F     48 8B 4E 30                     mov rcx,[rsi+30h]
+0x5A9123     33 D2                           xor edx,edx
+0x5A9125     E8 C6 39 5B 01                  call 0000000181B5CAF0h ; System.IO.Directory::Exists/1
+0x5A912A     84 C0                           test al,al
+0x5A912C     75 0B                           jne short 00000001805A9139h
+0x5A912E     48 8B 4E 30                     mov rcx,[rsi+30h]
+0x5A9132     33 D2                           xor edx,edx
+0x5A9134     E8 B7 36 5B 01                  call 0000000181B5C7F0h ; System.IO.Directory::CreateDirectory/1
+0x5A9139     48 8B 4E 30                     mov rcx,[rsi+30h]
+0x5A913D     33 D2                           xor edx,edx
+0x5A913F     48 89 7C 24 30                  mov [rsp+30h],rdi
+0x5A9144     E8 67 3A 5B 01                  call 0000000181B5CBB0h ; System.IO.Directory::GetDirectories/1
+0x5A9149     48 85 C0                        test rax,rax
+0x5A914C     0F 84 D0 00 00 00               je near ptr 00000001805A9222h
+0x5A9152     48 83 78 18 00                  cmp qword ptr [rax+18h],0
+0x5A9157     75 46                           jne short 00000001805A919Fh
+0x5A9159     48 8B 0D B0 E4 44 03            mov rcx,[1839F7610h] ; TypeInfo: System.IO.Path
+0x5A9160     48 8B 5E 30                     mov rbx,[rsi+30h]
+0x5A9164     83 B9 E0 00 00 00 00            cmp dword ptr [rcx+0E0h],0
+0x5A916B     75 05                           jne short 00000001805A9172h
+0x5A916D     E8 BE EA D6 FF                  call 0000000180317C30h
+0x5A9172     48 8B 15 27 62 45 03            mov rdx,[1839FF3A0h] ; StringLiteral: TempPlayer
+0x5A9179     45 33 C0                        xor r8d,r8d
+0x5A917C     48 8B CB                        mov rcx,rbx
+0x5A917F     E8 3C 0F 5C 01                  call 0000000181B6A0C0h ; System.IO.Path::Combine/2
+0x5A9184     33 D2                           xor edx,edx
+0x5A9186     48 8B C8                        mov rcx,rax
+0x5A9189     48 8B D8                        mov rbx,rax
+0x5A918C     E8 5F 39 5B 01                  call 0000000181B5CAF0h ; System.IO.Directory::Exists/1
+0x5A9191     84 C0                           test al,al
+0x5A9193     75 0A                           jne short 00000001805A919Fh
+0x5A9195     33 D2                           xor edx,edx
+0x5A9197     48 8B CB                        mov rcx,rbx
+0x5A919A     E8 51 36 5B 01                  call 0000000181B5C7F0h ; System.IO.Directory::CreateDirectory/1
+0x5A919F     48 8B 4E 30                     mov rcx,[rsi+30h]
+0x5A91A3     33 D2                           xor edx,edx
+0x5A91A5     E8 06 3A 5B 01                  call 0000000181B5CBB0h ; System.IO.Directory::GetDirectories/1
+0x5A91AA     48 8B F8                        mov rdi,rax
+0x5A91AD     48 85 C0                        test rax,rax
+0x5A91B0     74 70                           je short 00000001805A9222h
+0x5A91B2     83 78 18 01                     cmp dword ptr [rax+18h],1
+0x5A91B6     7F 27                           jg short 00000001805A91DFh
+0x5A91B8     83 78 18 00                     cmp dword ptr [rax+18h],0
+0x5A91BC     76 6A                           jbe short 00000001805A9228h
+0x5A91BE     48 8B 50 20                     mov rdx,[rax+20h]
+0x5A91C2     48 8D 4E 38                     lea rcx,[rsi+38h]
+0x5A91C6     48 89 56 38                     mov [rsi+38h],rdx
+0x5A91CA     E8 E1 D8 D6 FF                  call 0000000180316AB0h
+0x5A91CF     48 8B 7C 24 30                  mov rdi,[rsp+30h]
+0x5A91D4     48 8B 5C 24 38                  mov rbx,[rsp+38h]
+0x5A91D9     48 83 C4 20                     add rsp,20h
+0x5A91DD     5E                              pop rsi
+0x5A91DE     C3                              ret
+0x5A91DF     33 DB                           xor ebx,ebx
+0x5A91E1     33 C0                           xor eax,eax
+0x5A91E3     3B 47 18                        cmp eax,[rdi+18h]
+0x5A91E6     7D E7                           jge short 00000001805A91CFh
+0x5A91E8     3B 5F 18                        cmp ebx,[rdi+18h]
+0x5A91EB     73 3B                           jae short 00000001805A9228h
+0x5A91ED     48 63 C3                        movsxd rax,ebx
+0x5A91F0     48 8B 4C C7 20                  mov rcx,[rdi+rax*8+20h]
+0x5A91F5     48 85 C9                        test rcx,rcx
+0x5A91F8     74 28                           je short 00000001805A9222h
+0x5A91FA     48 8B 15 9F 61 45 03            mov rdx,[1839FF3A0h] ; StringLiteral: TempPlayer
+0x5A9201     45 33 C0                        xor r8d,r8d
+0x5A9204     E8 87 AD 43 01                  call 00000001819E3F90h ; System.String::Contains/1
+0x5A9209     84 C0                           test al,al
+0x5A920B     74 06                           je short 00000001805A9213h
+0x5A920D     FF C3                           inc ebx
+0x5A920F     8B C3                           mov eax,ebx
+0x5A9211     EB D0                           jmp short 00000001805A91E3h
+0x5A9213     3B 5F 18                        cmp ebx,[rdi+18h]
+0x5A9216     73 10                           jae short 00000001805A9228h
+0x5A9218     48 63 C3                        movsxd rax,ebx
+0x5A921B     48 8B 54 C7 20                  mov rdx,[rdi+rax*8+20h]
+0x5A9220     EB A0                           jmp short 00000001805A91C2h
+0x5A9222     E8 59 E9 D6 FF                  call 0000000180317B80h
+0x5A9227     CC                              int 3
+0x5A9228     E8 43 E9 D6 FF                  call 0000000180317B70h
+0x5A922D     CC                              int 3
+0x5A922E     CC                              int 3
+0x5A922F     CC                              int 3

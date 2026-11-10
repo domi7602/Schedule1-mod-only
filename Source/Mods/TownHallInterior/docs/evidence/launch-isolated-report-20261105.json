@@ -1,0 +1,418 @@
+{
+  "SchemaVersion": 1,
+  "Repository": "C:\\Users\\pc\\.cache\\Schedule1Tools\\clean-checkouts\\clean-checkout-7b0cd84ca3f8\\checkout",
+  "RequestedMode": "Pure",
+  "Mode": "Pure",
+  "StartedUtc": "2026-11-05T07:18:55.7317834Z",
+  "FinishedUtc": "2026-11-05T07:23:25.7664670Z",
+  "GameReferences": true,
+  "GameProbe": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Schedule I\\MelonLoader\\Il2CppAssemblies\\Assembly-CSharp.dll",
+  "Dotnet": "C:\\Program Files\\dotnet\\dotnet.exe",
+  "ExitCode": 1,
+  "Passed": 21,
+  "Failed": 1,
+  "Skipped": 0,
+  "Steps": [
+    {
+      "Name": "sdk",
+      "Status": "Passed",
+      "ExitCode": 0,
+      "Seconds": 0.11,
+      "Command": "C:\\Program Files\\dotnet\\dotnet.exe",
+      "Arguments": [
+        "--version"
+      ],
+      "LogPath": "C:\\Users\\pc\\.cache\\Schedule1Tools\\clean-checkouts\\clean-checkout-7b0cd84ca3f8\\checks\\verify-7fd86f298afa\\sdk.log",
+      "Error": null
+    },
+    {
+      "Name": "format",
+      "Status": "Passed",
+      "ExitCode": 0,
+      "Seconds": 31.49,
+      "Command": "C:\\Program Files\\dotnet\\dotnet.exe",
+      "Arguments": [
+        "format",
+        "C:\\Users\\pc\\.cache\\Schedule1Tools\\clean-checkouts\\clean-checkout-7b0cd84ca3f8\\checkout\\Source\\Mods\\S1Mods.sln",
+        "--verify-no-changes",
+        "--verbosity",
+        "minimal"
+      ],
+      "LogPath": "C:\\Users\\pc\\.cache\\Schedule1Tools\\clean-checkouts\\clean-checkout-7b0cd84ca3f8\\checks\\verify-7fd86f298afa\\format.log",
+      "Error": null
+    },
+    {
+      "Name": "solution",
+      "Status": "Passed",
+      "ExitCode": 0,
+      "Seconds": 0.41,
+      "Command": "C:\\Program Files\\WindowsApps\\Microsoft.PowerShell_7.6.8.0_x64__8wekyb3d8bbwe\\pwsh.exe",
+      "Arguments": [
+        "-NoProfile",
+        "-NonInteractive",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "C:\\Users\\pc\\.cache\\Schedule1Tools\\clean-checkouts\\clean-checkout-7b0cd84ca3f8\\checkout\\Tools\\gen-sln.ps1",
+        "-Check"
+      ],
+      "LogPath": "C:\\Users\\pc\\.cache\\Schedule1Tools\\clean-checkouts\\clean-checkout-7b0cd84ca3f8\\checks\\verify-7fd86f298afa\\solution.log",
+      "Error": null
+    },
+    {
+      "Name": "versions",
+      "Status": "Failed",
+      "ExitCode": 1,
+      "Seconds": 1.04,
+      "Command": "C:\\Program Files\\WindowsApps\\Microsoft.PowerShell_7.6.8.0_x64__8wekyb3d8bbwe\\pwsh.exe",
+      "Arguments": [
+        "-NoProfile",
+        "-NonInteractive",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "C:\\Users\\pc\\.cache\\Schedule1Tools\\clean-checkouts\\clean-checkout-7b0cd84ca3f8\\checkout\\Tools\\check-version-sync.ps1"
+      ],
+      "LogPath": "C:\\Users\\pc\\.cache\\Schedule1Tools\\clean-checkouts\\clean-checkout-7b0cd84ca3f8\\checks\\verify-7fd86f298afa\\versions.log",
+      "Error": "Child process exited 1."
+    },
+    {
+      "Name": "docs",
+      "Status": "Passed",
+      "ExitCode": 0,
+      "Seconds": 3.27,
+      "Command": "C:\\Program Files\\WindowsApps\\Microsoft.PowerShell_7.6.8.0_x64__8wekyb3d8bbwe\\pwsh.exe",
+      "Arguments": [
+        "-NoProfile",
+        "-NonInteractive",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "C:\\Users\\pc\\.cache\\Schedule1Tools\\clean-checkouts\\clean-checkout-7b0cd84ca3f8\\checkout\\Tools\\check-doc-paths.ps1"
+      ],
+      "LogPath": "C:\\Users\\pc\\.cache\\Schedule1Tools\\clean-checkouts\\clean-checkout-7b0cd84ca3f8\\checks\\verify-7fd86f298afa\\docs.log",
+      "Error": null
+    },
+    {
+      "Name": "skills",
+      "Status": "Passed",
+      "ExitCode": 0,
+      "Seconds": 1.11,
+      "Command": "C:\\Program Files\\WindowsApps\\Microsoft.PowerShell_7.6.8.0_x64__8wekyb3d8bbwe\\pwsh.exe",
+      "Arguments": [
+        "-NoProfile",
+        "-NonInteractive",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "C:\\Users\\pc\\.cache\\Schedule1Tools\\clean-checkouts\\clean-checkout-7b0cd84ca3f8\\checkout\\Tools\\check-skills-health.ps1"
+      ],
+      "LogPath": "C:\\Users\\pc\\.cache\\Schedule1Tools\\clean-checkouts\\clean-checkout-7b0cd84ca3f8\\checks\\verify-7fd86f298afa\\skills.log",
+      "Error": null
+    },
+    {
+      "Name": "xml",
+      "Status": "Passed",
+      "ExitCode": 0,
+      "Seconds": 0.37,
+      "Command": "C:\\Program Files\\WindowsApps\\Microsoft.PowerShell_7.6.8.0_x64__8wekyb3d8bbwe\\pwsh.exe",
+      "Arguments": [
+        "-NoProfile",
+        "-NonInteractive",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "C:\\Users\\pc\\.cache\\Schedule1Tools\\clean-checkouts\\clean-checkout-7b0cd84ca3f8\\checkout\\Tools\\check-xml.ps1"
+      ],
+      "LogPath": "C:\\Users\\pc\\.cache\\Schedule1Tools\\clean-checkouts\\clean-checkout-7b0cd84ca3f8\\checks\\verify-7fd86f298afa\\xml.log",
+      "Error": null
+    },
+    {
+      "Name": "tests",
+      "Status": "Passed",
+      "ExitCode": 0,
+      "Seconds": 47.1,
+      "Command": "C:\\Program Files\\WindowsApps\\Microsoft.PowerShell_7.6.8.0_x64__8wekyb3d8bbwe\\pwsh.exe",
+      "Arguments": [
+        "-NoProfile",
+        "-NonInteractive",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "C:\\Users\\pc\\.cache\\Schedule1Tools\\clean-checkouts\\clean-checkout-7b0cd84ca3f8\\checkout\\Tools\\test-all.ps1",
+        "-Selection",
+        "pure",
+        "-Configuration",
+        "Release",
+        "-DotnetPath",
+        "C:\\Program Files\\dotnet\\dotnet.exe",
+        "-ScratchRoot",
+        "C:\\Users\\pc\\.cache\\Schedule1Tools\\clean-checkouts\\clean-checkout-7b0cd84ca3f8\\checks\\verify-7fd86f298afa\\tests"
+      ],
+      "LogPath": "C:\\Users\\pc\\.cache\\Schedule1Tools\\clean-checkouts\\clean-checkout-7b0cd84ca3f8\\checks\\verify-7fd86f298afa\\tests.log",
+      "Error": null
+    },
+    {
+      "Name": "tool-bump-version.Tests",
+      "Status": "Passed",
+      "ExitCode": 0,
+      "Seconds": 7.48,
+      "Command": "C:\\Program Files\\WindowsApps\\Microsoft.PowerShell_7.6.8.0_x64__8wekyb3d8bbwe\\pwsh.exe",
+      "Arguments": [
+        "-NoProfile",
+        "-NonInteractive",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "C:\\Users\\pc\\.cache\\Schedule1Tools\\clean-checkouts\\clean-checkout-7b0cd84ca3f8\\checkout\\Tools\\Tests\\bump-version.Tests.ps1",
+        "-ScratchRoot",
+        "C:\\Users\\pc\\.cache\\Schedule1Tools\\clean-checkouts\\clean-checkout-7b0cd84ca3f8\\checks\\verify-7fd86f298afa\\fixtures\\bump-version"
+      ],
+      "LogPath": "C:\\Users\\pc\\.cache\\Schedule1Tools\\clean-checkouts\\clean-checkout-7b0cd84ca3f8\\checks\\verify-7fd86f298afa\\tool-bump-version.Tests.log",
+      "Error": null
+    },
+    {
+      "Name": "tool-clean-checkout.Tests",
+      "Status": "Passed",
+      "ExitCode": 0,
+      "Seconds": 30.38,
+      "Command": "C:\\Program Files\\WindowsApps\\Microsoft.PowerShell_7.6.8.0_x64__8wekyb3d8bbwe\\pwsh.exe",
+      "Arguments": [
+        "-NoProfile",
+        "-NonInteractive",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "C:\\Users\\pc\\.cache\\Schedule1Tools\\clean-checkouts\\clean-checkout-7b0cd84ca3f8\\checkout\\Tools\\Tests\\clean-checkout.Tests.ps1",
+        "-ScratchRoot",
+        "C:\\Users\\pc\\.cache\\Schedule1Tools\\clean-checkouts\\clean-checkout-7b0cd84ca3f8\\checks\\verify-7fd86f298afa\\fixtures\\clean-checkout"
+      ],
+      "LogPath": "C:\\Users\\pc\\.cache\\Schedule1Tools\\clean-checkouts\\clean-checkout-7b0cd84ca3f8\\checks\\verify-7fd86f298afa\\tool-clean-checkout.Tests.log",
+      "Error": null
+    },
+    {
+      "Name": "tool-clean-unity-caches.Tests",
+      "Status": "Passed",
+      "ExitCode": 0,
+      "Seconds": 17.98,
+      "Command": "C:\\Program Files\\WindowsApps\\Microsoft.PowerShell_7.6.8.0_x64__8wekyb3d8bbwe\\pwsh.exe",
+      "Arguments": [
+        "-NoProfile",
+        "-NonInteractive",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "C:\\Users\\pc\\.cache\\Schedule1Tools\\clean-checkouts\\clean-checkout-7b0cd84ca3f8\\checkout\\Tools\\Tests\\clean-unity-caches.Tests.ps1",
+        "-ScratchRoot",
+        "C:\\Users\\pc\\.cache\\Schedule1Tools\\clean-checkouts\\clean-checkout-7b0cd84ca3f8\\checks\\verify-7fd86f298afa\\fixtures\\clean-unity-caches"
+      ],
+      "LogPath": "C:\\Users\\pc\\.cache\\Schedule1Tools\\clean-checkouts\\clean-checkout-7b0cd84ca3f8\\checks\\verify-7fd86f298afa\\tool-clean-unity-caches.Tests.log",
+      "Error": null
+    },
+    {
+      "Name": "tool-deploy-mod.Tests",
+      "Status": "Passed",
+      "ExitCode": 0,
+      "Seconds": 7.86,
+      "Command": "C:\\Program Files\\WindowsApps\\Microsoft.PowerShell_7.6.8.0_x64__8wekyb3d8bbwe\\pwsh.exe",
+      "Arguments": [
+        "-NoProfile",
+        "-NonInteractive",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "C:\\Users\\pc\\.cache\\Schedule1Tools\\clean-checkouts\\clean-checkout-7b0cd84ca3f8\\checkout\\Tools\\Tests\\deploy-mod.Tests.ps1"
+      ],
+      "LogPath": "C:\\Users\\pc\\.cache\\Schedule1Tools\\clean-checkouts\\clean-checkout-7b0cd84ca3f8\\checks\\verify-7fd86f298afa\\tool-deploy-mod.Tests.log",
+      "Error": null
+    },
+    {
+      "Name": "tool-deploy.Tests",
+      "Status": "Passed",
+      "ExitCode": 0,
+      "Seconds": 13.54,
+      "Command": "C:\\Program Files\\WindowsApps\\Microsoft.PowerShell_7.6.8.0_x64__8wekyb3d8bbwe\\pwsh.exe",
+      "Arguments": [
+        "-NoProfile",
+        "-NonInteractive",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "C:\\Users\\pc\\.cache\\Schedule1Tools\\clean-checkouts\\clean-checkout-7b0cd84ca3f8\\checkout\\Tools\\Tests\\deploy.Tests.ps1",
+        "-ScratchRoot",
+        "C:\\Users\\pc\\.cache\\Schedule1Tools\\clean-checkouts\\clean-checkout-7b0cd84ca3f8\\checks\\verify-7fd86f298afa\\fixtures\\deploy"
+      ],
+      "LogPath": "C:\\Users\\pc\\.cache\\Schedule1Tools\\clean-checkouts\\clean-checkout-7b0cd84ca3f8\\checks\\verify-7fd86f298afa\\tool-deploy.Tests.log",
+      "Error": null
+    },
+    {
+      "Name": "tool-doc-paths.Tests",
+      "Status": "Passed",
+      "ExitCode": 0,
+      "Seconds": 6.42,
+      "Command": "C:\\Program Files\\WindowsApps\\Microsoft.PowerShell_7.6.8.0_x64__8wekyb3d8bbwe\\pwsh.exe",
+      "Arguments": [
+        "-NoProfile",
+        "-NonInteractive",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "C:\\Users\\pc\\.cache\\Schedule1Tools\\clean-checkouts\\clean-checkout-7b0cd84ca3f8\\checkout\\Tools\\Tests\\doc-paths.Tests.ps1",
+        "-ScratchRoot",
+        "C:\\Users\\pc\\.cache\\Schedule1Tools\\clean-checkouts\\clean-checkout-7b0cd84ca3f8\\checks\\verify-7fd86f298afa\\fixtures\\doc-paths"
+      ],
+      "LogPath": "C:\\Users\\pc\\.cache\\Schedule1Tools\\clean-checkouts\\clean-checkout-7b0cd84ca3f8\\checks\\verify-7fd86f298afa\\tool-doc-paths.Tests.log",
+      "Error": null
+    },
+    {
+      "Name": "tool-dotnet-sdk.Tests",
+      "Status": "Passed",
+      "ExitCode": 0,
+      "Seconds": 0.55,
+      "Command": "C:\\Program Files\\WindowsApps\\Microsoft.PowerShell_7.6.8.0_x64__8wekyb3d8bbwe\\pwsh.exe",
+      "Arguments": [
+        "-NoProfile",
+        "-NonInteractive",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "C:\\Users\\pc\\.cache\\Schedule1Tools\\clean-checkouts\\clean-checkout-7b0cd84ca3f8\\checkout\\Tools\\Tests\\dotnet-sdk.Tests.ps1",
+        "-ScratchRoot",
+        "C:\\Users\\pc\\.cache\\Schedule1Tools\\clean-checkouts\\clean-checkout-7b0cd84ca3f8\\checks\\verify-7fd86f298afa\\fixtures\\dotnet-sdk"
+      ],
+      "LogPath": "C:\\Users\\pc\\.cache\\Schedule1Tools\\clean-checkouts\\clean-checkout-7b0cd84ca3f8\\checks\\verify-7fd86f298afa\\tool-dotnet-sdk.Tests.log",
+      "Error": null
+    },
+    {
+      "Name": "tool-release.Tests",
+      "Status": "Passed",
+      "ExitCode": 0,
+      "Seconds": 0.9,
+      "Command": "C:\\Program Files\\WindowsApps\\Microsoft.PowerShell_7.6.8.0_x64__8wekyb3d8bbwe\\pwsh.exe",
+      "Arguments": [
+        "-NoProfile",
+        "-NonInteractive",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "C:\\Users\\pc\\.cache\\Schedule1Tools\\clean-checkouts\\clean-checkout-7b0cd84ca3f8\\checkout\\Tools\\Tests\\release.Tests.ps1"
+      ],
+      "LogPath": "C:\\Users\\pc\\.cache\\Schedule1Tools\\clean-checkouts\\clean-checkout-7b0cd84ca3f8\\checks\\verify-7fd86f298afa\\tool-release.Tests.log",
+      "Error": null
+    },
+    {
+      "Name": "tool-skills-health.Tests",
+      "Status": "Passed",
+      "ExitCode": 0,
+      "Seconds": 3.57,
+      "Command": "C:\\Program Files\\WindowsApps\\Microsoft.PowerShell_7.6.8.0_x64__8wekyb3d8bbwe\\pwsh.exe",
+      "Arguments": [
+        "-NoProfile",
+        "-NonInteractive",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "C:\\Users\\pc\\.cache\\Schedule1Tools\\clean-checkouts\\clean-checkout-7b0cd84ca3f8\\checkout\\Tools\\Tests\\skills-health.Tests.ps1",
+        "-ScratchRoot",
+        "C:\\Users\\pc\\.cache\\Schedule1Tools\\clean-checkouts\\clean-checkout-7b0cd84ca3f8\\checks\\verify-7fd86f298afa\\fixtures\\skills-health"
+      ],
+      "LogPath": "C:\\Users\\pc\\.cache\\Schedule1Tools\\clean-checkouts\\clean-checkout-7b0cd84ca3f8\\checks\\verify-7fd86f298afa\\tool-skills-health.Tests.log",
+      "Error": null
+    },
+    {
+      "Name": "tool-test-all.Tests",
+      "Status": "Passed",
+      "ExitCode": 0,
+      "Seconds": 31.0,
+      "Command": "C:\\Program Files\\WindowsApps\\Microsoft.PowerShell_7.6.8.0_x64__8wekyb3d8bbwe\\pwsh.exe",
+      "Arguments": [
+        "-NoProfile",
+        "-NonInteractive",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "C:\\Users\\pc\\.cache\\Schedule1Tools\\clean-checkouts\\clean-checkout-7b0cd84ca3f8\\checkout\\Tools\\Tests\\test-all.Tests.ps1",
+        "-ScratchRoot",
+        "C:\\Users\\pc\\.cache\\Schedule1Tools\\clean-checkouts\\clean-checkout-7b0cd84ca3f8\\checks\\verify-7fd86f298afa\\fixtures\\test-all"
+      ],
+      "LogPath": "C:\\Users\\pc\\.cache\\Schedule1Tools\\clean-checkouts\\clean-checkout-7b0cd84ca3f8\\checks\\verify-7fd86f298afa\\tool-test-all.Tests.log",
+      "Error": null
+    },
+    {
+      "Name": "tool-verify.Tests",
+      "Status": "Passed",
+      "ExitCode": 0,
+      "Seconds": 42.06,
+      "Command": "C:\\Program Files\\WindowsApps\\Microsoft.PowerShell_7.6.8.0_x64__8wekyb3d8bbwe\\pwsh.exe",
+      "Arguments": [
+        "-NoProfile",
+        "-NonInteractive",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "C:\\Users\\pc\\.cache\\Schedule1Tools\\clean-checkouts\\clean-checkout-7b0cd84ca3f8\\checkout\\Tools\\Tests\\verify.Tests.ps1",
+        "-ScratchRoot",
+        "C:\\Users\\pc\\.cache\\Schedule1Tools\\clean-checkouts\\clean-checkout-7b0cd84ca3f8\\checks\\verify-7fd86f298afa\\fixtures\\verify"
+      ],
+      "LogPath": "C:\\Users\\pc\\.cache\\Schedule1Tools\\clean-checkouts\\clean-checkout-7b0cd84ca3f8\\checks\\verify-7fd86f298afa\\tool-verify.Tests.log",
+      "Error": null
+    },
+    {
+      "Name": "tool-workspace-setup.Tests",
+      "Status": "Passed",
+      "ExitCode": 0,
+      "Seconds": 20.46,
+      "Command": "C:\\Program Files\\WindowsApps\\Microsoft.PowerShell_7.6.8.0_x64__8wekyb3d8bbwe\\pwsh.exe",
+      "Arguments": [
+        "-NoProfile",
+        "-NonInteractive",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "C:\\Users\\pc\\.cache\\Schedule1Tools\\clean-checkouts\\clean-checkout-7b0cd84ca3f8\\checkout\\Tools\\Tests\\workspace-setup.Tests.ps1",
+        "-ScratchRoot",
+        "C:\\Users\\pc\\.cache\\Schedule1Tools\\clean-checkouts\\clean-checkout-7b0cd84ca3f8\\checks\\verify-7fd86f298afa\\fixtures\\workspace-setup"
+      ],
+      "LogPath": "C:\\Users\\pc\\.cache\\Schedule1Tools\\clean-checkouts\\clean-checkout-7b0cd84ca3f8\\checks\\verify-7fd86f298afa\\tool-workspace-setup.Tests.log",
+      "Error": null
+    },
+    {
+      "Name": "tool-WorldLookMcp.Tests",
+      "Status": "Passed",
+      "ExitCode": 0,
+      "Seconds": 1.64,
+      "Command": "C:\\Program Files\\WindowsApps\\Microsoft.PowerShell_7.6.8.0_x64__8wekyb3d8bbwe\\pwsh.exe",
+      "Arguments": [
+        "-NoProfile",
+        "-NonInteractive",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "C:\\Users\\pc\\.cache\\Schedule1Tools\\clean-checkouts\\clean-checkout-7b0cd84ca3f8\\checkout\\Tools\\Tests\\WorldLookMcp.Tests.ps1",
+        "-ScratchRoot",
+        "C:\\Users\\pc\\.cache\\Schedule1Tools\\clean-checkouts\\clean-checkout-7b0cd84ca3f8\\checks\\verify-7fd86f298afa\\fixtures\\WorldLookMcp"
+      ],
+      "LogPath": "C:\\Users\\pc\\.cache\\Schedule1Tools\\clean-checkouts\\clean-checkout-7b0cd84ca3f8\\checks\\verify-7fd86f298afa\\tool-WorldLookMcp.Tests.log",
+      "Error": null
+    },
+    {
+      "Name": "tool-xml.Tests",
+      "Status": "Passed",
+      "ExitCode": 0,
+      "Seconds": 1.11,
+      "Command": "C:\\Program Files\\WindowsApps\\Microsoft.PowerShell_7.6.8.0_x64__8wekyb3d8bbwe\\pwsh.exe",
+      "Arguments": [
+        "-NoProfile",
+        "-NonInteractive",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "C:\\Users\\pc\\.cache\\Schedule1Tools\\clean-checkouts\\clean-checkout-7b0cd84ca3f8\\checkout\\Tools\\Tests\\xml.Tests.ps1",
+        "-ScratchRoot",
+        "C:\\Users\\pc\\.cache\\Schedule1Tools\\clean-checkouts\\clean-checkout-7b0cd84ca3f8\\checks\\verify-7fd86f298afa\\fixtures\\xml"
+      ],
+      "LogPath": "C:\\Users\\pc\\.cache\\Schedule1Tools\\clean-checkouts\\clean-checkout-7b0cd84ca3f8\\checks\\verify-7fd86f298afa\\tool-xml.Tests.log",
+      "Error": null
+    }
+  ]
+}

@@ -1,0 +1,71 @@
+{
+  "schema": 1,
+  "checkedUtc": "2026-11-06T13:22:14.4188984Z",
+  "reviewer": "/root/data_install_review",
+  "status": "accepted-as-failed-trial",
+  "findings": [],
+  "conclusion": "Fresh Slot-2 Data trial is attributable to the installed prepared candidate, but aborted during initial listener baseline capture. No pass of native Business data/query functionality.",
+  "identity": {
+    "reportName": "20261106T131816973Z.json",
+    "capturedUtc": "2026-11-06T13:18:16.9717501Z",
+    "reportSha256": "a5d8cc490cc9ca8db732281335a8b9be3ac5b4a52617be08b842d069d3bc8c97",
+    "frozenCopyMatchesOriginal": true,
+    "candidateSha256": "2e519ccfdc58053281dc67ffd91e2c1b53d523aa2941657e7b8e1fcd7dd81357",
+    "sourceSha256": "2ce4f35fe695fe7bec8a8524a00744ae49edfa4b4edd41b69b0835a658af2873",
+    "frozenLogSha256": "983c649881bc89fbfaab46803b3c57350998dc8eff327a035ead06e13dc21210",
+    "mode": "own-business-data-queries-no-io",
+    "target": "TownHallTest / SaveGame_2",
+    "generation": 2,
+    "process": {
+      "ProcessName": "Schedule I",
+      "Id": 15940,
+      "StartTime": "2026-11-06T14:16:31.1137935+01:00"
+    },
+    "processEvidenceSha256": "1762c04a8c343227e2ff184b0050f6eeb73583718585fce29003fbe5c8201720",
+    "processAttribution": "Read from parent-captured process.json; reviewer did not operate or independently start the game."
+  },
+  "observed": {
+    "reportedStatus": "quarantined",
+    "finding": "data-minute-list-over-budget",
+    "attemptConsumed": true,
+    "ownRootBusinessNetworkPointersZero": true,
+    "ownRegistrationReached": false,
+    "dataPreparationAttempted": false,
+    "setPropertyAttempted": false,
+    "nativeDataQueriesAttempted": false,
+    "activationAttempted": false,
+    "cleanupAttempted": false,
+    "beforeSnapshotPresent": false,
+    "afterSnapshotPresent": false,
+    "dataNativeMethodMetadataEntries": 8,
+    "dataCalls": 0,
+    "retainedUnknownDataHandles": 0
+  },
+  "sourceInterpretation": {
+    "file": "Source/Mods/TownHallInterior/src/BusinessConstruction.cs",
+    "beginOrderLines": "223-226: initial Capture precedes RegisterType and Prepare",
+    "captureLines": "3588-3640: listener capture runs before construction of SubtypeSnapshot",
+    "guardLines": "4035-4042: count=list.Count; reject count < 0 OR count > 512 before append/traversal",
+    "actualListenerCountRecorded": false,
+    "actualListenerCount": null,
+    "countConclusion": "Only outside inclusive range 0..512 is inferable; cannot select negative versus >512 or state an exact count."
+  },
+  "limitations": [
+    "No native data preparation, SetProperty, scalar query, bounds query or own lifecycle execution was reached, so none is passed by this trial.",
+    "No complete baseline or after snapshot exists: unchanged foreign registries/listeners/VTables is not established by this trial.",
+    "DataNativeMethods entries confirm metadata validation only, not native getter or loader constructor execution.",
+    "CleanupAttempted=false/CleanupComplete=false is not a successful cleanup observation; report and inspected ordering indicate no own objects were created.",
+    "Proxy/class metadata initialization can occur during initial Capture; no claim of absence of every process-global effect.",
+    "No native save files or live APIs were accessed by this reviewer; save equality and normal rollback require their separate evidence."
+  ],
+  "reviewerActions": {
+    "readOriginalAndFrozenReport": true,
+    "readFrozenAndCurrentLog": true,
+    "readCode": true,
+    "liveApiCalls": false,
+    "nativeSaveFilesRead": false,
+    "gameControl": false,
+    "builds": false,
+    "deployments": false
+  }
+}

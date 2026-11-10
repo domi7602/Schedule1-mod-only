@@ -1,0 +1,47 @@
+; ScheduleOne.GameTime.TimeManager::InitializeSaveable/0, token 0x06000BDA, RVA 0x9C93C0, next-pointer window 0x90 bytes
+; No target execution. Parser-pointer window can contain padding/cold fragments and is not exact/full function, EH or transitive coverage. Shared direct aliases are truncated to eight names.
+0x9C93C0     40 53                           push rbx
+0x9C93C2     48 83 EC 20                     sub rsp,20h
+0x9C93C6     80 3D F1 44 23 03 00            cmp byte ptr [183BFD8BEh],0
+0x9C93CD     48 8B D9                        mov rbx,rcx
+0x9C93D0     75 13                           jne short 00000001809C93E5h
+0x9C93D2     48 8D 0D E7 8F 02 03            lea rcx,[1839F23C0h] ; MethodRef: T ScheduleOne.DevUtilities.Singleton`1<ScheduleOne.Persistence.SaveManager>.get_Instance
+0x9C93D9     E8 C2 E4 94 FF                  call 00000001803178A0h
+0x9C93DE     C6 05 D9 44 23 03 01            mov byte ptr [183BFD8BEh],1
+0x9C93E5     48 8B 05 D4 8F 02 03            mov rax,[1839F23C0h] ; MethodRef: T ScheduleOne.DevUtilities.Singleton`1<ScheduleOne.Persistence.SaveManager>.get_Instance
+0x9C93EC     48 8B 40 20                     mov rax,[rax+20h]
+0x9C93F0     F6 80 35 01 00 00 01            test byte ptr [rax+135h],1
+0x9C93F7     75 08                           jne short 00000001809C9401h
+0x9C93F9     48 8B C8                        mov rcx,rax
+0x9C93FC     E8 3F 34 95 FF                  call 000000018031C840h
+0x9C9401     48 8B 80 C0 00 00 00            mov rax,[rax+0C0h]
+0x9C9408     48 8B 40 10                     mov rax,[rax+10h]
+0x9C940C     F6 80 35 01 00 00 01            test byte ptr [rax+135h],1
+0x9C9413     75 08                           jne short 00000001809C941Dh
+0x9C9415     48 8B C8                        mov rcx,rax
+0x9C9418     E8 23 34 95 FF                  call 000000018031C840h
+0x9C941D     48 8B 80 B8 00 00 00            mov rax,[rax+0B8h]
+0x9C9424     48 8B 08                        mov rcx,[rax]
+0x9C9427     48 85 C9                        test rcx,rcx
+0x9C942A     74 10                           je short 00000001809C943Ch
+0x9C942C     45 33 C0                        xor r8d,r8d
+0x9C942F     48 8B D3                        mov rdx,rbx
+0x9C9432     48 83 C4 20                     add rsp,20h
+0x9C9436     5B                              pop rbx
+0x9C9437     E9 84 11 BE FF                  jmp near ptr 00000001805AA5C0h ; ScheduleOne.Persistence.SaveManager::RegisterSaveable/1
+0x9C943C     E8 3F E7 94 FF                  call 0000000180317B80h
+0x9C9441     CC                              int 3
+0x9C9442     CC                              int 3
+0x9C9443     CC                              int 3
+0x9C9444     CC                              int 3
+0x9C9445     CC                              int 3
+0x9C9446     CC                              int 3
+0x9C9447     CC                              int 3
+0x9C9448     CC                              int 3
+0x9C9449     CC                              int 3
+0x9C944A     CC                              int 3
+0x9C944B     CC                              int 3
+0x9C944C     CC                              int 3
+0x9C944D     CC                              int 3
+0x9C944E     CC                              int 3
+0x9C944F     CC                              int 3

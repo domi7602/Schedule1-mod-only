@@ -1,0 +1,16 @@
+{
+  "schema": 1,
+  "checkedUtc": "2026-11-06T14:50:38.798715+00:00",
+  "organisation": "TownHallTest",
+  "slot": "SaveGame_2",
+  "beforeCheckpointId": "20261106T132157195259Z-af2660f4",
+  "beforeNativeFiles": 39,
+  "afterNativeFiles": 39,
+  "changed": [],
+  "added": [],
+  "removed": [],
+  "byteIdentical": true,
+  "nativeSlot1Accessed": false,
+  "sourceSaveWrites": false,
+  "limit": "File contents compared after game exit; empty-directory baseline was not recorded, and byte equality is not proof of no filesystem operations."
+}

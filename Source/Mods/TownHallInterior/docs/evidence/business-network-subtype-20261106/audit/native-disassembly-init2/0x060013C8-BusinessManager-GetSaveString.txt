@@ -1,0 +1,23 @@
+; ScheduleOne.Property.BusinessManager::GetSaveString/0, token 0x060013C8, RVA 0x54B690, next-pointer window 0x40 bytes
+; No target execution. Parser-pointer window can contain padding/cold fragments and is not exact/full function, EH or transitive coverage. Shared direct aliases are truncated to eight names.
+0x54B690     48 83 EC 28                     sub rsp,28h
+0x54B694     80 3D 9A FE 6A 03 00            cmp byte ptr [183BFB535h],0
+0x54B69B     75 13                           jne short 000000018054B6B0h
+0x54B69D     48 8D 0D 3C F8 44 03            lea rcx,[18399AEE0h] ; TypeInfo: System.String
+0x54B6A4     E8 F7 C1 DC FF                  call 00000001803178A0h
+0x54B6A9     C6 05 85 FE 6A 03 01            mov byte ptr [183BFB535h],1
+0x54B6B0     48 8B 05 29 F8 44 03            mov rax,[18399AEE0h] ; TypeInfo: System.String
+0x54B6B7     48 8B 80 B8 00 00 00            mov rax,[rax+0B8h]
+0x54B6BE     48 8B 00                        mov rax,[rax]
+0x54B6C1     48 83 C4 28                     add rsp,28h
+0x54B6C5     C3                              ret
+0x54B6C6     CC                              int 3
+0x54B6C7     CC                              int 3
+0x54B6C8     CC                              int 3
+0x54B6C9     CC                              int 3
+0x54B6CA     CC                              int 3
+0x54B6CB     CC                              int 3
+0x54B6CC     CC                              int 3
+0x54B6CD     CC                              int 3
+0x54B6CE     CC                              int 3
+0x54B6CF     CC                              int 3

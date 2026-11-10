@@ -1,0 +1,40 @@
+=== Version-Sync (Code ist Single Source of Truth) ===
+
+Mod                  Code        Json        Readme      Agents      Hdr  Sync
+---                  ----        ----        ------      ------      ---  ----
+AutoPackagingStation 0.4.7       0.4.7       0.4.7       0.4.7       -    True
+BankApp              0.5.0       0.5.0       0.5.0       0.5.0       -    True
+BusinessIncome       0.1.6       0.1.6       0.1.6       0.1.6       -    True
+CalculatorApp        0.2.3       0.2.3       0.2.3       0.2.3       -    True
+CustomSkateboard     1.1.5       1.1.5       1.1.5       1.1.5       -    True
+HitmanPhone          0.3.4       0.3.4       0.3.4       0.3.2       -   False
+LightControl         0.1.1       0.1.1       0.1.1       0.1.1       -    True
+MessagesPlus         0.4.6       0.4.6       0.4.6       0.4.6       -    True
+Minimap              2.3.7       2.3.7       2.3.7       2.3.6       -   False
+MoreSaveSlots        1.0.12      1.0.12      1.0.12      1.0.12      -    True
+NotesApp             1.0.3       1.0.3       1.0.3       1.0.3       -    True
+PhoneScrollFix       2.0.0       2.0.0       2.0.0       2.0.0       -    True
+PocketShop           0.3.9       0.3.9       0.3.9       0.3.9       -    True
+PoliceTestMode       0.1.0       0.1.0       0.1.0       (fehlt)     -   False
+PotScanner           0.7.0       0.7.0       0.7.0       0.7.0       -    True
+ProductAppQoL        0.1.0       0.1.0       0.1.0       0.1.0       -    True
+PropertyLEDs         0.1.11      0.1.11      0.1.11      0.1.11      -    True
+StackLimitMod        0.1.7       0.1.7       0.1.7       0.1.7       -    True
+StorageScanner       0.2.0       0.2.0       0.2.0       0.2.0       -    True
+TaxiDriver           1.0.6       1.0.6       1.0.6       1.0.6       -    True
+TownHallInterior     0.1.0       0.1.0       0.1.0       0.1.0       -    True
+Weather              0.4.0       0.4.0       0.4.0       0.4.0       -    True
+WorldLook            0.3.0-dev.5 0.3.0-dev.5 0.3.0-dev.5 0.3.0-dev.5 -    True
+
+
+Version-Drift in 3 Mod(s):
+  - HitmanPhone : README.md (weitere Nennung)=0.3.2 != code=0.3.4
+  - HitmanPhone : AGENTS.md=0.3.2 != code=0.3.4
+  - Minimap : AGENTS.md=2.3.6 != code=2.3.7
+  - PoliceTestMode : AGENTS.md=fehlt != code=0.1.0
+  - HitmanPhone : compatibility.md matrix=0.3.2 != code=0.3.4
+  - Minimap : compatibility.md matrix=2.3.6 != code=2.3.7
+
+Fix (schreibt MelonInfo + mod.json + CHANGELOG + AGENTS.md + README.md + compatibility.md-Matrixzeile):
+  pwsh Tools/bump-version.ps1 -Mod <Name> -Version <Code-Version>
+Nach dem Fix pruefen: pwsh Tools/check-version-sync.ps1

@@ -1,0 +1,70 @@
+; ScheduleOne.Property.Business::get_currentLaunderTotal/0, token 0x06001398, RVA 0x54DE30, next-pointer window 0x120 bytes
+; No target execution. Parser-pointer window can contain padding/cold fragments and is not exact/full function, EH or transitive coverage. Shared direct aliases are truncated to eight names.
+0x54DE30     48 89 5C 24 08                  mov [rsp+8],rbx
+0x54DE35     48 89 74 24 10                  mov [rsp+10h],rsi
+0x54DE3A     57                              push rdi
+0x54DE3B     48 83 EC 20                     sub rsp,20h
+0x54DE3F     80 3D D9 D6 6A 03 00            cmp byte ptr [183BFB51Fh],0
+0x54DE46     48 8B D9                        mov rbx,rcx
+0x54DE49     75 37                           jne short 000000018054DE82h
+0x54DE4B     48 8D 0D 26 D9 4B 03            lea rcx,[183A0B778h] ; MethodRef: System.Single System.Linq.Enumerable.Sum<ScheduleOne.Property.LaunderingOperation>
+0x54DE52     E8 49 9A DC FF                  call 00000001803178A0h
+0x54DE57     48 8D 0D EA 05 47 03            lea rcx,[1839BE448h] ; TypeInfo: System.Func`2<ScheduleOne.Property.LaunderingOperation, System.Single>
+0x54DE5E     E8 3D 9A DC FF                  call 00000001803178A0h
+0x54DE63     48 8D 0D 4E 60 46 03            lea rcx,[1839B3EB8h] ; MethodDef: ScheduleOne.Property.Business+<>c::<get_currentLaunderTotal>b__8_0/1
+0x54DE6A     E8 31 9A DC FF                  call 00000001803178A0h
+0x54DE6F     48 8D 0D 7A 3E 4A 03            lea rcx,[1839F1CF0h] ; TypeInfo: ScheduleOne.Property.Business+<>c
+0x54DE76     E8 25 9A DC FF                  call 00000001803178A0h
+0x54DE7B     C6 05 9D D6 6A 03 01            mov byte ptr [183BFB51Fh],1
+0x54DE82     48 8B 0D 67 3E 4A 03            mov rcx,[1839F1CF0h] ; TypeInfo: ScheduleOne.Property.Business+<>c
+0x54DE89     48 8B B3 70 02 00 00            mov rsi,[rbx+270h]
+0x54DE90     83 B9 E0 00 00 00 00            cmp dword ptr [rcx+0E0h],0
+0x54DE97     75 0C                           jne short 000000018054DEA5h
+0x54DE99     E8 92 9D DC FF                  call 0000000180317C30h
+0x54DE9E     48 8B 0D 4B 3E 4A 03            mov rcx,[1839F1CF0h] ; TypeInfo: ScheduleOne.Property.Business+<>c
+0x54DEA5     48 8B 81 B8 00 00 00            mov rax,[rcx+0B8h]
+0x54DEAC     48 8B 78 08                     mov rdi,[rax+8]
+0x54DEB0     48 85 FF                        test rdi,rdi
+0x54DEB3     75 6E                           jne short 000000018054DF23h
+0x54DEB5     39 B9 E0 00 00 00               cmp [rcx+0E0h],edi
+0x54DEBB     75 0C                           jne short 000000018054DEC9h
+0x54DEBD     E8 6E 9D DC FF                  call 0000000180317C30h
+0x54DEC2     48 8B 0D 27 3E 4A 03            mov rcx,[1839F1CF0h] ; TypeInfo: ScheduleOne.Property.Business+<>c
+0x54DEC9     48 8B 81 B8 00 00 00            mov rax,[rcx+0B8h]
+0x54DED0     48 8B 0D 71 05 47 03            mov rcx,[1839BE448h] ; TypeInfo: System.Func`2<ScheduleOne.Property.LaunderingOperation, System.Single>
+0x54DED7     48 8B 18                        mov rbx,[rax]
+0x54DEDA     E8 41 9C DC FF                  call 0000000180317B20h
+0x54DEDF     4C 8B 05 D2 5F 46 03            mov r8,[1839B3EB8h] ; MethodDef: ScheduleOne.Property.Business+<>c::<get_currentLaunderTotal>b__8_0/1
+0x54DEE6     45 33 C9                        xor r9d,r9d
+0x54DEE9     48 8B D3                        mov rdx,rbx
+0x54DEEC     48 8B C8                        mov rcx,rax
+0x54DEEF     48 8B F8                        mov rdi,rax
+0x54DEF2     E8 A9 E2 21 01                  call 000000018176C1A0h
+0x54DEF7     48 8B 05 F2 3D 4A 03            mov rax,[1839F1CF0h] ; TypeInfo: ScheduleOne.Property.Business+<>c
+0x54DEFE     48 8B D7                        mov rdx,rdi
+0x54DF01     4C 8B 80 B8 00 00 00            mov r8,[rax+0B8h]
+0x54DF08     49 89 78 08                     mov [r8+8],rdi
+0x54DF0C     48 8B 05 DD 3D 4A 03            mov rax,[1839F1CF0h] ; TypeInfo: ScheduleOne.Property.Business+<>c
+0x54DF13     48 8B 88 B8 00 00 00            mov rcx,[rax+0B8h]
+0x54DF1A     48 83 C1 08                     add rcx,8
+0x54DF1E     E8 8D 8B DC FF                  call 0000000180316AB0h
+0x54DF23     4C 8B 05 4E D8 4B 03            mov r8,[183A0B778h] ; MethodRef: System.Single System.Linq.Enumerable.Sum<ScheduleOne.Property.LaunderingOperation>
+0x54DF2A     48 8B D7                        mov rdx,rdi
+0x54DF2D     48 8B CE                        mov rcx,rsi
+0x54DF30     48 8B 5C 24 30                  mov rbx,[rsp+30h]
+0x54DF35     48 8B 74 24 38                  mov rsi,[rsp+38h]
+0x54DF3A     48 83 C4 20                     add rsp,20h
+0x54DF3E     5F                              pop rdi
+0x54DF3F     E9 6C 49 8D 00                  jmp near ptr 0000000180E228B0h ; System.Linq.Enumerable::Sum/2
+0x54DF44     CC                              int 3
+0x54DF45     CC                              int 3
+0x54DF46     CC                              int 3
+0x54DF47     CC                              int 3
+0x54DF48     CC                              int 3
+0x54DF49     CC                              int 3
+0x54DF4A     CC                              int 3
+0x54DF4B     CC                              int 3
+0x54DF4C     CC                              int 3
+0x54DF4D     CC                              int 3
+0x54DF4E     CC                              int 3
+0x54DF4F     CC                              int 3

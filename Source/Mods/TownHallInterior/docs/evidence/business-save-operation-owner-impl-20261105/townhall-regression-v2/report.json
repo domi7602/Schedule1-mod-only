@@ -1,0 +1,47 @@
+{
+  "Schema": 1,
+  "StartedUtc": "2026-11-05T18:17:22.1887423Z",
+  "FinishedUtc": "2026-11-05T18:17:25.5747682Z",
+  "Kind": "Synthetic managed linked-source tests; no native or deployment evidence",
+  "Sdk": "8.0.426",
+  "GameProcessCount": 0,
+  "DotnetRoot": null,
+  "Command": "dotnet",
+  "Arguments": [
+    "test",
+    "C:\\Users\\pc\\Schedule1-mod-only\\Source\\Tests\\TownHallInterior.Tests\\TownHallInterior.Tests.csproj",
+    "--no-restore",
+    "-c",
+    "Release",
+    "-p:S1NoDeploy=true",
+    "--results-directory",
+    "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-save-operation-owner-impl-20261105\\townhall-regression-v2",
+    "--logger",
+    "trx;LogFileName=results.trx"
+  ],
+  "SourceHashes": [
+    {
+      "Path": "Source/Mods/TownHallInterior/src/BusinessConstruction.cs",
+      "Sha256": "e4bb1d13324a3d61419d26ba172e88ba2ea53e30b15d3c6b6f43fb3e72212f50"
+    },
+    {
+      "Path": "Source/Tests/TownHallInterior.Tests/BusinessSaveOperationOwnerTests.cs",
+      "Sha256": "c92e90af755b8feadbd77282ccf0a852b0e1cedaf25ec63eea8a354f3d9ce198"
+    },
+    {
+      "Path": "Source/Tests/TownHallInterior.Tests/TownHallInterior.Tests.csproj",
+      "Sha256": "dc582cf6a85f3c98417c83cd67a65f28b8f8739bb1a1507fe665eaa52ceec26c"
+    }
+  ],
+  "ExitCode": 0,
+  "SourcesUnchangedDuringRun": true,
+  "Counters": {
+    "Total": 809,
+    "Executed": 809,
+    "Passed": 809,
+    "Failed": 0
+  },
+  "Status": "passed",
+  "NativeSaveWriteAllowed": false,
+  "InstallationReadOrChanged": false
+}

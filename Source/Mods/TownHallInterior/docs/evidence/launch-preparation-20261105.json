@@ -1,0 +1,113 @@
+{
+  "schema": 1,
+  "capturedUtc": "2026-11-05T07:16:08.270957+00:00",
+  "project": "schedule1-mod-only",
+  "sourceRevision": "b2c6c7e6c6ecc778da9624cdb68a6578b9db471a",
+  "sourceWorktree": "dirty",
+  "scope": "Owner-requested startup preparation and explicitly selected normal-build installation; no game launch.",
+  "authorization": {
+    "question": "Replace only TownHall with the checked normal build without business probes, with rollback and without starting the game?",
+    "selected": "Normalbuild installieren (Recommended)"
+  },
+  "installedDllSha256": "614b81fd584040d4cebe7a18929bca09eabae478a6487ec6d846ea01d6062003",
+  "installedPdbSha256": "8126ae65f5c12f6e8261af0a1734e622d8c0ab5522a91e6653c7b1ffd7d8c497",
+  "oldInstalledDllSha256": "cff67a85c0d922ea0aec7bd8ffc0affcf9fbb23a1576d1cd57c908fda165fa6a",
+  "mode": "normal-interior-without-business-probe-runtime",
+  "installedAtUtc": "2026-11-05T07:02:47.8943231Z",
+  "attemptId": "20261105T070247714Z-6be896f89e79",
+  "helperBackupId": "20261105T070247752Z-TownHallInterior-41bf1114",
+  "copiedFiles": 2,
+  "unchangedMetadataFiles": 1,
+  "independentInstallationAuditPassed": true,
+  "parentCheckpointVerificationPassed": true,
+  "otherModsAndSharedUnchanged": true,
+  "testWorld": {
+    "organisation": "TownHallTest",
+    "slot": "SaveGame_2",
+    "savedGameVersion": "0.4.7f12",
+    "nativeFiles": 39,
+    "unchangedAfterPreparation": true,
+    "loadedDuringPreparation": false
+  },
+  "privateCheckpoint": {
+    "id": "20261105T062735613294Z-d8477f8e",
+    "relativePath": ".backups/townhall-launch-prep/20261105T062735613294Z-d8477f8e",
+    "manifestSha256": "7df04016a7bc8a24e75fe5337151098e0020b8a899e14295b4ffbfce8819b6aa",
+    "nativeFiles": 39,
+    "userDataFiles": 162,
+    "oldPayloadFiles": 3,
+    "bytes": 67340458,
+    "contentsImportedIntoKnowledge": false,
+    "nativeSlot1Accessed": false,
+    "sharedUserDataCanIncludeOtherSlotSidecars": true
+  },
+  "steamCloud": {
+    "checkedUtc": "2026-11-05T07:06:51.191258+00:00",
+    "source": "Steam/userdata/<account>/7/remote/sharedconfig.vdf: UserRoamingConfigStore/Software/Valve/Steam/CloudEnabled",
+    "globalCloudEnabled": false,
+    "configSha256": "f17a5d3437d115375445bfb0dad12db954ea1726f6d8c393e8e8a82a190a8e78",
+    "appLastSyncState": null,
+    "recentAppSignals": [
+      {
+        "timestamp": "2026-11-04 08:12:17",
+        "kind": "sync-disabled",
+        "syncDisabled": true
+      }
+    ],
+    "settingsChanged": false,
+    "remoteStateChecked": false,
+    "conflictsResolved": false
+  },
+  "baselinePreparationComplete": true,
+  "nativeSaveProbeAllowed": false,
+  "actualGameStarted": false,
+  "nativeSaveInvoked": false,
+  "newBuildPerformedForInstallation": false,
+  "inheritedOfflineEvidence": "business-save-offline-20261105.json; same normal DLL/PDB identity, 681 TownHall tests and 3 builds attributed to the earlier offline step.",
+  "artifacts": [
+    {
+      "path": "Source/Mods/TownHallInterior/docs/evidence/launch-binary-before-review-20261105.json",
+      "sha256": "05c3c3431a2ed6a714f0c891f806994893cb833aa860918f8a09c0aa183641d8"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/docs/evidence/launch-installation-review-20261105.json",
+      "sha256": "0480c07e51433160e6f985e085e3d843bf837b34bd869c3dcf73fa1bfdf886d2"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/docs/evidence/launch-checkpoint-before-20261105.json",
+      "sha256": "890d6f2da1bd2d631ccc7724f79e555d1854d0c71c541c4bfa5cf1ab9b97ad9d"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/docs/evidence/launch-checkpoint-after-20261105.json",
+      "sha256": "5b31717157dd164bf5d88298bf4279bc4569ef23aef1de9c15eace2455b57650"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/docs/evidence/launch-cloud-current-20261105.json",
+      "sha256": "ddd0b839e9ed81b9d5dba040eb115005573f6770ab94b8dbe6f033153579f5fc"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/docs/evidence/launch-cloud-before-20261105.json",
+      "sha256": "a9c8d14833b4dd800504f7b525c4aba00e46d2d3255017bb1d53e16bcb5005a5"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/docs/evidence/launch-deploy-plan-20261105.json",
+      "sha256": "4f1583765c1f4a612b858df58392c9894d4dd494611a3a8aa18fcfadd6441ff7"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/docs/evidence/launch-deployment-receipt-20261105.json",
+      "sha256": "c24551ce2c0e5833e3f6bae699d0ab2182d7a3e82740ef2c3a3329612d406904"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/docs/evidence/launch-deployment-backup-manifest-20261105.json",
+      "sha256": "6d351bd90aa59e53dd909c9d523305a52843db0f7525131ebbc285e29565543d"
+    }
+  ],
+  "limits": [
+    "Prepared for owner-led Steam start/load/phone baseline only, not a native business Save/Load test.",
+    "Ordinary game autosaves are not disabled; no write-free session guarantee.",
+    "Native completion/release contract remains unproven.",
+    "First checkpoint report used a nonauthoritative cloud-field location and returned unknown; separate corrected roaming-config observations establish CloudEnabled=0.",
+    "No remote cloud-state or conflict-resolution claim, no loaded-artifact or gameplay acceptance.",
+    "Private native saves and plugin configuration stay only in the gitignored local checkpoint."
+  ]
+}

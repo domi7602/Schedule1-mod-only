@@ -1,0 +1,72 @@
+; FishNet.Managing.Client.ClientObjects::AddToSpawned/2, token 0x06000E10, RVA 0xD0E500, .pdata primary extent 0x110 bytes
+; Raw native bytes decoded without invoking the game. .pdata primary extent is not a proof of full transitive/exception-path coverage.
+0xD0E500     48 89 5C 24 08                  mov [rsp+8],rbx
+0xD0E505     57                              push rdi
+0xD0E506     48 83 EC 20                     sub rsp,20h
+0xD0E50A     80 3D 7B 2A EF 02 00            cmp byte ptr [183C00F8Ch],0
+0xD0E511     48 8B DA                        mov rbx,rdx
+0xD0E514     48 8B F9                        mov rdi,rcx
+0xD0E517     75 13                           jne short 0000000180D0E52Ch
+0xD0E519     48 8D 0D E0 F1 C7 02            lea rcx,[18398D700h]
+0xD0E520     E8 7B 93 60 FF                  call 00000001803178A0h
+0xD0E525     C6 05 60 2A EF 02 01            mov byte ptr [183C00F8Ch],1
+0xD0E52C     48 8B 4F 30                     mov rcx,[rdi+30h]
+0xD0E530     48 85 C9                        test rcx,rcx
+0xD0E533     0F 84 CB 00 00 00               je near ptr 0000000180D0E604h
+0xD0E539     4C 8B 0D C0 F1 C7 02            mov r9,[18398D700h]
+0xD0E540     FF 41 1C                        inc dword ptr [rcx+1Ch]
+0xD0E543     48 8B 51 10                     mov rdx,[rcx+10h]
+0xD0E547     48 85 D2                        test rdx,rdx
+0xD0E54A     0F 84 B4 00 00 00               je near ptr 0000000180D0E604h
+0xD0E550     4C 63 41 18                     movsxd r8,dword ptr [rcx+18h]
+0xD0E554     44 3B 42 18                     cmp r8d,[rdx+18h]
+0xD0E558     72 19                           jb short 0000000180D0E573h
+0xD0E55A     49 8B 41 20                     mov rax,[r9+20h]
+0xD0E55E     48 8B D3                        mov rdx,rbx
+0xD0E561     4C 8B 80 C0 00 00 00            mov r8,[rax+0C0h]
+0xD0E568     4D 8B 40 70                     mov r8,[r8+70h]
+0xD0E56C     E8 1F 45 BC 00                  call 00000001818D2A90h
+0xD0E571     EB 26                           jmp short 0000000180D0E599h
+0xD0E573     41 8D 40 01                     lea eax,[r8+1]
+0xD0E577     89 41 18                        mov [rcx+18h],eax
+0xD0E57A     44 3B 42 18                     cmp r8d,[rdx+18h]
+0xD0E57E     0F 83 86 00 00 00               jae near ptr 0000000180D0E60Ah
+0xD0E584     4A 89 5C C2 20                  mov [rdx+r8*8+20h],rbx
+0xD0E589     48 83 C2 20                     add rdx,20h
+0xD0E58D     4A 8D 0C C2                     lea rcx,[rdx+r8*8]
+0xD0E591     48 8B D3                        mov rdx,rbx
+0xD0E594     E8 17 85 60 FF                  call 0000000180316AB0h
+0xD0E599     80 3D A4 29 EF 02 00            cmp byte ptr [183C00F44h],0
+0xD0E5A0     75 13                           jne short 0000000180D0E5B5h
+0xD0E5A2     48 8D 0D F7 00 CC 02            lea rcx,[1839CE6A0h]
+0xD0E5A9     E8 F2 92 60 FF                  call 00000001803178A0h
+0xD0E5AE     C6 05 8F 29 EF 02 01            mov byte ptr [183C00F44h],1
+0xD0E5B5     48 85 DB                        test rbx,rbx
+0xD0E5B8     74 4A                           je short 0000000180D0E604h
+0xD0E5BA     48 8B 4F 10                     mov rcx,[rdi+10h]
+0xD0E5BE     48 85 C9                        test rcx,rcx
+0xD0E5C1     74 41                           je short 0000000180D0E604h
+0xD0E5C3     4C 8B 0D D6 00 CC 02            mov r9,[1839CE6A0h]
+0xD0E5CA     4C 8B C3                        mov r8,rbx
+0xD0E5CD     8B 53 34                        mov edx,[rbx+34h]
+0xD0E5D0     E8 0B 81 7A 00                  call 00000001814B66E0h
+0xD0E5D5     48 8B 4F 18                     mov rcx,[rdi+18h]
+0xD0E5D9     48 85 C9                        test rcx,rcx
+0xD0E5DC     74 26                           je short 0000000180D0E604h
+0xD0E5DE     33 D2                           xor edx,edx
+0xD0E5E0     E8 BB AD FE FF                  call 0000000180CF93A0h ; FishNet.Managing.NetworkManager::get_IsServer/0
+0xD0E5E5     84 C0                           test al,al
+0xD0E5E7     74 10                           je short 0000000180D0E5F9h
+0xD0E5E9     45 33 C9                        xor r9d,r9d
+0xD0E5EC     45 33 C0                        xor r8d,r8d
+0xD0E5EF     B2 01                           mov dl,1
+0xD0E5F1     48 8B CB                        mov rcx,rbx
+0xD0E5F4     E8 37 FE FD FF                  call 0000000180CEE430h
+0xD0E5F9     48 8B 5C 24 30                  mov rbx,[rsp+30h]
+0xD0E5FE     48 83 C4 20                     add rsp,20h
+0xD0E602     5F                              pop rdi
+0xD0E603     C3                              ret
+0xD0E604     E8 77 95 60 FF                  call 0000000180317B80h
+0xD0E609     CC                              int 3
+0xD0E60A     E8 61 95 60 FF                  call 0000000180317B70h
+0xD0E60F     CC                              int 3

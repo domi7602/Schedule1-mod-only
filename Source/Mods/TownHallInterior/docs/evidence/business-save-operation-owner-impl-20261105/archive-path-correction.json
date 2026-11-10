@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "recordedUtc": "2026-11-05T18:39:21.753211+00:00",
+  "kind": "Archive packaging path correction only; no source/test or review-content change",
+  "reason": "Tools/gen-sln.ps1:26 recursively discovers every csproj under Source/Mods, including archived evidence. Keep this nonproduction probe artifact inert as text.",
+  "originalManifestSha256": "7f3578f6ea538316f8e55821ff7eaac642a28b7f8d016dc8e13e37f853f079e8",
+  "preservedOriginalManifest": "manifest-initial.json",
+  "pathBinding": {
+    "originalReviewProbeProject": "review/probe/ReviewProbes.csproj",
+    "archivedInertProjectBytes": "review/probe/ReviewProbes.csproj.txt"
+  },
+  "artifactBytesUnchanged": true,
+  "nativeSaveWriteAllowed": false
+}

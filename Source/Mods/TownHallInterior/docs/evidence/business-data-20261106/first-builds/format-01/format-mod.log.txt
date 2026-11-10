@@ -1,0 +1,20 @@
+  The dotnet runtime version is '8.0.32'.
+  The dotnet CLI version is '8.0.426'.
+  Using MSBuild.exe located in 'C:\Program Files\dotnet\sdk\8.0.426\'.
+  Formatting code files in workspace 'C:/Users/pc/Schedule1-mod-only/Source/Mods/TownHallInterior/src/TownHallInterior.csproj'.
+  Loading workspace.
+  Project TownHallInterior is using configuration from 'C:\Users\pc\Schedule1-mod-only\.editorconfig'.
+  Project TownHallInterior is using configuration from 'C:\Users\pc\Schedule1-mod-only\Source\Mods\TownHallInterior\src\obj\Debug\net6.0\TownHallInterior.GeneratedMSBuildEditorConfig.editorconfig'.
+  Project TownHallInterior is using configuration from 'C:\Program Files\dotnet\sdk\8.0.426\Sdks\Microsoft.NET.Sdk\analyzers\build\config\analysislevel_6_default.globalconfig'.
+  Project Shared is using configuration from 'C:\Users\pc\Schedule1-mod-only\.editorconfig'.
+  Project Shared is using configuration from 'C:\Users\pc\Schedule1-mod-only\Source\Mods\Shared\src\obj\Debug\net6.0\Shared.GeneratedMSBuildEditorConfig.editorconfig'.
+  Project Shared is using configuration from 'C:\Program Files\dotnet\sdk\8.0.426\Sdks\Microsoft.NET.Sdk\analyzers\build\config\analysislevel_6_default.globalconfig'.
+  Complete in 1680ms.
+  Determining formattable files.
+  Skipping referenced project 'TownHallInterior'.
+  Skipping referenced project 'Shared'.
+  Complete in 3ms.
+  Running formatters.
+  Complete in 2ms.
+  Formatted 0 of 0 files.
+  Format complete in 1700ms.

@@ -1,0 +1,41 @@
+; ScheduleOne.Tools.ExitToMenu::Exit/0, token 0x06003CFE, RVA 0x7DFBE0, next-pointer window 0x90 bytes
+; No target execution. Parser-pointer window can contain padding/cold fragments and is not exact/full function, EH or transitive coverage. Shared direct aliases are truncated to eight names.
+0x7DFBE0     48 83 EC 38                     sub rsp,38h
+0x7DFBE4     80 3D 18 CD 41 03 00            cmp byte ptr [183BFC903h],0
+0x7DFBEB     75 13                           jne short 00000001807DFC00h
+0x7DFBED     48 8D 0D CC C7 20 03            lea rcx,[1839EC3C0h] ; MethodRef: T ScheduleOne.DevUtilities.Singleton`1<ScheduleOne.Persistence.LoadManager>.get_Instance
+0x7DFBF4     E8 A7 7C B3 FF                  call 00000001803178A0h
+0x7DFBF9     C6 05 03 CD 41 03 01            mov byte ptr [183BFC903h],1
+0x7DFC00     48 8B 05 B9 C7 20 03            mov rax,[1839EC3C0h] ; MethodRef: T ScheduleOne.DevUtilities.Singleton`1<ScheduleOne.Persistence.LoadManager>.get_Instance
+0x7DFC07     48 8B 40 20                     mov rax,[rax+20h]
+0x7DFC0B     F6 80 35 01 00 00 01            test byte ptr [rax+135h],1
+0x7DFC12     75 08                           jne short 00000001807DFC1Ch
+0x7DFC14     48 8B C8                        mov rcx,rax
+0x7DFC17     E8 24 CC B3 FF                  call 000000018031C840h
+0x7DFC1C     48 8B 80 C0 00 00 00            mov rax,[rax+0C0h]
+0x7DFC23     48 8B 40 10                     mov rax,[rax+10h]
+0x7DFC27     F6 80 35 01 00 00 01            test byte ptr [rax+135h],1
+0x7DFC2E     75 08                           jne short 00000001807DFC38h
+0x7DFC30     48 8B C8                        mov rcx,rax
+0x7DFC33     E8 08 CC B3 FF                  call 000000018031C840h
+0x7DFC38     48 8B 80 B8 00 00 00            mov rax,[rax+0B8h]
+0x7DFC3F     48 8B 08                        mov rcx,[rax]
+0x7DFC42     48 85 C9                        test rcx,rcx
+0x7DFC45     74 1B                           je short 00000001807DFC62h
+0x7DFC47     45 33 C9                        xor r9d,r9d
+0x7DFC4A     48 C7 44 24 20 00 00 00 00      mov qword ptr [rsp+20h],0
+0x7DFC53     45 33 C0                        xor r8d,r8d
+0x7DFC56     33 D2                           xor edx,edx
+0x7DFC58     E8 93 6C DA FF                  call 00000001805868F0h ; ScheduleOne.Persistence.LoadManager::ExitToMenu/3
+0x7DFC5D     48 83 C4 38                     add rsp,38h
+0x7DFC61     C3                              ret
+0x7DFC62     E8 19 7F B3 FF                  call 0000000180317B80h
+0x7DFC67     CC                              int 3
+0x7DFC68     CC                              int 3
+0x7DFC69     CC                              int 3
+0x7DFC6A     CC                              int 3
+0x7DFC6B     CC                              int 3
+0x7DFC6C     CC                              int 3
+0x7DFC6D     CC                              int 3
+0x7DFC6E     CC                              int 3
+0x7DFC6F     CC                              int 3

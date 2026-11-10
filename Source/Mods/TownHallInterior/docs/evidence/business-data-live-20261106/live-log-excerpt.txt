@@ -1,0 +1,15 @@
+113: [14:16:33.404] Melon Assembly loaded: '.\Mods\TownHallInterior.dll'
+114: [14:16:33.405] SHA256 Hash: '2E519CCFDC58053281DC67FFD91E2C1B53D523AA2941657E7B8E1FCD7DD81357'
+325: [14:16:37.225] [WARNING] [TownHallInterior] TownHallInterior: experimental local hall; hash-pinned geometric portal, not a business.
+328: [14:16:37.461] [TownHallInterior] TownHall business data: own empty data/container/bounds and native queries armed for TownHallTest / SaveGame_2; no native initialization or publication.
+351: [14:17:51.840] [MoreSaveSlots] ContinueScreen.LoadGame: mapped slot 2 -> 2 (SaveGame_2)
+384: [14:18:03.745] [TownHallInterior] TownHallInterior: hall and geometric facade opening published; native knock retained.
+449: [14:18:10.860] [TownHallInterior] TownHall Business probe: C:\Program Files (x86)\Steam\steamapps\common\Schedule I\UserData\TownHallInterior\BusinessProbe\20261106T131637231Z-343ec5acc9c047f8a8c2c9df4ed3d22a-g0001.json
+462: [14:18:15.903] [TownHallInterior] TownHall Business probe: C:\Program Files (x86)\Steam\steamapps\common\Schedule I\UserData\TownHallInterior\BusinessProbe\20261106T131637231Z-343ec5acc9c047f8a8c2c9df4ed3d22a-g0001.json
+464: [14:18:16.983] [TownHallInterior] TownHall active subtype quarantined: C:\Program Files (x86)\Steam\steamapps\common\Schedule I\UserData\TownHallInterior\BusinessData\20261106T131816973Z.json
+474: [14:20:47.085] [S1MCPServer] Shutting down S1MCPServer...
+475: [14:20:49.193] [S1MCPServer] TCP server stopped
+477: [14:20:49.357] [TaxiDriver] [TaxiDriver] [taxi-lifecycle] teardown complete (quit) — work quiesced, meter settled once, owned taxi retained; hooks removed last.
+481: [14:20:50.856] [TaxiDriver] [TaxiDriver] [taxi-lifecycle] teardown complete (deinit) — work quiesced, meter settled once, owned taxi retained; hooks removed last.
+482: [14:20:50.902] [TownHallInterior] TownHall Business probe: C:\Program Files (x86)\Steam\steamapps\common\Schedule I\UserData\TownHallInterior\BusinessProbe\20261106T131637231Z-343ec5acc9c047f8a8c2c9df4ed3d22a-g0001.json
+483: [14:20:50.928] Preferences Saved!

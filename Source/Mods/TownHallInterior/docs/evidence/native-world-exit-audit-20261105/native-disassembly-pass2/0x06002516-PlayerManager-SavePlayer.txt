@@ -1,0 +1,272 @@
+; ScheduleOne.PlayerScripts.PlayerManager::SavePlayer/1, token 0x06002516, RVA 0x676F40, next-pointer window 0x490 bytes
+; No target execution. Parser-pointer window can contain padding/cold fragments and is not exact/full function, EH or transitive coverage. Shared direct aliases are truncated to eight names.
+0x676F40     48 89 5C 24 18                  mov [rsp+18h],rbx
+0x676F45     48 89 6C 24 20                  mov [rsp+20h],rbp
+0x676F4A     56                              push rsi
+0x676F4B     48 83 EC 20                     sub rsp,20h
+0x676F4F     80 3D 1B 4E 58 03 00            cmp byte ptr [183BFBD71h],0
+0x676F56     48 8B DA                        mov rbx,rdx
+0x676F59     48 8B E9                        mov rbp,rcx
+0x676F5C     0F 85 AF 00 00 00               jne near ptr 0000000180677011h
+0x676F62     48 8D 0D FF 2D 38 03            lea rcx,[1839F9D68h] ; TypeInfo: ScheduleOne.Console
+0x676F69     E8 32 09 CA FF                  call 00000001803178A0h
+0x676F6E     48 8D 0D 53 9F 38 03            lea rcx,[183A00EC8h] ; MethodRef: TSource System.Linq.Enumerable.FirstOrDefault<ScheduleOne.Persistence.Datas.PlayerData>
+0x676F75     E8 26 09 CA FF                  call 00000001803178A0h
+0x676F7A     48 8D 0D 27 97 34 03            lea rcx,[1839C06A8h] ; TypeInfo: System.Func`2<ScheduleOne.Persistence.Datas.PlayerData, System.Boolean>
+0x676F81     E8 1A 09 CA FF                  call 00000001803178A0h
+0x676F86     48 8D 0D 73 DC 33 03            lea rcx,[1839B4C00h] ; TypeInfo: ScheduleOne.Persistence.ISaveable
+0x676F8D     E8 0E 09 CA FF                  call 00000001803178A0h
+0x676F92     48 8D 0D B7 20 32 03            lea rcx,[183999050h] ; MethodRef: System.Void System.Collections.Generic.List`1<ScheduleOne.Persistence.Datas.PlayerData>.Add
+0x676F99     E8 02 09 CA FF                  call 00000001803178A0h
+0x676F9E     48 8D 0D 8B A4 34 03            lea rcx,[1839C1430h] ; MethodRef: System.Void System.Collections.Generic.List`1<System.String>.Add
+0x676FA5     E8 F6 08 CA FF                  call 00000001803178A0h
+0x676FAA     48 8D 0D 4F 22 32 03            lea rcx,[183999200h] ; MethodRef: System.Int32 System.Collections.Generic.List`1<ScheduleOne.Persistence.Datas.PlayerData>.IndexOf
+0x676FB1     E8 EA 08 CA FF                  call 00000001803178A0h
+0x676FB6     48 8D 0D CB 24 32 03            lea rcx,[183999488h] ; MethodRef: System.Void System.Collections.Generic.List`1<ScheduleOne.Persistence.Datas.PlayerData>.set_Item
+0x676FBD     E8 DE 08 CA FF                  call 00000001803178A0h
+0x676FC2     48 8D 0D 47 06 38 03            lea rcx,[1839F7610h] ; TypeInfo: System.IO.Path
+0x676FC9     E8 D2 08 CA FF                  call 00000001803178A0h
+0x676FCE     48 8D 0D EB 53 37 03            lea rcx,[1839EC3C0h] ; MethodRef: T ScheduleOne.DevUtilities.Singleton`1<ScheduleOne.Persistence.LoadManager>.get_Instance
+0x676FD5     E8 C6 08 CA FF                  call 00000001803178A0h
+0x676FDA     48 8D 0D DF B3 37 03            lea rcx,[1839F23C0h] ; MethodRef: T ScheduleOne.DevUtilities.Singleton`1<ScheduleOne.Persistence.SaveManager>.get_Instance
+0x676FE1     E8 BA 08 CA FF                  call 00000001803178A0h
+0x676FE6     48 8D 0D 9B FF 38 03            lea rcx,[183A06F88h] ; MethodDef: ScheduleOne.PlayerScripts.PlayerManager+<>c__DisplayClass35_0::<SavePlayer>b__0/1
+0x676FED     E8 AE 08 CA FF                  call 00000001803178A0h
+0x676FF2     48 8D 0D 4F 69 34 03            lea rcx,[1839BD948h] ; TypeInfo: ScheduleOne.PlayerScripts.PlayerManager+<>c__DisplayClass35_0
+0x676FF9     E8 A2 08 CA FF                  call 00000001803178A0h
+0x676FFE     48 8D 0D D3 86 34 03            lea rcx,[1839BF6D8h] ; StringLiteral: Saving player: 
+0x677005     E8 96 08 CA FF                  call 00000001803178A0h
+0x67700A     C6 05 60 4D 58 03 01            mov byte ptr [183BFBD71h],1
+0x677011     48 8B 0D 30 69 34 03            mov rcx,[1839BD948h] ; TypeInfo: ScheduleOne.PlayerScripts.PlayerManager+<>c__DisplayClass35_0
+0x677018     48 89 7C 24 30                  mov [rsp+30h],rdi
+0x67701D     4C 89 74 24 38                  mov [rsp+38h],r14
+0x677022     E8 F9 0A CA FF                  call 0000000180317B20h
+0x677027     33 D2                           xor edx,edx
+0x677029     48 8B C8                        mov rcx,rax
+0x67702C     48 8B F0                        mov rsi,rax
+0x67702F     E8 8C 8E DC FF                  call 000000018043FEC0h ; VFXRainPass::Dispose/0 | LightningLightController+<DoStrikeRoutine>d__7::System.IDisposable.Dispose/0 | ActionList+<<InvokeAllStaggered>g__StaggeredInvoke|6_0>d::System.IDisposable.Dispose/0 | CameraCaptureToPNG+<CaptureCameraView>d__5::System.IDisposable.Dispose/0 | DeveloperManager+<DoDeveloperRoutine>d__9::System.IDisposable.Dispose/0 | UnityServicesManager::Start/0 | UnityServicesManager::Update/0 | EntityConfigurationData::Start/0 | ... SHARED TARGET: 1731 aliases
+0x677034     48 85 F6                        test rsi,rsi
+0x677037     0F 84 84 03 00 00               je near ptr 00000001806773C1h
+0x67703D     48 8D 4E 10                     lea rcx,[rsi+10h]
+0x677041     48 89 5E 10                     mov [rsi+10h],rbx
+0x677045     48 8B D3                        mov rdx,rbx
+0x677048     E8 63 FA C9 FF                  call 0000000180316AB0h
+0x67704D     48 8B 4E 10                     mov rcx,[rsi+10h]
+0x677051     48 85 C9                        test rcx,rcx
+0x677054     0F 84 67 03 00 00               je near ptr 00000001806773C1h
+0x67705A     33 D2                           xor edx,edx
+0x67705C     E8 EF F1 FB FF                  call 0000000180636250h ; ScheduleOne.PlayerScripts.Player::get_PlayerCode/0 | ScheduleOne.PlayerScripts.Player::sync___get_value_<PlayerCode>k__BackingField/0 | ScheduleOne.NPCs.NPC::get_LastEnteredDoor/0 | System.Windows.Forms.ListView::get_CheckedItems/0 | System.Windows.Forms.TreeView::get_Nodes/0 | Unity.XR.OpenVR.OpenVRHMD::get_leftEyeVelocity/0 | Unity.XR.OpenVR.OpenVRControllerWMR::get_grip/0 | Unity.XR.OpenVR.ViveWand::get_deviceVelocity/0 | ... SHARED TARGET: 17 aliases
+0x677061     48 8B 0D 70 86 34 03            mov rcx,[1839BF6D8h] ; StringLiteral: Saving player: 
+0x677068     45 33 C0                        xor r8d,r8d
+0x67706B     48 8B D0                        mov rdx,rax
+0x67706E     E8 AD CA 36 01                  call 00000001819E3B20h ; System.String::Concat/2
+0x677073     48 8B 0D EE 2C 38 03            mov rcx,[1839F9D68h] ; TypeInfo: ScheduleOne.Console
+0x67707A     48 8B D8                        mov rbx,rax
+0x67707D     83 B9 E0 00 00 00 00            cmp dword ptr [rcx+0E0h],0
+0x677084     75 05                           jne short 000000018067708Bh
+0x677086     E8 A5 0B CA FF                  call 0000000180317C30h
+0x67708B     45 33 C0                        xor r8d,r8d
+0x67708E     33 D2                           xor edx,edx
+0x677090     48 8B CB                        mov rcx,rbx
+0x677093     E8 08 1B 23 00                  call 00000001808A8BA0h ; ScheduleOne.Console::Log/2
+0x677098     48 8B 05 21 53 37 03            mov rax,[1839EC3C0h] ; MethodRef: T ScheduleOne.DevUtilities.Singleton`1<ScheduleOne.Persistence.LoadManager>.get_Instance
+0x67709F     48 8B 40 20                     mov rax,[rax+20h]
+0x6770A3     F6 80 35 01 00 00 01            test byte ptr [rax+135h],1
+0x6770AA     75 08                           jne short 00000001806770B4h
+0x6770AC     48 8B C8                        mov rcx,rax
+0x6770AF     E8 8C 57 CA FF                  call 000000018031C840h
+0x6770B4     48 8B 80 C0 00 00 00            mov rax,[rax+0C0h]
+0x6770BB     48 8B 40 10                     mov rax,[rax+10h]
+0x6770BF     F6 80 35 01 00 00 01            test byte ptr [rax+135h],1
+0x6770C6     75 08                           jne short 00000001806770D0h
+0x6770C8     48 8B C8                        mov rcx,rax
+0x6770CB     E8 70 57 CA FF                  call 000000018031C840h
+0x6770D0     48 8B 80 B8 00 00 00            mov rax,[rax+0B8h]
+0x6770D7     48 8B 08                        mov rcx,[rax]
+0x6770DA     48 85 C9                        test rcx,rcx
+0x6770DD     0F 84 DE 02 00 00               je near ptr 00000001806773C1h
+0x6770E3     80 3D 80 4C 58 03 00            cmp byte ptr [183BFBD6Ah],0
+0x6770EA     48 8B 79 38                     mov rdi,[rcx+38h]
+0x6770EE     75 13                           jne short 0000000180677103h
+0x6770F0     48 8D 0D 61 F2 30 03            lea rcx,[183986358h] ; StringLiteral: Players
+0x6770F7     E8 A4 07 CA FF                  call 00000001803178A0h
+0x6770FC     C6 05 67 4C 58 03 01            mov byte ptr [183BFBD6Ah],1
+0x677103     48 8B 0D 06 05 38 03            mov rcx,[1839F7610h] ; TypeInfo: System.IO.Path
+0x67710A     48 8B 1D 47 F2 30 03            mov rbx,[183986358h] ; StringLiteral: Players
+0x677111     83 B9 E0 00 00 00 00            cmp dword ptr [rcx+0E0h],0
+0x677118     75 05                           jne short 000000018067711Fh
+0x67711A     E8 11 0B CA FF                  call 0000000180317C30h
+0x67711F     45 33 C0                        xor r8d,r8d
+0x677122     48 8B D3                        mov rdx,rbx
+0x677125     48 8B CF                        mov rcx,rdi
+0x677128     E8 93 2F 4F 01                  call 0000000181B6A0C0h ; System.IO.Path::Combine/2
+0x67712D     4C 8B F0                        mov r14,rax
+0x677130     48 8B 05 89 B2 37 03            mov rax,[1839F23C0h] ; MethodRef: T ScheduleOne.DevUtilities.Singleton`1<ScheduleOne.Persistence.SaveManager>.get_Instance
+0x677137     48 8B 40 20                     mov rax,[rax+20h]
+0x67713B     F6 80 35 01 00 00 01            test byte ptr [rax+135h],1
+0x677142     75 08                           jne short 000000018067714Ch
+0x677144     48 8B C8                        mov rcx,rax
+0x677147     E8 F4 56 CA FF                  call 000000018031C840h
+0x67714C     48 8B 80 C0 00 00 00            mov rax,[rax+0C0h]
+0x677153     48 8B 40 10                     mov rax,[rax+10h]
+0x677157     F6 80 35 01 00 00 01            test byte ptr [rax+135h],1
+0x67715E     75 08                           jne short 0000000180677168h
+0x677160     48 8B C8                        mov rcx,rax
+0x677163     E8 D8 56 CA FF                  call 000000018031C840h
+0x677168     48 8B 80 B8 00 00 00            mov rax,[rax+0B8h]
+0x67716F     48 8B 08                        mov rcx,[rax]
+0x677172     48 85 C9                        test rcx,rcx
+0x677175     0F 84 46 02 00 00               je near ptr 00000001806773C1h
+0x67717B     48 8B 56 10                     mov rdx,[rsi+10h]
+0x67717F     45 33 C0                        xor r8d,r8d
+0x677182     E8 B9 28 F3 FF                  call 00000001805A9A40h ; ScheduleOne.Persistence.SaveManager::ClearCompletedSaveable/1
+0x677187     48 8B 4E 10                     mov rcx,[rsi+10h]
+0x67718B     48 85 C9                        test rcx,rcx
+0x67718E     0F 84 2D 02 00 00               je near ptr 00000001806773C1h
+0x677194     48 8B 01                        mov rax,[rcx]
+0x677197     48 8B 90 80 06 00 00            mov rdx,[rax+680h]
+0x67719E     FF 90 78 06 00 00               call qword ptr [rax+678h]
+0x6771A4     48 8B 5E 10                     mov rbx,[rsi+10h]
+0x6771A8     48 8B F8                        mov rdi,rax
+0x6771AB     48 85 DB                        test rbx,rbx
+0x6771AE     0F 84 0D 02 00 00               je near ptr 00000001806773C1h
+0x6771B4     4C 8B 13                        mov r10,[rbx]
+0x6771B7     33 C0                           xor eax,eax
+0x6771B9     4C 8B 0D 40 DA 33 03            mov r9,[1839B4C00h] ; TypeInfo: ScheduleOne.Persistence.ISaveable
+0x6771C0     41 0F B7 92 2E 01 00 00         movzx edx,word ptr [r10+12Eh]
+0x6771C8     66 3B C2                        cmp ax,dx
+0x6771CB     73 2B                           jae short 00000001806771F8h
+0x6771CD     4D 8B 82 B0 00 00 00            mov r8,[r10+0B0h]
+0x6771D4     33 C9                           xor ecx,ecx
+0x6771D6     66 66 0F 1F 84 00 00 00 00 00   nop word ptr [rax+rax]
+0x6771E0     0F B7 C1                        movzx eax,cx
+0x6771E3     48 03 C0                        add rax,rax
+0x6771E6     4D 39 0C C0                     cmp [r8+rax*8],r9
+0x6771EA     0F 84 64 01 00 00               je near ptr 0000000180677354h
+0x6771F0     66 FF C1                        inc cx
+0x6771F3     66 3B CA                        cmp cx,dx
+0x6771F6     72 E8                           jb short 00000001806771E0h
+0x6771F8     41 B8 0D 00 00 00               mov r8d,0Dh
+0x6771FE     49 8B D1                        mov rdx,r9
+0x677201     48 8B CB                        mov rcx,rbx
+0x677204     E8 57 4F CA FF                  call 000000018031C160h
+0x677209     4C 8B 48 08                     mov r9,[rax+8]
+0x67720D     4C 8B C7                        mov r8,rdi
+0x677210     49 8B D6                        mov rdx,r14
+0x677213     48 8B CB                        mov rcx,rbx
+0x677216     FF 10                           call qword ptr [rax]
+0x677218     48 8B 4E 10                     mov rcx,[rsi+10h]
+0x67721C     48 85 C9                        test rcx,rcx
+0x67721F     0F 84 9C 01 00 00               je near ptr 00000001806773C1h
+0x677225     48 8B 01                        mov rax,[rcx]
+0x677228     49 8B D6                        mov rdx,r14
+0x67722B     4C 8B 80 90 06 00 00            mov r8,[rax+690h]
+0x677232     FF 90 88 06 00 00               call qword ptr [rax+688h]
+0x677238     48 8B 0D 69 94 34 03            mov rcx,[1839C06A8h] ; TypeInfo: System.Func`2<ScheduleOne.Persistence.Datas.PlayerData, System.Boolean>
+0x67723F     48 8B 7D 50                     mov rdi,[rbp+50h]
+0x677243     E8 D8 08 CA FF                  call 0000000180317B20h
+0x677248     4C 8B 05 39 FD 38 03            mov r8,[183A06F88h] ; MethodDef: ScheduleOne.PlayerScripts.PlayerManager+<>c__DisplayClass35_0::<SavePlayer>b__0/1
+0x67724F     45 33 C9                        xor r9d,r9d
+0x677252     48 8B D6                        mov rdx,rsi
+0x677255     48 8B C8                        mov rcx,rax
+0x677258     48 8B D8                        mov rbx,rax
+0x67725B     E8 30 42 0F 01                  call 000000018176B490h ; System.Data.Listeners`1+Func`2::.ctor/2
+0x677260     4C 8B 05 61 9C 38 03            mov r8,[183A00EC8h] ; MethodRef: TSource System.Linq.Enumerable.FirstOrDefault<ScheduleOne.Persistence.Datas.PlayerData>
+0x677267     48 8B D3                        mov rdx,rbx
+0x67726A     48 8B CF                        mov rcx,rdi
+0x67726D     E8 6E 3C 7A 00                  call 0000000180E1AEE0h ; System.Linq.Enumerable::FirstOrDefault/2
+0x677272     48 8B 5D 50                     mov rbx,[rbp+50h]
+0x677276     48 85 C0                        test rax,rax
+0x677279     0F 85 F7 00 00 00               jne near ptr 0000000180677376h
+0x67727F     48 8B 4E 10                     mov rcx,[rsi+10h]
+0x677283     48 85 C9                        test rcx,rcx
+0x677286     0F 84 35 01 00 00               je near ptr 00000001806773C1h
+0x67728C     33 D2                           xor edx,edx
+0x67728E     E8 5D 9B FA FF                  call 0000000180620DF0h ; ScheduleOne.PlayerScripts.Player::GetPlayerData/0
+0x677293     48 85 DB                        test rbx,rbx
+0x677296     0F 84 25 01 00 00               je near ptr 00000001806773C1h
+0x67729C     4C 8B 05 AD 1D 32 03            mov r8,[183999050h] ; MethodRef: System.Void System.Collections.Generic.List`1<ScheduleOne.Persistence.Datas.PlayerData>.Add
+0x6772A3     48 8B D0                        mov rdx,rax
+0x6772A6     48 8B CB                        mov rcx,rbx
+0x6772A9     E8 72 BB 98 FF                  call 0000000180002E20h
+0x6772AE     48 8B 4E 10                     mov rcx,[rsi+10h]
+0x6772B2     48 85 C9                        test rcx,rcx
+0x6772B5     0F 84 06 01 00 00               je near ptr 00000001806773C1h
+0x6772BB     48 8B 5D 58                     mov rbx,[rbp+58h]
+0x6772BF     33 D2                           xor edx,edx
+0x6772C1     E8 3A F0 FB FF                  call 0000000180636300h ; ScheduleOne.PlayerScripts.Player::get_SaveFolderName/0
+0x6772C6     48 8B 0D 43 03 38 03            mov rcx,[1839F7610h] ; TypeInfo: System.IO.Path
+0x6772CD     48 8B F8                        mov rdi,rax
+0x6772D0     83 B9 E0 00 00 00 00            cmp dword ptr [rcx+0E0h],0
+0x6772D7     75 05                           jne short 00000001806772DEh
+0x6772D9     E8 52 09 CA FF                  call 0000000180317C30h
+0x6772DE     45 33 C0                        xor r8d,r8d
+0x6772E1     48 8B D7                        mov rdx,rdi
+0x6772E4     49 8B CE                        mov rcx,r14
+0x6772E7     E8 D4 2D 4F 01                  call 0000000181B6A0C0h ; System.IO.Path::Combine/2
+0x6772EC     48 85 DB                        test rbx,rbx
+0x6772EF     0F 84 CC 00 00 00               je near ptr 00000001806773C1h
+0x6772F5     4C 8B 05 34 A1 34 03            mov r8,[1839C1430h] ; MethodRef: System.Void System.Collections.Generic.List`1<System.String>.Add
+0x6772FC     48 8B D0                        mov rdx,rax
+0x6772FF     48 8B CB                        mov rcx,rbx
+0x677302     E8 19 BB 98 FF                  call 0000000180002E20h
+0x677307     48 8B 4E 10                     mov rcx,[rsi+10h]
+0x67730B     48 85 C9                        test rcx,rcx
+0x67730E     0F 84 AD 00 00 00               je near ptr 00000001806773C1h
+0x677314     48 8B 5D 60                     mov rbx,[rbp+60h]
+0x677318     33 D2                           xor edx,edx
+0x67731A     E8 E1 EF FB FF                  call 0000000180636300h ; ScheduleOne.PlayerScripts.Player::get_SaveFolderName/0
+0x67731F     48 85 DB                        test rbx,rbx
+0x677322     0F 84 99 00 00 00               je near ptr 00000001806773C1h
+0x677328     4C 8B 05 01 A1 34 03            mov r8,[1839C1430h] ; MethodRef: System.Void System.Collections.Generic.List`1<System.String>.Add
+0x67732F     48 8B D0                        mov rdx,rax
+0x677332     48 8B CB                        mov rcx,rbx
+0x677335     E8 E6 BA 98 FF                  call 0000000180002E20h
+0x67733A     4C 8B 74 24 38                  mov r14,[rsp+38h]
+0x67733F     48 8B 7C 24 30                  mov rdi,[rsp+30h]
+0x677344     48 8B 5C 24 40                  mov rbx,[rsp+40h]
+0x677349     48 8B 6C 24 48                  mov rbp,[rsp+48h]
+0x67734E     48 83 C4 20                     add rsp,20h
+0x677352     5E                              pop rsi
+0x677353     C3                              ret
+0x677354     0F B7 C9                        movzx ecx,cx
+0x677357     48 03 C9                        add rcx,rcx
+0x67735A     41 8B 44 C8 08                  mov eax,[r8+rcx*8+8]
+0x67735F     83 C0 0D                        add eax,0Dh
+0x677362     48 98                           cdqe
+0x677364     48 C1 E0 04                     shl rax,4
+0x677368     48 05 38 01 00 00               add rax,138h
+0x67736E     49 03 C2                        add rax,r10
+0x677371     E9 93 FE FF FF                  jmp near ptr 0000000180677209h
+0x677376     48 85 DB                        test rbx,rbx
+0x677379     74 46                           je short 00000001806773C1h
+0x67737B     4C 8B 05 7E 1E 32 03            mov r8,[183999200h] ; MethodRef: System.Int32 System.Collections.Generic.List`1<ScheduleOne.Persistence.Datas.PlayerData>.IndexOf
+0x677382     48 8B D0                        mov rdx,rax
+0x677385     48 8B CB                        mov rcx,rbx
+0x677388     E8 C3 DB 25 01                  call 00000001818D4F50h
+0x67738D     48 8B 4E 10                     mov rcx,[rsi+10h]
+0x677391     8B F8                           mov edi,eax
+0x677393     48 85 C9                        test rcx,rcx
+0x677396     74 29                           je short 00000001806773C1h
+0x677398     48 8B 5D 50                     mov rbx,[rbp+50h]
+0x67739C     33 D2                           xor edx,edx
+0x67739E     E8 4D 9A FA FF                  call 0000000180620DF0h ; ScheduleOne.PlayerScripts.Player::GetPlayerData/0
+0x6773A3     48 85 DB                        test rbx,rbx
+0x6773A6     74 19                           je short 00000001806773C1h
+0x6773A8     4C 8B 0D D9 20 32 03            mov r9,[183999488h] ; MethodRef: System.Void System.Collections.Generic.List`1<ScheduleOne.Persistence.Datas.PlayerData>.set_Item
+0x6773AF     4C 8B C0                        mov r8,rax
+0x6773B2     8B D7                           mov edx,edi
+0x6773B4     48 8B CB                        mov rcx,rbx
+0x6773B7     E8 74 7B 26 01                  call 00000001818DEF30h
+0x6773BC     E9 79 FF FF FF                  jmp near ptr 000000018067733Ah
+0x6773C1     E8 BA 07 CA FF                  call 0000000180317B80h
+0x6773C6     CC                              int 3
+0x6773C7     CC                              int 3
+0x6773C8     CC                              int 3
+0x6773C9     CC                              int 3
+0x6773CA     CC                              int 3
+0x6773CB     CC                              int 3
+0x6773CC     CC                              int 3
+0x6773CD     CC                              int 3
+0x6773CE     CC                              int 3
+0x6773CF     CC                              int 3

@@ -1,0 +1,197 @@
+{
+  "schema": 1,
+  "capturedUtc": "2026-11-05T05:36:46.1329416Z",
+  "reviewer": "GPT-6.1 Sol / unabhängiger BusinessManager-Delta-Auditor dieser Sitzung",
+  "status": "red-parent-fix-required",
+  "evidenceKind": "Quellprüfung und game-free Fehlerinjektion; kein nativer Laufzeitnachweis",
+  "scope": {
+    "project": "schedule1-mod-only",
+    "baseRevision": "b2c6c7e6c6ecc778da9624cdb68a6578b9db471a",
+    "workingTree": "dirty; parallele autorisierte Produktions-, Test- und Dokumentationsarbeit",
+    "s1apiSourceRevision": "6b6d7bada39054822732224508cf0f4f45ee7c26",
+    "s1apiTag": "v3.2.2",
+    "productionFixesByReviewer": false,
+    "nativeSaveFilesAccessed": false,
+    "gameLaunched": false,
+    "deploymentPerformed": false,
+    "subagentsCreated": false,
+    "reviewerOwnedFiles": [
+      "Source/Tests/TownHallInterior.Tests/BusinessManagerAuditTests.cs",
+      "Source/Mods/TownHallInterior/docs/evidence/business-save-safety-review-20261105.json"
+    ],
+    "generatedArtifacts": "Nur der ausdrücklich beauftragte Audit-Testlauf erzeugt Ausgaben unter .scratch/townhall-save-step1-20261105/audit und audit-artifacts.",
+    "installedTownHallIdentity": {
+      "sha256Prefix": "cff67a85",
+      "attribution": "Vom Auftraggeber mitgeteilt; vom Auditor nicht neu gehasht oder geladen.",
+      "sourceMatchEstablished": false,
+      "historicalRegistrationBuildPrefix": "473064e0",
+      "limit": "Der historische RegisterOnce-Bericht identifiziert weder die heutige Installation noch einen Save-/Load-Erfolg."
+    }
+  },
+  "sourceSnapshots": [
+    {
+      "path": "Source/Mods/TownHallInterior/src/BusinessConstruction.cs",
+      "sha256": "0bc19d1bb0ab04632569b190bc2983ab8b1e63fe5208a9e4d9413dfed517f1f7",
+      "checkedBeforeAndAfterRedTest": true,
+      "locations": ["120-244: Offline-Modell", "260-268: Legacy-Save vor jedem Portzugriff gesperrt", "525-527: CheckSave", "1896: native Schreib-/Completionfreigaben false"]
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/BusinessManagerTests.cs",
+      "sha256": "d62a8ad7a82e9cedd7554e7e489cba55fee62409dd3de347130575fb69524b1e",
+      "checkedBeforeAndAfterRedTest": true,
+      "limit": "Parallel gepflegte Haupttests; durch den Auditfilter nicht ausgeführt."
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/BusinessManagerAuditTests.cs",
+      "sha256": "164eaeb014c1d63b776c47d0dd105f4f12bec79d4ffb02a135d3da5f5f82323d",
+      "checkedBeforeAndAfterRedTest": true,
+      "owner": "Dieser Auditor"
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/BusinessManagerSafetyTests.cs",
+      "sha256": "ead2dbe76be2679c8be006b114075c55d58b1cddfe08e292f8551c225f70a035",
+      "limit": "Fremde parallele Testarbeit, nicht verändert und nicht mit dem Auditfilter ausgeführt."
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/TownHallInterior.Tests.csproj",
+      "sha256": "dc582cf6a85f3c98417c83cd67a65f28b8f8739bb1a1507fe665eaa52ceec26c",
+      "finding": "Game-free Quellenlinks; keine nativen Runtime-Symbole für den Auditlauf aktiviert."
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/docs/business-manager-save-probe.md",
+      "sha256": "21f9eed232f6280296e88dbe2882be687916760d27f37e41dd3b3a7eff46526c",
+      "limit": "In paralleler Bearbeitung. Gelesene Fassung beschreibt das Modell ausdrücklich als nicht nativ angeschlossen; Gesamtprüfung und abschließender Dokuabgleich bleiben beim Parent."
+    },
+    {
+      "path": "ThirdParty/S1API/S1API/Lifecycle/GameLifecycle.cs",
+      "sha256": "c9e470eab1940b59be4cc55c80d832202521bbef97264619f092b310de527a8e",
+      "locations": ["129-145: dokumentiertes Completionversprechen", "189-190: native Listeneranbindung", "210-218: Reset entfernt native Save-Listener", "282-290: eine Multicast-Invoke-Ausführung im äußeren try/catch"]
+    },
+    {
+      "path": "ThirdParty/S1API/S1API/S1API.cs",
+      "sha256": "d00db32deec6c72b737c0a44606ea19908f903d6b5f97077331c4050823cb28d",
+      "locations": ["68-73: Initialize beim Laden von Main", "93-95: Reset beim Entladen von Main"]
+    },
+    {
+      "path": "ThirdParty/S1API/S1API/Internal/Patches/GenericSaveables.Patches.cs",
+      "sha256": "d72fa119aae69ab0f2a07d14134ae2c9fa85b79f68241e6ef2b56403f443bed1",
+      "locations": ["40-71: eigener Save(string)-Postfix, getrennt von GameLifecycle.OnSaveComplete"]
+    },
+    {
+      "path": "ThirdParty/S1API/S1API/Internal/Abstraction/Saveable.cs",
+      "sha256": "09344961187d877ced02169f0e6c430164d7df98b1258361a41ce49996495dc4",
+      "locations": ["92-111: RequestGameSave meldet Aufruf, wartet nicht auf Completion", "172-204: OnSaved nach eigenen Dateien", "211-233: OnSaved bereits nach Befüllen von DynamicSaveData"]
+    },
+    {
+      "path": "GameReferences/decompiled/Assembly-CSharp/Il2CppScheduleOne.Persistence/SaveManager.cs",
+      "sha256": "a98fa7b759d7f23eaaeabae7bc39ea53bdb10aa87e51c3f051e34337d95ec329",
+      "locations": ["18-28,115-127: SaveRoutine-Iterator", "153-163: MoveNext nur nativer Invoke", "599-672: Saveables, BaseSaveables, CompletedSaveables, QueuedSaveRequests", "689-717: parameterlose UnityEvents", "1031-1052: beide Save-Überladungen nur Invoke-Proxys"]
+    },
+    {
+      "path": "GameReferences/decompiled/Assembly-CSharp/Il2CppScheduleOne.Persistence/SaveRequest.cs",
+      "sha256": "6911f9d1c36d07fdcb87596d2c46c1555e1f5e1b860bec790421934941154fed",
+      "locations": ["27-53: Saveable-Referenz und ParentFolderPath", "111-130: Konstruktor und Complete nur native Aufrufe"]
+    },
+    {
+      "path": "GameReferences/decompiled/Assembly-CSharp/Il2CppScheduleOne.Persistence/ISaveable.cs",
+      "sha256": "b3afb8c2fb07db01ea1d5e1b5237b17e084493b656da3c27a5fd16cc63f47611",
+      "locations": ["237-311: Save, WriteBaseData, CompleteSave, WriteData und DeleteUnapprovedFiles"]
+    }
+  ],
+  "installedMetadataCheckedInReadOnlyPhase": [
+    {
+      "relativeGamePath": "MelonLoader/Il2CppAssemblies/Assembly-CSharp.dll",
+      "sha256": "346205306273805a78b01a917f14b94518498af1361595c4c417baa0b32b4bd8",
+      "method": "SHA-256 und statische ilspycmd-Dekompilation von SaveManager, SaveRequest und ISaveable nach stdout; keine Assemblyausführung"
+    },
+    {
+      "relativeGamePath": "Mods/S1API.Il2Cpp.MelonLoader.dll",
+      "sha256": "d751a3cb66003f7a616eb9f8054daf34da0d9d7f23416a5005a586738a680852",
+      "method": "SHA-256 und statische ilspycmd-Dekompilation von GameLifecycle und Saveable nach stdout; keine Assemblyausführung"
+    }
+  ],
+  "testRuns": [
+    {
+      "phase": "RED vor Parent-Fix",
+      "sdk": "8.0.426",
+      "testTarget": "net6.0",
+      "gameProcessPreflightUtc": "2026-11-05T05:36:09.6434233Z",
+      "gameProcessPreflight": "PASS: Get-Process vollständig gelesen; weder Schedule I noch ScheduleI vorhanden. Kein Prozess beendet oder gestartet.",
+      "command": "dotnet test Source/Tests/TownHallInterior.Tests/TownHallInterior.Tests.csproj -p:S1NoDeploy=true --filter FullyQualifiedName~BusinessManagerAuditTests --artifacts-path .scratch/townhall-save-step1-20261105/audit-artifacts --results-directory .scratch/townhall-save-step1-20261105/audit --logger trx",
+      "startedUtc": "2026-11-05T05:36:18.3548152Z",
+      "finishedUtc": "2026-11-05T05:36:19.1939218Z",
+      "exitCode": 1,
+      "total": 80,
+      "passed": 72,
+      "failed": 8,
+      "skipped": 0,
+      "trx": ".scratch/townhall-save-step1-20261105/audit/pc_WINDOWS_2026-11-05_06_36_19.trx",
+      "trxSha256": "cb439b491c2160ecdea484aa2a5cb39974135f1190e47def7fdfc2d98ff21bb2",
+      "redReportedBeforeParentFix": true,
+      "runtimeEvidence": false
+    }
+  ],
+  "blockers": [
+    {
+      "id": "BSA-001",
+      "status": "red-reproduced-awaiting-parent-fix",
+      "severity": "blocker-for-offline-ownership-contract",
+      "title": "SafeToDestroy bestätigt unbekannte oder bereits referenzierte Ausgangslage",
+      "source": "Source/Mods/TownHallInterior/src/BusinessConstruction.cs:144,159-166,183-187",
+      "cause": "_safe startet mit true. Initialer Read-Fehler und Preflight-Abweisung ändern diesen Wert nicht.",
+      "expected": "SafeToDestroy=false bei unbekannter Ausgangslage, laufendem Save, eigenem vorhandenen Eintrag, aktiven Callbacks oder wartenden Requests. True benötigt bestätigte Freigabe oder einen ausdrücklich eng belegten unregistrierten Zustand.",
+      "observed": "blocked bzw. failed, keine Portmutation, aber SafeToDestroy=true.",
+      "redCases": 7,
+      "tests": [
+        "Failed_initial_read_never_certifies_safe_destruction_of_unknown_references",
+        "Unknown_preexisting_references_never_certify_safe_destruction: busy, already-owned, active-callback, queued-reference",
+        "Invalid_preflight_never_mutates_a_port: busy, already-owned"
+      ],
+      "runtimeReachability": "Der neue Modellpfad ist nicht nativ angeschlossen. Das RED belegt eine Modellverletzung, keine beobachtete native Zerstörung.",
+      "fixedByReviewer": false
+    },
+    {
+      "id": "BSA-002",
+      "status": "red-reproduced-awaiting-parent-fix",
+      "severity": "blocker-for-requested-post-completion-frame-boundary",
+      "title": "Späterer Frame wird nur relativ zum Dispatch geprüft",
+      "source": "Source/Mods/TownHallInterior/src/BusinessConstruction.cs:177,208-214",
+      "expected": "Unter der konservativen Lease-Anforderung erfolgt RemoveSaveable erst in einem Frame nach der erstmals beobachteten Completion, nicht im ersten Completion-Snapshot selbst.",
+      "observed": "Dispatch in Frame 100; erstmals Complete+idle+leere Queue in Frame 101 gelesen; RemoveSaveable sofort 1 statt erwarteter 0.",
+      "redCases": 1,
+      "tests": ["First_completion_observation_requires_a_later_frame_before_removal"],
+      "limit": "Dieser Test definiert die angefragte konservative Modellgrenze. Auch deren Einhaltung wäre kein Beweis nativer Fertigstellung.",
+      "fixedByReviewer": false
+    }
+  ],
+  "confirmedChecks": [
+    "CheckSave erlaubt keine Umleitung durch explizite Organisations-/Slotargumente; Null-, Leer-, Case- und Traversalargumente abgewiesen.",
+    "Legacy probeSave wird im gültigen Testslot vor jedem Portmember und vor contextStillValid blockiert; keine Typregistrierung und kein nativer Versuch.",
+    "Produktionsquelltext enthält keine SaveRegistered-Methode und keine verbliebenen save.Save()-Aufrufe des entfernten Pfads.",
+    "NativeSaveWriteAllowed und SaveCompletionContractVerified sind im Runtimebericht false; IBusinessSavePort besitzt keinen Produktionsadapter und das Modell keinen Runtimeaufrufer.",
+    "Unverifizierter Completionvertrag führt vor RegisterSaveable/SaveOnce/RemoveSaveable zur Sperre.",
+    "Getestete Identitätswechsel, rücklaufende Frames/Callbackcounts, doppelte Counts und ungültige Beobachtungen führen ohne Entfernung zur Quarantäne.",
+    "Normierte äquivalente absolute Pfadzeichenketten bleiben als gleiche Modellidentität zulässig; kein Dateisystemzugriff für Pfadidentität.",
+    "Getestete Widerrufe während Registrierungs-, Pending- und Post-Removal-Readbacks sowie an der letzten Kontextprüfung setzen SafeToDestroy nicht true.",
+    "Getestete Teilfehler, Timeout und reentrante Aufrufe erzeugen keinen zweiten Save und keine Wiederholung einer Entfernung mit unbekannter Wirkung."
+  ],
+  "nativeSourceFindings": {
+    "saveCallReturn": "Save() und Save(string) sind void-Invoke-Proxys. Ihre Rückkehr ist kein nachgewiesener Gesamtabschluss. SaveRoutine-Iterator-Metadaten zeigen einen Coroutine-fähigen Pfad, aber nicht dessen konkretes Scheduling.",
+    "completionForwarding": "S1API GameLifecycle.OnSaveComplete wird direkt über SaveManager.onSaveComplete.AddListener weitergeleitet. Dies ist in Originalquelle und installierter DLL statisch bestätigt, kein Save-Postfix.",
+    "missingNativeBodies": "Native SaveManager-, SaveRoutine.MoveNext-, SaveRequest.Complete- und Interface-Rümpfe fehlen. Reihenfolge von Queueentnahme, Dateiarbeit, IsSaving-Rücksetzung, Event und letzter Referenznutzung ist unbelegt.",
+    "eventCorrelation": "Das parameterlose Event besitzt keine Request-ID und keinen Zielpfad. Complete+idle+leere Queue+Folgeframe allein ist kein etablierter nativer Freigabevertrag.",
+    "mainUnload": "S1API.cs:93-95 ruft bei Main-Unload GameLifecycle.Reset; GameLifecycle.cs:210-218 entfernt die nativen Save-Listener. Ein Completion-Listener kann danach ausbleiben.",
+    "multicast": "GameLifecycle.cs:282-290 umschließt die gesamte OnSaveComplete?.Invoke()-Ausführung mit einem try/catch, nicht einzelne Teilnehmer. Ein vorheriger werfender Teilnehmer kann spätere Teilnehmer überspringen.",
+    "otherModWrites": "GenericSaveables speichert separat im Save(string)-Postfix. Saveable.OnSaved kann schon nach Befüllen von DynamicSaveData laufen. Keine gemeinsame atomare Erfolgsquittung.",
+    "ownershipRetention": "DontDestroyOnLoad und gehaltene Registrierung könnten Lifetime erhalten, verhindern aber nicht automatisch die spätere Nutzung durch einen persistenten Manager in einer anderen Welt.",
+    "recommendation": "Native Write-Sperre vor Registrierung und Save beibehalten. Keine spekulativen nativen Hooks, kein zweiter Save und keine Entfernung bei unbekanntem Effekt.",
+    "versionLimit": "Prüfung vom 2026-11-05 gilt für die genannten Artefakthashes und S1API v3.2.2. Die Spielversionsbasis v0.4.7f12 stammt aus AGENTS.md; keine neue Spielsession oder native Maschinenkodeanalyse."
+  },
+  "remainingLimits": [
+    "Kein nativer Abschluss-/Freigabevertrag bewiesen; Modelltests rechtfertigen keine Aufhebung der Runtime-Sperre.",
+    "Nur BusinessManagerAuditTests ausgeführt; Parent verantwortet Haupttests, Gesamtprüfungen und abschließenden Dokumentationsabgleich.",
+    "Kein Produktions-Modbuild, Deployment, Spielstart, Save-/Load-Test, nativer Callbackaufruf oder Spielstanddateizugriff durch diesen Auditor.",
+    "Dokumentation und Haupttests werden parallel bearbeitet; dieser Bericht friert nur die ausdrücklich gehashten Prüfstände ein.",
+    "Noch kein GREEN-Nachlauf nach Parent-Fix. Der RED-Nachweis bleibt dem genannten Quellhash und Testzeitpunkt zugeordnet."
+  ]
+}

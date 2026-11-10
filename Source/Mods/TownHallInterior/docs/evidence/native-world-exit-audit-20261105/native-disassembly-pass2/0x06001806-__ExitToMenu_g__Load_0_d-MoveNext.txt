@@ -1,0 +1,557 @@
+; ScheduleOne.Persistence.LoadManager+<>c__DisplayClass81_0+<<ExitToMenu>g__Load|0>d::MoveNext/0, token 0x06001806, RVA 0x5AE1A0, next-pointer window 0x900 bytes
+; No target execution. Parser-pointer window can contain padding/cold fragments and is not exact/full function, EH or transitive coverage. Shared direct aliases are truncated to eight names.
+0x5AE1A0     48 89 4C 24 08                  mov [rsp+8],rcx
+0x5AE1A5     53                              push rbx
+0x5AE1A6     56                              push rsi
+0x5AE1A7     57                              push rdi
+0x5AE1A8     48 83 EC 40                     sub rsp,40h
+0x5AE1AC     48 8B F1                        mov rsi,rcx
+0x5AE1AF     80 3D 8A D5 64 03 00            cmp byte ptr [183BFB740h],0
+0x5AE1B6     0F 85 4B 01 00 00               jne near ptr 00000001805AE307h
+0x5AE1BC     48 8D 0D A5 BB 44 03            lea rcx,[1839F9D68h] ; TypeInfo: ScheduleOne.Console
+0x5AE1C3     E8 D8 96 D6 FF                  call 00000001803178A0h
+0x5AE1C8     48 8D 0D 41 BA 45 03            lea rcx,[183A09C10h] ; TypeInfo: UnityEngine.Debug
+0x5AE1CF     E8 CC 96 D6 FF                  call 00000001803178A0h
+0x5AE1D4     48 8D 0D E5 1A 40 03            lea rcx,[1839AFCC0h] ; TypeInfo: System.Func`1<System.Boolean>
+0x5AE1DB     E8 C0 96 D6 FF                  call 00000001803178A0h
+0x5AE1E0     48 8D 0D 99 60 43 03            lea rcx,[1839E4280h] ; TypeInfo: ScheduleOne.MouseController
+0x5AE1E7     E8 B4 96 D6 FF                  call 00000001803178A0h
+0x5AE1EC     48 8D 0D 05 1E 44 03            lea rcx,[1839EFFF8h] ; TypeInfo: UnityEngine.Object
+0x5AE1F3     E8 A8 96 D6 FF                  call 00000001803178A0h
+0x5AE1F8     48 8D 0D D1 D0 44 03            lea rcx,[1839FB2D0h] ; TypeInfo: ScheduleOne.PlayerScripts.Player
+0x5AE1FF     E8 9C 96 D6 FF                  call 00000001803178A0h
+0x5AE204     48 8D 0D 05 90 3D 03            lea rcx,[183987210h] ; TypeInfo: UnityEngine.SceneManagement.SceneManager
+0x5AE20B     E8 90 96 D6 FF                  call 00000001803178A0h
+0x5AE210     48 8D 0D D1 EB 43 03            lea rcx,[1839ECDE8h] ; MethodRef: System.Boolean ScheduleOne.DevUtilities.Singleton`1<ScheduleOne.UI.MainMenu.MainMenuPopup>.get_InstanceExists
+0x5AE217     E8 84 96 D6 FF                  call 00000001803178A0h
+0x5AE21C     48 8D 0D F5 EA 43 03            lea rcx,[1839ECD18h] ; MethodRef: T ScheduleOne.DevUtilities.Singleton`1<ScheduleOne.UI.MainMenu.MainMenuPopup>.get_Instance
+0x5AE223     E8 78 96 D6 FF                  call 00000001803178A0h
+0x5AE228     48 8D 0D 01 E5 43 03            lea rcx,[1839EC730h] ; MethodRef: T ScheduleOne.DevUtilities.Singleton`1<ScheduleOne.Networking.Lobby>.get_Instance
+0x5AE22F     E8 6C 96 D6 FF                  call 00000001803178A0h
+0x5AE234     48 8D 0D 3D E3 43 03            lea rcx,[1839EC578h] ; MethodRef: T ScheduleOne.DevUtilities.Singleton`1<ScheduleOne.UI.LoadingScreen>.get_Instance
+0x5AE23B     E8 60 96 D6 FF                  call 00000001803178A0h
+0x5AE240     48 8D 0D 31 45 44 03            lea rcx,[1839F2778h] ; MethodDef: ScheduleOne.Persistence.LoadManager+<>c__DisplayClass81_1::<ExitToMenu>b__1/0
+0x5AE247     E8 54 96 D6 FF                  call 00000001803178A0h
+0x5AE24C     48 8D 0D 2D 66 3F 03            lea rcx,[1839A4880h] ; TypeInfo: ScheduleOne.Persistence.LoadManager+<>c__DisplayClass81_1
+0x5AE253     E8 48 96 D6 FF                  call 00000001803178A0h
+0x5AE258     48 8D 0D F1 87 41 03            lea rcx,[1839C6A50h] ; TypeInfo: UnityEngine.WaitForEndOfFrame
+0x5AE25F     E8 3C 96 D6 FF                  call 00000001803178A0h
+0x5AE264     48 8D 0D 7D 8A 41 03            lea rcx,[1839C6CE8h] ; TypeInfo: UnityEngine.WaitForSecondsRealtime
+0x5AE26B     E8 30 96 D6 FF                  call 00000001803178A0h
+0x5AE270     48 8D 0D 91 89 41 03            lea rcx,[1839C6C08h] ; TypeInfo: UnityEngine.WaitForSeconds
+0x5AE277     E8 24 96 D6 FF                  call 00000001803178A0h
+0x5AE27C     48 8D 0D D5 8D 41 03            lea rcx,[1839C7058h] ; TypeInfo: UnityEngine.WaitUntil
+0x5AE283     E8 18 96 D6 FF                  call 00000001803178A0h
+0x5AE288     48 8D 0D 59 22 44 03            lea rcx,[1839F04E8h] ; StringLiteral: Connection stopped
+0x5AE28F     E8 0C 96 D6 FF                  call 00000001803178A0h
+0x5AE294     48 8D 0D E5 44 41 03            lea rcx,[1839C2780h] ; StringLiteral: Menu
+0x5AE29B     E8 00 96 D6 FF                  call 00000001803178A0h
+0x5AE2A0     48 8D 0D C9 28 3E 03            lea rcx,[183990B70h] ; StringLiteral: Disabling load_tutorial flag
+0x5AE2A7     E8 F4 95 D6 FF                  call 00000001803178A0h
+0x5AE2AC     48 8D 0D 85 46 41 03            lea rcx,[1839C2938h] ; StringLiteral: Menu scene loaded
+0x5AE2B3     E8 E8 95 D6 FF                  call 00000001803178A0h
+0x5AE2B8     48 8D 0D F9 68 3D 03            lea rcx,[183984BB8h] ; StringLiteral: Player data saved
+0x5AE2BF     E8 DC 95 D6 FF                  call 00000001803178A0h
+0x5AE2C4     48 8D 0D B5 D5 3D 03            lea rcx,[18398B880h] ; StringLiteral: Pre scene change event invoked
+0x5AE2CB     E8 D0 95 D6 FF                  call 00000001803178A0h
+0x5AE2D0     48 8D 0D 11 F0 3D 03            lea rcx,[18398D2E8h] ; StringLiteral: Destroying authenticator...
+0x5AE2D7     E8 C4 95 D6 FF                  call 00000001803178A0h
+0x5AE2DC     48 8D 0D D5 35 3E 03            lea rcx,[1839918B8h] ; StringLiteral: false
+0x5AE2E3     E8 B8 95 D6 FF                  call 00000001803178A0h
+0x5AE2E8     48 8D 0D 81 D9 41 03            lea rcx,[1839CBC70h] ; StringLiteral: load_tutorial
+0x5AE2EF     E8 AC 95 D6 FF                  call 00000001803178A0h
+0x5AE2F4     48 8D 0D 5D F9 3F 03            lea rcx,[1839ADC58h] ; StringLiteral: Requesting server to save player data
+0x5AE2FB     E8 A0 95 D6 FF                  call 00000001803178A0h
+0x5AE300     C6 05 39 D4 64 03 01            mov byte ptr [183BFB740h],1
+0x5AE307     48 8B 5E 20                     mov rbx,[rsi+20h]
+0x5AE30B     48 89 5C 24 78                  mov [rsp+78h],rbx
+0x5AE310     8B 4E 10                        mov ecx,[rsi+10h]
+0x5AE313     85 C9                           test ecx,ecx
+0x5AE315     0F 84 01 06 00 00               je near ptr 00000001805AE91Ch
+0x5AE31B     83 E9 01                        sub ecx,1
+0x5AE31E     0F 84 C9 05 00 00               je near ptr 00000001805AE8EDh
+0x5AE324     83 E9 01                        sub ecx,1
+0x5AE327     0F 84 C1 00 00 00               je near ptr 00000001805AE3EEh
+0x5AE32D     83 E9 01                        sub ecx,1
+0x5AE330     0F 84 AC 00 00 00               je near ptr 00000001805AE3E2h
+0x5AE336     83 F9 01                        cmp ecx,1
+0x5AE339     0F 85 A4 05 00 00               jne near ptr 00000001805AE8E3h
+0x5AE33F     C7 46 10 FF FF FF FF            mov dword ptr [rsi+10h],0FFFFFFFFh
+0x5AE346     48 8B 0D 33 5F 43 03            mov rcx,[1839E4280h] ; TypeInfo: ScheduleOne.MouseController
+0x5AE34D     83 B9 E0 00 00 00 00            cmp dword ptr [rcx+0E0h],0
+0x5AE354     75 05                           jne short 00000001805AE35Bh
+0x5AE356     E8 D5 98 D6 FF                  call 0000000180317C30h
+0x5AE35B     33 D2                           xor edx,edx
+0x5AE35D     B1 01                           mov cl,1
+0x5AE35F     E8 6C 17 41 00                  call 00000001809BFAD0h ; ScheduleOne.MouseController::FreeMouse/1
+0x5AE364     48 85 DB                        test rbx,rbx
+0x5AE367     0F 84 19 07 00 00               je near ptr 00000001805AEA86h
+0x5AE36D     48 83 7B 20 00                  cmp qword ptr [rbx+20h],0
+0x5AE372     74 34                           je short 00000001805AE3A8h
+0x5AE374     48 8B 0D 6D EA 43 03            mov rcx,[1839ECDE8h] ; MethodRef: System.Boolean ScheduleOne.DevUtilities.Singleton`1<ScheduleOne.UI.MainMenu.MainMenuPopup>.get_InstanceExists
+0x5AE37B     E8 B0 77 B8 00                  call 0000000181135B30h ; ScheduleOne.DevUtilities.Singleton`1::get_InstanceExists/0
+0x5AE380     84 C0                           test al,al
+0x5AE382     74 24                           je short 00000001805AE3A8h
+0x5AE384     48 8B 0D 8D E9 43 03            mov rcx,[1839ECD18h] ; MethodRef: T ScheduleOne.DevUtilities.Singleton`1<ScheduleOne.UI.MainMenu.MainMenuPopup>.get_Instance
+0x5AE38B     E8 80 B3 A5 FF                  call 0000000180009710h
+0x5AE390     48 85 C0                        test rax,rax
+0x5AE393     0F 84 ED 06 00 00               je near ptr 00000001805AEA86h
+0x5AE399     45 33 C0                        xor r8d,r8d
+0x5AE39C     48 8B 53 20                     mov rdx,[rbx+20h]
+0x5AE3A0     48 8B C8                        mov rcx,rax
+0x5AE3A3     E8 48 AD 4C 00                  call 0000000180A790F0h ; ScheduleOne.UI.MainMenu.MainMenuPopup::Open/1
+0x5AE3A8     48 8B 0D C9 E1 43 03            mov rcx,[1839EC578h] ; MethodRef: T ScheduleOne.DevUtilities.Singleton`1<ScheduleOne.UI.LoadingScreen>.get_Instance
+0x5AE3AF     E8 5C B3 A5 FF                  call 0000000180009710h
+0x5AE3B4     48 85 C0                        test rax,rax
+0x5AE3B7     0F 84 C9 06 00 00               je near ptr 00000001805AEA86h
+0x5AE3BD     33 D2                           xor edx,edx
+0x5AE3BF     48 8B C8                        mov rcx,rax
+0x5AE3C2     E8 49 42 44 00                  call 00000001809F2610h ; ScheduleOne.UI.LoadingScreen::Close/0
+0x5AE3C7     48 8B 43 10                     mov rax,[rbx+10h]
+0x5AE3CB     48 85 C0                        test rax,rax
+0x5AE3CE     0F 84 B2 06 00 00               je near ptr 00000001805AEA86h
+0x5AE3D4     C6 40 29 00                     mov byte ptr [rax+29h],0
+0x5AE3D8     32 C0                           xor al,al
+0x5AE3DA     48 83 C4 40                     add rsp,40h
+0x5AE3DE     5F                              pop rdi
+0x5AE3DF     5E                              pop rsi
+0x5AE3E0     5B                              pop rbx
+0x5AE3E1     C3                              ret
+0x5AE3E2     C7 46 10 FF FF FF FF            mov dword ptr [rsi+10h],0FFFFFFFFh
+0x5AE3E9     E9 07 02 00 00                  jmp near ptr 00000001805AE5F5h
+0x5AE3EE     C7 46 10 FF FF FF FF            mov dword ptr [rsi+10h],0FFFFFFFFh
+0x5AE3F5     48 85 DB                        test rbx,rbx
+0x5AE3F8     0F 84 94 06 00 00               je near ptr 00000001805AEA92h
+0x5AE3FE     48 8B 43 10                     mov rax,[rbx+10h]
+0x5AE402     48 85 C0                        test rax,rax
+0x5AE405     0F 84 81 06 00 00               je near ptr 00000001805AEA8Ch
+0x5AE40B     48 83 78 78 00                  cmp qword ptr [rax+78h],0
+0x5AE410     74 0C                           je short 00000001805AE41Eh
+0x5AE412     33 D2                           xor edx,edx
+0x5AE414     48 8B 48 78                     mov rcx,[rax+78h]
+0x5AE418     E8 D3 8A 5F 02                  call 0000000182BA6EF0h ; UnityEngine.Events.UnityEvent::Invoke/0
+0x5AE41D     90                              nop
+0x5AE41E     EB 72                           jmp short 00000001805AE492h
+0x5AE420     48 8B 4C 24 70                  mov rcx,[rsp+70h]
+0x5AE425     48 85 C9                        test rcx,rcx
+0x5AE428     0F 84 58 06 00 00               je near ptr 00000001805AEA86h
+0x5AE42E     48 8B 01                        mov rax,[rcx]
+0x5AE431     48 8B 90 90 01 00 00            mov rdx,[rax+190h]
+0x5AE438     FF 90 88 01 00 00               call qword ptr [rax+188h]
+0x5AE43E     48 8B D8                        mov rbx,rax
+0x5AE441     48 8D 0D 20 B3 3F 03            lea rcx,[1839A9768h] ; StringLiteral: Error invoking pre scene change event: 
+0x5AE448     E8 73 94 D6 FF                  call 00000001803178C0h
+0x5AE44D     48 8B C8                        mov rcx,rax
+0x5AE450     45 33 C0                        xor r8d,r8d
+0x5AE453     48 8B D3                        mov rdx,rbx
+0x5AE456     E8 C5 56 43 01                  call 00000001819E3B20h ; System.String::Concat/2
+0x5AE45B     48 8B D8                        mov rbx,rax
+0x5AE45E     48 8D 0D 03 B9 44 03            lea rcx,[1839F9D68h] ; TypeInfo: ScheduleOne.Console
+0x5AE465     E8 56 94 D6 FF                  call 00000001803178C0h
+0x5AE46A     83 B8 E0 00 00 00 00            cmp dword ptr [rax+0E0h],0
+0x5AE471     75 08                           jne short 00000001805AE47Bh
+0x5AE473     48 8B C8                        mov rcx,rax
+0x5AE476     E8 B5 97 D6 FF                  call 0000000180317C30h
+0x5AE47B     45 33 C0                        xor r8d,r8d
+0x5AE47E     33 D2                           xor edx,edx
+0x5AE480     48 8B CB                        mov rcx,rbx
+0x5AE483     E8 08 A5 2F 00                  call 00000001808A8990h ; ScheduleOne.Console::LogError/2
+0x5AE488     48 8B 74 24 60                  mov rsi,[rsp+60h]
+0x5AE48D     48 8B 5C 24 78                  mov rbx,[rsp+78h]
+0x5AE492     48 8B 0D CF B8 44 03            mov rcx,[1839F9D68h] ; TypeInfo: ScheduleOne.Console
+0x5AE499     83 B9 E0 00 00 00 00            cmp dword ptr [rcx+0E0h],0
+0x5AE4A0     75 05                           jne short 00000001805AE4A7h
+0x5AE4A2     E8 89 97 D6 FF                  call 0000000180317C30h
+0x5AE4A7     45 33 C0                        xor r8d,r8d
+0x5AE4AA     33 D2                           xor edx,edx
+0x5AE4AC     48 8B 0D CD D3 3D 03            mov rcx,[18398B880h] ; StringLiteral: Pre scene change event invoked
+0x5AE4B3     E8 E8 A6 2F 00                  call 00000001808A8BA0h ; ScheduleOne.Console::Log/2
+0x5AE4B8     33 C9                           xor ecx,ecx
+0x5AE4BA     E8 31 74 6F 00                  call 0000000180CA58F0h ; FishNet.InstanceFinder::get_NetworkManager/0
+0x5AE4BF     48 85 C0                        test rax,rax
+0x5AE4C2     0F 84 BE 05 00 00               je near ptr 00000001805AEA86h
+0x5AE4C8     48 8B 48 30                     mov rcx,[rax+30h]
+0x5AE4CC     48 85 C9                        test rcx,rcx
+0x5AE4CF     0F 84 B1 05 00 00               je near ptr 00000001805AEA86h
+0x5AE4D5     45 33 C0                        xor r8d,r8d
+0x5AE4D8     B2 01                           mov dl,1
+0x5AE4DA     E8 41 FD 74 00                  call 0000000180CFE220h ; FishNet.Managing.Server.ServerManager::StopConnection/1
+0x5AE4DF     33 C9                           xor ecx,ecx
+0x5AE4E1     E8 0A 74 6F 00                  call 0000000180CA58F0h ; FishNet.InstanceFinder::get_NetworkManager/0
+0x5AE4E6     48 85 C0                        test rax,rax
+0x5AE4E9     0F 84 97 05 00 00               je near ptr 00000001805AEA86h
+0x5AE4EF     48 8B 48 38                     mov rcx,[rax+38h]
+0x5AE4F3     48 85 C9                        test rcx,rcx
+0x5AE4F6     0F 84 8A 05 00 00               je near ptr 00000001805AEA86h
+0x5AE4FC     33 D2                           xor edx,edx
+0x5AE4FE     E8 CD EB 75 00                  call 0000000180D0D0D0h ; FishNet.Managing.Client.ClientManager::StopConnection/0
+0x5AE503     33 C9                           xor ecx,ecx
+0x5AE505     E8 D6 77 6F 00                  call 0000000180CA5CE0h ; FishNet.InstanceFinder::get_ServerManager/0
+0x5AE50A     48 85 C0                        test rax,rax
+0x5AE50D     0F 84 73 05 00 00               je near ptr 00000001805AEA86h
+0x5AE513     48 8B 78 70                     mov rdi,[rax+70h]
+0x5AE517     48 8B 0D DA 1A 44 03            mov rcx,[1839EFFF8h] ; TypeInfo: UnityEngine.Object
+0x5AE51E     83 B9 E0 00 00 00 00            cmp dword ptr [rcx+0E0h],0
+0x5AE525     75 05                           jne short 00000001805AE52Ch
+0x5AE527     E8 04 97 D6 FF                  call 0000000180317C30h
+0x5AE52C     45 33 C0                        xor r8d,r8d
+0x5AE52F     33 D2                           xor edx,edx
+0x5AE531     48 8B CF                        mov rcx,rdi
+0x5AE534     E8 07 DD 5C 02                  call 0000000182B7C240h ; UnityEngine.Object::op_Inequality/2
+0x5AE539     84 C0                           test al,al
+0x5AE53B     74 5F                           je short 00000001805AE59Ch
+0x5AE53D     48 8B 0D CC B6 45 03            mov rcx,[183A09C10h] ; TypeInfo: UnityEngine.Debug
+0x5AE544     83 B9 E0 00 00 00 00            cmp dword ptr [rcx+0E0h],0
+0x5AE54B     75 05                           jne short 00000001805AE552h
+0x5AE54D     E8 DE 96 D6 FF                  call 0000000180317C30h
+0x5AE552     33 D2                           xor edx,edx
+0x5AE554     48 8B 0D 8D ED 3D 03            mov rcx,[18398D2E8h] ; StringLiteral: Destroying authenticator...
+0x5AE55B     E8 50 3F 59 02                  call 0000000182B424B0h ; UnityEngine.Debug::Log/1
+0x5AE560     48 8B 0D 91 1A 44 03            mov rcx,[1839EFFF8h] ; TypeInfo: UnityEngine.Object
+0x5AE567     83 B9 E0 00 00 00 00            cmp dword ptr [rcx+0E0h],0
+0x5AE56E     75 05                           jne short 00000001805AE575h
+0x5AE570     E8 BB 96 D6 FF                  call 0000000180317C30h
+0x5AE575     33 D2                           xor edx,edx
+0x5AE577     48 8B CF                        mov rcx,rdi
+0x5AE57A     E8 71 C4 5C 02                  call 0000000182B7A9F0h ; UnityEngine.Object::Destroy/1
+0x5AE57F     33 C9                           xor ecx,ecx
+0x5AE581     E8 5A 77 6F 00                  call 0000000180CA5CE0h ; FishNet.InstanceFinder::get_ServerManager/0
+0x5AE586     48 85 C0                        test rax,rax
+0x5AE589     0F 84 F7 04 00 00               je near ptr 00000001805AEA86h
+0x5AE58F     45 33 C0                        xor r8d,r8d
+0x5AE592     33 D2                           xor edx,edx
+0x5AE594     48 8B C8                        mov rcx,rax
+0x5AE597     E8 E4 F9 74 00                  call 0000000180CFDF80h ; FishNet.Managing.Server.ServerManager::set_Authenticator/1 | FishNet.Managing.Server.ServerManager::SetAuthenticator/1
+0x5AE59C     48 8B 0D C5 B7 44 03            mov rcx,[1839F9D68h] ; TypeInfo: ScheduleOne.Console
+0x5AE5A3     83 B9 E0 00 00 00 00            cmp dword ptr [rcx+0E0h],0
+0x5AE5AA     75 05                           jne short 00000001805AE5B1h
+0x5AE5AC     E8 7F 96 D6 FF                  call 0000000180317C30h
+0x5AE5B1     45 33 C0                        xor r8d,r8d
+0x5AE5B4     33 D2                           xor edx,edx
+0x5AE5B6     48 8B 0D 2B 1F 44 03            mov rcx,[1839F04E8h] ; StringLiteral: Connection stopped
+0x5AE5BD     E8 DE A5 2F 00                  call 00000001808A8BA0h ; ScheduleOne.Console::Log/2
+0x5AE5C2     48 8B 0D 47 8C 3D 03            mov rcx,[183987210h] ; TypeInfo: UnityEngine.SceneManagement.SceneManager
+0x5AE5C9     83 B9 E0 00 00 00 00            cmp dword ptr [rcx+0E0h],0
+0x5AE5D0     75 05                           jne short 00000001805AE5D7h
+0x5AE5D2     E8 59 96 D6 FF                  call 0000000180317C30h
+0x5AE5D7     33 D2                           xor edx,edx
+0x5AE5D9     48 8B 0D A0 41 41 03            mov rcx,[1839C2780h] ; StringLiteral: Menu
+0x5AE5E0     E8 2B 43 5F 02                  call 0000000182BA2910h ; UnityEngine.SceneManagement.SceneManager::LoadSceneAsync/1
+0x5AE5E5     48 89 46 28                     mov [rsi+28h],rax
+0x5AE5E9     48 8D 4E 28                     lea rcx,[rsi+28h]
+0x5AE5ED     48 8B D0                        mov rdx,rax
+0x5AE5F0     E8 BB 84 D6 FF                  call 0000000180316AB0h
+0x5AE5F5     48 8B 4E 28                     mov rcx,[rsi+28h]
+0x5AE5F9     48 85 C9                        test rcx,rcx
+0x5AE5FC     0F 84 84 04 00 00               je near ptr 00000001805AEA86h
+0x5AE602     33 D2                           xor edx,edx
+0x5AE604     E8 47 49 5C 02                  call 0000000182B72F50h ; UnityEngine.AsyncOperation::get_isDone/0
+0x5AE609     84 C0                           test al,al
+0x5AE60B     75 3A                           jne short 00000001805AE647h
+0x5AE60D     48 8B 0D 3C 84 41 03            mov rcx,[1839C6A50h] ; TypeInfo: UnityEngine.WaitForEndOfFrame
+0x5AE614     E8 07 95 D6 FF                  call 0000000180317B20h
+0x5AE619     48 8B D8                        mov rbx,rax
+0x5AE61C     33 D2                           xor edx,edx
+0x5AE61E     48 8B C8                        mov rcx,rax
+0x5AE621     E8 5A EF E6 FF                  call 000000018041D580h ; DeveloperManager::OnStartServer/0 | DeveloperManager+LiveFloatVariable::.ctor/0 | DeveloperManager+LiveStringVariable::.ctor/0 | DeveloperManager+<>c__DisplayClass11_0::.ctor/0 | DeveloperManager+<>c__DisplayClass15_0::.ctor/0 | DeveloperManager+<>c__DisplayClass16_0::.ctor/0 | DeveloperSettings+Item::.ctor/0 | InvertMouseSetter+<>c::.ctor/0 | ... SHARED TARGET: 2614 aliases
+0x5AE626     48 89 5E 18                     mov [rsi+18h],rbx
+0x5AE62A     48 8D 4E 18                     lea rcx,[rsi+18h]
+0x5AE62E     48 8B D3                        mov rdx,rbx
+0x5AE631     E8 7A 84 D6 FF                  call 0000000180316AB0h
+0x5AE636     C7 46 10 03 00 00 00            mov dword ptr [rsi+10h],3
+0x5AE63D     B0 01                           mov al,1
+0x5AE63F     48 83 C4 40                     add rsp,40h
+0x5AE643     5F                              pop rdi
+0x5AE644     5E                              pop rsi
+0x5AE645     5B                              pop rbx
+0x5AE646     C3                              ret
+0x5AE647     48 85 DB                        test rbx,rbx
+0x5AE64A     0F 84 36 04 00 00               je near ptr 00000001805AEA86h
+0x5AE650     48 8B 43 10                     mov rax,[rbx+10h]
+0x5AE654     48 85 C0                        test rax,rax
+0x5AE657     0F 84 29 04 00 00               je near ptr 00000001805AEA86h
+0x5AE65D     48 83 B8 80 00 00 00 00         cmp qword ptr [rax+80h],0
+0x5AE665     74 0E                           je short 00000001805AE675h
+0x5AE667     33 D2                           xor edx,edx
+0x5AE669     48 8B 88 80 00 00 00            mov rcx,[rax+80h]
+0x5AE670     E8 7B 88 5F 02                  call 0000000182BA6EF0h ; UnityEngine.Events.UnityEvent::Invoke/0
+0x5AE675     48 8B 0D EC B6 44 03            mov rcx,[1839F9D68h] ; TypeInfo: ScheduleOne.Console
+0x5AE67C     83 B9 E0 00 00 00 00            cmp dword ptr [rcx+0E0h],0
+0x5AE683     75 05                           jne short 00000001805AE68Ah
+0x5AE685     E8 A6 95 D6 FF                  call 0000000180317C30h
+0x5AE68A     45 33 C0                        xor r8d,r8d
+0x5AE68D     33 D2                           xor edx,edx
+0x5AE68F     48 8B 0D A2 42 41 03            mov rcx,[1839C2938h] ; StringLiteral: Menu scene loaded
+0x5AE696     E8 05 A5 2F 00                  call 00000001808A8BA0h ; ScheduleOne.Console::Log/2
+0x5AE69B     48 8B 0D 8E E0 43 03            mov rcx,[1839EC730h] ; MethodRef: T ScheduleOne.DevUtilities.Singleton`1<ScheduleOne.Networking.Lobby>.get_Instance
+0x5AE6A2     E8 69 B0 A5 FF                  call 0000000180009710h
+0x5AE6A7     48 85 C0                        test rax,rax
+0x5AE6AA     0F 84 D6 03 00 00               je near ptr 00000001805AEA86h
+0x5AE6B0     33 D2                           xor edx,edx
+0x5AE6B2     48 8B C8                        mov rcx,rax
+0x5AE6B5     E8 26 2E 01 00                  call 00000001805C14E0h ; ScheduleOne.Networking.Lobby::get_IsInLobby/0
+0x5AE6BA     84 C0                           test al,al
+0x5AE6BC     75 04                           jne short 00000001805AE6C2h
+0x5AE6BE     33 C9                           xor ecx,ecx
+0x5AE6C0     EB 25                           jmp short 00000001805AE6E7h
+0x5AE6C2     48 8B 0D 67 E0 43 03            mov rcx,[1839EC730h] ; MethodRef: T ScheduleOne.DevUtilities.Singleton`1<ScheduleOne.Networking.Lobby>.get_Instance
+0x5AE6C9     E8 42 B0 A5 FF                  call 0000000180009710h
+0x5AE6CE     48 85 C0                        test rax,rax
+0x5AE6D1     0F 84 AF 03 00 00               je near ptr 00000001805AEA86h
+0x5AE6D7     33 D2                           xor edx,edx
+0x5AE6D9     48 8B C8                        mov rcx,rax
+0x5AE6DC     E8 AF 2D 01 00                  call 00000001805C1490h ; ScheduleOne.Networking.Lobby::get_IsHost/0
+0x5AE6E1     0F B6 C8                        movzx ecx,al
+0x5AE6E4     83 F1 01                        xor ecx,1
+0x5AE6E7     33 C0                           xor eax,eax
+0x5AE6E9     48 39 43 18                     cmp [rbx+18h],rax
+0x5AE6ED     0F 97 C0                        seta al
+0x5AE6F0     0B C1                           or eax,ecx
+0x5AE6F2     75 57                           jne short 00000001805AE74Bh
+0x5AE6F4     48 8B 4B 10                     mov rcx,[rbx+10h]
+0x5AE6F8     48 85 C9                        test rcx,rcx
+0x5AE6FB     0F 84 85 03 00 00               je near ptr 00000001805AEA86h
+0x5AE701     33 D2                           xor edx,edx
+0x5AE703     E8 28 96 FD FF                  call 0000000180587D30h ; ScheduleOne.Persistence.LoadManager::RefreshSaveInfo/0
+0x5AE708     48 8B 0D F9 84 41 03            mov rcx,[1839C6C08h] ; TypeInfo: UnityEngine.WaitForSeconds
+0x5AE70F     E8 0C 94 D6 FF                  call 0000000180317B20h
+0x5AE714     48 8B D8                        mov rbx,rax
+0x5AE717     45 33 C0                        xor r8d,r8d
+0x5AE71A     F3 0F 10 0D 1E E4 8A 02         movss xmm1,dword ptr [182E5CB40h]
+0x5AE722     48 8B C8                        mov rcx,rax
+0x5AE725     E8 26 61 01 00                  call 00000001805C4850h ; ScheduleOne.Persistence.Datas.NumberFieldData::.ctor/1 | UnityEngine.WaitForSeconds::.ctor/1
+0x5AE72A     48 89 5E 18                     mov [rsi+18h],rbx
+0x5AE72E     48 8D 4E 18                     lea rcx,[rsi+18h]
+0x5AE732     48 8B D3                        mov rdx,rbx
+0x5AE735     E8 76 83 D6 FF                  call 0000000180316AB0h
+0x5AE73A     C7 46 10 04 00 00 00            mov dword ptr [rsi+10h],4
+0x5AE741     B0 01                           mov al,1
+0x5AE743     48 83 C4 40                     add rsp,40h
+0x5AE747     5F                              pop rdi
+0x5AE748     5E                              pop rsi
+0x5AE749     5B                              pop rbx
+0x5AE74A     C3                              ret
+0x5AE74B     48 8B 0D DE DF 43 03            mov rcx,[1839EC730h] ; MethodRef: T ScheduleOne.DevUtilities.Singleton`1<ScheduleOne.Networking.Lobby>.get_Instance
+0x5AE752     E8 B9 AF A5 FF                  call 0000000180009710h
+0x5AE757     48 85 C0                        test rax,rax
+0x5AE75A     0F 84 26 03 00 00               je near ptr 00000001805AEA86h
+0x5AE760     33 D2                           xor edx,edx
+0x5AE762     48 8B C8                        mov rcx,rax
+0x5AE765     E8 76 2D 01 00                  call 00000001805C14E0h ; ScheduleOne.Networking.Lobby::get_IsInLobby/0
+0x5AE76A     84 C0                           test al,al
+0x5AE76C     75 40                           jne short 00000001805AE7AEh
+0x5AE76E     48 8B 43 10                     mov rax,[rbx+10h]
+0x5AE772     48 85 C0                        test rax,rax
+0x5AE775     0F 84 0B 03 00 00               je near ptr 00000001805AEA86h
+0x5AE77B     C6 40 29 00                     mov byte ptr [rax+29h],0
+0x5AE77F     48 8B 4B 10                     mov rcx,[rbx+10h]
+0x5AE783     48 85 C9                        test rcx,rcx
+0x5AE786     0F 84 FA 02 00 00               je near ptr 00000001805AEA86h
+0x5AE78C     48 C7 44 24 20 00 00 00 00      mov qword ptr [rsp+20h],0
+0x5AE795     45 33 C9                        xor r9d,r9d
+0x5AE798     45 33 C0                        xor r8d,r8d
+0x5AE79B     48 8B 53 18                     mov rdx,[rbx+18h]
+0x5AE79F     E8 1C 9A FD FF                  call 00000001805881C0h ; ScheduleOne.Persistence.LoadManager::StartGame/3
+0x5AE7A4     32 C0                           xor al,al
+0x5AE7A6     48 83 C4 40                     add rsp,40h
+0x5AE7AA     5F                              pop rdi
+0x5AE7AB     5E                              pop rsi
+0x5AE7AC     5B                              pop rbx
+0x5AE7AD     C3                              ret
+0x5AE7AE     48 8B 0D 7B DF 43 03            mov rcx,[1839EC730h] ; MethodRef: T ScheduleOne.DevUtilities.Singleton`1<ScheduleOne.Networking.Lobby>.get_Instance
+0x5AE7B5     E8 56 AF A5 FF                  call 0000000180009710h
+0x5AE7BA     48 85 C0                        test rax,rax
+0x5AE7BD     0F 84 C3 02 00 00               je near ptr 00000001805AEA86h
+0x5AE7C3     33 D2                           xor edx,edx
+0x5AE7C5     48 8B C8                        mov rcx,rax
+0x5AE7C8     E8 C3 2C 01 00                  call 00000001805C1490h ; ScheduleOne.Networking.Lobby::get_IsHost/0
+0x5AE7CD     84 C0                           test al,al
+0x5AE7CF     0F 85 84 00 00 00               jne near ptr 00000001805AE859h
+0x5AE7D5     48 8B 0D 54 DF 43 03            mov rcx,[1839EC730h] ; MethodRef: T ScheduleOne.DevUtilities.Singleton`1<ScheduleOne.Networking.Lobby>.get_Instance
+0x5AE7DC     E8 2F AF A5 FF                  call 0000000180009710h
+0x5AE7E1     48 85 C0                        test rax,rax
+0x5AE7E4     0F 84 9C 02 00 00               je near ptr 00000001805AEA86h
+0x5AE7EA     33 D2                           xor edx,edx
+0x5AE7EC     48 8B C8                        mov rcx,rax
+0x5AE7EF     E8 FC 22 01 00                  call 00000001805C0AF0h ; ScheduleOne.Networking.Lobby::IsSessionReadyForClient/0
+0x5AE7F4     48 8B 5B 10                     mov rbx,[rbx+10h]
+0x5AE7F8     84 C0                           test al,al
+0x5AE7FA     75 1D                           jne short 00000001805AE819h
+0x5AE7FC     48 85 DB                        test rbx,rbx
+0x5AE7FF     0F 84 81 02 00 00               je near ptr 00000001805AEA86h
+0x5AE805     33 D2                           xor edx,edx
+0x5AE807     48 8B CB                        mov rcx,rbx
+0x5AE80A     E8 A1 99 FD FF                  call 00000001805881B0h ; ScheduleOne.Persistence.LoadManager::SetWaitingForHostLoad/0
+0x5AE80F     32 C0                           xor al,al
+0x5AE811     48 83 C4 40                     add rsp,40h
+0x5AE815     5F                              pop rdi
+0x5AE816     5E                              pop rsi
+0x5AE817     5B                              pop rbx
+0x5AE818     C3                              ret
+0x5AE819     48 8B 0D 10 DF 43 03            mov rcx,[1839EC730h] ; MethodRef: T ScheduleOne.DevUtilities.Singleton`1<ScheduleOne.Networking.Lobby>.get_Instance
+0x5AE820     E8 EB AE A5 FF                  call 0000000180009710h
+0x5AE825     48 85 C0                        test rax,rax
+0x5AE828     0F 84 58 02 00 00               je near ptr 00000001805AEA86h
+0x5AE82E     33 D2                           xor edx,edx
+0x5AE830     48 8B C8                        mov rcx,rax
+0x5AE833     E8 F8 21 01 00                  call 00000001805C0A30h ; ScheduleOne.Networking.Lobby::GetSessionConnectionIdentifier/0
+0x5AE838     48 85 DB                        test rbx,rbx
+0x5AE83B     0F 84 45 02 00 00               je near ptr 00000001805AEA86h
+0x5AE841     45 33 C0                        xor r8d,r8d
+0x5AE844     48 8B D0                        mov rdx,rax
+0x5AE847     48 8B CB                        mov rcx,rbx
+0x5AE84A     E8 A1 91 FD FF                  call 00000001805879F0h ; ScheduleOne.Persistence.LoadManager::LoadAsClient/1
+0x5AE84F     32 C0                           xor al,al
+0x5AE851     48 83 C4 40                     add rsp,40h
+0x5AE855     5F                              pop rdi
+0x5AE856     5E                              pop rsi
+0x5AE857     5B                              pop rbx
+0x5AE858     C3                              ret
+0x5AE859     48 8B 43 10                     mov rax,[rbx+10h]
+0x5AE85D     48 85 C0                        test rax,rax
+0x5AE860     0F 84 20 02 00 00               je near ptr 00000001805AEA86h
+0x5AE866     C6 40 29 00                     mov byte ptr [rax+29h],0
+0x5AE86A     48 8B 4B 10                     mov rcx,[rbx+10h]
+0x5AE86E     48 85 C9                        test rcx,rcx
+0x5AE871     0F 84 0F 02 00 00               je near ptr 00000001805AEA86h
+0x5AE877     48 C7 44 24 20 00 00 00 00      mov qword ptr [rsp+20h],0
+0x5AE880     45 33 C9                        xor r9d,r9d
+0x5AE883     45 33 C0                        xor r8d,r8d
+0x5AE886     48 8B 53 18                     mov rdx,[rbx+18h]
+0x5AE88A     E8 31 99 FD FF                  call 00000001805881C0h ; ScheduleOne.Persistence.LoadManager::StartGame/3
+0x5AE88F     48 8B 0D D2 B4 44 03            mov rcx,[1839F9D68h] ; TypeInfo: ScheduleOne.Console
+0x5AE896     83 B9 E0 00 00 00 00            cmp dword ptr [rcx+0E0h],0
+0x5AE89D     75 05                           jne short 00000001805AE8A4h
+0x5AE89F     E8 8C 93 D6 FF                  call 0000000180317C30h
+0x5AE8A4     45 33 C0                        xor r8d,r8d
+0x5AE8A7     33 D2                           xor edx,edx
+0x5AE8A9     48 8B 0D C0 22 3E 03            mov rcx,[183990B70h] ; StringLiteral: Disabling load_tutorial flag
+0x5AE8B0     E8 EB A2 2F 00                  call 00000001808A8BA0h ; ScheduleOne.Console::Log/2
+0x5AE8B5     48 8B 0D 74 DE 43 03            mov rcx,[1839EC730h] ; MethodRef: T ScheduleOne.DevUtilities.Singleton`1<ScheduleOne.Networking.Lobby>.get_Instance
+0x5AE8BC     E8 4F AE A5 FF                  call 0000000180009710h
+0x5AE8C1     48 85 C0                        test rax,rax
+0x5AE8C4     0F 84 BC 01 00 00               je near ptr 00000001805AEA86h
+0x5AE8CA     45 33 C9                        xor r9d,r9d
+0x5AE8CD     4C 8B 05 E4 2F 3E 03            mov r8,[1839918B8h] ; StringLiteral: false
+0x5AE8D4     48 8B 15 95 D3 41 03            mov rdx,[1839CBC70h] ; StringLiteral: load_tutorial
+0x5AE8DB     48 8B C8                        mov rcx,rax
+0x5AE8DE     E8 BD 23 01 00                  call 00000001805C0CA0h ; ScheduleOne.Networking.Lobby::SetLobbyData/2
+0x5AE8E3     32 C0                           xor al,al
+0x5AE8E5     48 83 C4 40                     add rsp,40h
+0x5AE8E9     5F                              pop rdi
+0x5AE8EA     5E                              pop rsi
+0x5AE8EB     5B                              pop rbx
+0x5AE8EC     C3                              ret
+0x5AE8ED     C7 46 10 FF FF FF FF            mov dword ptr [rsi+10h],0FFFFFFFFh
+0x5AE8F4     48 8B 0D 6D B4 44 03            mov rcx,[1839F9D68h] ; TypeInfo: ScheduleOne.Console
+0x5AE8FB     83 B9 E0 00 00 00 00            cmp dword ptr [rcx+0E0h],0
+0x5AE902     75 05                           jne short 00000001805AE909h
+0x5AE904     E8 27 93 D6 FF                  call 0000000180317C30h
+0x5AE909     45 33 C0                        xor r8d,r8d
+0x5AE90C     33 D2                           xor edx,edx
+0x5AE90E     48 8B 0D A3 62 3D 03            mov rcx,[183984BB8h] ; StringLiteral: Player data saved
+0x5AE915     E8 86 A2 2F 00                  call 00000001808A8BA0h ; ScheduleOne.Console::Log/2
+0x5AE91A     EB 34                           jmp short 00000001805AE950h
+0x5AE91C     C7 46 10 FF FF FF FF            mov dword ptr [rsi+10h],0FFFFFFFFh
+0x5AE923     48 8B 0D 4E DC 43 03            mov rcx,[1839EC578h] ; MethodRef: T ScheduleOne.DevUtilities.Singleton`1<ScheduleOne.UI.LoadingScreen>.get_Instance
+0x5AE92A     E8 E1 AD A5 FF                  call 0000000180009710h
+0x5AE92F     48 85 C0                        test rax,rax
+0x5AE932     0F 84 4E 01 00 00               je near ptr 00000001805AEA86h
+0x5AE938     45 33 C0                        xor r8d,r8d
+0x5AE93B     33 D2                           xor edx,edx
+0x5AE93D     48 8B C8                        mov rcx,rax
+0x5AE940     E8 AB 3F 44 00                  call 00000001809F28F0h ; ScheduleOne.UI.LoadingScreen::Open/1
+0x5AE945     33 C9                           xor ecx,ecx
+0x5AE947     E8 24 6F 6F 00                  call 0000000180CA5870h ; FishNet.InstanceFinder::get_IsServer/0
+0x5AE94C     84 C0                           test al,al
+0x5AE94E     74 43                           je short 00000001805AE993h
+0x5AE950     48 8B 0D 91 83 41 03            mov rcx,[1839C6CE8h] ; TypeInfo: UnityEngine.WaitForSecondsRealtime
+0x5AE957     E8 C4 91 D6 FF                  call 0000000180317B20h
+0x5AE95C     48 8B D8                        mov rbx,rax
+0x5AE95F     45 33 C0                        xor r8d,r8d
+0x5AE962     F3 0F 10 0D F6 E2 8A 02         movss xmm1,dword ptr [182E5CC60h]
+0x5AE96A     48 8B C8                        mov rcx,rax
+0x5AE96D     E8 0E E6 5D 02                  call 0000000182B8CF80h ; UnityEngine.WaitForSecondsRealtime::.ctor/1
+0x5AE972     48 89 5E 18                     mov [rsi+18h],rbx
+0x5AE976     48 8D 4E 18                     lea rcx,[rsi+18h]
+0x5AE97A     48 8B D3                        mov rdx,rbx
+0x5AE97D     E8 2E 81 D6 FF                  call 0000000180316AB0h
+0x5AE982     C7 46 10 02 00 00 00            mov dword ptr [rsi+10h],2
+0x5AE989     B0 01                           mov al,1
+0x5AE98B     48 83 C4 40                     add rsp,40h
+0x5AE98F     5F                              pop rdi
+0x5AE990     5E                              pop rsi
+0x5AE991     5B                              pop rbx
+0x5AE992     C3                              ret
+0x5AE993     48 8B 0D E6 5E 3F 03            mov rcx,[1839A4880h] ; TypeInfo: ScheduleOne.Persistence.LoadManager+<>c__DisplayClass81_1
+0x5AE99A     E8 81 91 D6 FF                  call 0000000180317B20h
+0x5AE99F     48 8B D8                        mov rbx,rax
+0x5AE9A2     33 D2                           xor edx,edx
+0x5AE9A4     48 8B C8                        mov rcx,rax
+0x5AE9A7     E8 14 15 E9 FF                  call 000000018043FEC0h ; VFXRainPass::Dispose/0 | LightningLightController+<DoStrikeRoutine>d__7::System.IDisposable.Dispose/0 | ActionList+<<InvokeAllStaggered>g__StaggeredInvoke|6_0>d::System.IDisposable.Dispose/0 | CameraCaptureToPNG+<CaptureCameraView>d__5::System.IDisposable.Dispose/0 | DeveloperManager+<DoDeveloperRoutine>d__9::System.IDisposable.Dispose/0 | UnityServicesManager::Start/0 | UnityServicesManager::Update/0 | EntityConfigurationData::Start/0 | ... SHARED TARGET: 1731 aliases
+0x5AE9AC     48 8B 0D B5 B3 44 03            mov rcx,[1839F9D68h] ; TypeInfo: ScheduleOne.Console
+0x5AE9B3     83 B9 E0 00 00 00 00            cmp dword ptr [rcx+0E0h],0
+0x5AE9BA     75 05                           jne short 00000001805AE9C1h
+0x5AE9BC     E8 6F 92 D6 FF                  call 0000000180317C30h
+0x5AE9C1     45 33 C0                        xor r8d,r8d
+0x5AE9C4     33 D2                           xor edx,edx
+0x5AE9C6     48 8B 0D 8B F2 3F 03            mov rcx,[1839ADC58h] ; StringLiteral: Requesting server to save player data
+0x5AE9CD     E8 CE A1 2F 00                  call 00000001808A8BA0h ; ScheduleOne.Console::Log/2
+0x5AE9D2     48 8B 05 F7 C8 44 03            mov rax,[1839FB2D0h] ; TypeInfo: ScheduleOne.PlayerScripts.Player
+0x5AE9D9     83 B8 E0 00 00 00 00            cmp dword ptr [rax+0E0h],0
+0x5AE9E0     75 0F                           jne short 00000001805AE9F1h
+0x5AE9E2     48 8B C8                        mov rcx,rax
+0x5AE9E5     E8 46 92 D6 FF                  call 0000000180317C30h
+0x5AE9EA     48 8B 05 DF C8 44 03            mov rax,[1839FB2D0h] ; TypeInfo: ScheduleOne.PlayerScripts.Player
+0x5AE9F1     48 8B 80 B8 00 00 00            mov rax,[rax+0B8h]
+0x5AE9F8     48 8B 48 18                     mov rcx,[rax+18h]
+0x5AE9FC     48 85 C9                        test rcx,rcx
+0x5AE9FF     0F 84 81 00 00 00               je near ptr 00000001805AEA86h
+0x5AEA05     33 D2                           xor edx,edx
+0x5AEA07     E8 14 95 07 00                  call 0000000180627F20h ; ScheduleOne.PlayerScripts.Player::RequestSavePlayer/0
+0x5AEA0C     48 85 DB                        test rbx,rbx
+0x5AEA0F     74 75                           je short 00000001805AEA86h
+0x5AEA11     C7 43 14 00 00 40 40            mov dword ptr [rbx+14h],40400000h
+0x5AEA18     33 C9                           xor ecx,ecx
+0x5AEA1A     E8 41 5A 5D 02                  call 0000000182B84460h ; UnityEngine.Time::get_realtimeSinceStartup/0
+0x5AEA1F     F3 0F 11 43 10                  movss dword ptr [rbx+10h],xmm0
+0x5AEA24     48 8B 0D 95 12 40 03            mov rcx,[1839AFCC0h] ; TypeInfo: System.Func`1<System.Boolean>
+0x5AEA2B     E8 F0 90 D6 FF                  call 0000000180317B20h
+0x5AEA30     48 8B F8                        mov rdi,rax
+0x5AEA33     45 33 C9                        xor r9d,r9d
+0x5AEA36     4C 8B 05 3B 3D 44 03            mov r8,[1839F2778h] ; MethodDef: ScheduleOne.Persistence.LoadManager+<>c__DisplayClass81_1::<ExitToMenu>b__1/0
+0x5AEA3D     48 8B D3                        mov rdx,rbx
+0x5AEA40     48 8B C8                        mov rcx,rax
+0x5AEA43     E8 68 C1 1B 01                  call 000000018176ABB0h ; Unity.Burst.BurstCompiler+BurstCompilerHelper+IsBurstEnabledDelegate::.ctor/2
+0x5AEA48     48 8B 0D 09 86 41 03            mov rcx,[1839C7058h] ; TypeInfo: UnityEngine.WaitUntil
+0x5AEA4F     E8 CC 90 D6 FF                  call 0000000180317B20h
+0x5AEA54     48 8B D8                        mov rbx,rax
+0x5AEA57     45 33 C0                        xor r8d,r8d
+0x5AEA5A     48 8B D7                        mov rdx,rdi
+0x5AEA5D     48 8B C8                        mov rcx,rax
+0x5AEA60     E8 EB 1B E9 FF                  call 0000000180440650h ; ScheduleOne.Persistence.Datas.ItemFieldData::.ctor/1 | ScheduleOne.Persistence.Datas.NPCFieldData::.ctor/1 | ScheduleOne.Persistence.Datas.ObjectFieldData::.ctor/1 | ScheduleOne.Persistence.Datas.ObjectListFieldData::.ctor/1 | ScheduleOne.Persistence.Datas.RouteListData::.ctor/1 | ScheduleOne.Persistence.Datas.StationRecipeFieldData::.ctor/1 | ScheduleOne.Persistence.Datas.StringFieldData::.ctor/1 | ScheduleOne.UI.Phone.PhoneShopInterface+Listing::.ctor/1 | ... SHARED TARGET: 189 aliases
+0x5AEA65     48 89 5E 18                     mov [rsi+18h],rbx
+0x5AEA69     48 8D 4E 18                     lea rcx,[rsi+18h]
+0x5AEA6D     48 8B D3                        mov rdx,rbx
+0x5AEA70     E8 3B 80 D6 FF                  call 0000000180316AB0h
+0x5AEA75     C7 46 10 01 00 00 00            mov dword ptr [rsi+10h],1
+0x5AEA7C     B0 01                           mov al,1
+0x5AEA7E     48 83 C4 40                     add rsp,40h
+0x5AEA82     5F                              pop rdi
+0x5AEA83     5E                              pop rsi
+0x5AEA84     5B                              pop rbx
+0x5AEA85     C3                              ret
+0x5AEA86     E8 F5 90 D6 FF                  call 0000000180317B80h
+0x5AEA8B     90                              nop
+0x5AEA8C     E8 EF 90 D6 FF                  call 0000000180317B80h
+0x5AEA91     90                              nop
+0x5AEA92     E8 E9 90 D6 FF                  call 0000000180317B80h
+0x5AEA97     CC                              int 3
+0x5AEA98     CC                              int 3
+0x5AEA99     CC                              int 3
+0x5AEA9A     CC                              int 3
+0x5AEA9B     CC                              int 3
+0x5AEA9C     CC                              int 3
+0x5AEA9D     CC                              int 3
+0x5AEA9E     CC                              int 3
+0x5AEA9F     CC                              int 3

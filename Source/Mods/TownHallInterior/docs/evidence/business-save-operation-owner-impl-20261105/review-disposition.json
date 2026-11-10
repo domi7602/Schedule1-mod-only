@@ -1,0 +1,32 @@
+{
+  "schema": 1,
+  "recordedUtc": "2026-11-05T18:35:49.821687+00:00",
+  "kind": "Parent disposition, not a rewritten or new independent review",
+  "originalReviewSha256": "eea7470821ecc1f94b1fc2f6eb9583497347d0c5a07120521a175e840de65891",
+  "originalReviewCandidate": "candidate-v2",
+  "originalVerdictUnchanged": "needs-correction",
+  "originalSemanticVerdict": "accepted",
+  "originalCriteriaCountsUnchanged": {
+    "accepted": 14,
+    "limited": 1,
+    "needs-correction": 1
+  },
+  "finalCandidate": "candidate-v3",
+  "productionHashUnchanged": true,
+  "testsDifferOnlyInWhitespaceBytes": true,
+  "testValuesAndAssertionsUnchanged": true,
+  "requiredCorrection": {
+    "id": "R01",
+    "status": "closed-by-parent-format-and-regression-check",
+    "change": "Only multiline with-initializer whitespace; no non-whitespace test byte changed.",
+    "formatterCommand": "dotnet format whitespace Source/Tests/TownHallInterior.Tests/TownHallInterior.Tests.csproj --no-restore --verify-no-changes --include Source/Tests/TownHallInterior.Tests/BusinessSaveOperationOwnerTests.cs --verbosity minimal",
+    "formatterExitCode": 0,
+    "finalRegressionPassed": 809,
+    "includedNewModelCasesPassed": 128
+  },
+  "optionalO01": "Not added to permanent tests in this slice; original independent probe sources and 33-group results are retained.",
+  "newIndependentSemanticReviewOfV3Claimed": false,
+  "fullPureRerunAfterWhitespaceCorrection": false,
+  "originalPureResultRemainsFailed": true,
+  "nativeSaveWriteAllowed": false
+}

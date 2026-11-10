@@ -1,0 +1,719 @@
+; ScheduleOne.Property.Property::Awake_UserLogic_ScheduleOne.Property.Property_Assembly-CSharp.dll/0, token 0x0600145A, RVA 0x5538A0, next-pointer window 0xD10 bytes
+; No target execution. Parser-pointer window can contain padding/cold fragments and is not exact/full function, EH or transitive coverage. Shared direct aliases are truncated to eight names.
+0x5538A0     48 89 5C 24 10                  mov [rsp+10h],rbx
+0x5538A5     48 89 4C 24 08                  mov [rsp+8],rcx
+0x5538AA     56                              push rsi
+0x5538AB     57                              push rdi
+0x5538AC     41 54                           push r12
+0x5538AE     41 56                           push r14
+0x5538B0     41 57                           push r15
+0x5538B2     48 81 EC 90 00 00 00            sub rsp,90h
+0x5538B9     0F 29 B4 24 80 00 00 00         movaps [rsp+80h],xmm6
+0x5538C1     48 8B F9                        mov rdi,rcx
+0x5538C4     80 3D A8 7C 6A 03 00            cmp byte ptr [183BFB573h],0
+0x5538CB     0F 85 B7 01 00 00               jne near ptr 0000000180553A88h
+0x5538D1     48 8D 0D 60 57 45 03            lea rcx,[1839A9038h] ; TypeInfo: ScheduleOne.Misc.ModularSwitch+ButtonChange
+0x5538D8     E8 C3 3F DC FF                  call 00000001803178A0h
+0x5538DD     48 8D 0D 54 1D 44 03            lea rcx,[183995638h] ; MethodRef: T UnityEngine.Component.GetComponent<TMPro.TextMeshPro>
+0x5538E4     E8 B7 3F DC FF                  call 00000001803178A0h
+0x5538E9     48 8D 0D 20 63 4B 03            lea rcx,[183A09C10h] ; TypeInfo: UnityEngine.Debug
+0x5538F0     E8 AB 3F DC FF                  call 00000001803178A0h
+0x5538F5     48 8D 0D 94 F2 44 03            lea rcx,[1839A2B90h] ; MethodRef: System.Void System.Collections.Generic.List`1+Enumerator<ScheduleOne.Interaction.InteractableToggleable>.Dispose
+0x5538FC     E8 9F 3F DC FF                  call 00000001803178A0h
+0x553901     48 8D 0D 10 46 45 03            lea rcx,[1839A7F18h] ; MethodRef: System.Void System.Collections.Generic.List`1+Enumerator<ScheduleOne.Misc.ModularSwitch>.Dispose
+0x553908     E8 93 3F DC FF                  call 00000001803178A0h
+0x55390D     48 8D 0D 54 F3 44 03            lea rcx,[1839A2C68h] ; MethodRef: System.Boolean System.Collections.Generic.List`1+Enumerator<ScheduleOne.Interaction.InteractableToggleable>.MoveNext
+0x553914     E8 87 3F DC FF                  call 00000001803178A0h
+0x553919     48 8D 0D D0 46 45 03            lea rcx,[1839A7FF0h] ; MethodRef: System.Boolean System.Collections.Generic.List`1+Enumerator<ScheduleOne.Misc.ModularSwitch>.MoveNext
+0x553920     E8 7B 3F DC FF                  call 00000001803178A0h
+0x553925     48 8D 0D 14 F4 44 03            lea rcx,[1839A2D40h] ; MethodRef: T System.Collections.Generic.List`1+Enumerator<ScheduleOne.Interaction.InteractableToggleable>.get_Current
+0x55392C     E8 6F 3F DC FF                  call 00000001803178A0h
+0x553931     48 8D 0D 90 47 45 03            lea rcx,[1839A80C8h] ; MethodRef: T System.Collections.Generic.List`1+Enumerator<ScheduleOne.Misc.ModularSwitch>.get_Current
+0x553938     E8 63 3F DC FF                  call 00000001803178A0h
+0x55393D     48 8D 0D C4 A7 45 03            lea rcx,[1839AE108h] ; MethodRef: T UnityEngine.GameObject.AddComponent<ScheduleOne.Property.PropertyContentsContainer>
+0x553944     E8 57 3F DC FF                  call 00000001803178A0h
+0x553949     48 8D 0D 40 AA 45 03            lea rcx,[1839AE390h] ; MethodRef: T UnityEngine.GameObject.AddComponent<UnityEngine.RectTransform>
+0x553950     E8 4B 3F DC FF                  call 00000001803178A0h
+0x553955     48 8D 0D 2C 35 46 03            lea rcx,[1839B6E88h] ; MethodRef: T[] UnityEngine.GameObject.GetComponentsInChildren<UnityEngine.BoxCollider>
+0x55395C     E8 3F 3F DC FF                  call 00000001803178A0h
+0x553961     48 8D 0D 28 55 44 03            lea rcx,[183998E90h] ; TypeInfo: UnityEngine.GameObject
+0x553968     E8 33 3F DC FF                  call 00000001803178A0h
+0x55396D     48 8D 0D DC D6 44 03            lea rcx,[1839A1050h] ; MethodRef: System.Void System.Collections.Generic.List`1<ScheduleOne.Property.Property>.Add
+0x553974     E8 27 3F DC FF                  call 00000001803178A0h
+0x553979     48 8D 0D F0 E4 4A 03            lea rcx,[183A01E70h] ; MethodRef: System.Collections.Generic.List`1+Enumerator<T> System.Collections.Generic.List`1<ScheduleOne.Interaction.InteractableToggleable>.GetEnumerator
+0x553980     E8 1B 3F DC FF                  call 00000001803178A0h
+0x553985     48 8D 0D EC 0E 43 03            lea rcx,[183984878h] ; MethodRef: System.Collections.Generic.List`1+Enumerator<T> System.Collections.Generic.List`1<ScheduleOne.Misc.ModularSwitch>.GetEnumerator
+0x55398C     E8 0F 3F DC FF                  call 00000001803178A0h
+0x553991     48 8D 0D E8 DA 44 03            lea rcx,[1839A1480h] ; MethodRef: System.Boolean System.Collections.Generic.List`1<ScheduleOne.Property.Property>.Remove
+0x553998     E8 03 3F DC FF                  call 00000001803178A0h
+0x55399D     48 8D 0D 0C D7 48 03            lea rcx,[1839E10B0h] ; TypeInfo: ScheduleOne.Money.MoneyManager
+0x5539A4     E8 F7 3E DC FF                  call 00000001803178A0h
+0x5539A9     48 8D 0D 48 C6 49 03            lea rcx,[1839EFFF8h] ; TypeInfo: UnityEngine.Object
+0x5539B0     E8 EB 3E DC FF                  call 00000001803178A0h
+0x5539B5     48 8D 0D B4 15 4B 03            lea rcx,[183A04F70h] ; MethodDef: ScheduleOne.Property.Property::<Awake>b__98_0/1
+0x5539BC     E8 DF 3E DC FF                  call 00000001803178A0h
+0x5539C1     48 8D 0D C8 F5 4A 03            lea rcx,[183A02F90h] ; TypeInfo: ScheduleOne.Property.Property
+0x5539C8     E8 D3 3E DC FF                  call 00000001803178A0h
+0x5539CD     48 8D 0D 04 9E 49 03            lea rcx,[1839ED7D8h] ; MethodRef: T ScheduleOne.DevUtilities.Singleton`1<ScheduleOne.UI.Management.ManagementWorldspaceCanvas>.get_Instance
+0x5539D4     E8 C7 3E DC FF                  call 00000001803178A0h
+0x5539D9     48 8D 0D 70 A9 42 03            lea rcx,[18397E350h] ; MethodDef: ScheduleOne.Property.Property+<>c__DisplayClass98_0::<Awake>b__1/0
+0x5539E0     E8 BB 3E DC FF                  call 00000001803178A0h
+0x5539E5     48 8D 0D FC F7 46 03            lea rcx,[1839C31E8h] ; TypeInfo: ScheduleOne.Property.Property+<>c__DisplayClass98_0
+0x5539EC     E8 AF 3E DC FF                  call 00000001803178A0h
+0x5539F1     48 8D 0D B8 70 46 03            lea rcx,[1839BAAB0h] ; TypeInfo: UnityEngine.Events.UnityAction
+0x5539F8     E8 A3 3E DC FF                  call 00000001803178A0h
+0x5539FD     48 8D 0D D4 A7 43 03            lea rcx,[18398E1D8h] ; StringLiteral: Price
+0x553A04     E8 97 3E DC FF                  call 00000001803178A0h
+0x553A09     48 8D 0D C0 A3 4B 03            lea rcx,[183A0DDD0h] ; StringLiteral: Parking/Text
+0x553A10     E8 8B 3E DC FF                  call 00000001803178A0h
+0x553A15     48 8D 0D 0C AD 44 03            lea rcx,[18399E728h] ; StringLiteral: Employee/Text
+0x553A1C     E8 7F 3E DC FF                  call 00000001803178A0h
+0x553A21     48 8D 0D 58 F6 44 03            lea rcx,[1839A3080h] ; StringLiteral: Title
+0x553A28     E8 73 3E DC FF                  call 00000001803178A0h
+0x553A2D     48 8D 0D 9C CB 43 03            lea rcx,[1839905D0h] ; StringLiteral:  Worldspace UI Container
+0x553A34     E8 67 3E DC FF                  call 00000001803178A0h
+0x553A39     48 8D 0D 08 50 48 03            lea rcx,[1839D8A48h] ; StringLiteral: Name
+0x553A40     E8 5B 3E DC FF                  call 00000001803178A0h
+0x553A45     48 8D 0D BC 89 44 03            lea rcx,[18399C408h] ; StringLiteral:  has less idle points than employee capacity.
+0x553A4C     E8 4F 3E DC FF                  call 00000001803178A0h
+0x553A51     48 8D 0D C8 01 44 03            lea rcx,[183993C20h] ; StringLiteral: Property 
+0x553A58     E8 43 3E DC FF                  call 00000001803178A0h
+0x553A5D     48 8D 0D 24 CD 43 03            lea rcx,[183990788h] ; StringLiteral: Invisible
+0x553A64     E8 37 3E DC FF                  call 00000001803178A0h
+0x553A69     48 8D 0D 88 59 43 03            lea rcx,[1839893F8h] ; StringLiteral:  (Unowned)
+0x553A70     E8 2B 3E DC FF                  call 00000001803178A0h
+0x553A75     48 8D 0D 84 89 43 03            lea rcx,[18398C400h] ; StringLiteral:  Contents Container
+0x553A7C     E8 1F 3E DC FF                  call 00000001803178A0h
+0x553A81     C6 05 EB 7A 6A 03 01            mov byte ptr [183BFB573h],1
+0x553A88     0F 57 C0                        xorps xmm0,xmm0
+0x553A8B     33 C0                           xor eax,eax
+0x553A8D     0F 11 44 24 48                  movups [rsp+48h],xmm0
+0x553A92     48 89 44 24 58                  mov [rsp+58h],rax
+0x553A97     0F 57 C9                        xorps xmm1,xmm1
+0x553A9A     0F 11 4C 24 60                  movups [rsp+60h],xmm1
+0x553A9F     48 89 44 24 70                  mov [rsp+70h],rax
+0x553AA4     48 8B 8F A0 01 00 00            mov rcx,[rdi+1A0h]
+0x553AAB     48 85 C9                        test rcx,rcx
+0x553AAE     0F 84 BA 0A 00 00               je near ptr 000000018055456Eh
+0x553AB4     48 8B 15 CD 33 46 03            mov rdx,[1839B6E88h] ; MethodRef: T[] UnityEngine.GameObject.GetComponentsInChildren<UnityEngine.BoxCollider>
+0x553ABB     E8 D0 61 8F 00                  call 0000000180E49C90h ; UnityEngine.GameObject::GetComponentsInChildren/0
+0x553AC0     48 89 87 18 02 00 00            mov [rdi+218h],rax
+0x553AC7     48 8D 8F 18 02 00 00            lea rcx,[rdi+218h]
+0x553ACE     48 8B D0                        mov rdx,rax
+0x553AD1     E8 DA 2F DC FF                  call 0000000180316AB0h
+0x553AD6     48 8B B7 18 02 00 00            mov rsi,[rdi+218h]
+0x553ADD     45 33 F6                        xor r14d,r14d
+0x553AE0     41 8B C6                        mov eax,r14d
+0x553AE3     89 84 24 D0 00 00 00            mov [rsp+0D0h],eax
+0x553AEA     48 85 F6                        test rsi,rsi
+0x553AED     0F 84 7B 0A 00 00               je near ptr 000000018055456Eh
+0x553AF3     41 8B CE                        mov ecx,r14d
+0x553AF6     3B 4E 18                        cmp ecx,[rsi+18h]
+0x553AF9     7D 6C                           jge short 0000000180553B67h
+0x553AFB     48 63 D8                        movsxd rbx,eax
+0x553AFE     3B 5E 18                        cmp ebx,[rsi+18h]
+0x553B01     0F 83 A2 0A 00 00               jae near ptr 00000001805545A9h
+0x553B07     48 8B 5C DE 20                  mov rbx,[rsi+rbx*8+20h]
+0x553B0C     48 85 DB                        test rbx,rbx
+0x553B0F     0F 84 59 0A 00 00               je near ptr 000000018055456Eh
+0x553B15     45 33 C0                        xor r8d,r8d
+0x553B18     B2 01                           mov dl,1
+0x553B1A     48 8B CB                        mov rcx,rbx
+0x553B1D     E8 7E 2F 69 02                  call 0000000182BE6AA0h ; UnityEngine.Collider::set_isTrigger/1
+0x553B22     33 D2                           xor edx,edx
+0x553B24     48 8B CB                        mov rcx,rbx
+0x553B27     E8 84 08 62 02                  call 0000000182B743B0h ; UnityEngine.Component::get_gameObject/0
+0x553B2C     48 8B D8                        mov rbx,rax
+0x553B2F     33 D2                           xor edx,edx
+0x553B31     48 8B 0D 50 CC 43 03            mov rcx,[183990788h] ; StringLiteral: Invisible
+0x553B38     E8 D3 52 62 02                  call 0000000182B78E10h ; UnityEngine.LayerMask::NameToLayer/1
+0x553B3D     48 85 DB                        test rbx,rbx
+0x553B40     0F 84 28 0A 00 00               je near ptr 000000018055456Eh
+0x553B46     45 33 C0                        xor r8d,r8d
+0x553B49     8B D0                           mov edx,eax
+0x553B4B     48 8B CB                        mov rcx,rbx
+0x553B4E     E8 5D 50 62 02                  call 0000000182B78BB0h ; UnityEngine.GameObject::set_layer/1
+0x553B53     8B 84 24 D0 00 00 00            mov eax,[rsp+0D0h]
+0x553B5A     FF C0                           inc eax
+0x553B5C     89 84 24 D0 00 00 00            mov [rsp+0D0h],eax
+0x553B63     8B C8                           mov ecx,eax
+0x553B65     EB 8F                           jmp short 0000000180553AF6h
+0x553B67     45 33 C0                        xor r8d,r8d
+0x553B6A     48 8B 15 8F 88 43 03            mov rdx,[18398C400h] ; StringLiteral:  Contents Container
+0x553B71     48 8B 8F 40 01 00 00            mov rcx,[rdi+140h]
+0x553B78     E8 A3 FF 48 01                  call 00000001819E3B20h ; System.String::Concat/2
+0x553B7D     48 8B D8                        mov rbx,rax
+0x553B80     48 8B 0D 09 53 44 03            mov rcx,[183998E90h] ; TypeInfo: UnityEngine.GameObject
+0x553B87     E8 94 3F DC FF                  call 0000000180317B20h
+0x553B8C     48 8B F0                        mov rsi,rax
+0x553B8F     45 33 C0                        xor r8d,r8d
+0x553B92     48 8B D3                        mov rdx,rbx
+0x553B95     48 8B C8                        mov rcx,rax
+0x553B98     E8 83 4B 62 02                  call 0000000182B78720h ; UnityEngine.GameObject::.ctor/1
+0x553B9D     48 85 F6                        test rsi,rsi
+0x553BA0     0F 84 C8 09 00 00               je near ptr 000000018055456Eh
+0x553BA6     48 8B 15 5B A5 45 03            mov rdx,[1839AE108h] ; MethodRef: T UnityEngine.GameObject.AddComponent<ScheduleOne.Property.PropertyContentsContainer>
+0x553BAD     48 8B CE                        mov rcx,rsi
+0x553BB0     E8 1B 55 8F 00                  call 0000000180E490D0h ; UnityEngine.GameObject::AddComponent/0
+0x553BB5     48 89 87 E8 01 00 00            mov [rdi+1E8h],rax
+0x553BBC     48 8D 8F E8 01 00 00            lea rcx,[rdi+1E8h]
+0x553BC3     48 8B D0                        mov rdx,rax
+0x553BC6     E8 E5 2E DC FF                  call 0000000180316AB0h
+0x553BCB     48 8B 9F E8 01 00 00            mov rbx,[rdi+1E8h]
+0x553BD2     48 85 DB                        test rbx,rbx
+0x553BD5     0F 84 93 09 00 00               je near ptr 000000018055456Eh
+0x553BDB     44 38 35 98 79 6A 03            cmp [183BFB57Ah],r14b
+0x553BE2     75 2B                           jne short 0000000180553C0Fh
+0x553BE4     48 8D 0D 25 60 4B 03            lea rcx,[183A09C10h] ; TypeInfo: UnityEngine.Debug
+0x553BEB     E8 B0 3C DC FF                  call 00000001803178A0h
+0x553BF0     48 8D 0D 01 C4 49 03            lea rcx,[1839EFFF8h] ; TypeInfo: UnityEngine.Object
+0x553BF7     E8 A4 3C DC FF                  call 00000001803178A0h
+0x553BFC     48 8D 0D 9D 17 44 03            lea rcx,[1839953A0h] ; StringLiteral: PropertyContentsContainer: Attempted to set a null property.
+0x553C03     E8 98 3C DC FF                  call 00000001803178A0h
+0x553C08     C6 05 6B 79 6A 03 01            mov byte ptr [183BFB57Ah],1
+0x553C0F     48 8B 0D E2 C3 49 03            mov rcx,[1839EFFF8h] ; TypeInfo: UnityEngine.Object
+0x553C16     44 39 B1 E0 00 00 00            cmp [rcx+0E0h],r14d
+0x553C1D     75 05                           jne short 0000000180553C24h
+0x553C1F     E8 0C 40 DC FF                  call 0000000180317C30h
+0x553C24     45 33 C0                        xor r8d,r8d
+0x553C27     33 D2                           xor edx,edx
+0x553C29     48 8B CF                        mov rcx,rdi
+0x553C2C     E8 6F 84 62 02                  call 0000000182B7C0A0h ; UnityEngine.Object::op_Equality/2
+0x553C31     84 C0                           test al,al
+0x553C33     75 12                           jne short 0000000180553C47h
+0x553C35     48 89 7B 20                     mov [rbx+20h],rdi
+0x553C39     48 8D 4B 20                     lea rcx,[rbx+20h]
+0x553C3D     48 8B D7                        mov rdx,rdi
+0x553C40     E8 6B 2E DC FF                  call 0000000180316AB0h
+0x553C45     EB 23                           jmp short 0000000180553C6Ah
+0x553C47     48 8B 0D C2 5F 4B 03            mov rcx,[183A09C10h] ; TypeInfo: UnityEngine.Debug
+0x553C4E     44 39 B1 E0 00 00 00            cmp [rcx+0E0h],r14d
+0x553C55     75 05                           jne short 0000000180553C5Ch
+0x553C57     E8 D4 3F DC FF                  call 0000000180317C30h
+0x553C5C     33 D2                           xor edx,edx
+0x553C5E     48 8B 0D 3B 17 44 03            mov rcx,[1839953A0h] ; StringLiteral: PropertyContentsContainer: Attempted to set a null property.
+0x553C65     E8 96 DD 5E 02                  call 0000000182B41A00h ; UnityEngine.Debug::LogError/1
+0x553C6A     48 8B 05 1F F3 4A 03            mov rax,[183A02F90h] ; TypeInfo: ScheduleOne.Property.Property
+0x553C71     44 39 B0 E0 00 00 00            cmp [rax+0E0h],r14d
+0x553C78     75 0F                           jne short 0000000180553C89h
+0x553C7A     48 8B C8                        mov rcx,rax
+0x553C7D     E8 AE 3F DC FF                  call 0000000180317C30h
+0x553C82     48 8B 05 07 F3 4A 03            mov rax,[183A02F90h] ; TypeInfo: ScheduleOne.Property.Property
+0x553C89     48 8B 80 B8 00 00 00            mov rax,[rax+0B8h]
+0x553C90     48 8B 08                        mov rcx,[rax]
+0x553C93     48 85 C9                        test rcx,rcx
+0x553C96     0F 84 D2 08 00 00               je near ptr 000000018055456Eh
+0x553C9C     4C 8B 0D AD D3 44 03            mov r9,[1839A1050h] ; MethodRef: System.Void System.Collections.Generic.List`1<ScheduleOne.Property.Property>.Add
+0x553CA3     FF 41 1C                        inc dword ptr [rcx+1Ch]
+0x553CA6     48 8B 51 10                     mov rdx,[rcx+10h]
+0x553CAA     48 85 D2                        test rdx,rdx
+0x553CAD     0F 84 BB 08 00 00               je near ptr 000000018055456Eh
+0x553CB3     4C 63 41 18                     movsxd r8,dword ptr [rcx+18h]
+0x553CB7     44 3B 42 18                     cmp r8d,[rdx+18h]
+0x553CBB     72 19                           jb short 0000000180553CD6h
+0x553CBD     49 8B 41 20                     mov rax,[r9+20h]
+0x553CC1     4C 8B 80 C0 00 00 00            mov r8,[rax+0C0h]
+0x553CC8     4D 8B 40 70                     mov r8,[r8+70h]
+0x553CCC     48 8B D7                        mov rdx,rdi
+0x553CCF     E8 BC ED 37 01                  call 00000001818D2A90h
+0x553CD4     EB 26                           jmp short 0000000180553CFCh
+0x553CD6     41 8D 40 01                     lea eax,[r8+1]
+0x553CDA     89 41 18                        mov [rcx+18h],eax
+0x553CDD     44 3B 42 18                     cmp r8d,[rdx+18h]
+0x553CE1     0F 83 C2 08 00 00               jae near ptr 00000001805545A9h
+0x553CE7     4A 89 7C C2 20                  mov [rdx+r8*8+20h],rdi
+0x553CEC     49 8D 40 04                     lea rax,[r8+4]
+0x553CF0     48 8D 0C C2                     lea rcx,[rdx+rax*8]
+0x553CF4     48 8B D7                        mov rdx,rdi
+0x553CF7     E8 B4 2D DC FF                  call 0000000180316AB0h
+0x553CFC     48 8B 05 8D F2 4A 03            mov rax,[183A02F90h] ; TypeInfo: ScheduleOne.Property.Property
+0x553D03     48 8B 88 B8 00 00 00            mov rcx,[rax+0B8h]
+0x553D0A     48 8B 49 08                     mov rcx,[rcx+8]
+0x553D0E     48 85 C9                        test rcx,rcx
+0x553D11     0F 84 57 08 00 00               je near ptr 000000018055456Eh
+0x553D17     4C 8B 05 62 D7 44 03            mov r8,[1839A1480h] ; MethodRef: System.Boolean System.Collections.Generic.List`1<ScheduleOne.Property.Property>.Remove
+0x553D1E     48 8B D7                        mov rdx,rdi
+0x553D21     E8 7A 46 38 01                  call 00000001818D83A0h
+0x553D26     48 8B 05 63 F2 4A 03            mov rax,[183A02F90h] ; TypeInfo: ScheduleOne.Property.Property
+0x553D2D     48 8B 88 B8 00 00 00            mov rcx,[rax+0B8h]
+0x553D34     4C 8B 49 08                     mov r9,[rcx+8]
+0x553D38     4D 85 C9                        test r9,r9
+0x553D3B     0F 84 2D 08 00 00               je near ptr 000000018055456Eh
+0x553D41     4C 8B 05 08 D3 44 03            mov r8,[1839A1050h] ; MethodRef: System.Void System.Collections.Generic.List`1<ScheduleOne.Property.Property>.Add
+0x553D48     41 FF 41 1C                     inc dword ptr [r9+1Ch]
+0x553D4C     49 8B 49 10                     mov rcx,[r9+10h]
+0x553D50     48 85 C9                        test rcx,rcx
+0x553D53     0F 84 15 08 00 00               je near ptr 000000018055456Eh
+0x553D59     49 63 51 18                     movsxd rdx,dword ptr [r9+18h]
+0x553D5D     3B 51 18                        cmp edx,[rcx+18h]
+0x553D60     72 1C                           jb short 0000000180553D7Eh
+0x553D62     49 8B 40 20                     mov rax,[r8+20h]
+0x553D66     4C 8B 80 C0 00 00 00            mov r8,[rax+0C0h]
+0x553D6D     4D 8B 40 70                     mov r8,[r8+70h]
+0x553D71     48 8B D7                        mov rdx,rdi
+0x553D74     49 8B C9                        mov rcx,r9
+0x553D77     E8 14 ED 37 01                  call 00000001818D2A90h
+0x553D7C     EB 25                           jmp short 0000000180553DA3h
+0x553D7E     8D 42 01                        lea eax,[rdx+1]
+0x553D81     41 89 41 18                     mov [r9+18h],eax
+0x553D85     3B 51 18                        cmp edx,[rcx+18h]
+0x553D88     0F 83 1B 08 00 00               jae near ptr 00000001805545A9h
+0x553D8E     48 89 7C D1 20                  mov [rcx+rdx*8+20h],rdi
+0x553D93     48 8D 0C D1                     lea rcx,[rcx+rdx*8]
+0x553D97     48 83 C1 20                     add rcx,20h
+0x553D9B     48 8B D7                        mov rdx,rdi
+0x553D9E     E8 0D 2D DC FF                  call 0000000180316AB0h
+0x553DA3     48 8B 9F A8 01 00 00            mov rbx,[rdi+1A8h]
+0x553DAA     45 33 C0                        xor r8d,r8d
+0x553DAD     48 8B 15 44 56 43 03            mov rdx,[1839893F8h] ; StringLiteral:  (Unowned)
+0x553DB4     48 8B 8F 40 01 00 00            mov rcx,[rdi+140h]
+0x553DBB     E8 60 FD 48 01                  call 00000001819E3B20h ; System.String::Concat/2
+0x553DC0     48 85 DB                        test rbx,rbx
+0x553DC3     0F 84 A5 07 00 00               je near ptr 000000018055456Eh
+0x553DC9     45 33 C0                        xor r8d,r8d
+0x553DCC     48 8B D0                        mov rdx,rax
+0x553DCF     48 8B CB                        mov rcx,rbx
+0x553DD2     E8 99 32 0A 00                  call 00000001805F7070h ; ScheduleOne.Map.POI::SetMainText/1
+0x553DD7     48 8B 8F 98 01 00 00            mov rcx,[rdi+198h]
+0x553DDE     48 85 C9                        test rcx,rcx
+0x553DE1     0F 84 87 07 00 00               je near ptr 000000018055456Eh
+0x553DE7     33 D2                           xor edx,edx
+0x553DE9     E8 32 4D 62 02                  call 0000000182B78B20h ; UnityEngine.GameObject::get_transform/0
+0x553DEE     48 85 C0                        test rax,rax
+0x553DF1     0F 84 77 07 00 00               je near ptr 000000018055456Eh
+0x553DF7     45 33 C0                        xor r8d,r8d
+0x553DFA     48 8B 15 47 4C 48 03            mov rdx,[1839D8A48h] ; StringLiteral: Name
+0x553E01     48 8B C8                        mov rcx,rax
+0x553E04     E8 27 1E 63 02                  call 0000000182B85C30h ; UnityEngine.Transform::Find/1
+0x553E09     48 85 C0                        test rax,rax
+0x553E0C     0F 84 5C 07 00 00               je near ptr 000000018055456Eh
+0x553E12     48 8B 15 1F 18 44 03            mov rdx,[183995638h] ; MethodRef: T UnityEngine.Component.GetComponent<TMPro.TextMeshPro>
+0x553E19     48 8B C8                        mov rcx,rax
+0x553E1C     E8 CF 28 8A 00                  call 0000000180DF66F0h ; UnityEngine.Component::GetComponent/0
+0x553E21     48 85 C0                        test rax,rax
+0x553E24     0F 84 44 07 00 00               je near ptr 000000018055456Eh
+0x553E2A     4C 8B 08                        mov r9,[rax]
+0x553E2D     4D 8B 81 60 05 00 00            mov r8,[r9+560h]
+0x553E34     48 8B 97 40 01 00 00            mov rdx,[rdi+140h]
+0x553E3B     48 8B C8                        mov rcx,rax
+0x553E3E     41 FF 91 58 05 00 00            call qword ptr [r9+558h]
+0x553E45     48 8B 8F 98 01 00 00            mov rcx,[rdi+198h]
+0x553E4C     48 85 C9                        test rcx,rcx
+0x553E4F     0F 84 19 07 00 00               je near ptr 000000018055456Eh
+0x553E55     33 D2                           xor edx,edx
+0x553E57     E8 C4 4C 62 02                  call 0000000182B78B20h ; UnityEngine.GameObject::get_transform/0
+0x553E5C     48 85 C0                        test rax,rax
+0x553E5F     0F 84 09 07 00 00               je near ptr 000000018055456Eh
+0x553E65     45 33 C0                        xor r8d,r8d
+0x553E68     48 8B 15 69 A3 43 03            mov rdx,[18398E1D8h] ; StringLiteral: Price
+0x553E6F     48 8B C8                        mov rcx,rax
+0x553E72     E8 B9 1D 63 02                  call 0000000182B85C30h ; UnityEngine.Transform::Find/1
+0x553E77     48 85 C0                        test rax,rax
+0x553E7A     0F 84 EE 06 00 00               je near ptr 000000018055456Eh
+0x553E80     48 8B 15 B1 17 44 03            mov rdx,[183995638h] ; MethodRef: T UnityEngine.Component.GetComponent<TMPro.TextMeshPro>
+0x553E87     48 8B C8                        mov rcx,rax
+0x553E8A     E8 61 28 8A 00                  call 0000000180DF66F0h ; UnityEngine.Component::GetComponent/0
+0x553E8F     48 8B D8                        mov rbx,rax
+0x553E92     F3 0F 10 B7 58 01 00 00         movss xmm6,dword ptr [rdi+158h]
+0x553E9A     48 8B 0D 0F D2 48 03            mov rcx,[1839E10B0h] ; TypeInfo: ScheduleOne.Money.MoneyManager
+0x553EA1     44 39 B1 E0 00 00 00            cmp [rcx+0E0h],r14d
+0x553EA8     75 05                           jne short 0000000180553EAFh
+0x553EAA     E8 81 3D DC FF                  call 0000000180317C30h
+0x553EAF     45 33 C9                        xor r9d,r9d
+0x553EB2     45 33 C0                        xor r8d,r8d
+0x553EB5     33 D2                           xor edx,edx
+0x553EB7     0F 28 C6                        movaps xmm0,xmm6
+0x553EBA     E8 41 0C 09 00                  call 00000001805E4B00h ; ScheduleOne.Money.MoneyManager::FormatAmount/3
+0x553EBF     48 85 DB                        test rbx,rbx
+0x553EC2     0F 84 A6 06 00 00               je near ptr 000000018055456Eh
+0x553EC8     4C 8B 0B                        mov r9,[rbx]
+0x553ECB     4D 8B 81 60 05 00 00            mov r8,[r9+560h]
+0x553ED2     48 8B D0                        mov rdx,rax
+0x553ED5     48 8B CB                        mov rcx,rbx
+0x553ED8     41 FF 91 58 05 00 00            call qword ptr [r9+558h]
+0x553EDF     48 8B 8F C0 01 00 00            mov rcx,[rdi+1C0h]
+0x553EE6     48 85 C9                        test rcx,rcx
+0x553EE9     0F 84 7F 06 00 00               je near ptr 000000018055456Eh
+0x553EEF     8B 87 60 01 00 00               mov eax,[rdi+160h]
+0x553EF5     39 41 18                        cmp [rcx+18h],eax
+0x553EF8     7D 3F                           jge short 0000000180553F39h
+0x553EFA     45 33 C9                        xor r9d,r9d
+0x553EFD     4C 8B 05 04 85 44 03            mov r8,[18399C408h] ; StringLiteral:  has less idle points than employee capacity.
+0x553F04     48 8B 97 40 01 00 00            mov rdx,[rdi+140h]
+0x553F0B     48 8B 0D 0E FD 43 03            mov rcx,[183993C20h] ; StringLiteral: Property 
+0x553F12     E8 F9 F8 48 01                  call 00000001819E3810h ; System.String::Concat/3
+0x553F17     48 8B D8                        mov rbx,rax
+0x553F1A     48 8B 0D EF 5C 4B 03            mov rcx,[183A09C10h] ; TypeInfo: UnityEngine.Debug
+0x553F21     44 39 B1 E0 00 00 00            cmp [rcx+0E0h],r14d
+0x553F28     75 05                           jne short 0000000180553F2Fh
+0x553F2A     E8 01 3D DC FF                  call 0000000180317C30h
+0x553F2F     33 D2                           xor edx,edx
+0x553F31     48 8B CB                        mov rcx,rbx
+0x553F34     E8 E7 E3 5E 02                  call 0000000182B42320h ; UnityEngine.Debug::LogWarning/1
+0x553F39     33 C9                           xor ecx,ecx
+0x553F3B     E8 F0 F2 1B 00                  call 0000000180713230h ; ScheduleOne.DevUtilities.GameManager::get_IS_TUTORIAL/0
+0x553F40     84 C0                           test al,al
+0x553F42     0F 85 0E 01 00 00               jne near ptr 0000000180554056h
+0x553F48     45 33 C0                        xor r8d,r8d
+0x553F4B     48 8B 15 7E C6 43 03            mov rdx,[1839905D0h] ; StringLiteral:  Worldspace UI Container
+0x553F52     48 8B 8F 40 01 00 00            mov rcx,[rdi+140h]
+0x553F59     E8 C2 FB 48 01                  call 00000001819E3B20h ; System.String::Concat/2
+0x553F5E     48 8B D8                        mov rbx,rax
+0x553F61     48 8B 0D 28 4F 44 03            mov rcx,[183998E90h] ; TypeInfo: UnityEngine.GameObject
+0x553F68     E8 B3 3B DC FF                  call 0000000180317B20h
+0x553F6D     48 8B F0                        mov rsi,rax
+0x553F70     45 33 C0                        xor r8d,r8d
+0x553F73     48 8B D3                        mov rdx,rbx
+0x553F76     48 8B C8                        mov rcx,rax
+0x553F79     E8 A2 47 62 02                  call 0000000182B78720h ; UnityEngine.GameObject::.ctor/1
+0x553F7E     48 85 F6                        test rsi,rsi
+0x553F81     0F 84 E7 05 00 00               je near ptr 000000018055456Eh
+0x553F87     48 8B 15 02 A4 45 03            mov rdx,[1839AE390h] ; MethodRef: T UnityEngine.GameObject.AddComponent<UnityEngine.RectTransform>
+0x553F8E     48 8B CE                        mov rcx,rsi
+0x553F91     E8 3A 51 8F 00                  call 0000000180E490D0h ; UnityEngine.GameObject::AddComponent/0
+0x553F96     48 89 87 30 01 00 00            mov [rdi+130h],rax
+0x553F9D     48 8D 8F 30 01 00 00            lea rcx,[rdi+130h]
+0x553FA4     48 8B D0                        mov rdx,rax
+0x553FA7     E8 04 2B DC FF                  call 0000000180316AB0h
+0x553FAC     48 8B 9F 30 01 00 00            mov rbx,[rdi+130h]
+0x553FB3     48 8B 05 1E 98 49 03            mov rax,[1839ED7D8h] ; MethodRef: T ScheduleOne.DevUtilities.Singleton`1<ScheduleOne.UI.Management.ManagementWorldspaceCanvas>.get_Instance
+0x553FBA     48 8B 40 20                     mov rax,[rax+20h]
+0x553FBE     F6 80 35 01 00 00 01            test byte ptr [rax+135h],1
+0x553FC5     75 08                           jne short 0000000180553FCFh
+0x553FC7     48 8B C8                        mov rcx,rax
+0x553FCA     E8 71 88 DC FF                  call 000000018031C840h
+0x553FCF     48 8B 80 C0 00 00 00            mov rax,[rax+0C0h]
+0x553FD6     48 8B 40 10                     mov rax,[rax+10h]
+0x553FDA     F6 80 35 01 00 00 01            test byte ptr [rax+135h],1
+0x553FE1     75 08                           jne short 0000000180553FEBh
+0x553FE3     48 8B C8                        mov rcx,rax
+0x553FE6     E8 55 88 DC FF                  call 000000018031C840h
+0x553FEB     48 8B 80 B8 00 00 00            mov rax,[rax+0B8h]
+0x553FF2     48 8B 10                        mov rdx,[rax]
+0x553FF5     48 85 D2                        test rdx,rdx
+0x553FF8     0F 84 70 05 00 00               je near ptr 000000018055456Eh
+0x553FFE     48 8B 4A 38                     mov rcx,[rdx+38h]
+0x554002     48 85 C9                        test rcx,rcx
+0x554005     0F 84 63 05 00 00               je near ptr 000000018055456Eh
+0x55400B     33 D2                           xor edx,edx
+0x55400D     E8 4E 04 62 02                  call 0000000182B74460h ; UnityEngine.Component::get_transform/0
+0x554012     48 85 DB                        test rbx,rbx
+0x554015     0F 84 53 05 00 00               je near ptr 000000018055456Eh
+0x55401B     45 33 C0                        xor r8d,r8d
+0x55401E     48 8B D0                        mov rdx,rax
+0x554021     48 8B CB                        mov rcx,rbx
+0x554024     E8 D7 2F 63 02                  call 0000000182B87000h ; UnityEngine.Transform::set_parentInternal/1 | UnityEngine.Transform::SetParent/1
+0x554029     48 8B 8F 30 01 00 00            mov rcx,[rdi+130h]
+0x554030     48 85 C9                        test rcx,rcx
+0x554033     0F 84 35 05 00 00               je near ptr 000000018055456Eh
+0x554039     33 D2                           xor edx,edx
+0x55403B     E8 70 03 62 02                  call 0000000182B743B0h ; UnityEngine.Component::get_gameObject/0
+0x554040     48 85 C0                        test rax,rax
+0x554043     0F 84 25 05 00 00               je near ptr 000000018055456Eh
+0x554049     45 33 C0                        xor r8d,r8d
+0x55404C     33 D2                           xor edx,edx
+0x55404E     48 8B C8                        mov rcx,rax
+0x554051     E8 AA 44 62 02                  call 0000000182B78500h ; UnityEngine.GameObject::SetActive/1
+0x554056     48 8B 9F B0 01 00 00            mov rbx,[rdi+1B0h]
+0x55405D     48 8B 0D 94 BF 49 03            mov rcx,[1839EFFF8h] ; TypeInfo: UnityEngine.Object
+0x554064     44 39 B1 E0 00 00 00            cmp [rcx+0E0h],r14d
+0x55406B     75 05                           jne short 0000000180554072h
+0x55406D     E8 BE 3B DC FF                  call 0000000180317C30h
+0x554072     45 33 C0                        xor r8d,r8d
+0x554075     33 D2                           xor edx,edx
+0x554077     48 8B CB                        mov rcx,rbx
+0x55407A     E8 C1 81 62 02                  call 0000000182B7C240h ; UnityEngine.Object::op_Inequality/2
+0x55407F     84 C0                           test al,al
+0x554081     0F 84 CD 01 00 00               je near ptr 0000000180554254h
+0x554087     48 8B 8F B0 01 00 00            mov rcx,[rdi+1B0h]
+0x55408E     48 85 C9                        test rcx,rcx
+0x554091     0F 84 D7 04 00 00               je near ptr 000000018055456Eh
+0x554097     45 33 C0                        xor r8d,r8d
+0x55409A     48 8B 15 DF EF 44 03            mov rdx,[1839A3080h] ; StringLiteral: Title
+0x5540A1     E8 8A 1B 63 02                  call 0000000182B85C30h ; UnityEngine.Transform::Find/1
+0x5540A6     48 85 C0                        test rax,rax
+0x5540A9     0F 84 BF 04 00 00               je near ptr 000000018055456Eh
+0x5540AF     48 8B 15 82 15 44 03            mov rdx,[183995638h] ; MethodRef: T UnityEngine.Component.GetComponent<TMPro.TextMeshPro>
+0x5540B6     48 8B C8                        mov rcx,rax
+0x5540B9     E8 32 26 8A 00                  call 0000000180DF66F0h ; UnityEngine.Component::GetComponent/0
+0x5540BE     48 85 C0                        test rax,rax
+0x5540C1     0F 84 A7 04 00 00               je near ptr 000000018055456Eh
+0x5540C7     4C 8B 08                        mov r9,[rax]
+0x5540CA     4D 8B 81 60 05 00 00            mov r8,[r9+560h]
+0x5540D1     48 8B 97 40 01 00 00            mov rdx,[rdi+140h]
+0x5540D8     48 8B C8                        mov rcx,rax
+0x5540DB     41 FF 91 58 05 00 00            call qword ptr [r9+558h]
+0x5540E2     48 8B 8F B0 01 00 00            mov rcx,[rdi+1B0h]
+0x5540E9     48 85 C9                        test rcx,rcx
+0x5540EC     0F 84 7C 04 00 00               je near ptr 000000018055456Eh
+0x5540F2     45 33 C0                        xor r8d,r8d
+0x5540F5     48 8B 15 DC A0 43 03            mov rdx,[18398E1D8h] ; StringLiteral: Price
+0x5540FC     E8 2F 1B 63 02                  call 0000000182B85C30h ; UnityEngine.Transform::Find/1
+0x554101     48 85 C0                        test rax,rax
+0x554104     0F 84 64 04 00 00               je near ptr 000000018055456Eh
+0x55410A     48 8B 15 27 15 44 03            mov rdx,[183995638h] ; MethodRef: T UnityEngine.Component.GetComponent<TMPro.TextMeshPro>
+0x554111     48 8B C8                        mov rcx,rax
+0x554114     E8 D7 25 8A 00                  call 0000000180DF66F0h ; UnityEngine.Component::GetComponent/0
+0x554119     48 8B D8                        mov rbx,rax
+0x55411C     F3 0F 10 B7 58 01 00 00         movss xmm6,dword ptr [rdi+158h]
+0x554124     48 8B 0D 85 CF 48 03            mov rcx,[1839E10B0h] ; TypeInfo: ScheduleOne.Money.MoneyManager
+0x55412B     44 39 B1 E0 00 00 00            cmp [rcx+0E0h],r14d
+0x554132     75 05                           jne short 0000000180554139h
+0x554134     E8 F7 3A DC FF                  call 0000000180317C30h
+0x554139     45 33 C9                        xor r9d,r9d
+0x55413C     45 33 C0                        xor r8d,r8d
+0x55413F     33 D2                           xor edx,edx
+0x554141     0F 28 C6                        movaps xmm0,xmm6
+0x554144     E8 B7 09 09 00                  call 00000001805E4B00h ; ScheduleOne.Money.MoneyManager::FormatAmount/3
+0x554149     48 85 DB                        test rbx,rbx
+0x55414C     0F 84 1C 04 00 00               je near ptr 000000018055456Eh
+0x554152     4C 8B 0B                        mov r9,[rbx]
+0x554155     4D 8B 81 60 05 00 00            mov r8,[r9+560h]
+0x55415C     48 8B D0                        mov rdx,rax
+0x55415F     48 8B CB                        mov rcx,rbx
+0x554162     41 FF 91 58 05 00 00            call qword ptr [r9+558h]
+0x554169     48 8B 8F B0 01 00 00            mov rcx,[rdi+1B0h]
+0x554170     48 85 C9                        test rcx,rcx
+0x554173     0F 84 F5 03 00 00               je near ptr 000000018055456Eh
+0x554179     45 33 C0                        xor r8d,r8d
+0x55417C     48 8B 15 4D 9C 4B 03            mov rdx,[183A0DDD0h] ; StringLiteral: Parking/Text
+0x554183     E8 A8 1A 63 02                  call 0000000182B85C30h ; UnityEngine.Transform::Find/1
+0x554188     48 85 C0                        test rax,rax
+0x55418B     0F 84 DD 03 00 00               je near ptr 000000018055456Eh
+0x554191     48 8B 15 A0 14 44 03            mov rdx,[183995638h] ; MethodRef: T UnityEngine.Component.GetComponent<TMPro.TextMeshPro>
+0x554198     48 8B C8                        mov rcx,rax
+0x55419B     E8 50 25 8A 00                  call 0000000180DF66F0h ; UnityEngine.Component::GetComponent/0
+0x5541A0     48 8B D8                        mov rbx,rax
+0x5541A3     48 8B 8F E0 01 00 00            mov rcx,[rdi+1E0h]
+0x5541AA     48 85 C9                        test rcx,rcx
+0x5541AD     0F 84 BB 03 00 00               je near ptr 000000018055456Eh
+0x5541B3     8B 49 18                        mov ecx,[rcx+18h]
+0x5541B6     89 8C 24 D0 00 00 00            mov [rsp+0D0h],ecx
+0x5541BD     33 D2                           xor edx,edx
+0x5541BF     48 8D 8C 24 D0 00 00 00         lea rcx,[rsp+0D0h]
+0x5541C7     E8 04 60 64 01                  call 0000000181B9A1D0h ; System.Int32::ToString/0
+0x5541CC     48 85 DB                        test rbx,rbx
+0x5541CF     0F 84 99 03 00 00               je near ptr 000000018055456Eh
+0x5541D5     4C 8B 0B                        mov r9,[rbx]
+0x5541D8     4D 8B 81 60 05 00 00            mov r8,[r9+560h]
+0x5541DF     48 8B D0                        mov rdx,rax
+0x5541E2     48 8B CB                        mov rcx,rbx
+0x5541E5     41 FF 91 58 05 00 00            call qword ptr [r9+558h]
+0x5541EC     48 8B 8F B0 01 00 00            mov rcx,[rdi+1B0h]
+0x5541F3     48 85 C9                        test rcx,rcx
+0x5541F6     0F 84 72 03 00 00               je near ptr 000000018055456Eh
+0x5541FC     45 33 C0                        xor r8d,r8d
+0x5541FF     48 8B 15 22 A5 44 03            mov rdx,[18399E728h] ; StringLiteral: Employee/Text
+0x554206     E8 25 1A 63 02                  call 0000000182B85C30h ; UnityEngine.Transform::Find/1
+0x55420B     48 85 C0                        test rax,rax
+0x55420E     0F 84 5A 03 00 00               je near ptr 000000018055456Eh
+0x554214     48 8B 15 1D 14 44 03            mov rdx,[183995638h] ; MethodRef: T UnityEngine.Component.GetComponent<TMPro.TextMeshPro>
+0x55421B     48 8B C8                        mov rcx,rax
+0x55421E     E8 CD 24 8A 00                  call 0000000180DF66F0h ; UnityEngine.Component::GetComponent/0
+0x554223     48 8B D8                        mov rbx,rax
+0x554226     48 8D 8F 60 01 00 00            lea rcx,[rdi+160h]
+0x55422D     33 D2                           xor edx,edx
+0x55422F     E8 9C 5F 64 01                  call 0000000181B9A1D0h ; System.Int32::ToString/0
+0x554234     48 85 DB                        test rbx,rbx
+0x554237     0F 84 31 03 00 00               je near ptr 000000018055456Eh
+0x55423D     4C 8B 0B                        mov r9,[rbx]
+0x554240     4D 8B 81 60 05 00 00            mov r8,[r9+560h]
+0x554247     48 8B D0                        mov rdx,rax
+0x55424A     48 8B CB                        mov rcx,rbx
+0x55424D     41 FF 91 58 05 00 00            call qword ptr [r9+558h]
+0x554254     48 8B 8F A8 01 00 00            mov rcx,[rdi+1A8h]
+0x55425B     48 85 C9                        test rcx,rcx
+0x55425E     0F 84 0A 03 00 00               je near ptr 000000018055456Eh
+0x554264     33 D2                           xor edx,edx
+0x554266     E8 45 01 62 02                  call 0000000182B743B0h ; UnityEngine.Component::get_gameObject/0
+0x55426B     48 85 C0                        test rax,rax
+0x55426E     0F 84 FA 02 00 00               je near ptr 000000018055456Eh
+0x554274     45 33 C0                        xor r8d,r8d
+0x554277     33 D2                           xor edx,edx
+0x554279     48 8B C8                        mov rcx,rax
+0x55427C     E8 7F 42 62 02                  call 0000000182B78500h ; UnityEngine.GameObject::SetActive/1
+0x554281     48 8B 97 C8 01 00 00            mov rdx,[rdi+1C8h]
+0x554288     48 85 D2                        test rdx,rdx
+0x55428B     0F 84 DD 02 00 00               je near ptr 000000018055456Eh
+0x554291     4C 8B 05 E0 05 43 03            mov r8,[183984878h] ; MethodRef: System.Collections.Generic.List`1+Enumerator<T> System.Collections.Generic.List`1<ScheduleOne.Misc.ModularSwitch>.GetEnumerator
+0x554298     48 8D 4C 24 30                  lea rcx,[rsp+30h]
+0x55429D     E8 EE 8B 2F 01                  call 000000018184CE90h
+0x5542A2     0F 10 44 24 30                  movups xmm0,[rsp+30h]
+0x5542A7     0F 11 44 24 48                  movups [rsp+48h],xmm0
+0x5542AC     F2 0F 10 4C 24 40               movsd xmm1,qword ptr [rsp+40h]
+0x5542B2     F2 0F 11 4C 24 58               movsd qword ptr [rsp+58h],xmm1
+0x5542B8     4C 89 74 24 30                  mov [rsp+30h],r14
+0x5542BD     48 8D 5C 24 48                  lea rbx,[rsp+48h]
+0x5542C2     48 89 5C 24 38                  mov [rsp+38h],rbx
+0x5542C7     66 0F 1F 84 00 00 00 00 00      nop word ptr [rax+rax]
+0x5542D0     48 8B 15 19 3D 45 03            mov rdx,[1839A7FF0h] ; MethodRef: System.Boolean System.Collections.Generic.List`1+Enumerator<ScheduleOne.Misc.ModularSwitch>.MoveNext
+0x5542D7     48 8D 4C 24 48                  lea rcx,[rsp+48h]
+0x5542DC     E8 4F EA 07 01                  call 00000001815D2D30h
+0x5542E1     84 C0                           test al,al
+0x5542E3     0F 84 CA 00 00 00               je near ptr 00000001805543B3h
+0x5542E9     48 8B 74 24 58                  mov rsi,[rsp+58h]
+0x5542EE     48 8B 0D 03 BD 49 03            mov rcx,[1839EFFF8h] ; TypeInfo: UnityEngine.Object
+0x5542F5     83 B9 E0 00 00 00 00            cmp dword ptr [rcx+0E0h],0
+0x5542FC     75 05                           jne short 0000000180554303h
+0x5542FE     E8 2D 39 DC FF                  call 0000000180317C30h
+0x554303     45 33 C0                        xor r8d,r8d
+0x554306     33 D2                           xor edx,edx
+0x554308     48 8B CE                        mov rcx,rsi
+0x55430B     E8 90 7D 62 02                  call 0000000182B7C0A0h ; UnityEngine.Object::op_Equality/2
+0x554310     84 C0                           test al,al
+0x554312     75 BC                           jne short 00000001805542D0h
+0x554314     48 85 F6                        test rsi,rsi
+0x554317     0F 84 6A 02 00 00               je near ptr 0000000180554587h
+0x55431D     4C 8B A6 50 01 00 00            mov r12,[rsi+150h]
+0x554324     48 8B 0D 0D 4D 45 03            mov rcx,[1839A9038h] ; TypeInfo: ScheduleOne.Misc.ModularSwitch+ButtonChange
+0x55432B     E8 F0 37 DC FF                  call 0000000180317B20h
+0x554330     4C 8B F8                        mov r15,rax
+0x554333     45 33 C9                        xor r9d,r9d
+0x554336     4C 8B 05 33 0C 4B 03            mov r8,[183A04F70h] ; MethodDef: ScheduleOne.Property.Property::<Awake>b__98_0/1
+0x55433D     48 8B D7                        mov rdx,rdi
+0x554340     48 8B C8                        mov rcx,rax
+0x554343     E8 98 FE 0A 00                  call 00000001806041E0h ; ScheduleOne.Misc.ModularSwitch+ButtonChange::.ctor/2 | ScheduleOne.PlayerScripts.HotbarSlot+EquipEvent::.ctor/2 | UnityEngine.Events.UnityAction`1::.ctor/2 | GameKit.Utilities.Types.RectTransformResizer+ResizeDelegate::.ctor/2 | UnityEngine.AudioSettings+AudioConfigurationChangeHandler::.ctor/2
+0x554348     45 33 C0                        xor r8d,r8d
+0x55434B     49 8B D7                        mov rdx,r15
+0x55434E     49 8B CC                        mov rcx,r12
+0x554351     E8 8A B6 69 01                  call 0000000181BEF9E0h ; System.Delegate::Combine/2
+0x554356     48 85 C0                        test rax,rax
+0x554359     75 0C                           jne short 0000000180554367h
+0x55435B     4C 89 B6 50 01 00 00            mov [rsi+150h],r14
+0x554362     49 8B D6                        mov rdx,r14
+0x554365     EB 3B                           jmp short 00000001805543A2h
+0x554367     48 8B 15 CA 4C 45 03            mov rdx,[1839A9038h] ; TypeInfo: ScheduleOne.Misc.ModularSwitch+ButtonChange
+0x55436E     49 8B CE                        mov rcx,r14
+0x554371     48 39 10                        cmp [rax],rdx
+0x554374     48 0F 44 C8                     cmove rcx,rax
+0x554378     48 85 C9                        test rcx,rcx
+0x55437B     0F 84 FE 01 00 00               je near ptr 000000018055457Fh
+0x554381     48 89 8E 50 01 00 00            mov [rsi+150h],rcx
+0x554388     48 8B 0D A9 4C 45 03            mov rcx,[1839A9038h] ; TypeInfo: ScheduleOne.Misc.ModularSwitch+ButtonChange
+0x55438F     49 8B D6                        mov rdx,r14
+0x554392     48 39 08                        cmp [rax],rcx
+0x554395     48 0F 44 D0                     cmove rdx,rax
+0x554399     48 85 D2                        test rdx,rdx
+0x55439C     0F 84 D2 01 00 00               je near ptr 0000000180554574h
+0x5543A2     48 8D 8E 50 01 00 00            lea rcx,[rsi+150h]
+0x5543A9     E8 02 27 DC FF                  call 0000000180316AB0h
+0x5543AE     E9 1D FF FF FF                  jmp near ptr 00000001805542D0h
+0x5543B3     48 8B 15 5E 3B 45 03            mov rdx,[1839A7F18h] ; MethodRef: System.Void System.Collections.Generic.List`1+Enumerator<ScheduleOne.Misc.ModularSwitch>.Dispose
+0x5543BA     48 8B CB                        mov rcx,rbx
+0x5543BD     E8 FE BA EE FF                  call 000000018043FEC0h ; VFXRainPass::Dispose/0 | LightningLightController+<DoStrikeRoutine>d__7::System.IDisposable.Dispose/0 | ActionList+<<InvokeAllStaggered>g__StaggeredInvoke|6_0>d::System.IDisposable.Dispose/0 | CameraCaptureToPNG+<CaptureCameraView>d__5::System.IDisposable.Dispose/0 | DeveloperManager+<DoDeveloperRoutine>d__9::System.IDisposable.Dispose/0 | UnityServicesManager::Start/0 | UnityServicesManager::Update/0 | EntityConfigurationData::Start/0 | ... SHARED TARGET: 1731 aliases
+0x5543C2     EB 2A                           jmp short 00000001805543EEh
+0x5543C4     48 8B 15 4D 3B 45 03            mov rdx,[1839A7F18h] ; MethodRef: System.Void System.Collections.Generic.List`1+Enumerator<ScheduleOne.Misc.ModularSwitch>.Dispose
+0x5543CB     48 8B 4C 24 38                  mov rcx,[rsp+38h]
+0x5543D0     E8 EB BA EE FF                  call 000000018043FEC0h ; VFXRainPass::Dispose/0 | LightningLightController+<DoStrikeRoutine>d__7::System.IDisposable.Dispose/0 | ActionList+<<InvokeAllStaggered>g__StaggeredInvoke|6_0>d::System.IDisposable.Dispose/0 | CameraCaptureToPNG+<CaptureCameraView>d__5::System.IDisposable.Dispose/0 | DeveloperManager+<DoDeveloperRoutine>d__9::System.IDisposable.Dispose/0 | UnityServicesManager::Start/0 | UnityServicesManager::Update/0 | EntityConfigurationData::Start/0 | ... SHARED TARGET: 1731 aliases
+0x5543D5     48 8B 4C 24 30                  mov rcx,[rsp+30h]
+0x5543DA     48 85 C9                        test rcx,rcx
+0x5543DD     0F 85 AA 01 00 00               jne near ptr 000000018055458Dh
+0x5543E3     45 33 F6                        xor r14d,r14d
+0x5543E6     48 8B BC 24 C0 00 00 00         mov rdi,[rsp+0C0h]
+0x5543EE     48 8B 97 D0 01 00 00            mov rdx,[rdi+1D0h]
+0x5543F5     48 85 D2                        test rdx,rdx
+0x5543F8     0F 84 70 01 00 00               je near ptr 000000018055456Eh
+0x5543FE     4C 8B 05 6B DA 4A 03            mov r8,[183A01E70h] ; MethodRef: System.Collections.Generic.List`1+Enumerator<T> System.Collections.Generic.List`1<ScheduleOne.Interaction.InteractableToggleable>.GetEnumerator
+0x554405     48 8D 4C 24 30                  lea rcx,[rsp+30h]
+0x55440A     E8 81 8A 2F 01                  call 000000018184CE90h
+0x55440F     0F 10 44 24 30                  movups xmm0,[rsp+30h]
+0x554414     0F 11 44 24 60                  movups [rsp+60h],xmm0
+0x554419     F2 0F 10 4C 24 40               movsd xmm1,qword ptr [rsp+40h]
+0x55441F     F2 0F 11 4C 24 70               movsd qword ptr [rsp+70h],xmm1
+0x554425     4C 89 74 24 30                  mov [rsp+30h],r14
+0x55442A     48 8D 5C 24 60                  lea rbx,[rsp+60h]
+0x55442F     48 89 5C 24 38                  mov [rsp+38h],rbx
+0x554434     48 8B 15 2D E8 44 03            mov rdx,[1839A2C68h] ; MethodRef: System.Boolean System.Collections.Generic.List`1+Enumerator<ScheduleOne.Interaction.InteractableToggleable>.MoveNext
+0x55443B     48 8D 4C 24 60                  lea rcx,[rsp+60h]
+0x554440     E8 EB E8 07 01                  call 00000001815D2D30h
+0x554445     84 C0                           test al,al
+0x554447     0F 84 BA 00 00 00               je near ptr 0000000180554507h
+0x55444D     4C 8B 74 24 70                  mov r14,[rsp+70h]
+0x554452     48 8B 0D 8F ED 46 03            mov rcx,[1839C31E8h] ; TypeInfo: ScheduleOne.Property.Property+<>c__DisplayClass98_0
+0x554459     E8 C2 36 DC FF                  call 0000000180317B20h
+0x55445E     48 8B F0                        mov rsi,rax
+0x554461     33 D2                           xor edx,edx
+0x554463     48 8B C8                        mov rcx,rax
+0x554466     E8 55 BA EE FF                  call 000000018043FEC0h ; VFXRainPass::Dispose/0 | LightningLightController+<DoStrikeRoutine>d__7::System.IDisposable.Dispose/0 | ActionList+<<InvokeAllStaggered>g__StaggeredInvoke|6_0>d::System.IDisposable.Dispose/0 | CameraCaptureToPNG+<CaptureCameraView>d__5::System.IDisposable.Dispose/0 | DeveloperManager+<DoDeveloperRoutine>d__9::System.IDisposable.Dispose/0 | UnityServicesManager::Start/0 | UnityServicesManager::Update/0 | EntityConfigurationData::Start/0 | ... SHARED TARGET: 1731 aliases
+0x55446B     48 85 F6                        test rsi,rsi
+0x55446E     0F 84 29 01 00 00               je near ptr 000000018055459Dh
+0x554474     48 89 7E 18                     mov [rsi+18h],rdi
+0x554478     48 8D 4E 18                     lea rcx,[rsi+18h]
+0x55447C     48 8B D7                        mov rdx,rdi
+0x55447F     E8 2C 26 DC FF                  call 0000000180316AB0h
+0x554484     48 8B 0D 6D BB 49 03            mov rcx,[1839EFFF8h] ; TypeInfo: UnityEngine.Object
+0x55448B     83 B9 E0 00 00 00 00            cmp dword ptr [rcx+0E0h],0
+0x554492     75 05                           jne short 0000000180554499h
+0x554494     E8 97 37 DC FF                  call 0000000180317C30h
+0x554499     45 33 C0                        xor r8d,r8d
+0x55449C     33 D2                           xor edx,edx
+0x55449E     49 8B CE                        mov rcx,r14
+0x5544A1     E8 FA 7B 62 02                  call 0000000182B7C0A0h ; UnityEngine.Object::op_Equality/2
+0x5544A6     84 C0                           test al,al
+0x5544A8     75 8A                           jne short 0000000180554434h
+0x5544AA     4C 89 76 10                     mov [rsi+10h],r14
+0x5544AE     48 8D 4E 10                     lea rcx,[rsi+10h]
+0x5544B2     49 8B D6                        mov rdx,r14
+0x5544B5     E8 F6 25 DC FF                  call 0000000180316AB0h
+0x5544BA     4D 85 F6                        test r14,r14
+0x5544BD     0F 84 D5 00 00 00               je near ptr 0000000180554598h
+0x5544C3     4D 8B 76 48                     mov r14,[r14+48h]
+0x5544C7     48 8B 0D E2 65 46 03            mov rcx,[1839BAAB0h] ; TypeInfo: UnityEngine.Events.UnityAction
+0x5544CE     E8 4D 36 DC FF                  call 0000000180317B20h
+0x5544D3     4C 8B F8                        mov r15,rax
+0x5544D6     45 33 C9                        xor r9d,r9d
+0x5544D9     4C 8B 05 70 9E 42 03            mov r8,[18397E350h] ; MethodDef: ScheduleOne.Property.Property+<>c__DisplayClass98_0::<Awake>b__1/0
+0x5544E0     48 8B D6                        mov rdx,rsi
+0x5544E3     48 8B C8                        mov rcx,rax
+0x5544E6     E8 05 11 ED FF                  call 00000001804255F0h ; VLB.VolumetricLightBeamSD+OnBeamGeometryInitialized::.ctor/2 | ScheduleOne.Events.BasicEvent::.ctor/2 | System.Action::.ctor/2 | System.Threading.ThreadStart::.ctor/2 | System.Runtime.Remoting.Contexts.CrossContextDelegate::.ctor/2 | System.Windows.Forms.ListView+CollectionChangedHandler::.ctor/2 | System.Windows.Forms.MethodInvoker::.ctor/2 | UnityEngine.UIElements.SavePersistentViewData::.ctor/2 | ... SHARED TARGET: 31 aliases
+0x5544EB     4D 85 F6                        test r14,r14
+0x5544EE     0F 84 9F 00 00 00               je near ptr 0000000180554593h
+0x5544F4     45 33 C0                        xor r8d,r8d
+0x5544F7     49 8B D7                        mov rdx,r15
+0x5544FA     49 8B CE                        mov rcx,r14
+0x5544FD     E8 2E 28 65 02                  call 0000000182BA6D30h ; UnityEngine.Events.UnityEvent::AddListener/1
+0x554502     E9 2D FF FF FF                  jmp near ptr 0000000180554434h
+0x554507     48 8B 15 82 E6 44 03            mov rdx,[1839A2B90h] ; MethodRef: System.Void System.Collections.Generic.List`1+Enumerator<ScheduleOne.Interaction.InteractableToggleable>.Dispose
+0x55450E     48 8B CB                        mov rcx,rbx
+0x554511     E8 AA B9 EE FF                  call 000000018043FEC0h ; VFXRainPass::Dispose/0 | LightningLightController+<DoStrikeRoutine>d__7::System.IDisposable.Dispose/0 | ActionList+<<InvokeAllStaggered>g__StaggeredInvoke|6_0>d::System.IDisposable.Dispose/0 | CameraCaptureToPNG+<CaptureCameraView>d__5::System.IDisposable.Dispose/0 | DeveloperManager+<DoDeveloperRoutine>d__9::System.IDisposable.Dispose/0 | UnityServicesManager::Start/0 | UnityServicesManager::Update/0 | EntityConfigurationData::Start/0 | ... SHARED TARGET: 1731 aliases
+0x554516     EB 23                           jmp short 000000018055453Bh
+0x554518     48 8B 15 71 E6 44 03            mov rdx,[1839A2B90h] ; MethodRef: System.Void System.Collections.Generic.List`1+Enumerator<ScheduleOne.Interaction.InteractableToggleable>.Dispose
+0x55451F     48 8B 4C 24 38                  mov rcx,[rsp+38h]
+0x554524     E8 97 B9 EE FF                  call 000000018043FEC0h ; VFXRainPass::Dispose/0 | LightningLightController+<DoStrikeRoutine>d__7::System.IDisposable.Dispose/0 | ActionList+<<InvokeAllStaggered>g__StaggeredInvoke|6_0>d::System.IDisposable.Dispose/0 | CameraCaptureToPNG+<CaptureCameraView>d__5::System.IDisposable.Dispose/0 | DeveloperManager+<DoDeveloperRoutine>d__9::System.IDisposable.Dispose/0 | UnityServicesManager::Start/0 | UnityServicesManager::Update/0 | EntityConfigurationData::Start/0 | ... SHARED TARGET: 1731 aliases
+0x554529     48 8B 4C 24 30                  mov rcx,[rsp+30h]
+0x55452E     48 85 C9                        test rcx,rcx
+0x554531     75 70                           jne short 00000001805545A3h
+0x554533     48 8B BC 24 C0 00 00 00         mov rdi,[rsp+0C0h]
+0x55453B     48 8B 07                        mov rax,[rdi]
+0x55453E     48 8B 90 F0 03 00 00            mov rdx,[rax+3F0h]
+0x554545     48 8B CF                        mov rcx,rdi
+0x554548     FF 90 E8 03 00 00               call qword ptr [rax+3E8h]
+0x55454E     48 8B 9C 24 C8 00 00 00         mov rbx,[rsp+0C8h]
+0x554556     0F 28 B4 24 80 00 00 00         movaps xmm6,[rsp+80h]
+0x55455E     48 81 C4 90 00 00 00            add rsp,90h
+0x554565     41 5F                           pop r15
+0x554567     41 5E                           pop r14
+0x554569     41 5C                           pop r12
+0x55456B     5F                              pop rdi
+0x55456C     5E                              pop rsi
+0x55456D     C3                              ret
+0x55456E     E8 0D 36 DC FF                  call 0000000180317B80h
+0x554573     90                              nop
+0x554574     48 8B D1                        mov rdx,rcx
+0x554577     48 8B C8                        mov rcx,rax
+0x55457A     E8 71 25 DC FF                  call 0000000180316AF0h
+0x55457F     48 8B C8                        mov rcx,rax
+0x554582     E8 69 25 DC FF                  call 0000000180316AF0h
+0x554587     E8 F4 35 DC FF                  call 0000000180317B80h
+0x55458C     90                              nop
+0x55458D     E8 8E 36 DC FF                  call 0000000180317C20h
+0x554592     90                              nop
+0x554593     E8 E8 35 DC FF                  call 0000000180317B80h
+0x554598     E8 E3 35 DC FF                  call 0000000180317B80h
+0x55459D     E8 DE 35 DC FF                  call 0000000180317B80h
+0x5545A2     90                              nop
+0x5545A3     E8 78 36 DC FF                  call 0000000180317C20h
+0x5545A8     CC                              int 3
+0x5545A9     E8 C2 35 DC FF                  call 0000000180317B70h
+0x5545AE     CC                              int 3
+0x5545AF     CC                              int 3

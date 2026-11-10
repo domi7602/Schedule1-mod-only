@@ -1,0 +1,35 @@
+; ScheduleOne.Persistence.SaveManager::DequeueSaveRequest/1, token 0x06001830, RVA 0x5A9FA0, metadata-pointer window 0x60 bytes
+; Raw native bytes only. Window ends at next distinct managed-method pointer, includes padding/cold fragments; not proof of full transitive/exception coverage. Shared target names show at most eight aliases; total count is recorded.
+0x5A9FA0     48 89 5C 24 08                  mov [rsp+8],rbx
+0x5A9FA5     57                              push rdi
+0x5A9FA6     48 83 EC 20                     sub rsp,20h
+0x5A9FAA     80 3D A4 17 65 03 00            cmp byte ptr [183BFB755h],0
+0x5A9FB1     48 8B FA                        mov rdi,rdx
+0x5A9FB4     48 8B D9                        mov rbx,rcx
+0x5A9FB7     75 13                           jne short 00000001805A9FCCh
+0x5A9FB9     48 8D 0D 58 54 40 03            lea rcx,[1839AF418h] ; MethodRef: System.Boolean System.Collections.Generic.List`1<ScheduleOne.Persistence.SaveRequest>.Remove
+0x5A9FC0     E8 DB D8 D6 FF                  call 00000001803178A0h
+0x5A9FC5     C6 05 89 17 65 03 01            mov byte ptr [183BFB755h],1
+0x5A9FCC     48 8B 4B 68                     mov rcx,[rbx+68h]
+0x5A9FD0     48 85 C9                        test rcx,rcx
+0x5A9FD3     74 19                           je short 00000001805A9FEEh
+0x5A9FD5     4C 8B 05 3C 54 40 03            mov r8,[1839AF418h] ; MethodRef: System.Boolean System.Collections.Generic.List`1<ScheduleOne.Persistence.SaveRequest>.Remove
+0x5A9FDC     48 8B D7                        mov rdx,rdi
+0x5A9FDF     48 8B 5C 24 30                  mov rbx,[rsp+30h]
+0x5A9FE4     48 83 C4 20                     add rsp,20h
+0x5A9FE8     5F                              pop rdi
+0x5A9FE9     E9 B2 E3 32 01                  jmp near ptr 00000001818D83A0h
+0x5A9FEE     E8 8D DB D6 FF                  call 0000000180317B80h
+0x5A9FF3     CC                              int 3
+0x5A9FF4     CC                              int 3
+0x5A9FF5     CC                              int 3
+0x5A9FF6     CC                              int 3
+0x5A9FF7     CC                              int 3
+0x5A9FF8     CC                              int 3
+0x5A9FF9     CC                              int 3
+0x5A9FFA     CC                              int 3
+0x5A9FFB     CC                              int 3
+0x5A9FFC     CC                              int 3
+0x5A9FFD     CC                              int 3
+0x5A9FFE     CC                              int 3
+0x5A9FFF     CC                              int 3

@@ -1,0 +1,19 @@
+diff --git "a/C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-save-fix-20261106\\before\\Source\\Tests\\TownHallInterior.Tests\\BusinessSubtypeTests.cs" b/Source/Tests/TownHallInterior.Tests/BusinessSubtypeTests.cs
+index accf81f..0e5fef0 100644
+--- "a/C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-save-fix-20261106\\before\\Source\\Tests\\TownHallInterior.Tests\\BusinessSubtypeTests.cs"
++++ b/Source/Tests/TownHallInterior.Tests/BusinessSubtypeTests.cs
+@@ -246,9 +246,12 @@ public sealed class BusinessSubtypeTests
+         var result = new BusinessSubtypeTrial().Run(Context, port, () => valid, probeSave: true);
+ 
+         Assert.Equal("failed", result.Status);
+-        Assert.True(result.CleanupComplete);
++        Assert.False(result.CleanupComplete);
+         Assert.Contains(result.Findings, f => f.Contains("context-expired") || f.Contains("save-begin"));
+-        Assert.Contains("cleanup", port.Events);
++        Assert.DoesNotContain("cleanup", port.Events);
++        Assert.NotNull(result.Save);
++        Assert.True(result.Save!.RegistrationAttempted);
++        Assert.False(result.Save.SafeToDestroy);
+     }
+ 
+     [Fact]

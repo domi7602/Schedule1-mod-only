@@ -1,0 +1,37 @@
+{
+  "capturedUtc": "2026-11-06T13:15:51.769777+00:00",
+  "files": {
+    "checkpoint-summary.json": {
+      "sha256": "b50cd82cbb39a1e43d211568ad5ea1631b172c7a9488134eea35de8c5b4cba18",
+      "bytes": 2849
+    },
+    "deployment-plan.json": {
+      "sha256": "a002580daadda9e2331e7922313c3fb4759188928ff4f70f72317c33f13ea83f",
+      "bytes": 1702
+    },
+    "deployment-receipt.json": {
+      "sha256": "409723232c4d285a138394c2fb25810c05ef690a35bf197d641578ba1b529625",
+      "bytes": 3252
+    },
+    "deployment-verification.json": {
+      "sha256": "e4c1f15fe0d07aca4bd139b4cfd2e9452ca3349480bd85b8ca5711d86b6f5d60",
+      "bytes": 3602
+    },
+    "deployment.log.txt": {
+      "sha256": "e2d686bdf9c92c885920b44680cce210b9ed5cf6792b4dcb6ed892a1b9fa9efd",
+      "bytes": 170
+    },
+    "postinstall-review.json": {
+      "sha256": "f22c199d61db59af5fec99fc5a74c805c8bf212cd189632cdeec10c14f4533ca",
+      "bytes": 3843
+    },
+    "prepared-candidate-review.json": {
+      "sha256": "610e04d2d744dd7cd191badcd615617691783116695cc656d4832995f94a7cd0",
+      "bytes": 3354
+    },
+    "prepared-deploy-plan.json": {
+      "sha256": "a0b96ced9c8782c96bf0ca034ae06bfbd5bb4e5be3da4a1df6df0d24b7453739",
+      "bytes": 688
+    }
+  }
+}

@@ -1,0 +1,50 @@
+; ScheduleOne.GameTime.TimeManager::GetSaveString/0, token 0x06000BFA, RVA 0x9C9300, next-pointer window 0xA0 bytes
+; No target execution. Parser-pointer window can contain padding/cold fragments and is not exact/full function, EH or transitive coverage. Shared direct aliases are truncated to eight names.
+0x9C9300     40 53                           push rbx
+0x9C9302     56                              push rsi
+0x9C9303     57                              push rdi
+0x9C9304     41 56                           push r14
+0x9C9306     48 83 EC 38                     sub rsp,38h
+0x9C930A     80 3D BC 45 23 03 00            cmp byte ptr [183BFD8CDh],0
+0x9C9311     48 8B D9                        mov rbx,rcx
+0x9C9314     75 13                           jne short 00000001809C9329h
+0x9C9316     48 8D 0D 2B 0B FE 02            lea rcx,[1839A9E48h] ; TypeInfo: ScheduleOne.Persistence.Datas.TimeData
+0x9C931D     E8 7E E5 94 FF                  call 00000001803178A0h
+0x9C9322     C6 05 A4 45 23 03 01            mov byte ptr [183BFD8CDh],1
+0x9C9329     F3 0F 10 83 30 01 00 00         movss xmm0,dword ptr [rbx+130h]
+0x9C9331     33 D2                           xor edx,edx
+0x9C9333     8B B3 28 01 00 00               mov esi,[rbx+128h]
+0x9C9339     8B BB 2C 01 00 00               mov edi,[rbx+12Ch]
+0x9C933F     E8 AC 12 B1 FF                  call 00000001804DA5F0h
+0x9C9344     48 8B 0D FD 0A FE 02            mov rcx,[1839A9E48h] ; TypeInfo: ScheduleOne.Persistence.Datas.TimeData
+0x9C934B     8B D8                           mov ebx,eax
+0x9C934D     E8 CE E7 94 FF                  call 0000000180317B20h
+0x9C9352     44 8B CB                        mov r9d,ebx
+0x9C9355     48 C7 44 24 20 00 00 00 00      mov qword ptr [rsp+20h],0
+0x9C935E     44 8B C7                        mov r8d,edi
+0x9C9361     8B D6                           mov edx,esi
+0x9C9363     48 8B C8                        mov rcx,rax
+0x9C9366     4C 8B F0                        mov r14,rax
+0x9C9369     E8 22 32 C0 FF                  call 00000001805CC590h ; ScheduleOne.Persistence.Datas.TimeData::.ctor/3
+0x9C936E     4D 85 F6                        test r14,r14
+0x9C9371     74 1F                           je short 00000001809C9392h
+0x9C9373     4D 8B 0E                        mov r9,[r14]
+0x9C9376     B2 01                           mov dl,1
+0x9C9378     49 8B CE                        mov rcx,r14
+0x9C937B     4D 8B 81 90 01 00 00            mov r8,[r9+190h]
+0x9C9382     48 83 C4 38                     add rsp,38h
+0x9C9386     41 5E                           pop r14
+0x9C9388     5F                              pop rdi
+0x9C9389     5E                              pop rsi
+0x9C938A     5B                              pop rbx
+0x9C938B     49 FF A1 88 01 00 00            jmp qword ptr [r9+188h]
+0x9C9392     E8 E9 E7 94 FF                  call 0000000180317B80h
+0x9C9397     CC                              int 3
+0x9C9398     CC                              int 3
+0x9C9399     CC                              int 3
+0x9C939A     CC                              int 3
+0x9C939B     CC                              int 3
+0x9C939C     CC                              int 3
+0x9C939D     CC                              int 3
+0x9C939E     CC                              int 3
+0x9C939F     CC                              int 3

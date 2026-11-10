@@ -1,0 +1,393 @@
+{
+  "schema": 1,
+  "capturedUtc": "2026-11-05T08:23:38.0292991Z",
+  "reviewer": "GPT-6.1 Sol / OpenCode; separat beauftragter, unabhängiger Managed-Grenzprüfer",
+  "status": "managed-boundary-reviewed-native-completion-and-release-not-established",
+  "evidenceKind": "Aktuelle Originalquellen und statische Dekompilation der installierten S1API; keine Laufzeitbeobachtung",
+  "saveApproval": false,
+  "safeNativeUnregistrationEstablished": false,
+  "summary": [
+    "GameLifecycle.OnSaveComplete ist ein parameterloser direkter Relay des nativen SaveManager.onSaveComplete, kein Save-Postfix und kein verwalteter Erfolgs-/Freigabealgorithmus.",
+    "GenericSaveablesPatches schreibt separat in einem Save(string)-Postfix. Fehler und Teilnehmerreihenfolge verhindern eine globale Erfolgsquittung; dessen Verhältnis zum nativen Ereignis ist in dieser Managed-Grenze nicht festgelegt.",
+    "RequestGameSave ruft Save() ohne Argumente auf. Ob dieser konkrete native Pfad Save(string) erreicht, muss der getrennte Native-Audit belegen.",
+    "OnSaved bedeutet je nach Callsite nur Ende eigener Feld-Dateiaufrufe oder Ende des Befüllens eines DynamicSaveData-Objekts. Es ist weder Checkpointquittung noch Beleg letzter nativer Referenznutzung.",
+    "Main-Unload trennt auf dem normalen Reset-Pfad die nativen Save-Listener. Das drainiert keine nachgewiesenen nativen Arbeiten; stehende verwaltete Eventabonnements werden dabei nicht gelöscht.",
+    "Die Managed-Grenze liefert keine Grundlage zum Aufheben der bestehenden Schreibsperre. Native Referenzfreigabe, nativer Speichererfolg und Erfolg sämtlicher Mod-Nacharbeiten sind getrennte Beweisziele."
+  ],
+  "repository": {
+    "project": "schedule1-mod-only",
+    "directory": "C:/Users/pc/Schedule1-mod-only",
+    "baseRevision": "b2c6c7e6c6ecc778da9624cdb68a6578b9db471a",
+    "branch": "main",
+    "workingTree": "dirty; vorhandene Änderungen und ungetrackte Quellen/Belege unverändert erhalten",
+    "s1apiSource": {
+      "path": "ThirdParty/S1API",
+      "revision": "6b6d7bada39054822732224508cf0f4f45ee7c26",
+      "tag": "v3.2.2",
+      "workingTree": "clean; detached HEAD"
+    },
+    "inputSnapshot": ".scratch/townhall-native-save-audit-20261105/managed-review/input-snapshot.json",
+    "inputSnapshotSha256": "6f85b052df3d491cd12d4d492cd15fd34d1b7979cdd3e9135fc76d210d91dda0"
+  },
+  "scope": {
+    "included": [
+      "GameLifecycle.Initialize, Reset, InvokeOnSaveStart und InvokeOnSaveComplete sowie der zugehörige Main-Szenenaufrufer",
+      "GenericSaveablesPatches.SaveManager_Save_Postfix auf Save(string)",
+      "Saveable.RequestGameSave, SaveInternal, SaveToDynamic und OnSaved",
+      "SaveableAutoRegistry als enger verwalteter Abhängigkeitscheck der Teilnehmerreihenfolge; nur Originalquelle, nicht separat binär dekompiliert",
+      "Historischer Quellenbefund und dessen ausdrückliche Offline-Modellschließung, ohne neue Prüfung des Modells"
+    ],
+    "excluded": [
+      "Native GameAssembly-, Metadata-, SaveManager-, SaveRoutine-, SaveRequest- oder ISaveable-Rumpfanalyse; Zuständigkeit des Parent",
+      "Vollinventar aller fremden Mods, Harmony-Patches oder nativen UnityEvent-Teilnehmer",
+      "Produktions-/Testcodeänderungen, Builds, Testsuiten, Deployment, Installation oder Downloads",
+      "Spielstart/-steuerung, Bridge, Save-Aufrufe und native Save-Dateizugriffe",
+      "Private UserData-Konfigurationen, Sidecars oder Saves",
+      "Subagents, Commit, Push und Änderungen an Vault-Wissensseiten"
+    ],
+    "reportOwnedByReviewer": ".scratch/townhall-native-save-audit-20261105/managed-boundary-review.json",
+    "toolOutputOwnedByReviewer": ".scratch/townhall-native-save-audit-20261105/managed-review/",
+    "independence": "Managed-Prüfung vor Kenntnis neuer Native-Funde des Parent. Kein eigener Produktionsbeitrag und kein weiterer Subagent."
+  },
+  "inheritedContext": {
+    "baseline": "Start-/Lade-/Handy-Basistest ist laut Eigentümerauftrag abgeschlossen; nicht erneut geprüft und nicht wieder geöffnet.",
+    "normalBuild": "614b81fd... ohne Saveprobe laut Eigentümerauftrag installiert; in diesem Audit weder neu gehasht noch geladen.",
+    "loader": "b05187bd... laut Eigentümerauftrag bestätigt; in diesem Audit nicht erneut gelesen.",
+    "offlineModel": "681 abgeschlossene Tests sind übernommene Evidenz, keine Ausführung dieses Auditors. Die alten BSA-001/BSA-002-Modellbefunde bleiben durch den späteren Closed-Bericht geschlossen.",
+    "references": [
+      "Source/Mods/TownHallInterior/docs/business-manager-save-probe.md:69-95,106-122",
+      "Source/Mods/TownHallInterior/docs/evidence/business-save-safety-review-20261105.json:178-188",
+      "Source/Mods/TownHallInterior/docs/evidence/business-save-safety-review-closed-20261105.json:59-74,102-111"
+    ]
+  },
+  "installedArtifact": {
+    "relativeGamePath": "Mods/S1API.Il2Cpp.MelonLoader.dll",
+    "absolutePath": "C:/Program Files (x86)/Steam/steamapps/common/Schedule I/Mods/S1API.Il2Cpp.MelonLoader.dll",
+    "sha256": "d751a3cb66003f7a616eb9f8054daf34da0d9d7f23416a5005a586738a680852",
+    "length": 1590784,
+    "productVersion": "3.2.2+6b6d7bada39054822732224508cf0f4f45ee7c26",
+    "fileVersion": "3.2.2.0",
+    "identityCheckedUtc": "2026-11-05T08:21:01.2077945Z",
+    "identityRecheckedUtc": "2026-11-05T08:23:19.8908745Z",
+    "hashStable": true,
+    "coverageLimit": "Metadaten und vier dekompilierte Managed-Typen passen zu den relevanten Originalquellen. Kein vollständiger Build-/Bytevergleich, kein Nachweis aktuell geladener Bytes und keine neue Laufzeitabnahme."
+  },
+  "sourceSnapshots": [
+    {
+      "id": "lifecycle",
+      "path": "ThirdParty/S1API/S1API/Lifecycle/GameLifecycle.cs",
+      "sha256": "c9e470eab1940b59be4cc55c80d832202521bbef97264619f092b310de527a8e",
+      "locations": ["109-145: Eventkommentare und parameterlose Actions", "151-195: Listeneranbindung", "201-218: Reset", "246-255: PreSceneChange-Dispatch", "270-291: Save-Dispatch"]
+    },
+    {
+      "id": "root",
+      "path": "ThirdParty/S1API/S1API/S1API.cs",
+      "sha256": "d00db32deec6c72b737c0a44606ea19908f903d6b5f97077331c4050823cb28d",
+      "locations": ["53-61: OnUpdate ohne Lifecycle-Retry", "68-73: Initialize bei Main-Load", "79-96: Cleanup und Reset bei Main-Unload"]
+    },
+    {
+      "id": "generic",
+      "path": "ThirdParty/S1API/S1API/Internal/Patches/GenericSaveables.Patches.cs",
+      "sha256": "d72fa119aae69ab0f2a07d14134ae2c9fa85b79f68241e6ef2b56403f443bed1",
+      "locations": ["37-42: Postfix nur auf Save(string)", "44-70: Verzeichnis-/Whitelistmutationen, Teilnehmerloop und gemeinsamer Catch"]
+    },
+    {
+      "id": "saveable",
+      "path": "ThirdParty/S1API/S1API/Internal/Abstraction/Saveable.cs",
+      "sha256": "09344961187d877ced02169f0e6c430164d7df98b1258361a41ce49996495dc4",
+      "locations": ["79-111: RequestGameSave", "172-204: einzelne Feld-Dateioperationen und OnSaved", "211-233: DynamicSaveData und OnSaved", "277-288: direktes Interface-Forwarding und leerer virtueller Standardcallback"]
+    },
+    {
+      "id": "registry",
+      "path": "ThirdParty/S1API/S1API/Saveables/SaveableAutoRegistry.cs",
+      "sha256": "519ef9a79d243386f217405b3c996704ce858a492e35df78a2e7d987c67c6cc7",
+      "locations": ["15-34: statische Caches und Rückgabe eines Enumerables", "44-105: Assembly-/Typreihenfolge und Discovery-Fehler", "125-135: nur direkte Saveable-Unterklassen", "141-164: lazy Instanziierung und Iteration", "170-176: expliziter Cache-Reset"]
+    },
+    {
+      "id": "prior-probe-document",
+      "path": "Source/Mods/TownHallInterior/docs/business-manager-save-probe.md",
+      "sha256": "1f79b7975a5cf36bfb6c5bcc5aaf7556d9d4d62c048a01a0eaf7f2455991affd",
+      "locations": ["69-95: historischer Managed-/Native-Grenzbefund", "106-122: abgeschlossene Offline-Prüfung"]
+    },
+    {
+      "id": "prior-red-report",
+      "path": "Source/Mods/TownHallInterior/docs/evidence/business-save-safety-review-20261105.json",
+      "sha256": "920d7d6efc16cc8753bcd303358455a5ca95834f3bc7faed9f2f09b7d8bd5bf8",
+      "locations": ["178-188: ursprünglicher Quellenbefund; historische Native-Aussagen hier nur übernommen"]
+    },
+    {
+      "id": "prior-closed-report",
+      "path": "Source/Mods/TownHallInterior/docs/evidence/business-save-safety-review-closed-20261105.json",
+      "sha256": "1ab167528c8a20d2dc68f95579f8f5f92b18e17d2ffc1c4321524f2f8500c972",
+      "locations": ["59-74: BSA-001/BSA-002 ausdrücklich geschlossen", "102-111: Native-Vertrag bleibt fehlend"]
+    }
+  ],
+  "procedureAndTooling": {
+    "instructionsRead": [
+      "AGENTS.md vollständig, 327 Zeilen",
+      "ThirdParty/S1API/AGENTS.md vollständig, 75 Zeilen",
+      "Skills/schedule1-modding/SKILL.md",
+      "Skills/schedule1-modding/references/working-contract.md",
+      "Skills/schedule1-modding/references/evidence-policy.md",
+      "Skills/schedule1-persistence/SKILL.md",
+      "Skills/schedule1-mod-reversing/SKILL.md",
+      "Skills/schedule1-s1api/references/saveables.md",
+      "Vault AGENTS.md, SCHEMA.md, index.md, Projektkarte und letzte relevante log.md-Einträge; nur gelesen"
+    ],
+    "instructionHashes": "Alle acht Repository-Regel-/Skilldateien sowie die acht oben benannten Quellen stehen mit SHA-256 im input-snapshot.json; insgesamt 16 Dateien.",
+    "ilspy": {
+      "path": "C:/Users/pc/.dotnet/tools/ilspycmd.exe",
+      "versionFromHelp": "8.2.0.7535; ICSharpCode.Decompiler 8.2.0.7535",
+      "shimSha256": "ca22578c2cdb27213438a4daf843b1a9c2b868878689e963e260528e90373fb6",
+      "helpBeforeDecompilation": true,
+      "firstCommand": "ilspycmd --help",
+      "retainedHelpCommand": "ilspycmd --disable-updatecheck --help",
+      "decompilationCommandPattern": "ilspycmd --disable-updatecheck -t <type> <installed-S1API-DLL>; stdout/stderr getrennt in managed-review",
+      "types": ["S1API.Lifecycle.GameLifecycle", "S1API.S1API", "S1API.Internal.Patches.GenericSaveablesPatches", "S1API.Internal.Abstraction.Saveable"],
+      "allFourExitCodes": 0,
+      "allFourStderrBytes": 0,
+      "decompilerBodyWarningsFound": false,
+      "originalOutputs": "*.decompiled.cs enthalten unverändertes, durch die Shell als UTF-16 geschriebenes stdout. *.reading.cs sind zusätzlich erzeugte UTF-8-Lesefassungen; Codepointgleichheit wurde für alle vier Dateien geprüft.",
+      "outputHashes": ".scratch/townhall-native-save-audit-20261105/managed-review/tool-output-hashes.json"
+    },
+    "dotnetRoot": {"before": null, "after": null, "changed": false},
+    "hashing": "Gezielte Bytehashes über System.IO.File.OpenRead und System.Security.Cryptography.SHA256; keine Assemblyausführung.",
+    "recoveredToolLimit": "Der erste Snapshotversuch scheiterte, weil Get-FileHash in der Werkzeugshell nicht verfügbar war. Es entstand kein Snapshotmanifest. Anschließend wurden dieselben ausdrücklich erlaubten Dateien mit dem .NET-Framework-Hasher erfolgreich gelesen. Der erste erfolgreiche DLL-Hash liegt nach den Dekompilationsaufrufen; ein Prä-Dekompilationshash wird nicht behauptet.",
+    "notExecuted": ["Assembly.Load oder Aufruf/Initialisierung einer Spiel-/Modassembly", "Im Quelltext sichtbare Discovery/Activator-Logik", "native Methoden", "Tests/Builds/Spiel/Bridge/Save", "Websuche, HTTP-Abruf, Installation oder Download"]
+  },
+  "binaryCrossCheck": [
+    {
+      "type": "S1API.Lifecycle.GameLifecycle",
+      "readingFile": ".scratch/townhall-native-save-audit-20261105/managed-review/GameLifecycle.reading.cs",
+      "sha256": "77f0840dcef0853ca93a5ee288c465fe8dc7f9b23b41fe7dd56dd9fc1fdb8cf2",
+      "lines": "45-115: Initialize/Reset; 167-187: beide Save-Relays",
+      "result": "Relevanter Kontrollfluss und IL2CPP-Bindungen stimmen semantisch mit der Originalquelle überein."
+    },
+    {
+      "type": "S1API.S1API",
+      "readingFile": ".scratch/townhall-native-save-audit-20261105/managed-review/S1API.reading.cs",
+      "sha256": "382784a607e08cfa582803b94a9ef400c253548bdfdb174d62a86a7c020b1485",
+      "lines": "61-84: Main-Load/-Unload",
+      "result": "Initialize und nachgeordneter Reset im Main-Szenenpfad bestätigt."
+    },
+    {
+      "type": "S1API.Internal.Patches.GenericSaveablesPatches",
+      "readingFile": ".scratch/townhall-native-save-audit-20261105/managed-review/GenericSaveablesPatches.reading.cs",
+      "sha256": "9a7b0c7a9415a728afebca826f78fd5811214b50567cd86a58817b711ea54cd2",
+      "lines": "21-59: Save(string)-Postfix",
+      "result": "Zielüberladung, separater Dateipfad, sequenzieller Loop und umfassender Catch bestätigt. Keine Laufzeit-Patchinstallation geprüft."
+    },
+    {
+      "type": "S1API.Internal.Abstraction.Saveable",
+      "readingFile": ".scratch/townhall-native-save-audit-20261105/managed-review/Saveable.reading.cs",
+      "sha256": "f6cb10619dcaa867a629649a89ff9121782cdfa3c01ae0af7032531c3703397c",
+      "lines": "19-44: RequestGameSave; 80-126: SaveInternal/SaveToDynamic; 160-167: OnSaved",
+      "result": "Parameterloser Save-Aufruf, Bool-/Catchverhalten und verschiedene OnSaved-Callsites bestätigt."
+    }
+  ],
+  "findings": [
+    {
+      "id": "MB-01",
+      "title": "Completion ist ein Relay, keine verifizierte Quittung",
+      "source": ["ThirdParty/S1API/S1API/Lifecycle/GameLifecycle.cs:129-145,156-160,189-194,282-291"],
+      "binary": "GameLifecycle.reading.cs:41-43,93-97,179-187",
+      "guaranteedByInspectedCode": "Wenn die Anbindung erfolgreich erfolgt und Unity den gebundenen Listener erreicht, wird die aktuelle verwaltete OnSaveComplete-Action aufgerufen. Der Wrapper wartet selbst auf nichts.",
+      "notGuaranteed": ["Request-ID, Zielpfad, Weltgeneration, Erfolg, Fehlerstatus oder Teilnehmerquittungen", "Queue-/Callbackdrain, Rückkehr des nativen Save-Aufrufstacks oder letzte Referenznutzung", "Dass die XML-Aussage 'after all save operations complete' auch spätere Managed-Postfixarbeit umfasst"],
+      "consequence": "Die Kommentare sind eine API-Zusage, aber kein zusätzlicher Implementierungsnachweis nativer Abschluss-/Freigabesemantik."
+    },
+    {
+      "id": "MB-02",
+      "title": "Ein werfender Action-Teilnehmer überspringt spätere; frühere Beobachter liegen vor späteren Nacharbeiten",
+      "source": ["ThirdParty/S1API/S1API/Lifecycle/GameLifecycle.cs:246-255,270-291"],
+      "binary": "GameLifecycle.reading.cs:143-151,167-187",
+      "guaranteedByInspectedCode": "Pro Relay umschließt ein einziger Catch den gesamten .NET-Multicast-Invoke; es gibt keine Einzelteilnehmerisolation, Erfolgsaggregation oder Wiederholung.",
+      "permittedFailureSequences": [
+        "Ein vor dem Auditor eingetragener verwalteter Teilnehmer wirft: spätere Teilnehmer desselben Invoke werden nicht erreicht; der äußere Catch protokolliert den Fehler.",
+        "Ein früher erfolgreicher Beobachter läuft noch vor späteren Teilnehmern. Diese können weitere Arbeit beginnen, Save-Anfragen verschachteln oder selbst fehlschlagen.",
+        "Derselbe Mechanismus gilt für OnSaveStart und OnPreSceneChange; ein fehlender späterer Marker beweist keinen ausgebliebenen nativen Effekt."
+      ],
+      "limit": "Dies folgt aus verwaltetem Action-Dispatch. Reihenfolge und Fehlerbehandlung sämtlicher nativer UnityEvent-Listener wurden nicht untersucht; keine entsprechende Native-Behauptung.",
+      "consequence": "Eventzähler oder der eigene Callback allein schließen andere Teilnehmer, spätere Arbeit und verschachtelte Ereignisse nicht ab."
+    },
+    {
+      "id": "MB-03",
+      "title": "Main-Reset entfernt Save-Listener, drainiert aber keine Speicherung",
+      "source": ["ThirdParty/S1API/S1API/S1API.cs:79-96", "ThirdParty/S1API/S1API/Lifecycle/GameLifecycle.cs:180-186,201-218"],
+      "binary": "S1API.reading.cs:69-84; GameLifecycle.reading.cs:83-115",
+      "guaranteedByInspectedCode": "Auf dem vollständig durchlaufenen Main-Unload-Pfad werden die gebundenen nativen SaveStart-/SaveComplete-Listener entfernt und die gespeicherten Load-/SaveManager-Referenzen sowie _initialized zurückgesetzt.",
+      "notGuaranteed": [
+        "Ein noch erwartetes Completion-Relay nach Reset; es existiert kein Replay-/Nachholpfad im Reset.",
+        "Beendigung bereits laufender Callbacks, Queues, Routinen oder fremder Referenzen durch RemoveListener.",
+        "Automatische Abmeldung der statischen verwalteten Actions: sie werden nicht geleert. Auch _preSceneChangeManager samt PreSceneChange-Anbindung bleibt im Reset unangetastet.",
+        "Entfernung einer eigenen nativen Saveable-Registrierung oder Slotisolation eines gehaltenen Root-Objekts."
+      ],
+      "consequence": "Fehlende Completion nach Szenenwechsel ist kein Abbruch-/Freigabenachweis; persistierende Abonnements benötigen für einen künftigen Besitzer einen ausdrücklich belegten Welt-/Operationsbezug."
+    },
+    {
+      "id": "MB-04",
+      "title": "Anbindung und Reset haben bedingte Teilfehlerpfade",
+      "source": ["ThirdParty/S1API/S1API/Lifecycle/GameLifecycle.cs:151-195,201-218", "ThirdParty/S1API/S1API/S1API.cs:53-61,68-73,79-96"],
+      "binary": "GameLifecycle.reading.cs:45-115; S1API.reading.cs:47-54,61-84",
+      "sourceDerivedCasesNotRuntimeObserved": [
+        "Fehlt bei Initialize einer der Manager, kehrt die Methode still zurück. Im geprüften Root-OnUpdate ist kein Lifecycle-Retry enthalten.",
+        "_initialized verhindert einen erneuten Bindversuch, ohne dort die aktuelle Manageridentität erneut zu prüfen.",
+        "Ein AddListener-Fehler kann nach früheren Bindungen, aber vor der abschließenden Speicherung von _loadManager/_saveManager auftreten; Initialize besitzt keine Rückroll-/Finally-Behandlung.",
+        "Ein RemoveListener-Fehler kann die übrigen Entfernungen und das Zurücksetzen der Felder überspringen; Reset besitzt kein Finally.",
+        "Ein Fehler in einer vor GameLifecycle.Reset aufgerufenen Main-Unload-Bereinigung kann den Reset-Aufruf überspringen; auch dieser Root-Pfad besitzt lokal kein Finally."
+      ],
+      "limit": "Keine solche Ausnahme wurde erzeugt oder beobachtet. Unity-Deduplication, tatsächliche Managerersetzung und die Fehlerpolitik des äußeren MelonLoader-Aufrufers sind nicht geprüft.",
+      "consequence": "Ein zukünftiger Vertrag darf weder Listenerzustellung noch vollständige Abmeldung allein aus einem Szenenmarker ableiten."
+    },
+    {
+      "id": "MB-05",
+      "title": "GenericSaveables ist ein gesonderter Postfix nur auf Save(string)",
+      "source": ["ThirdParty/S1API/S1API/Internal/Patches/GenericSaveables.Patches.cs:37-71", "ThirdParty/S1API/S1API/Internal/Abstraction/Saveable.cs:92-111"],
+      "binary": "GenericSaveablesPatches.reading.cs:21-59; Saveable.reading.cs:24-44",
+      "guaranteedByInspectedCode": "Der deklarierte Harmony-Postfix nutzt saveFolderPath für Modded/Saveables, ergänzt Whitelistpfade am aktuellen SaveManager-Singleton und ruft SaveInternal nacheinander auf den Registry-Teilnehmern auf.",
+      "notGuaranteed": [
+        "Dass Save() ohne Argumente diesen Save(string)-Hook erreicht; das ist eine native Callchain-Frage.",
+        "Ein nativer Erfolgs-/Annahmezustand: der Postfix prüft weder Erfolg noch Requesttoken, Queue, IsSaving, geladene Weltidentität oder Generation.",
+        "Bindung der Whitelistmutation an dieselbe eingefrorene Managerinstanz: der Postfix liest den aktuellen Singleton statt eines __instance-Parameters.",
+        "Eine Prioritäts-/Before-/After-Ordnung gegenüber anderen Save-Patches: im geprüften Postfix sind keine solchen Attribute deklariert.",
+        "Eine Reihenfolge gegenüber dem nativen Completion-Event oder eine gemeinsame atomare Transaktion."
+      ],
+      "consequence": "Rückkehr der Zielmethode und native Completion dürfen nicht mit dem Ende oder Erfolg dieses gesonderten Managed-Pfads gleichgesetzt werden."
+    },
+    {
+      "id": "MB-06",
+      "title": "Postfixfehler können Teilzustand hinterlassen und weitere Saveables auslassen",
+      "source": ["ThirdParty/S1API/S1API/Internal/Patches/GenericSaveables.Patches.cs:44-70", "ThirdParty/S1API/S1API/Internal/Abstraction/Saveable.cs:172-204"],
+      "binary": "GenericSaveablesPatches.reading.cs:25-58; Saveable.reading.cs:80-103",
+      "guaranteedByInspectedCode": "Whitelist-/Verzeichnisarbeit und der gesamte Teilnehmerloop liegen in einem gemeinsamen Catch. SaveInternal hat seinerseits keine Feld-/Callbackisolation und schreibt oder löscht einzelne Dateien direkt.",
+      "permittedFailureSequences": [
+        "Nach erfolgreichen früheren Feldschreibvorgängen kann eine spätere Serialisierung, Dateioperation oder OnSaved-Überschreibung werfen. Der frühere Dateizustand wird durch diesen Code nicht zurückgerollt.",
+        "Wirft ein Saveable, werden nachfolgende Saveables dieses Postfixloops nicht mehr erreicht.",
+        "Der Postfix meldet höchstens eine Warning; selbst deren Fehler wird geschluckt. Es gibt keinen zurückgegebenen Gesamtstatus und keine Kopplung an GameLifecycle.OnSaveComplete."
+      ],
+      "limit": "Keine Dateioperation aus dem geprüften Code wurde ausgeführt. Vorhandene Dateizustände, reale Fehler und die Reihenfolge konkreter installierter Modinstanzen sind unbekannt.",
+      "consequence": "Native Completion oder ein vorheriges OnSaved kann den Erfolg aller zusätzlichen Moddaten nicht quittieren. Diese Erfolgsfrage ist von einer separat beweisbaren nativen Referenzfreigabe zu unterscheiden."
+    },
+    {
+      "id": "MB-07",
+      "title": "OnSaved besitzt mehrere lokale Bedeutungen, keine globale Abschlussbedeutung",
+      "source": ["ThirdParty/S1API/S1API/Internal/Abstraction/Saveable.cs:172-204,211-233,277-288"],
+      "binary": "Saveable.reading.cs:80-126,160-167",
+      "guaranteedByInspectedCode": [
+        "SaveInternal erreicht OnSaved erst, nachdem die eigenen ausgewählten Feld-Dateiaufrufe dieses Durchlaufs ohne Ausnahme zurückgekehrt sind; auch bei null persistierten Feldern kann der Callback erreicht werden.",
+        "SaveToDynamic erreicht denselben Callback nach Serialisierung und AddData-Aufrufen auf dem übergebenen DynamicSaveData. Bei null DynamicSaveData kehrt es ohne Callback zurück.",
+        "Die explizite ISaveable.OnSaved-Implementierung delegiert direkt an den virtuellen Callback und verlangt selbst keinen vorherigen Schreibvorgang. Der Standardcallback ist leer."
+      ],
+      "notGuaranteed": ["Dauerhaft geschriebener DynamicSaveData-Checkpoint, atomarer Slotcommit oder physische Datenträgerdurabilität", "Erfolg anderer Saveables oder Ende nativer Cleanup-/Referenznutzung", "Genau ein Callback pro nativer Anfrage oder eine Request-/Pfadkorrelation"],
+      "opaqueBoundary": "DynamicSaveData.AddData ist hier ein externer IL2CPP-Aufruf. Dessen nativer Rumpf wurde nicht untersucht und wird nicht aus dem Managed-Aufruf rekonstruiert.",
+      "consequence": "OnSaved darf nicht als Ersatz für einen nativen Abschluss-/Freigabevertrag oder als globale Erfolgsquittung benutzt werden."
+    },
+    {
+      "id": "MB-08",
+      "title": "RequestGameSave ist ein nicht korrelierter Aufrufversuch",
+      "source": ["ThirdParty/S1API/S1API/Internal/Abstraction/Saveable.cs:79-111"],
+      "binary": "Saveable.reading.cs:19-44",
+      "guaranteedByInspectedCode": "immediate wird ignoriert. Ohne LoadManager/geladene Welt oder SaveManager wird false geliefert. Ansonsten wird das parameterlose Save() aufgerufen; normale Rückkehr ergibt true, jede gefangene Ausnahme false.",
+      "notGuaranteed": [
+        "True bestätigt keine tatsächlich angenommene Anfrage, keine Durchführung und keinen Gesamtabschluss; der native void-Aufruf besitzt hier keine ausgewertete Annahmequittung.",
+        "False nach einer Ausnahme beweist keine Wirkungslosigkeit: eine Teilwirkung vor der Ausnahme ist durch den Wrapper nicht ausgeschlossen.",
+        "Kein gespeicherter Zielpfad, Requesttoken, Manager-/Weltgenerationsbezug, Reentranzschutz oder Warten auf Completion.",
+        "Die konkrete native Autoritäts-/Abweisungs-/Busy-Politik wird hier nicht geprüft."
+      ],
+      "consequence": "Weder true noch false erlaubt für sich Freigabe, Löschung oder blinden Wiederholungsversuch einer Operation mit möglicher Wirkung."
+    },
+    {
+      "id": "MB-09",
+      "title": "Die generischen Managed-Teilnehmer bilden keinen vollständigen nativen Teilnehmer-/Freigabenachweis",
+      "source": ["ThirdParty/S1API/S1API/Saveables/SaveableAutoRegistry.cs:15-34,44-105,125-135,141-176", "ThirdParty/S1API/S1API/Internal/Patches/GenericSaveables.Patches.cs:59-65"],
+      "binary": "Nur der Registry-Aufrufer ist binär gegengeprüft; Registrydetails sind ausdrücklich ein aktueller Originalquellenbefund.",
+      "guaranteedByInspectedCode": "Discovery sammelt geeignete direkte Saveable-Unterklassen in der vorgefundenen Assembly-/Typreihenfolge. GetOrCreateInstances ist ein yield-Iterator mit statisch gecachten Instanzen; Instanziierungsfehler werden übersprungen.",
+      "notGuaranteed": [
+        "Eine explizit sortierte, mit fremden Postfix-/Eventteilnehmern abgestimmte Reihenfolge oder ein für jede Saveanfrage neu eingefrorener Teilnehmerbestand.",
+        "Dass der Lock in GetRegisteredSaveables den späteren vollständigen Postfixloop schützt: er gibt ein lazy Enumerable zurück.",
+        "Per-Welt-Instanzbesitz oder ein Abbild der nativen SaveManager-Listen/Queues. Die generische Registry ist nicht mit einer nativen Saveable-Registrierung gleichzusetzen."
+      ],
+      "consequence": "Registry-Erreichbarkeit oder das Ende eines generischen Modloops beweist keine sichere Entfernung eines nativen Business-Teilnehmers."
+    }
+  ],
+  "orderingCasesForNativeCrossReview": [
+    {
+      "case": "synchronous-native-completion-inside-Save-string",
+      "classification": "Bedingtes Gegenbeispiel, keine behauptete aktuelle Native-Reihenfolge",
+      "sequence": "Falls das native Save(string) onSaveComplete noch innerhalb seines eigenen Aufrufs auslöst, liegt das S1API-Relay vor dessen Rückkehr und damit vor dem normalen GenericSaveables-Postfix. Ein Completionbeobachter kann dann vor den generischen Moddateien laufen."
+    },
+    {
+      "case": "deferred-native-work-after-Save-string-return",
+      "classification": "Alternative bedingte Möglichkeit, keine Behauptung konkreten Coroutine-Schedulings",
+      "sequence": "Falls der native Aufruf Arbeit nur anstößt und zurückkehrt, kann der Postfix bereits schreiben, während native Arbeit noch offen ist. Erst der echte native Rumpf kann die Reihenfolge zu Cleanup, Ereignis und letzter Referenznutzung festlegen."
+    },
+    {
+      "case": "throwing-earlier-managed-completion-handler",
+      "classification": "Durch Action-/Catchstruktur erlaubter Managed-Pfad, nicht ausgeführt",
+      "sequence": "Native Event erreicht S1API -> früherer verwalteter Teilnehmer wirft -> gemeinsamer Catch -> späterer Auditor erhält keinen Completionmarker, obwohl native Wirkung möglich ist."
+    },
+    {
+      "case": "observer-before-later-or-reentrant-handler",
+      "classification": "Durch offene Teilnehmerdelegates erlaubter Managed-Pfad, nicht ausgeführt",
+      "sequence": "Eigener Beobachter wird erreicht -> spätere Teilnehmer oder verschachtelte Save-Anfragen laufen noch. Ein Ereigniszähler ohne Token ist kein Beweis, welcher Aufruf gerade abschließt oder ob alle späteren Verwender fertig sind."
+    },
+    {
+      "case": "main-unload-detaches-relay-while-outcome-unresolved",
+      "classification": "Bedingter Lebenszykluspfad, keine Behauptung weiterlaufender nativer Speicherung",
+      "sequence": "Main-Unload/Reset kann den Relay entfernen, ohne einen nativen Abbruch/Drain zu quittieren. Ein gehaltener Root allein belegt weder fehlende Restreferenzen noch Schutz vor Nutzung in der nächsten Welt."
+    }
+  ],
+  "requirementsForFutureNativeEvidence": [
+    {
+      "id": "N-01",
+      "question": "Welche konkreten nativen Wege verbinden Save() und Save(string), inklusive Busy-/Noop-/Abweisungs-/Ausnahmewegen und gegebenenfalls aufgeschobener Arbeit?",
+      "requiredDistinction": "Echte Implementierung/Disassembly und belastbarer Kontrollfluss statt C#-Invoke-Proxys oder Iterator-Signaturen. Diesen Bereich bearbeitet ausschließlich der Parent."
+    },
+    {
+      "id": "N-02",
+      "question": "Wo liegt onSaveComplete relativ zu letzter Dateiarbeit, Cleanup, Queueentnahme, Idle-/Completed-Zuständen, Rückkehr aller relevanten Callbacks und Fehler-/Abbruchwegen?",
+      "requiredDistinction": "Ein Ereignis kann native Abschlusssemantik besitzen, ohne spätere Managed-Postfixerfolge einzuschließen. Keine pauschale Ausdehnung auf sämtliche Moddaten."
+    },
+    {
+      "id": "N-03",
+      "question": "Ab wann kann der konkrete eigene Teilnehmer garantiert nicht mehr aus Listen, Queues, Requests, Iteratorsnapshots, laufenden Callbacks oder späteren nativen Zugriffspfaden verwendet werden?",
+      "requiredDistinction": "Momentan keine sichtbaren Einträge ist schwächer als letzte mögliche Referenznutzung. Native Listen-/Requestnamen aus der Voranalyse sind hier Suchfragen, nicht neu geprüfte Implementierungen."
+    },
+    {
+      "id": "N-04",
+      "question": "Wie wird genau der eigene einmalige Versuch an unveränderte Manager-/Listenidentität, Weltgeneration und Zielpfad gebunden und von Autosave, fremden Saves, Reentranz und späteren Events unterschieden?",
+      "requiredDistinction": "Der parameterlose S1API-Relay liefert diese Korrelation nicht. Eine alternative exklusive Korrelation müsste ausdrücklich aus dem tatsächlichen Ablauf bewiesen werden, nicht nur aus Zählerdifferenzen."
+    },
+    {
+      "id": "N-05",
+      "question": "Was beendet oder übernimmt offene Arbeit bei Main-Unload, Listenerverlust, Managerersetzung, fehlendem Complete oder Fehlern, ohne später die nächste Welt zu mutieren?",
+      "requiredDistinction": "Unsubscribe und gehaltene Objektwurzel sind weder Drain- noch Slotisolationsnachweis; Timeout beweist keine Wirkungslosigkeit."
+    },
+    {
+      "id": "N-06",
+      "question": "Welches Beweisziel trägt der spätere Native-Befund tatsächlich: eigene Referenzfreigabe, erfolgreicher nativer Save oder Erfolg/Checkpointkonsistenz aller zusätzlich beteiligten Moddaten?",
+      "requiredDistinction": "Diese Ziele getrennt entscheiden. Ein echter Last-Use-Nachweis kann die eigene Lifetimefrage beantworten, ohne dadurch geschluckte Modfehler, OnSaved-Dynamic-Handoffs oder atomare Gesamtdurabilität zu beweisen."
+    }
+  ],
+  "verificationActuallyPerformed": {
+    "sourceReview": "PASS für den benannten Managed-Umfang; bedingte Fälle sind Ableitungen und keine Laufzeitergebnisse",
+    "installedS1apiIdentity": "PASS: voller Digest und ProductVersion stimmen mit S1API 3.2.2 / Quellrevision überein",
+    "targetedStaticDecompilation": "PASS: vier Typen, Exit 0, leeres stderr, keine erkennbaren Body-Warnungen in der vollständig gelesenen Ausgabe",
+    "sourceFreezeRecheck": "PASS: 16/16 gezielte Quellen-/Regeldateihashes unverändert; S1API-Submodul sauber",
+    "repositoryStatusRecheck": "PASS: Porcelainstatus zwischen den beiden Snapshots unverändert; keine Produktions-/Test-/Dokumentationsänderung durch den Auditor",
+    "environment": "PASS: DOTNET_ROOT vorher/nachher null und unverändert",
+    "freezeEvidence": ".scratch/townhall-native-save-audit-20261105/managed-review/final-input-verification.json",
+    "freezeEvidenceSha256": "3bd2bab0aa042ce005a1c20bda5c84fe50267925c1092d3222cd8e834eec9569",
+    "nativeImplementationAudit": "NICHT AUSGEFÜHRT; getrennte Parent-Zuständigkeit",
+    "buildsTestsAndRuntime": "NICHT AUSGEFÜHRT und nicht durch diesen Audit autorisiert",
+    "vaultValidation": "NICHT AUSGEFÜHRT; keine Vault-Wissensdateien geändert, nur zugewiesene Repository-Scratch-Artefakte"
+  },
+  "remainingLimits": [
+    "Kein nativer Abschluss-/Freigabevertrag bewiesen, keine Save-Freigabe und keine Bestätigung sicherer Entregistrierung.",
+    "Keine Spiel-/Modassembly ausgeführt; alle Il2CppScheduleOne-Aufrufe in dekompiliertem S1API bleiben externe Grenzen. Kein Stub wurde als echter nativer Methodenrumpf ausgegeben.",
+    "Keine tatsächlichen Save-Listener-/Harmony-Reihenfolgen, native Exceptions, Moddateien oder laufenden Callbackzustände beobachtet.",
+    "Binärabgleich betrifft die benannten Typen; keine vollständige DLL-/Fremdmod-/Patchinventur.",
+    "Die abgeschlossene Baseline und die geschlossenen Offline-Modellfehler bleiben unberührt. Diese Prüfung eröffnet weder Gameplay-Abnahme noch frühere RED-Modellfehler neu.",
+    "Spätere Änderungen oder Native-Funde benötigen einen ausdrücklich abgegrenzten Nachtrag; der Bericht bewertet noch keine Native-Ergebnisse des Parent."
+  ],
+  "recommendation": "Die bestehende Fail-Closed-Sperre vor Registrierung und Save beibehalten. Native Ergebnisse zunächst gegen N-01 bis N-06 und die bedingten Reihenfolgen prüfen; keine Abschluss- oder sichere Destroy-/Unregisterfreigabe aus Relay, OnSaved, Bool-Rückgabe, Idle, leerer Queue oder einem Folgeframe allein ableiten."
+}

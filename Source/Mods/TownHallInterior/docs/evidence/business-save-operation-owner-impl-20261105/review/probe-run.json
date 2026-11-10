@@ -1,0 +1,246 @@
+{
+  "schema": 1,
+  "startedUtc": "2026-11-05T18:24:26.283219+00:00",
+  "reviewer": "GPT-6.1 Sol, independent verifier",
+  "gameProcessCount": 0,
+  "dotnetRoot": null,
+  "offlineOnly": true,
+  "mainProjectBuildOrRestore": false,
+  "commands": [
+    {
+      "name": "restore",
+      "arguments": [
+        "dotnet",
+        "restore",
+        "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-save-operation-owner-impl-20261105\\review\\probe\\ReviewProbes.csproj",
+        "--configfile",
+        "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-save-operation-owner-impl-20261105\\review\\probe\\NuGet.Config",
+        "-p:S1NoDeploy=true",
+        "-p:NuGetAudit=false"
+      ],
+      "exitCode": 0,
+      "log": "restore.log",
+      "logSha256": "ab83a02ceaf3ae78c1f33d424895b33085e9460225ad2f01ee19040d948a0acc"
+    },
+    {
+      "name": "build",
+      "arguments": [
+        "dotnet",
+        "build",
+        "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-save-operation-owner-impl-20261105\\review\\probe\\ReviewProbes.csproj",
+        "-c",
+        "Release",
+        "--no-restore",
+        "-p:S1NoDeploy=true",
+        "-p:UseSharedCompilation=false"
+      ],
+      "exitCode": 0,
+      "log": "build.log",
+      "logSha256": "8b36fcbd24d71d43ffec6d5c222ba6959fb763966b1b9c8814e6b5afb09b207b"
+    },
+    {
+      "name": "probe",
+      "arguments": [
+        "dotnet",
+        "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-save-operation-owner-impl-20261105\\review\\probe\\bin\\Release\\net6.0\\ReviewProbes.dll"
+      ],
+      "exitCode": 0,
+      "log": "probe.log",
+      "logSha256": "0da9b0127c9c6f343efd15af89c935fbe3e13859840dcb51bedae7ee849bd690"
+    }
+  ],
+  "inputHashes": {
+    "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-save-operation-owner-impl-20261105\\candidate-v2\\source.txt": "e4bb1d13324a3d61419d26ba172e88ba2ea53e30b15d3c6b6f43fb3e72212f50",
+    "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-save-operation-owner-impl-20261105\\candidate-v2\\tests.txt": "c92e90af755b8feadbd77282ccf0a852b0e1cedaf25ec63eea8a354f3d9ce198",
+    "C:\\Users\\pc\\Schedule1-mod-only\\Source\\Mods\\TownHallInterior\\src\\BusinessConstruction.cs": "e4bb1d13324a3d61419d26ba172e88ba2ea53e30b15d3c6b6f43fb3e72212f50",
+    "C:\\Users\\pc\\Schedule1-mod-only\\Source\\Tests\\TownHallInterior.Tests\\BusinessSaveOperationOwnerTests.cs": "c92e90af755b8feadbd77282ccf0a852b0e1cedaf25ec63eea8a354f3d9ce198",
+    "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-save-operation-owner-impl-20261105\\review\\probe\\Program.cs": "e114b97572d5b4f7b0d3aa9494d69938e3a6d97c285a864521fe6971c8429124",
+    "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-save-operation-owner-impl-20261105\\review\\probe\\ReviewProbes.csproj": "b3cc9a544b46fca471941c1f3fe04571c0a63736c8d8ae6e612090c139ca92d8",
+    "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-save-operation-owner-impl-20261105\\review\\probe\\NuGet.Config": "adf6280d6e80a68c8353419f1c454ab5a8f9f06004913ec3ac26ce0092a4e4e0"
+  },
+  "finishedUtc": "2026-11-05T18:24:28.753959+00:00",
+  "inputFilesUnchanged": true,
+  "allCommandsPassed": true,
+  "probeResults": {
+    "schema": 1,
+    "checkedUtc": "2026-11-05T18:24:28.7271903Z",
+    "scope": "Independent probes of frozen synthetic V2 source; no native calls or IO in model",
+    "passed": 33,
+    "failed": 0,
+    "total": 33,
+    "raceTrials": 200,
+    "raceAdmitted": 12,
+    "raceSuppressed": 188,
+    "nativeSaveWriteAllowed": false,
+    "referenceProof": "unknown",
+    "nativeWriteProof": "unknown",
+    "modDataProof": "unknown",
+    "results": [
+      {
+        "name": "late failure after confirmed return: TypeRegistration",
+        "kind": "public-api",
+        "status": "passed"
+      },
+      {
+        "name": "failed readback before return retained: TypeRegistration",
+        "kind": "public-api",
+        "status": "passed"
+      },
+      {
+        "name": "late failure after confirmed return: Construction",
+        "kind": "public-api",
+        "status": "passed"
+      },
+      {
+        "name": "failed readback before return retained: Construction",
+        "kind": "public-api",
+        "status": "passed"
+      },
+      {
+        "name": "late failure after confirmed return: Registration",
+        "kind": "public-api",
+        "status": "passed"
+      },
+      {
+        "name": "failed readback before return retained: Registration",
+        "kind": "public-api",
+        "status": "passed"
+      },
+      {
+        "name": "late failure after confirmed return: Save",
+        "kind": "public-api",
+        "status": "passed"
+      },
+      {
+        "name": "failed readback before return retained: Save",
+        "kind": "public-api",
+        "status": "passed"
+      },
+      {
+        "name": "late failure after confirmed return: Removal",
+        "kind": "public-api",
+        "status": "passed"
+      },
+      {
+        "name": "failed readback before return retained: Removal",
+        "kind": "public-api",
+        "status": "passed"
+      },
+      {
+        "name": "late failure after confirmed return: Destroy",
+        "kind": "public-api",
+        "status": "passed"
+      },
+      {
+        "name": "failed readback before return retained: Destroy",
+        "kind": "public-api",
+        "status": "passed"
+      },
+      {
+        "name": "64th diagnostic fits, 65th intent is not admitted",
+        "kind": "public-api",
+        "status": "passed"
+      },
+      {
+        "name": "late returned outcome remains recorded at ring overflow",
+        "kind": "public-api",
+        "status": "passed"
+      },
+      {
+        "name": "maximum message sequence suppresses an otherwise eligible intent",
+        "kind": "public-api",
+        "status": "passed"
+      },
+      {
+        "name": "maximum message sequence still retains a late return",
+        "kind": "public-api",
+        "status": "passed"
+      },
+      {
+        "name": "ticket exhaustion never wraps and final ticket can exit",
+        "kind": "white-box-counter-injection; not a reachable-duration claim",
+        "status": "passed"
+      },
+      {
+        "name": "diagnostic sequence exhaustion never wraps or recursively logs",
+        "kind": "white-box-counter-injection; not a reachable-duration claim",
+        "status": "passed"
+      },
+      {
+        "name": "off-thread bind on an existing facade cannot bind later",
+        "kind": "public-api",
+        "status": "passed"
+      },
+      {
+        "name": "off-thread callback exit cannot remove the live ticket",
+        "kind": "public-api",
+        "status": "passed"
+      },
+      {
+        "name": "unbound exit quarantines before any binding slot",
+        "kind": "public-api",
+        "status": "passed"
+      },
+      {
+        "name": "invalid callback entry and exit leave tickets intact: null",
+        "kind": "public-api",
+        "status": "passed"
+      },
+      {
+        "name": "invalid callback entry and exit leave tickets intact: sequence",
+        "kind": "public-api",
+        "status": "passed"
+      },
+      {
+        "name": "invalid callback entry and exit leave tickets intact: clock",
+        "kind": "public-api",
+        "status": "passed"
+      },
+      {
+        "name": "invalid callback entry and exit leave tickets intact: binding",
+        "kind": "public-api",
+        "status": "passed"
+      },
+      {
+        "name": "undefined negative/extreme effect values: -1",
+        "kind": "public-api",
+        "status": "passed"
+      },
+      {
+        "name": "undefined negative/extreme effect values: -2147483648",
+        "kind": "public-api",
+        "status": "passed"
+      },
+      {
+        "name": "undefined negative/extreme effect values: 2147483647",
+        "kind": "public-api",
+        "status": "passed"
+      },
+      {
+        "name": "canonical stamp aliases accepted without rebinding identity labels",
+        "kind": "public-api",
+        "status": "passed"
+      },
+      {
+        "name": "controls in paths are denied, controls in bounded diagnostics are sanitized",
+        "kind": "public-api",
+        "status": "passed"
+      },
+      {
+        "name": "huge finite clock is timeout-only and late readback remains data",
+        "kind": "public-api",
+        "status": "passed"
+      },
+      {
+        "name": "snapshot copies cannot mutate live data or computed native proofs",
+        "kind": "public-api",
+        "status": "passed"
+      },
+      {
+        "name": "concurrent revoke versus main-thread intent is linearizable in 200 synthetic trials",
+        "kind": "managed-model stress; not native entry synchronization",
+        "status": "passed"
+      }
+    ]
+  }
+}

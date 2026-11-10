@@ -1,0 +1,41 @@
+{
+  "checkedUtc": "2026-11-06T12:11:46.051691+00:00",
+  "deployedAtUtc": "2026-11-06T12:09:54.2118567Z",
+  "attemptId": "20261106T120953993Z-f9c67f83003e",
+  "backupId": "20261106T120954032Z-TownHallInterior-9014d166",
+  "normalPayloadCheckpoint": "20261106T120014681652Z-bbe38997",
+  "preRollbackCheckpointId": "20261106T120918580255Z-eeefeee5",
+  "installedHashes": {
+    "Mods/TownHallInterior.dll": "614b81fd584040d4cebe7a18929bca09eabae478a6487ec6d846ea01d6062003",
+    "UserData/TownHallInterior/TownHallInterior.pdb": "8126ae65f5c12f6e8261af0a1734e622d8c0ab5522a91e6653c7b1ffd7d8c497",
+    "UserData/TownHallInterior/mod.json": "65938002b7273ef77dedbadf9092a186e6742f1e40fe404ef91576d3e4f81660"
+  },
+  "normalBuildRestored": true,
+  "copied": 2,
+  "unchanged": 1,
+  "gameClosedBeforeAndAfter": true,
+  "nativeFilesUnchangedByLiveRunAndRollback": true,
+  "nativeFiles": 39,
+  "nativeSlot1Accessed": false,
+  "modsFiles": 38,
+  "modsChangedByRollback": [
+    "TownHallInterior.dll"
+  ],
+  "userDataFiles": 178,
+  "userDataChangedByRollbackExcludingDeployReceipts": [
+    "TownHallInterior/TownHallInterior.pdb"
+  ],
+  "buildPerformed": false,
+  "gameLaunched": false,
+  "sourceSaveWrites": false,
+  "independentReview": {
+    "reviewer": "townhall_deploy_check",
+    "status": "passed",
+    "scope": "Installed normal payload, exact receipt entries, previous network payload in helper backup, closed process"
+  },
+  "limits": [
+    "Restores previously audited normal payload; no new normal runtime test.",
+    "File contents compared; no empty-directory or universal no-write proof.",
+    "Private checkpoint contents not imported. Steam Cloud settings and existing conflict markers unchanged."
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "schema": 1,
+  "capturedUtc": "2026-11-05T17:11:18.261659+00:00",
+  "sourceRevision": "b2c6c7e6c6ecc778da9624cdb68a6578b9db471a",
+  "sourceWorktree": "dirty",
+  "scope": "Exact maintained repository documents after world-exit audit; prior native-save audit included unchanged",
+  "files": [
+    {
+      "path": "Source/Mods/TownHallInterior/docs/native-world-exit-audit.md",
+      "sha256": "c97bfcbdfd39f8df4a87f16141f08aeb0ee20b7b6e5a3d9715db2102af3996bf",
+      "bytes": 17341
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/docs/business-manager-save-probe.md",
+      "sha256": "e542f4b5752c52922b8562fc139ec563459deb04728dc1228a543fb8b3d46dea",
+      "bytes": 13102
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/docs/business-completion-plan.md",
+      "sha256": "7f29dc32f5208fe238da02fe387d552a2c495ae50b2cee294466c3af03f421bc",
+      "bytes": 23038
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/docs/README.md",
+      "sha256": "95866ee7598df7b2a9d1563ba39a1287d6b5392b06b0f7825eec44221515466e",
+      "bytes": 29018
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/docs/CHANGELOG.md",
+      "sha256": "9f55acef5b580694ffe359a045806bd11d0fb5186808d16da58afe1a9d3542ab",
+      "bytes": 26027
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/docs/native-save-completion-audit.md",
+      "sha256": "168abd65c1d313d897ba85ef22d6f3dd9ce814c7b29c0036ab65de85c679bd93",
+      "bytes": 19773
+    },
+    {
+      "path": "docs/compatibility.md",
+      "sha256": "3e4ec65fafb0956c2347724b24af7ff0da9c72ba65f969c6da152cc89fa8fde3",
+      "bytes": 32468
+    }
+  ]
+}

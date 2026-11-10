@@ -1,0 +1,88 @@
+; ScheduleOne.Persistence.ISaveable::Save/1, token 0x06001784, RVA 0x583A50, .pdata primary extent 0x151 bytes
+; Raw native bytes decoded without invoking the game. .pdata primary extent is not a proof of full transitive/exception-path coverage.
+0x583A50     48 89 5C 24 10                  mov [rsp+10h],rbx
+0x583A55     48 89 74 24 18                  mov [rsp+18h],rsi
+0x583A5A     57                              push rdi
+0x583A5B     48 83 EC 20                     sub rsp,20h
+0x583A5F     80 3D 94 7C 67 03 00            cmp byte ptr [183BFB6FAh],0
+0x583A66     48 8B F2                        mov rsi,rdx
+0x583A69     48 8B F9                        mov rdi,rcx
+0x583A6C     75 2B                           jne short 0000000180583A99h
+0x583A6E     48 8D 0D 8B 11 43 03            lea rcx,[1839B4C00h] ; TypeInfo: ScheduleOne.Persistence.ISaveable
+0x583A75     E8 26 3E D9 FF                  call 00000001803178A0h
+0x583A7A     48 8D 0D 8F 3B 47 03            lea rcx,[1839F7610h] ; TypeInfo: System.IO.Path
+0x583A81     E8 1A 3E D9 FF                  call 00000001803178A0h
+0x583A86     48 8D 0D 8B 2C 40 03            lea rcx,[183986718h] ; TypeInfo: ScheduleOne.Persistence.SaveRequest
+0x583A8D     E8 0E 3E D9 FF                  call 00000001803178A0h
+0x583A92     C6 05 61 7C 67 03 01            mov byte ptr [183BFB6FAh],1
+0x583A99     4C 8B 17                        mov r10,[rdi]
+0x583A9C     33 C0                           xor eax,eax
+0x583A9E     4C 8B 0D 5B 11 43 03            mov r9,[1839B4C00h] ; TypeInfo: ScheduleOne.Persistence.ISaveable
+0x583AA5     C6 44 24 30 00                  mov byte ptr [rsp+30h],0
+0x583AAA     41 0F B7 92 2E 01 00 00         movzx edx,word ptr [r10+12Eh]
+0x583AB2     66 3B C2                        cmp ax,dx
+0x583AB5     73 1D                           jae short 0000000180583AD4h
+0x583AB7     4D 8B 82 B0 00 00 00            mov r8,[r10+0B0h]
+0x583ABE     33 C9                           xor ecx,ecx
+0x583AC0     0F B7 C1                        movzx eax,cx
+0x583AC3     48 03 C0                        add rax,rax
+0x583AC6     4D 39 0C C0                     cmp [r8+rax*8],r9
+0x583ACA     74 60                           je short 0000000180583B2Ch
+0x583ACC     66 FF C1                        inc cx
+0x583ACF     66 3B CA                        cmp cx,dx
+0x583AD2     72 EC                           jb short 0000000180583AC0h
+0x583AD4     41 B8 0E 00 00 00               mov r8d,0Eh
+0x583ADA     49 8B D1                        mov rdx,r9
+0x583ADD     48 8B CF                        mov rcx,rdi
+0x583AE0     E8 7B 86 D9 FF                  call 000000018031C160h
+0x583AE5     4C 8B 40 08                     mov r8,[rax+8]
+0x583AE9     48 8D 54 24 30                  lea rdx,[rsp+30h]
+0x583AEE     48 8B CF                        mov rcx,rdi
+0x583AF1     FF 10                           call qword ptr [rax]
+0x583AF3     48 8B D8                        mov rbx,rax
+0x583AF6     80 7C 24 30 00                  cmp byte ptr [rsp+30h],0
+0x583AFB     48 8B 0D 0E 3B 47 03            mov rcx,[1839F7610h] ; TypeInfo: System.IO.Path
+0x583B02     74 47                           je short 0000000180583B4Bh
+0x583B04     83 B9 E0 00 00 00 00            cmp dword ptr [rcx+0E0h],0
+0x583B0B     75 05                           jne short 0000000180583B12h
+0x583B0D     E8 1E 41 D9 FF                  call 0000000180317C30h
+0x583B12     45 33 C0                        xor r8d,r8d
+0x583B15     48 8B D3                        mov rdx,rbx
+0x583B18     48 8B CE                        mov rcx,rsi
+0x583B1B     E8 A0 65 5E 01                  call 0000000181B6A0C0h ; System.IO.Path::Combine/2
+0x583B20     33 D2                           xor edx,edx
+0x583B22     48 8B C8                        mov rcx,rax
+0x583B25     E8 C6 8F 5D 01                  call 0000000181B5CAF0h ; System.IO.Directory::Exists/1
+0x583B2A     EB 45                           jmp short 0000000180583B71h
+0x583B2C     0F B7 C9                        movzx ecx,cx
+0x583B2F     48 03 C9                        add rcx,rcx
+0x583B32     41 8B 44 C8 08                  mov eax,[r8+rcx*8+8]
+0x583B37     83 C0 0E                        add eax,0Eh
+0x583B3A     48 98                           cdqe
+0x583B3C     48 C1 E0 04                     shl rax,4
+0x583B40     48 05 38 01 00 00               add rax,138h
+0x583B46     49 03 C2                        add rax,r10
+0x583B49     EB 9A                           jmp short 0000000180583AE5h
+0x583B4B     83 B9 E0 00 00 00 00            cmp dword ptr [rcx+0E0h],0
+0x583B52     75 05                           jne short 0000000180583B59h
+0x583B54     E8 D7 40 D9 FF                  call 0000000180317C30h
+0x583B59     45 33 C0                        xor r8d,r8d
+0x583B5C     48 8B D3                        mov rdx,rbx
+0x583B5F     48 8B CE                        mov rcx,rsi
+0x583B62     E8 59 65 5E 01                  call 0000000181B6A0C0h ; System.IO.Path::Combine/2
+0x583B67     33 D2                           xor edx,edx
+0x583B69     48 8B C8                        mov rcx,rax
+0x583B6C     E8 FF 19 5E 01                  call 0000000181B65570h ; System.IO.File::Exists/1
+0x583B71     48 8B 0D A0 2B 40 03            mov rcx,[183986718h] ; TypeInfo: ScheduleOne.Persistence.SaveRequest
+0x583B78     E8 A3 3F D9 FF                  call 0000000180317B20h
+0x583B7D     45 33 C9                        xor r9d,r9d
+0x583B80     4C 8B C6                        mov r8,rsi
+0x583B83     48 8B D7                        mov rdx,rdi
+0x583B86     48 8B C8                        mov rcx,rax
+0x583B89     E8 32 80 02 00                  call 00000001805ABBC0h ; ScheduleOne.Persistence.SaveRequest::.ctor/2
+0x583B8E     48 8B 74 24 40                  mov rsi,[rsp+40h]
+0x583B93     48 8B C3                        mov rax,rbx
+0x583B96     48 8B 5C 24 38                  mov rbx,[rsp+38h]
+0x583B9B     48 83 C4 20                     add rsp,20h
+0x583B9F     5F                              pop rdi
+0x583BA0     C3                              ret

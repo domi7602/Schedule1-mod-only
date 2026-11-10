@@ -1,0 +1,41 @@
+[
+  {
+    "Kind": "dll",
+    "Source": "C:\\Users\\pc\\Schedule1-mod-only\\.backups\\townhall-active-subtype-prepared\\20261106T093645001519Z\\TownHallInterior.dll",
+    "DestinationRelative": "Mods\\TownHallInterior.dll",
+    "Destination": null,
+    "SourceSha256": "c07ada69d74f7491528efff2f4518319a9404ccd3a8e5ba948e876f8eaf38b34",
+    "DestinationSha256": "614b81fd584040d4cebe7a18929bca09eabae478a6487ec6d846ea01d6062003",
+    "Action": null,
+    "ExistedBefore": false,
+    "BackupPath": null,
+    "OriginalSha256": null,
+    "State": "Pending"
+  },
+  {
+    "Kind": "pdb",
+    "Source": "C:\\Users\\pc\\Schedule1-mod-only\\.backups\\townhall-active-subtype-prepared\\20261106T093645001519Z\\TownHallInterior.pdb",
+    "DestinationRelative": "UserData\\TownHallInterior\\TownHallInterior.pdb",
+    "Destination": null,
+    "SourceSha256": "711863c0c5833c69c6680fcb181804b26b0adb8837b16f34ed7f348d43417a5f",
+    "DestinationSha256": "8126ae65f5c12f6e8261af0a1734e622d8c0ab5522a91e6653c7b1ffd7d8c497",
+    "Action": null,
+    "ExistedBefore": false,
+    "BackupPath": null,
+    "OriginalSha256": null,
+    "State": "Pending"
+  },
+  {
+    "Kind": "metadata",
+    "Source": "C:\\Users\\pc\\Schedule1-mod-only\\Source\\Mods\\TownHallInterior\\docs\\mod.json",
+    "DestinationRelative": "UserData\\TownHallInterior\\mod.json",
+    "Destination": null,
+    "SourceSha256": "65938002b7273ef77dedbadf9092a186e6742f1e40fe404ef91576d3e4f81660",
+    "DestinationSha256": "65938002b7273ef77dedbadf9092a186e6742f1e40fe404ef91576d3e4f81660",
+    "Action": null,
+    "ExistedBefore": false,
+    "BackupPath": null,
+    "OriginalSha256": null,
+    "State": "Pending"
+  }
+]

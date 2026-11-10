@@ -1,0 +1,150 @@
+diff --git "a/C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-save-fix-20261106\\before\\Source\\Mods\\TownHallInterior\\src\\BusinessConstruction.cs" b/Source/Mods/TownHallInterior/src/BusinessConstruction.cs
+index 374946a..43a4d6c 100644
+--- "a/C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-save-fix-20261106\\before\\Source\\Mods\\TownHallInterior\\src\\BusinessConstruction.cs"
++++ b/Source/Mods/TownHallInterior/src/BusinessConstruction.cs
+@@ -132,6 +132,21 @@ public sealed record ManagerSaveResult(string Status, string[] Findings, bool At
+     bool SafeToDestroy, ManagerSaveState? Before, ManagerSaveState? Last,
+     long? DispatchFrame = null, long? CompletionObservedFrame = null);
+ 
++// The folder getter is also read during contract inspection. Preserve its diagnostic
++// count without treating that read as evidence of a native save dispatch.
++public sealed class BusinessSaveCallbackLedger
++{
++    private readonly Dictionary<string, int> _calls = new(StringComparer.Ordinal);
++    public bool SaveCallbackObserved { get; private set; }
++    public void Record(string name)
++    {
++        _calls[name] = _calls.TryGetValue(name, out int count) ? count + 1 : 1;
++        if (name is "GetSaveString" or "WriteData") SaveCallbackObserved = true;
++    }
++    public int Calls(string name) => _calls.TryGetValue(name, out int count) ? count : 0;
++    public Dictionary<string, int> Snapshot() => new(_calls, StringComparer.Ordinal);
++}
++
+ // An idle flag is not a completion certificate. The native adapter must explicitly
+ // establish the completion contract before this state machine can register or save.
+ // An uncertain save retains ownership; it is never retried or cleaned up speculatively.
+@@ -147,6 +162,7 @@ public sealed class BusinessManagerSaveTrial
+     private long _dispatchFrame, _observedFrame, _completionFrame = -1;
+     private int _observedStarts, _observedCompletes;
+     private string _status = "skipped";
++    public ManagerSaveState? Preflight { get; private set; }
+     public ManagerSaveResult Result => new(_status, _findings.ToArray(), _used, _registered,
+         _saveAttempted, _saveReturned, _complete, _safe, _before, _last,
+         _saveAttempted ? _dispatchFrame : null, _completionFrame >= 0 ? _completionFrame : null);
+@@ -158,7 +174,9 @@ public sealed class BusinessManagerSaveTrial
+         _busy = true;
+         try
+         {
++            Preflight = null; // A failed fresh read must not reuse an earlier clean observation.
+             var before = port.ReadSaveState();
++            Preflight = before;
+             string? denial = ConstructionGate.Check(before.Context);
+             if (denial != null) { _status = "skipped"; Add(denial); return Result; }
+             if (!before.CompletionContractVerified) { _status = "blocked"; Add("native-save-completion-contract-unverified"); return Result; }
+@@ -893,6 +911,9 @@ public sealed class BusinessSubtypeTrial
+         bool interfaceAttempted = false;
+         ManagerRegistration? manager = null;
+         ManagerSaveResult? save = null;
++        BusinessManagerSaveTrial? saveTrial = null;
++        ManagerSaveState? savePreflight = null;
++        bool savePreflightReadStarted = false;
+         bool registrationAttempted = false, registrationCompleted = false, clean = false;
+         string phase = "baseline";
+         void Fail(string value) { if (findings.Count < 16) findings.Add(value); }
+@@ -903,6 +924,27 @@ public sealed class BusinessSubtypeTrial
+                 !Equal(before.ForeignVtables, snapshot.ForeignVtables))
+                 throw new InvalidOperationException("foreign-state-changed");
+         }
++        bool CanCleanupSaveParticipant()
++        {
++            RequireContext();
++            if (saveTrial != null)
++            {
++                save = saveTrial.Result;
++                // Registration intent is recorded before native entry: even a throwing
++                // registration can leave a reference, without ever attempting Save().
++                if (save.RegistrationAttempted || save.SaveAttempted)
++                    return save.SafeToDestroy && save.CompletionConfirmed;
++            }
++            if (!savePreflightReadStarted) return true;
++            var state = saveTrial != null ? saveTrial.Preflight : savePreflight;
++            // An unregistered/blocked result is not a release certificate when its
++            // preflight was unreadable or already showed a referenced participant.
++            return state != null && ConstructionGate.CheckSave(state.Context, organisation, slot) == null &&
++                state.Manager != 0 && state.Saveables != 0 && state.Generation > 0 && state.Frame >= 0 &&
++                !state.IsSaving && state.PendingRequests == 0 && state.OwnEntries == 0 &&
++                state.ActiveCallbacks == 0 && state.Started == 0 && state.Completed == 0 &&
++                !string.IsNullOrEmpty(state.ForeignSaveables);
++        }
+         try
+         {
+             before = Freeze(port.Capture());
+@@ -949,14 +991,15 @@ public sealed class BusinessSubtypeTrial
+             {
+                 phase = "save-preflight"; RequireContext();
+                 var nativeSave = port as IBusinessSavePort ?? throw new InvalidOperationException("save-port-missing");
+-                var preflight = nativeSave.ReadSaveState();
+-                if (!preflight.CompletionContractVerified)
++                savePreflightReadStarted = true;
++                savePreflight = nativeSave.ReadSaveState();
++                if (!savePreflight.CompletionContractVerified)
+                 {
+                     Fail("native-save-completion-contract-unverified");
+                     throw new InvalidOperationException("save-contract-unverified");
+                 }
+                 phase = "save-begin"; RequireContext();
+-                var saveTrial = new BusinessManagerSaveTrial();
++                saveTrial = new BusinessManagerSaveTrial();
+                 double now = 0;
+                 save = saveTrial.Begin(nativeSave, now, contextStillValid);
+                 if (save.Status is "blocked" or "failed" or "quarantined")
+@@ -986,6 +1029,14 @@ public sealed class BusinessSubtypeTrial
+             {
+                 for (int attempt = 1; attempt <= 2 && !clean; attempt++)
+                 {
++                    if (probeSave)
++                    {
++                        try
++                        {
++                            if (!CanCleanupSaveParticipant()) { Fail("save-cleanup-deferred"); break; }
++                        }
++                        catch (Exception ex) { Fail("save-cleanup-deferred:" + Describe(ex)); break; }
++                    }
+                     try { port.Cleanup(); clean = port.IsClean; if (!clean) Fail("cleanup-incomplete:" + attempt); }
+                     catch (Exception ex) { Fail("cleanup:" + Describe(ex)); }
+                 }
+@@ -2430,7 +2481,7 @@ public sealed class ProbeBusinessSubtype : Il2CppScheduleOne.Property.Business
+ {
+     private static int _armedConstructs, _unarmedConstructs;
+     private readonly bool _constructedWhileArmed;
+-    private readonly Dictionary<string, int> _calls = new(StringComparer.Ordinal);
++    private readonly BusinessSaveCallbackLedger _calls = new();
+     public ProbeBusinessSubtype(IntPtr pointer) : base(pointer)
+     {
+         if (Interlocked.CompareExchange(ref _armedConstructs, 0, 1) == 1) _constructedWhileArmed = true;
+@@ -2443,11 +2494,12 @@ public sealed class ProbeBusinessSubtype : Il2CppScheduleOne.Property.Business
+     internal static int UnarmedConstructs { [Il2CppInterop.Runtime.Attributes.HideFromIl2Cpp] get => Volatile.Read(ref _unarmedConstructs); }
+     internal bool ConstructedWhileArmed { [Il2CppInterop.Runtime.Attributes.HideFromIl2Cpp] get => _constructedWhileArmed; }
+     [Il2CppInterop.Runtime.Attributes.HideFromIl2Cpp]
+-    private void Count(string name) => _calls[name] = _calls.TryGetValue(name, out int count) ? count + 1 : 1;
++    private void Count(string name) => _calls.Record(name);
+     [Il2CppInterop.Runtime.Attributes.HideFromIl2Cpp]
+-    internal Dictionary<string, int> Counters() => new(_calls, StringComparer.Ordinal);
++    internal Dictionary<string, int> Counters() => _calls.Snapshot();
+     [Il2CppInterop.Runtime.Attributes.HideFromIl2Cpp]
+-    internal int Calls(string name) => _calls.TryGetValue(name, out int count) ? count : 0;
++    internal int Calls(string name) => _calls.Calls(name);
++    internal bool SaveCallbackObserved { [Il2CppInterop.Runtime.Attributes.HideFromIl2Cpp] get => _calls.SaveCallbackObserved; }
+     public override bool ShouldSave() { Count(nameof(ShouldSave)); return false; }
+     public override bool CanBePurchased() { Count(nameof(CanBePurchased)); return false; }
+     public override bool ShouldSaveUnderFolder
+@@ -3142,7 +3194,7 @@ internal sealed unsafe class NativeSubtypePort : IBusinessSubtypePort, IBusiness
+         int pending = save?.QueuedSaveRequests?.Count ?? 0;
+         int ownEntries = (_businessPointer != IntPtr.Zero && save?.Saveables != null) ? CountPointer(save.Saveables, _businessPointer) : 0;
+         int activeCallbacks = 0;
+-        if (_saveStarted == 0 && (_business?.Calls("GetSaveString") > 0 || _business?.Calls("WriteData") > 0 || _business?.Calls("get_ShouldSaveUnderFolder") > 0))
++        if (_saveStarted == 0 && _business?.SaveCallbackObserved == true)
+             _saveStarted = 1;
+         if (_saveCompleted == 0 && save != null && save.CompletedSaveables != null && _businessPointer != IntPtr.Zero && CountPointer(save.CompletedSaveables, _businessPointer) > 0)
+             _saveCompleted = 1;

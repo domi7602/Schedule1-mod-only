@@ -1,0 +1,97 @@
+{
+  "sourceAuditor": "/root/active_business_audit",
+  "sourceDate": "2026-11-06",
+  "reason": "Exact current native/metadata/S1API hashes unchanged. Existing bounded windows and decompiles reread; no need regenerate identical query windows.",
+  "files": [
+    {
+      "source": ".scratch\\townhall-business-bind-20261106\\audit\\native-disassembly-init2\\0x06001398-Business-get_currentLaunderTotal.txt",
+      "destination": "inherited-native-windows\\0x06001398-Business-get_currentLaunderTotal.txt",
+      "sha256": "e38df3815c2f923f1a483157c9714aba0876a1b1f0c68e42589dc91f0a684f25"
+    },
+    {
+      "source": ".scratch\\townhall-business-bind-20261106\\audit\\native-disassembly-init2\\0x06001398-Business-get_currentLaunderTotal.json",
+      "destination": "inherited-native-windows\\0x06001398-Business-get_currentLaunderTotal.json",
+      "sha256": "bc56407490059d3cbadca0e5b6c9e6d747fcd82b8e9d355613d2c13ca301470f"
+    },
+    {
+      "source": ".scratch\\townhall-business-bind-20261106\\audit\\native-disassembly-init2\\0x06001399-Business-get_appliedLaunderLimit.txt",
+      "destination": "inherited-native-windows\\0x06001399-Business-get_appliedLaunderLimit.txt",
+      "sha256": "cec9cbd378e58b07380cf2142e4b0e268297f3811cbf83d31698318d3aafb413"
+    },
+    {
+      "source": ".scratch\\townhall-business-bind-20261106\\audit\\native-disassembly-init2\\0x06001399-Business-get_appliedLaunderLimit.json",
+      "destination": "inherited-native-windows\\0x06001399-Business-get_appliedLaunderLimit.json",
+      "sha256": "2b42de5815e54de3438defcef749c57538c647e6e4351f0f9598965634d2b188"
+    },
+    {
+      "source": ".scratch\\townhall-business-bind-20261106\\audit\\native-disassembly-init2\\0x0600143E-Property-DoBoundsContainPoint.txt",
+      "destination": "inherited-native-windows\\0x0600143E-Property-DoBoundsContainPoint.txt",
+      "sha256": "bfcc3750a91c43101d2d27220f232221abd44a90a359c56e2e385a9cded5b6d3"
+    },
+    {
+      "source": ".scratch\\townhall-business-bind-20261106\\audit\\native-disassembly-init2\\0x0600143E-Property-DoBoundsContainPoint.json",
+      "destination": "inherited-native-windows\\0x0600143E-Property-DoBoundsContainPoint.json",
+      "sha256": "8d1ed7f39b9baa841c9b6eb3a524fd40dcd80cb210f44a238ba5dc01a51e6989"
+    },
+    {
+      "source": ".scratch\\townhall-business-bind-20261106\\audit\\native-disassembly-init2\\0x0600143F-Property-IsPointInsideBox.txt",
+      "destination": "inherited-native-windows\\0x0600143F-Property-IsPointInsideBox.txt",
+      "sha256": "b376cdba113f2e00dcc8a6e4a25e2ffd7392d11c06a29703d39fb665f16a2795"
+    },
+    {
+      "source": ".scratch\\townhall-business-bind-20261106\\audit\\native-disassembly-init2\\0x0600143F-Property-IsPointInsideBox.json",
+      "destination": "inherited-native-windows\\0x0600143F-Property-IsPointInsideBox.json",
+      "sha256": "0c52d34c5e8bf3b682ceeea211ac585fc56d2ad177a3dc9b4067caa263ca957f"
+    },
+    {
+      "source": ".scratch\\townhall-business-bind-20261106\\audit\\native-disassembly-init2\\0x06001475-PropertyContentsContainer-SetProperty.txt",
+      "destination": "inherited-native-windows\\0x06001475-PropertyContentsContainer-SetProperty.txt",
+      "sha256": "61b0659370dfbe51d878aced491cd49a537c01f4d2544fea5505fac9314f9b0e"
+    },
+    {
+      "source": ".scratch\\townhall-business-bind-20261106\\audit\\native-disassembly-init2\\0x06001475-PropertyContentsContainer-SetProperty.json",
+      "destination": "inherited-native-windows\\0x06001475-PropertyContentsContainer-SetProperty.json",
+      "sha256": "20491d5141f8595b7435ef2efb18c92588587ee889f072950bd785af5bd66ef8"
+    },
+    {
+      "source": ".scratch\\townhall-business-bind-20261106\\audit\\native-disassembly-init2\\0x06001476-PropertyContentsContainer-_ctor.txt",
+      "destination": "inherited-native-windows\\0x06001476-PropertyContentsContainer-_ctor.txt",
+      "sha256": "7c3c18d15e602edf4f7a9fe4efdc61d508aa177613f87ab1bc2cbc52658357a2"
+    },
+    {
+      "source": ".scratch\\townhall-business-bind-20261106\\audit\\native-disassembly-init2\\0x06001476-PropertyContentsContainer-_ctor.json",
+      "destination": "inherited-native-windows\\0x06001476-PropertyContentsContainer-_ctor.json",
+      "sha256": "9aa6abd5c5a39884c00612c9280a382a890e4d389048847e8d5204bcb6d9804d"
+    },
+    {
+      "source": ".scratch\\townhall-business-bind-20261106\\audit\\native-disassembly-init2\\0x060013AA-Business-_ctor.txt",
+      "destination": "inherited-native-windows\\0x060013AA-Business-_ctor.txt",
+      "sha256": "a0d1bbec264e382189de0ff5fd1dee7f6ad08bf134b1566f9e5a7d4196804227"
+    },
+    {
+      "source": ".scratch\\townhall-business-bind-20261106\\audit\\native-disassembly-init2\\0x060013AA-Business-_ctor.json",
+      "destination": "inherited-native-windows\\0x060013AA-Business-_ctor.json",
+      "sha256": "944523b5bb6c19070aa6cab624a48b7b1627374287ff576945a78cb61a1b9ddd"
+    },
+    {
+      "source": ".scratch\\townhall-business-bind-20261106\\audit\\native-disassembly-init2\\0x06001444-Property-_ctor.txt",
+      "destination": "inherited-native-windows\\0x06001444-Property-_ctor.txt",
+      "sha256": "d619fe9b81cec878602570550ba30985aa275a012a00511b5180348528cd60f1"
+    },
+    {
+      "source": ".scratch\\townhall-business-bind-20261106\\audit\\native-disassembly-init2\\0x06001444-Property-_ctor.json",
+      "destination": "inherited-native-windows\\0x06001444-Property-_ctor.json",
+      "sha256": "46ad8dd3272d2b80ffe2232182cb036765788733654b49cba5fce05901039466"
+    },
+    {
+      "source": ".scratch\\townhall-business-bind-20261106\\audit\\S1API.BusinessWrapper.fresh.cs.txt",
+      "destination": "S1API.BusinessWrapper.fresh.cs.txt",
+      "sha256": "d15c0258c0c9e9c0d6bbdfdd8fce1646cf9b22790f32fabd7e2e32c90b66f64c"
+    },
+    {
+      "source": ".scratch\\townhall-business-bind-20261106\\audit\\S1API.PropertyWrapper.fresh.cs.txt",
+      "destination": "S1API.PropertyWrapper.fresh.cs.txt",
+      "sha256": "e7a07dbc1dc492c31664d385c129e0e7598b308c9ca167cb68a2ad76f4022088"
+    }
+  ]
+}

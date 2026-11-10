@@ -1,0 +1,24 @@
+{
+  "schema": 1,
+  "recordedUtc": "2026-11-05T18:44:55.298009+00:00",
+  "scope": "Post-check evidence filename normalization only; code, tests, canonical docs and original report bytes unchanged",
+  "reason": "Repository ignores *.log. Store the same original output bytes as *.log.txt for a future ordinary checkout.",
+  "originalManifestSha256": "40d09c5a399f85710692cdd260582a0622a0998ed16da0a129e3b31179de2484",
+  "preservedManifest": "manifest-before-log-paths.json",
+  "archivePathBindings": {
+    "isolated-pure.log": "isolated-pure.log.txt",
+    "isolation/docs.log": "isolation/docs.log.txt",
+    "isolation/format.log": "isolation/format.log.txt",
+    "isolation/tests.log": "isolation/tests.log.txt",
+    "isolation/versions.log": "isolation/versions.log.txt",
+    "owner-targeted-v1/output.log": "owner-targeted-v1/output.log.txt",
+    "owner-targeted-v2/output.log": "owner-targeted-v2/output.log.txt",
+    "review/build.log": "review/build.log.txt",
+    "review/probe.log": "review/probe.log.txt",
+    "review/restore.log": "review/restore.log.txt",
+    "townhall-final-v3/output.log": "townhall-final-v3/output.log.txt",
+    "townhall-regression-v2/output.log": "townhall-regression-v2/output.log.txt"
+  },
+  "allArtifactBytesUnchanged": true,
+  "nativeSaveWriteAllowed": false
+}

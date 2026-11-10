@@ -1,0 +1,76 @@
+; ScheduleOne.Property.Business::NetworkInitialize___Early/0, token 0x060013AC, RVA 0x54CB70, next-pointer window 0x130 bytes
+; No target execution. Parser-pointer window can contain padding/cold fragments and is not exact/full function, EH or transitive coverage. Shared direct aliases are truncated to eight names.
+0x54CB70     40 57                           push rdi
+0x54CB72     48 83 EC 20                     sub rsp,20h
+0x54CB76     80 3D AD E9 6A 03 00            cmp byte ptr [183BFB52Ah],0
+0x54CB7D     48 8B F9                        mov rdi,rcx
+0x54CB80     75 43                           jne short 000000018054CBC5h
+0x54CB82     48 8D 0D 7F B9 4A 03            lea rcx,[1839F8508h] ; MethodDef: ScheduleOne.Property.Business::RpcReader___Observers_ReceiveLaunderingOperation_1001022388/2
+0x54CB89     E8 12 AD DC FF                  call 00000001803178A0h
+0x54CB8E     48 8D 0D 4B BA 4A 03            lea rcx,[1839F85E0h] ; MethodDef: ScheduleOne.Property.Business::RpcReader___Server_StartLaunderingOperation_1481775633/3
+0x54CB95     E8 06 AD DC FF                  call 00000001803178A0h
+0x54CB9A     48 8D 0D 17 BB 4A 03            lea rcx,[1839F86B8h] ; MethodDef: ScheduleOne.Property.Business::RpcReader___Target_ReceiveLaunderingOperation_1001022388/2
+0x54CBA1     E8 FA AC DC FF                  call 00000001803178A0h
+0x54CBA6     48 8D 0D 03 5F 4A 03            lea rcx,[1839F2AB0h] ; TypeInfo: FishNet.Object.Delegating.ClientRpcDelegate
+0x54CBAD     E8 EE AC DC FF                  call 00000001803178A0h
+0x54CBB2     48 8D 0D CF F9 43 03            lea rcx,[18398C588h] ; TypeInfo: FishNet.Object.Delegating.ServerRpcDelegate
+0x54CBB9     E8 E2 AC DC FF                  call 00000001803178A0h
+0x54CBBE     C6 05 65 E9 6A 03 01            mov byte ptr [183BFB52Ah],1
+0x54CBC5     80 BF 80 02 00 00 00            cmp byte ptr [rdi+280h],0
+0x54CBCC     0F 85 C0 00 00 00               jne near ptr 000000018054CC92h
+0x54CBD2     48 89 5C 24 30                  mov [rsp+30h],rbx
+0x54CBD7     33 D2                           xor edx,edx
+0x54CBD9     C6 87 80 02 00 00 01            mov byte ptr [rdi+280h],1
+0x54CBE0     48 8B CF                        mov rcx,rdi
+0x54CBE3     E8 F8 86 00 00                  call 00000001805552E0h ; ScheduleOne.Property.Property::NetworkInitialize___Early/0
+0x54CBE8     48 8B 0D 99 F9 43 03            mov rcx,[18398C588h] ; TypeInfo: FishNet.Object.Delegating.ServerRpcDelegate
+0x54CBEF     E8 2C AF DC FF                  call 0000000180317B20h
+0x54CBF4     4C 8B 05 E5 B9 4A 03            mov r8,[1839F85E0h] ; MethodDef: ScheduleOne.Property.Business::RpcReader___Server_StartLaunderingOperation_1481775633/3
+0x54CBFB     45 33 C9                        xor r9d,r9d
+0x54CBFE     48 8B D7                        mov rdx,rdi
+0x54CC01     48 8B C8                        mov rcx,rax
+0x54CC04     48 8B D8                        mov rbx,rax
+0x54CC07     E8 E4 4F 78 00                  call 0000000180CD1BF0h ; FishNet.Object.Delegating.ServerRpcDelegate::.ctor/2
+0x54CC0C     45 33 C9                        xor r9d,r9d
+0x54CC0F     4C 8B C3                        mov r8,rbx
+0x54CC12     BA 05 00 00 00                  mov edx,5
+0x54CC17     48 8B CF                        mov rcx,rdi
+0x54CC1A     E8 A1 A2 FF FF                  call 0000000180546EC0h
+0x54CC1F     48 8B 0D 8A 5E 4A 03            mov rcx,[1839F2AB0h] ; TypeInfo: FishNet.Object.Delegating.ClientRpcDelegate
+0x54CC26     E8 F5 AE DC FF                  call 0000000180317B20h
+0x54CC2B     4C 8B 05 86 BA 4A 03            mov r8,[1839F86B8h] ; MethodDef: ScheduleOne.Property.Business::RpcReader___Target_ReceiveLaunderingOperation_1001022388/2
+0x54CC32     45 33 C9                        xor r9d,r9d
+0x54CC35     48 8B D7                        mov rdx,rdi
+0x54CC38     48 8B C8                        mov rcx,rax
+0x54CC3B     48 8B D8                        mov rbx,rax
+0x54CC3E     E8 3D 05 77 00                  call 0000000180CBD180h ; FishNet.Object.Prediction.Delegating.ReconcileRpcDelegate::.ctor/2 | FishNet.Object.Delegating.ClientRpcDelegate::.ctor/2
+0x54CC43     45 33 C9                        xor r9d,r9d
+0x54CC46     4C 8B C3                        mov r8,rbx
+0x54CC49     BA 06 00 00 00                  mov edx,6
+0x54CC4E     48 8B CF                        mov rcx,rdi
+0x54CC51     E8 4A A4 FF FF                  call 00000001805470A0h
+0x54CC56     48 8B 0D 53 5E 4A 03            mov rcx,[1839F2AB0h] ; TypeInfo: FishNet.Object.Delegating.ClientRpcDelegate
+0x54CC5D     E8 BE AE DC FF                  call 0000000180317B20h
+0x54CC62     4C 8B 05 9F B8 4A 03            mov r8,[1839F8508h] ; MethodDef: ScheduleOne.Property.Business::RpcReader___Observers_ReceiveLaunderingOperation_1001022388/2
+0x54CC69     45 33 C9                        xor r9d,r9d
+0x54CC6C     48 8B D7                        mov rdx,rdi
+0x54CC6F     48 8B C8                        mov rcx,rax
+0x54CC72     48 8B D8                        mov rbx,rax
+0x54CC75     E8 06 05 77 00                  call 0000000180CBD180h ; FishNet.Object.Prediction.Delegating.ReconcileRpcDelegate::.ctor/2 | FishNet.Object.Delegating.ClientRpcDelegate::.ctor/2
+0x54CC7A     45 33 C9                        xor r9d,r9d
+0x54CC7D     4C 8B C3                        mov r8,rbx
+0x54CC80     BA 07 00 00 00                  mov edx,7
+0x54CC85     48 8B CF                        mov rcx,rdi
+0x54CC88     E8 53 A0 FF FF                  call 0000000180546CE0h
+0x54CC8D     48 8B 5C 24 30                  mov rbx,[rsp+30h]
+0x54CC92     48 83 C4 20                     add rsp,20h
+0x54CC96     5F                              pop rdi
+0x54CC97     C3                              ret
+0x54CC98     CC                              int 3
+0x54CC99     CC                              int 3
+0x54CC9A     CC                              int 3
+0x54CC9B     CC                              int 3
+0x54CC9C     CC                              int 3
+0x54CC9D     CC                              int 3
+0x54CC9E     CC                              int 3
+0x54CC9F     CC                              int 3

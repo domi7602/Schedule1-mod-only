@@ -1,0 +1,715 @@
+{
+  "Method": {
+    "Type": "ScheduleOne.Property.BusinessManager",
+    "Name": ".ctor",
+    "Token": "0x060013CC",
+    "ParameterCount": 0,
+    "InterfaceOrVirtualSlot": 65535,
+    "Va": "0x18054BCD0",
+    "Rva": "0x54BCD0",
+    "NativePointerPresent": true
+  },
+  "PrimaryPdataBounds": {
+    "BeginRva": 5553360,
+    "EndRva": 5553599,
+    "UnwindRva": 57295560
+  },
+  "WindowEndVa": "0x18054BDC0",
+  "WindowKind": "Next distinct parser method pointer, not an exact/full function extent",
+  "RawOffset": "0x54AED0",
+  "ByteLength": 240,
+  "BytesSha256": "5a824191041a6470942acd810550f16d844c0a1dc60c2043d2172b83b4f5b8a9",
+  "Instructions": [
+    {
+      "Va": "0x18054BCD0",
+      "Rva": "0x54BCD0",
+      "Bytes": "48 89 5C 24 08",
+      "Text": "mov [rsp+8],rbx",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x18054BCD5",
+      "Rva": "0x54BCD5",
+      "Bytes": "57",
+      "Text": "push rdi",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x18054BCD6",
+      "Rva": "0x54BCD6",
+      "Bytes": "48 83 EC 20",
+      "Text": "sub rsp,20h",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x18054BCDA",
+      "Rva": "0x54BCDA",
+      "Bytes": "80 3D 58 F8 6A 03 00",
+      "Text": "cmp byte ptr [183BFB539h],0",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": "0x183BFB539",
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x18054BCE1",
+      "Rva": "0x54BCE1",
+      "Bytes": "48 8B F9",
+      "Text": "mov rdi,rcx",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x18054BCE4",
+      "Rva": "0x54BCE4",
+      "Bytes": "75 37",
+      "Text": "jne short 000000018054BD1Dh",
+      "FlowControl": "ConditionalBranch",
+      "DirectTarget": "0x18054BD1D",
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x18054BCE6",
+      "Rva": "0x54BCE6",
+      "Bytes": "48 8D 0D 1B C3 49 03",
+      "Text": "lea rcx,[1839E8008h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": "0x1839E8008",
+      "MetadataGlobal": {
+        "Kind": "TypeInfo",
+        "Value": "ScheduleOne.Persistence.Loaders.BusinessesLoader"
+      }
+    },
+    {
+      "Va": "0x18054BCED",
+      "Rva": "0x54BCED",
+      "Bytes": "E8 AE BB DC FF",
+      "Text": "call 00000001803178A0h",
+      "FlowControl": "Call",
+      "DirectTarget": "0x1803178A0",
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x18054BCF2",
+      "Rva": "0x54BCF2",
+      "Bytes": "48 8D 0D 9F 54 47 03",
+      "Text": "lea rcx,[1839C1198h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": "0x1839C1198",
+      "MetadataGlobal": {
+        "Kind": "MethodRef",
+        "Value": "System.Void System.Collections.Generic.List`1<System.String>..ctor"
+      }
+    },
+    {
+      "Va": "0x18054BCF9",
+      "Rva": "0x54BCF9",
+      "Bytes": "E8 A2 BB DC FF",
+      "Text": "call 00000001803178A0h",
+      "FlowControl": "Call",
+      "DirectTarget": "0x1803178A0",
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x18054BCFE",
+      "Rva": "0x54BCFE",
+      "Bytes": "48 8D 0D 7B F0 4B 03",
+      "Text": "lea rcx,[183A0AD80h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": "0x183A0AD80",
+      "MetadataGlobal": {
+        "Kind": "TypeInfo",
+        "Value": "System.Collections.Generic.List`1<System.String>"
+      }
+    },
+    {
+      "Va": "0x18054BD05",
+      "Rva": "0x54BD05",
+      "Bytes": "E8 96 BB DC FF",
+      "Text": "call 00000001803178A0h",
+      "FlowControl": "Call",
+      "DirectTarget": "0x1803178A0",
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x18054BD0A",
+      "Rva": "0x54BD0A",
+      "Bytes": "48 8D 0D 0F 7E 49 03",
+      "Text": "lea rcx,[1839E3B20h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": "0x1839E3B20",
+      "MetadataGlobal": {
+        "Kind": "MethodRef",
+        "Value": "System.Void ScheduleOne.DevUtilities.Singleton`1<ScheduleOne.Property.BusinessManager>..ctor"
+      }
+    },
+    {
+      "Va": "0x18054BD11",
+      "Rva": "0x54BD11",
+      "Bytes": "E8 8A BB DC FF",
+      "Text": "call 00000001803178A0h",
+      "FlowControl": "Call",
+      "DirectTarget": "0x1803178A0",
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x18054BD16",
+      "Rva": "0x54BD16",
+      "Bytes": "C6 05 1C F8 6A 03 01",
+      "Text": "mov byte ptr [183BFB539h],1",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": "0x183BFB539",
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x18054BD1D",
+      "Rva": "0x54BD1D",
+      "Bytes": "48 8B 0D E4 C2 49 03",
+      "Text": "mov rcx,[1839E8008h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": "0x1839E8008",
+      "MetadataGlobal": {
+        "Kind": "TypeInfo",
+        "Value": "ScheduleOne.Persistence.Loaders.BusinessesLoader"
+      }
+    },
+    {
+      "Va": "0x18054BD24",
+      "Rva": "0x54BD24",
+      "Bytes": "E8 F7 BD DC FF",
+      "Text": "call 0000000180317B20h",
+      "FlowControl": "Call",
+      "DirectTarget": "0x180317B20",
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x18054BD29",
+      "Rva": "0x54BD29",
+      "Bytes": "33 D2",
+      "Text": "xor edx,edx",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x18054BD2B",
+      "Rva": "0x54BD2B",
+      "Bytes": "48 8B C8",
+      "Text": "mov rcx,rax",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x18054BD2E",
+      "Rva": "0x54BD2E",
+      "Bytes": "48 8B D8",
+      "Text": "mov rbx,rax",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x18054BD31",
+      "Rva": "0x54BD31",
+      "Bytes": "E8 4A 18 ED FF",
+      "Text": "call 000000018041D580h",
+      "FlowControl": "Call",
+      "DirectTarget": "0x18041D580",
+      "TargetMethodCount": 2614,
+      "TargetMethods": [
+        "DeveloperManager::OnStartServer/0",
+        "DeveloperManager+LiveFloatVariable::.ctor/0",
+        "DeveloperManager+LiveStringVariable::.ctor/0",
+        "DeveloperManager+<>c__DisplayClass11_0::.ctor/0",
+        "DeveloperManager+<>c__DisplayClass15_0::.ctor/0",
+        "DeveloperManager+<>c__DisplayClass16_0::.ctor/0",
+        "DeveloperSettings+Item::.ctor/0",
+        "InvertMouseSetter+<>c::.ctor/0"
+      ],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x18054BD36",
+      "Rva": "0x54BD36",
+      "Bytes": "48 8D 4F 28",
+      "Text": "lea rcx,[rdi+28h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x18054BD3A",
+      "Rva": "0x54BD3A",
+      "Bytes": "48 89 5F 28",
+      "Text": "mov [rdi+28h],rbx",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x18054BD3E",
+      "Rva": "0x54BD3E",
+      "Bytes": "48 8B D3",
+      "Text": "mov rdx,rbx",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x18054BD41",
+      "Rva": "0x54BD41",
+      "Bytes": "E8 6A AD DC FF",
+      "Text": "call 0000000180316AB0h",
+      "FlowControl": "Call",
+      "DirectTarget": "0x180316AB0",
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x18054BD46",
+      "Rva": "0x54BD46",
+      "Bytes": "48 8B 0D 33 F0 4B 03",
+      "Text": "mov rcx,[183A0AD80h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": "0x183A0AD80",
+      "MetadataGlobal": {
+        "Kind": "TypeInfo",
+        "Value": "System.Collections.Generic.List`1<System.String>"
+      }
+    },
+    {
+      "Va": "0x18054BD4D",
+      "Rva": "0x54BD4D",
+      "Bytes": "E8 CE BD DC FF",
+      "Text": "call 0000000180317B20h",
+      "FlowControl": "Call",
+      "DirectTarget": "0x180317B20",
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x18054BD52",
+      "Rva": "0x54BD52",
+      "Bytes": "48 8B 15 3F 54 47 03",
+      "Text": "mov rdx,[1839C1198h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": "0x1839C1198",
+      "MetadataGlobal": {
+        "Kind": "MethodRef",
+        "Value": "System.Void System.Collections.Generic.List`1<System.String>..ctor"
+      }
+    },
+    {
+      "Va": "0x18054BD59",
+      "Rva": "0x54BD59",
+      "Bytes": "48 8B C8",
+      "Text": "mov rcx,rax",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x18054BD5C",
+      "Rva": "0x54BD5C",
+      "Bytes": "48 8B D8",
+      "Text": "mov rbx,rax",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x18054BD5F",
+      "Rva": "0x54BD5F",
+      "Bytes": "E8 CC 80 A6 00",
+      "Text": "call 0000000180FB3E30h",
+      "FlowControl": "Call",
+      "DirectTarget": "0x180FB3E30",
+      "TargetMethodCount": 2,
+      "TargetMethods": [
+        "System.Collections.Generic.List`1::.ctor/0",
+        "System.Collections.Generic.LowLevelList`1::.ctor/0"
+      ],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x18054BD64",
+      "Rva": "0x54BD64",
+      "Bytes": "48 8D 4F 30",
+      "Text": "lea rcx,[rdi+30h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x18054BD68",
+      "Rva": "0x54BD68",
+      "Bytes": "48 89 5F 30",
+      "Text": "mov [rdi+30h],rbx",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x18054BD6C",
+      "Rva": "0x54BD6C",
+      "Bytes": "48 8B D3",
+      "Text": "mov rdx,rbx",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x18054BD6F",
+      "Rva": "0x54BD6F",
+      "Bytes": "E8 3C AD DC FF",
+      "Text": "call 0000000180316AB0h",
+      "FlowControl": "Call",
+      "DirectTarget": "0x180316AB0",
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x18054BD74",
+      "Rva": "0x54BD74",
+      "Bytes": "48 8B 0D 05 F0 4B 03",
+      "Text": "mov rcx,[183A0AD80h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": "0x183A0AD80",
+      "MetadataGlobal": {
+        "Kind": "TypeInfo",
+        "Value": "System.Collections.Generic.List`1<System.String>"
+      }
+    },
+    {
+      "Va": "0x18054BD7B",
+      "Rva": "0x54BD7B",
+      "Bytes": "E8 A0 BD DC FF",
+      "Text": "call 0000000180317B20h",
+      "FlowControl": "Call",
+      "DirectTarget": "0x180317B20",
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x18054BD80",
+      "Rva": "0x54BD80",
+      "Bytes": "48 8B 15 11 54 47 03",
+      "Text": "mov rdx,[1839C1198h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": "0x1839C1198",
+      "MetadataGlobal": {
+        "Kind": "MethodRef",
+        "Value": "System.Void System.Collections.Generic.List`1<System.String>..ctor"
+      }
+    },
+    {
+      "Va": "0x18054BD87",
+      "Rva": "0x54BD87",
+      "Bytes": "48 8B C8",
+      "Text": "mov rcx,rax",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x18054BD8A",
+      "Rva": "0x54BD8A",
+      "Bytes": "48 8B D8",
+      "Text": "mov rbx,rax",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x18054BD8D",
+      "Rva": "0x54BD8D",
+      "Bytes": "E8 9E 80 A6 00",
+      "Text": "call 0000000180FB3E30h",
+      "FlowControl": "Call",
+      "DirectTarget": "0x180FB3E30",
+      "TargetMethodCount": 2,
+      "TargetMethods": [
+        "System.Collections.Generic.List`1::.ctor/0",
+        "System.Collections.Generic.LowLevelList`1::.ctor/0"
+      ],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x18054BD92",
+      "Rva": "0x54BD92",
+      "Bytes": "48 8D 4F 38",
+      "Text": "lea rcx,[rdi+38h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x18054BD96",
+      "Rva": "0x54BD96",
+      "Bytes": "48 89 5F 38",
+      "Text": "mov [rdi+38h],rbx",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x18054BD9A",
+      "Rva": "0x54BD9A",
+      "Bytes": "48 8B D3",
+      "Text": "mov rdx,rbx",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x18054BD9D",
+      "Rva": "0x54BD9D",
+      "Bytes": "E8 0E AD DC FF",
+      "Text": "call 0000000180316AB0h",
+      "FlowControl": "Call",
+      "DirectTarget": "0x180316AB0",
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x18054BDA2",
+      "Rva": "0x54BDA2",
+      "Bytes": "C6 47 40 01",
+      "Text": "mov byte ptr [rdi+40h],1",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x18054BDA6",
+      "Rva": "0x54BDA6",
+      "Bytes": "48 8B CF",
+      "Text": "mov rcx,rdi",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x18054BDA9",
+      "Rva": "0x54BDA9",
+      "Bytes": "48 8B 15 70 7D 49 03",
+      "Text": "mov rdx,[1839E3B20h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": "0x1839E3B20",
+      "MetadataGlobal": {
+        "Kind": "MethodRef",
+        "Value": "System.Void ScheduleOne.DevUtilities.Singleton`1<ScheduleOne.Property.BusinessManager>..ctor"
+      }
+    },
+    {
+      "Va": "0x18054BDB0",
+      "Rva": "0x54BDB0",
+      "Bytes": "48 8B 5C 24 30",
+      "Text": "mov rbx,[rsp+30h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x18054BDB5",
+      "Rva": "0x54BDB5",
+      "Bytes": "48 83 C4 20",
+      "Text": "add rsp,20h",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x18054BDB9",
+      "Rva": "0x54BDB9",
+      "Bytes": "5F",
+      "Text": "pop rdi",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x18054BDBA",
+      "Rva": "0x54BDBA",
+      "Bytes": "E9 D1 16 ED FF",
+      "Text": "jmp near ptr 000000018041D490h",
+      "FlowControl": "UnconditionalBranch",
+      "DirectTarget": "0x18041D490",
+      "TargetMethodCount": 448,
+      "TargetMethods": [
+        "EventTriggerContact::.ctor/0",
+        "EventTriggerTest::.ctor/0",
+        "UnityServicesManager::.ctor/0",
+        "EntityConfigurationData::.ctor/0",
+        "ActivityManager::.ctor/0",
+        "SteamManager::.ctor/0",
+        "InvertMouseSetter::.ctor/0",
+        "UIScaleSetter::.ctor/0"
+      ],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x18054BDBF",
+      "Rva": "0x54BDBF",
+      "Bytes": "CC",
+      "Text": "int 3",
+      "FlowControl": "Interrupt",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    }
+  ],
+  "UndecodedTail": null
+}

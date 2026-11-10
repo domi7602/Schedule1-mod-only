@@ -1,0 +1,47 @@
+[
+  {
+    "mode": "LegacyActivation",
+    "exitCode": 1,
+    "error": "CS1029"
+  },
+  {
+    "mode": "NetworkManager",
+    "exitCode": 1,
+    "error": "CS1029"
+  },
+  {
+    "mode": "NetworkActive",
+    "exitCode": 1,
+    "error": "CS1029"
+  },
+  {
+    "mode": "DataSubtype",
+    "exitCode": 1,
+    "error": "CS1029"
+  },
+  {
+    "mode": "DataInterface",
+    "exitCode": 1,
+    "error": "CS1029"
+  },
+  {
+    "mode": "DataManager",
+    "exitCode": 1,
+    "error": "CS1029"
+  },
+  {
+    "mode": "DataActiveSubtype",
+    "exitCode": 1,
+    "error": "CS1029"
+  },
+  {
+    "mode": "DataNetworkSubtype",
+    "exitCode": 1,
+    "error": "CS1029"
+  },
+  {
+    "mode": "DataConstruction",
+    "exitCode": 1,
+    "error": "CS1029"
+  }
+]

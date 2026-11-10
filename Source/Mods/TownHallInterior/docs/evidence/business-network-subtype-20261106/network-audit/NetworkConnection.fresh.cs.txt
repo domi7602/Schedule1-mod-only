@@ -1,0 +1,1918 @@
+using System;
+using System.Runtime.CompilerServices;
+using Il2CppFishNet.Component.Observing;
+using Il2CppFishNet.Managing;
+using Il2CppFishNet.Managing.Logging;
+using Il2CppFishNet.Managing.Server;
+using Il2CppFishNet.Managing.Timing;
+using Il2CppFishNet.Object;
+using Il2CppFishNet.Serializing;
+using Il2CppFishNet.Transporting;
+using Il2CppInterop.Common.Attributes;
+using Il2CppInterop.Runtime;
+using Il2CppInterop.Runtime.InteropTypes;
+using Il2CppInterop.Runtime.InteropTypes.Arrays;
+using Il2CppInterop.Runtime.Runtime;
+using Il2CppSystem;
+using Il2CppSystem.Collections.Generic;
+using Il2CppSystem.Reflection;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+
+namespace Il2CppFishNet.Connection;
+
+public class NetworkConnection : Il2CppSystem.Object
+{
+	public class LevelOfDetailData : Il2CppSystem.Object
+	{
+		private static readonly System.IntPtr NativeFieldInfoPtr_CurrentLevelOfDetail;
+
+		private static readonly System.IntPtr NativeFieldInfoPtr_PreviousLevelOfDetail;
+
+		private static readonly System.IntPtr NativeMethodInfoPtr_Update_Internal_Void_Byte_0;
+
+		private static readonly System.IntPtr NativeMethodInfoPtr_ResetState_Public_Virtual_Final_New_Void_0;
+
+		private static readonly System.IntPtr NativeMethodInfoPtr_InitializeState_Public_Virtual_Final_New_Void_0;
+
+		private static readonly System.IntPtr NativeMethodInfoPtr__ctor_Public_Void_0;
+
+		public unsafe byte CurrentLevelOfDetail
+		{
+			get
+			{
+				nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_CurrentLevelOfDetail);
+				return *(byte*)num;
+			}
+			set
+			{
+				*(byte*)((nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_CurrentLevelOfDetail)) = value;
+			}
+		}
+
+		public unsafe byte PreviousLevelOfDetail
+		{
+			get
+			{
+				nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_PreviousLevelOfDetail);
+				return *(byte*)num;
+			}
+			set
+			{
+				*(byte*)((nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_PreviousLevelOfDetail)) = value;
+			}
+		}
+
+		static LevelOfDetailData()
+		{
+			Il2CppClassPointerStore<LevelOfDetailData>.NativeClassPtr = IL2CPP.GetIl2CppNestedType(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, "LevelOfDetailData");
+			IL2CPP.il2cpp_runtime_class_init(Il2CppClassPointerStore<LevelOfDetailData>.NativeClassPtr);
+			NativeFieldInfoPtr_CurrentLevelOfDetail = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<LevelOfDetailData>.NativeClassPtr, "CurrentLevelOfDetail");
+			NativeFieldInfoPtr_PreviousLevelOfDetail = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<LevelOfDetailData>.NativeClassPtr, "PreviousLevelOfDetail");
+			NativeMethodInfoPtr_Update_Internal_Void_Byte_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<LevelOfDetailData>.NativeClassPtr, 100667141);
+			NativeMethodInfoPtr_ResetState_Public_Virtual_Final_New_Void_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<LevelOfDetailData>.NativeClassPtr, 100667142);
+			NativeMethodInfoPtr_InitializeState_Public_Virtual_Final_New_Void_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<LevelOfDetailData>.NativeClassPtr, 100667143);
+			NativeMethodInfoPtr__ctor_Public_Void_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<LevelOfDetailData>.NativeClassPtr, 100667144);
+		}
+
+		[CallerCount(0)]
+		public unsafe void Update(byte lodLevel)
+		{
+			IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+			System.IntPtr* ptr = stackalloc System.IntPtr[1];
+			*ptr = (nint)(&lodLevel);
+			Unsafe.SkipInit(out System.IntPtr intPtr);
+			System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_Update_Internal_Void_Byte_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+			Il2CppException.RaiseExceptionIfNecessary(intPtr);
+		}
+
+		[CallerCount(0)]
+		public unsafe virtual void ResetState()
+		{
+			IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+			System.IntPtr* ptr = null;
+			Unsafe.SkipInit(out System.IntPtr intPtr);
+			System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_ResetState_Public_Virtual_Final_New_Void_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+			Il2CppException.RaiseExceptionIfNecessary(intPtr);
+		}
+
+		[CallerCount(15307)]
+		[CachedScanResults(RefRangeStart = 4201, RefRangeEnd = 19508, XrefRangeStart = 4201, XrefRangeEnd = 19508, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+		public unsafe virtual void InitializeState()
+		{
+			IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+			System.IntPtr* ptr = null;
+			Unsafe.SkipInit(out System.IntPtr intPtr);
+			System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_InitializeState_Public_Virtual_Final_New_Void_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+			Il2CppException.RaiseExceptionIfNecessary(intPtr);
+		}
+
+		[CallerCount(2578)]
+		[CachedScanResults(RefRangeStart = 374, RefRangeEnd = 2952, XrefRangeStart = 374, XrefRangeEnd = 2952, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+		public unsafe LevelOfDetailData()
+			: this(IL2CPP.il2cpp_object_new(Il2CppClassPointerStore<LevelOfDetailData>.NativeClassPtr))
+		{
+			System.IntPtr* ptr = null;
+			Unsafe.SkipInit(out System.IntPtr intPtr);
+			System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr__ctor_Public_Void_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+			Il2CppException.RaiseExceptionIfNecessary(intPtr);
+		}
+
+		public LevelOfDetailData(System.IntPtr pointer)
+			: base(pointer)
+		{
+		}
+	}
+
+	private sealed class MethodInfoStoreGeneric_Broadcast_Public_Void_T_Boolean_Channel_0<T>
+	{
+		internal static System.IntPtr Pointer = IL2CPP.il2cpp_method_get_from_reflection(IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)new MethodInfo(IL2CPP.il2cpp_method_get_object(NativeMethodInfoPtr_Broadcast_Public_Void_T_Boolean_Channel_0, Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr)).MakeGenericMethod(new Il2CppReferenceArray<Il2CppSystem.Type>(new Il2CppSystem.Type[1] { Il2CppSystem.Type.internal_from_handle(IL2CPP.il2cpp_class_get_type(Il2CppClassPointerStore<T>.NativeClassPtr)) }))));
+	}
+
+	private static readonly System.IntPtr NativeFieldInfoPtr__toClientBundles;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr__serverDirtied;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr_OnLoadedStartScenes;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr_OnObjectAdded;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr_OnObjectRemoved;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr__NetworkManager_k__BackingField;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr__loadedStartScenesAsServer;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr__loadedStartScenesAsClient;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr_PredictedObjectIds;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr__TransportIndex_k__BackingField;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr__Authenticated_k__BackingField;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr_ClientId;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr_Objects;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr__FirstObject_k__BackingField;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr__Scenes_k__BackingField;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr__Disconnecting_k__BackingField;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr__DisconnectingTick_k__BackingField;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr_CustomData;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr_ServerConnectionTick;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr_PacketTick;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr_LocalTick;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr_UNSET_CLIENTID_VALUE;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr_LevelOfDetails;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr_AllowedForcedLodUpdates;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr_LastLevelOfDetailUpdate;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr_LevelOfDetailInfractions;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr_HashGridEntry;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr__hashGrid;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr__nextHashGridUpdateTime;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr__hashGridPosition;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr__lastPingTick;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr__requiredPingTicks;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr_EXCESSIVE_PING_LIMIT;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr__replicateQueueAverage;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr__lastAverageQueueAddTick;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr__LocalReplicateTick_k__BackingField;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_InitializeBuffer_Private_Void_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_Broadcast_Public_Void_T_Boolean_Channel_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_SendToClient_Internal_Void_Byte_ArraySegment_1_Byte_Boolean_DataOrderType_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_GetPacketBundle_Internal_Boolean_Int32_byref_PacketBundle_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_ServerDirty_Private_Void_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_ResetServerDirty_Internal_Void_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_add_OnLoadedStartScenes_Public_add_Void_Action_2_NetworkConnection_Boolean_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_remove_OnLoadedStartScenes_Public_rem_Void_Action_2_NetworkConnection_Boolean_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_add_OnObjectAdded_Public_add_Void_Action_1_NetworkObject_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_remove_OnObjectAdded_Public_rem_Void_Action_1_NetworkObject_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_add_OnObjectRemoved_Public_add_Void_Action_1_NetworkObject_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_remove_OnObjectRemoved_Public_rem_Void_Action_1_NetworkObject_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_get_NetworkManager_Public_get_NetworkManager_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_set_NetworkManager_Private_set_Void_NetworkManager_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_LoadedStartScenes_Public_Boolean_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_LoadedStartScenes_Public_Boolean_Boolean_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_get_TransportIndex_Public_get_Int32_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_set_TransportIndex_Internal_set_Void_Int32_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_get_Authenticated_Public_get_Boolean_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_set_Authenticated_Private_set_Void_Boolean_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_get_IsActive_Public_get_Boolean_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_get_IsValid_Public_get_Boolean_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_get_FirstObject_Public_get_NetworkObject_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_set_FirstObject_Private_set_Void_NetworkObject_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_SetFirstObject_Public_Void_NetworkObject_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_get_Scenes_Public_get_HashSet_1_Scene_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_set_Scenes_Private_set_Void_HashSet_1_Scene_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_get_Disconnecting_Public_get_Boolean_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_set_Disconnecting_Private_set_Void_Boolean_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_get_DisconnectingTick_Internal_get_UInt32_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_set_DisconnectingTick_Private_set_Void_UInt32_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_get_Tick_Public_get_UInt32_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_Equals_Public_Virtual_Boolean_Object_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_Equals_Public_Virtual_Final_New_Boolean_NetworkConnection_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_GetHashCode_Public_Virtual_Int32_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_op_Equality_Public_Static_Boolean_NetworkConnection_NetworkConnection_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_op_Inequality_Public_Static_Boolean_NetworkConnection_NetworkConnection_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr__ctor_Public_Void_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr__ctor_Public_Void_NetworkManager_Int32_Int32_Boolean_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_Dispose_Internal_Void_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_ToString_Public_Virtual_String_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_Initialize_Private_Void_NetworkManager_Int32_Int32_Boolean_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_Deinitialize_Internal_Void_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_SetDisconnecting_Internal_Void_Boolean_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_Disconnect_Public_Void_Boolean_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_SetLoadedStartScenes_Internal_Boolean_Boolean_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_ConnectionAuthenticated_Internal_Void_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_AddObject_Internal_Void_NetworkObject_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_RemoveObject_Internal_Void_NetworkObject_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_ClearObjects_Private_Void_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_SetFirstObject_Private_Void_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_AddToScene_Internal_Boolean_Scene_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_RemoveFromScene_Internal_Boolean_Scene_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_IsLateForLevelOfDetail_Internal_Boolean_UInt32_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_ResetStates_Lod_Private_Void_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_Observers_FirstObjectChanged_Private_Void_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_Observers_Initialize_Private_Void_NetworkManager_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_UpdateHashGridPositions_Internal_Void_Boolean_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_Observers_Reset_Private_Void_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_InitializePing_Private_Void_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_ResetPingPong_Private_Void_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_CanPingPong_Internal_Boolean_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_Prediction_Initialize_Internal_Void_NetworkManager_Boolean_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_AddAverageQueueCount_Internal_Void_UInt16_UInt32_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_GetAndResetAverageQueueCount_Internal_UInt16_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_get_LocalReplicateTick_Public_get_UInt32_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_set_LocalReplicateTick_Internal_set_Void_UInt32_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_Prediction_Reset_Private_Void_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_get_IsHost_Public_get_Boolean_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_get_IsLocalClient_Public_get_Boolean_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_GetAddress_Public_String_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_Kick_Public_Void_KickReason_LoggingType_String_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_Kick_Public_Void_Reader_KickReason_LoggingType_String_0;
+
+	public unsafe List<PacketBundle> _toClientBundles
+	{
+		get
+		{
+			nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr__toClientBundles);
+			System.IntPtr intPtr = *(System.IntPtr*)num;
+			return (intPtr != (System.IntPtr)0) ? Il2CppObjectPool.Get<List<PacketBundle>>(intPtr) : null;
+		}
+		set
+		{
+			System.IntPtr num = IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+			IL2CPP.il2cpp_gc_wbarrier_set_field(num, (System.IntPtr)((nint)num + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr__toClientBundles)), IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)value));
+		}
+	}
+
+	public unsafe bool _serverDirtied
+	{
+		get
+		{
+			nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr__serverDirtied);
+			return *(bool*)num;
+		}
+		set
+		{
+			*(bool*)((nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr__serverDirtied)) = value;
+		}
+	}
+
+	public unsafe Il2CppSystem.Action<NetworkConnection, bool> OnLoadedStartScenes
+	{
+		get
+		{
+			nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_OnLoadedStartScenes);
+			System.IntPtr intPtr = *(System.IntPtr*)num;
+			return (intPtr != (System.IntPtr)0) ? Il2CppObjectPool.Get<Il2CppSystem.Action<NetworkConnection, bool>>(intPtr) : null;
+		}
+		set
+		{
+			System.IntPtr num = IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+			IL2CPP.il2cpp_gc_wbarrier_set_field(num, (System.IntPtr)((nint)num + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_OnLoadedStartScenes)), IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)value));
+		}
+	}
+
+	public unsafe Il2CppSystem.Action<NetworkObject> OnObjectAdded
+	{
+		get
+		{
+			nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_OnObjectAdded);
+			System.IntPtr intPtr = *(System.IntPtr*)num;
+			return (intPtr != (System.IntPtr)0) ? Il2CppObjectPool.Get<Il2CppSystem.Action<NetworkObject>>(intPtr) : null;
+		}
+		set
+		{
+			System.IntPtr num = IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+			IL2CPP.il2cpp_gc_wbarrier_set_field(num, (System.IntPtr)((nint)num + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_OnObjectAdded)), IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)value));
+		}
+	}
+
+	public unsafe Il2CppSystem.Action<NetworkObject> OnObjectRemoved
+	{
+		get
+		{
+			nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_OnObjectRemoved);
+			System.IntPtr intPtr = *(System.IntPtr*)num;
+			return (intPtr != (System.IntPtr)0) ? Il2CppObjectPool.Get<Il2CppSystem.Action<NetworkObject>>(intPtr) : null;
+		}
+		set
+		{
+			System.IntPtr num = IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+			IL2CPP.il2cpp_gc_wbarrier_set_field(num, (System.IntPtr)((nint)num + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_OnObjectRemoved)), IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)value));
+		}
+	}
+
+	public unsafe NetworkManager _NetworkManager_k__BackingField
+	{
+		get
+		{
+			nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr__NetworkManager_k__BackingField);
+			System.IntPtr intPtr = *(System.IntPtr*)num;
+			return (intPtr != (System.IntPtr)0) ? Il2CppObjectPool.Get<NetworkManager>(intPtr) : null;
+		}
+		set
+		{
+			System.IntPtr num = IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+			IL2CPP.il2cpp_gc_wbarrier_set_field(num, (System.IntPtr)((nint)num + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr__NetworkManager_k__BackingField)), IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)value));
+		}
+	}
+
+	public unsafe bool _loadedStartScenesAsServer
+	{
+		get
+		{
+			nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr__loadedStartScenesAsServer);
+			return *(bool*)num;
+		}
+		set
+		{
+			*(bool*)((nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr__loadedStartScenesAsServer)) = value;
+		}
+	}
+
+	public unsafe bool _loadedStartScenesAsClient
+	{
+		get
+		{
+			nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr__loadedStartScenesAsClient);
+			return *(bool*)num;
+		}
+		set
+		{
+			*(bool*)((nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr__loadedStartScenesAsClient)) = value;
+		}
+	}
+
+	public unsafe Queue<int> PredictedObjectIds
+	{
+		get
+		{
+			nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_PredictedObjectIds);
+			System.IntPtr intPtr = *(System.IntPtr*)num;
+			return (intPtr != (System.IntPtr)0) ? Il2CppObjectPool.Get<Queue<int>>(intPtr) : null;
+		}
+		set
+		{
+			System.IntPtr num = IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+			IL2CPP.il2cpp_gc_wbarrier_set_field(num, (System.IntPtr)((nint)num + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_PredictedObjectIds)), IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)value));
+		}
+	}
+
+	public unsafe int _TransportIndex_k__BackingField
+	{
+		get
+		{
+			nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr__TransportIndex_k__BackingField);
+			return *(int*)num;
+		}
+		set
+		{
+			*(int*)((nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr__TransportIndex_k__BackingField)) = value;
+		}
+	}
+
+	public unsafe bool _Authenticated_k__BackingField
+	{
+		get
+		{
+			nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr__Authenticated_k__BackingField);
+			return *(bool*)num;
+		}
+		set
+		{
+			*(bool*)((nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr__Authenticated_k__BackingField)) = value;
+		}
+	}
+
+	public unsafe int ClientId
+	{
+		get
+		{
+			nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_ClientId);
+			return *(int*)num;
+		}
+		set
+		{
+			*(int*)((nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_ClientId)) = value;
+		}
+	}
+
+	public unsafe HashSet<NetworkObject> Objects
+	{
+		get
+		{
+			nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_Objects);
+			System.IntPtr intPtr = *(System.IntPtr*)num;
+			return (intPtr != (System.IntPtr)0) ? Il2CppObjectPool.Get<HashSet<NetworkObject>>(intPtr) : null;
+		}
+		set
+		{
+			System.IntPtr num = IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+			IL2CPP.il2cpp_gc_wbarrier_set_field(num, (System.IntPtr)((nint)num + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_Objects)), IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)value));
+		}
+	}
+
+	public unsafe NetworkObject _FirstObject_k__BackingField
+	{
+		get
+		{
+			nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr__FirstObject_k__BackingField);
+			System.IntPtr intPtr = *(System.IntPtr*)num;
+			return (intPtr != (System.IntPtr)0) ? Il2CppObjectPool.Get<NetworkObject>(intPtr) : null;
+		}
+		set
+		{
+			System.IntPtr num = IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+			IL2CPP.il2cpp_gc_wbarrier_set_field(num, (System.IntPtr)((nint)num + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr__FirstObject_k__BackingField)), IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)value));
+		}
+	}
+
+	public unsafe HashSet<Scene> _Scenes_k__BackingField
+	{
+		get
+		{
+			nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr__Scenes_k__BackingField);
+			System.IntPtr intPtr = *(System.IntPtr*)num;
+			return (intPtr != (System.IntPtr)0) ? Il2CppObjectPool.Get<HashSet<Scene>>(intPtr) : null;
+		}
+		set
+		{
+			System.IntPtr num = IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+			IL2CPP.il2cpp_gc_wbarrier_set_field(num, (System.IntPtr)((nint)num + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr__Scenes_k__BackingField)), IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)value));
+		}
+	}
+
+	public unsafe bool _Disconnecting_k__BackingField
+	{
+		get
+		{
+			nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr__Disconnecting_k__BackingField);
+			return *(bool*)num;
+		}
+		set
+		{
+			*(bool*)((nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr__Disconnecting_k__BackingField)) = value;
+		}
+	}
+
+	public unsafe uint _DisconnectingTick_k__BackingField
+	{
+		get
+		{
+			nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr__DisconnectingTick_k__BackingField);
+			return *(uint*)num;
+		}
+		set
+		{
+			*(uint*)((nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr__DisconnectingTick_k__BackingField)) = value;
+		}
+	}
+
+	public unsafe Il2CppSystem.Object CustomData
+	{
+		get
+		{
+			nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_CustomData);
+			System.IntPtr intPtr = *(System.IntPtr*)num;
+			return (intPtr != (System.IntPtr)0) ? Il2CppObjectPool.Get<Il2CppSystem.Object>(intPtr) : null;
+		}
+		set
+		{
+			System.IntPtr num = IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+			IL2CPP.il2cpp_gc_wbarrier_set_field(num, (System.IntPtr)((nint)num + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_CustomData)), IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)value));
+		}
+	}
+
+	public unsafe uint ServerConnectionTick
+	{
+		get
+		{
+			nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_ServerConnectionTick);
+			return *(uint*)num;
+		}
+		set
+		{
+			*(uint*)((nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_ServerConnectionTick)) = value;
+		}
+	}
+
+	public unsafe EstimatedTick PacketTick
+	{
+		get
+		{
+			nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_PacketTick);
+			return *(EstimatedTick*)num;
+		}
+		set
+		{
+			*(EstimatedTick*)((nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_PacketTick)) = value;
+		}
+	}
+
+	public unsafe EstimatedTick LocalTick
+	{
+		get
+		{
+			nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_LocalTick);
+			return *(EstimatedTick*)num;
+		}
+		set
+		{
+			*(EstimatedTick*)((nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_LocalTick)) = value;
+		}
+	}
+
+	public unsafe static int UNSET_CLIENTID_VALUE
+	{
+		get
+		{
+			Unsafe.SkipInit(out int result);
+			IL2CPP.il2cpp_field_static_get_value(NativeFieldInfoPtr_UNSET_CLIENTID_VALUE, (void*)(&result));
+			return result;
+		}
+		set
+		{
+			IL2CPP.il2cpp_field_static_set_value(NativeFieldInfoPtr_UNSET_CLIENTID_VALUE, (void*)(&value));
+		}
+	}
+
+	public unsafe Dictionary<NetworkObject, LevelOfDetailData> LevelOfDetails
+	{
+		get
+		{
+			nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_LevelOfDetails);
+			System.IntPtr intPtr = *(System.IntPtr*)num;
+			return (intPtr != (System.IntPtr)0) ? Il2CppObjectPool.Get<Dictionary<NetworkObject, LevelOfDetailData>>(intPtr) : null;
+		}
+		set
+		{
+			System.IntPtr num = IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+			IL2CPP.il2cpp_gc_wbarrier_set_field(num, (System.IntPtr)((nint)num + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_LevelOfDetails)), IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)value));
+		}
+	}
+
+	public unsafe int AllowedForcedLodUpdates
+	{
+		get
+		{
+			nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_AllowedForcedLodUpdates);
+			return *(int*)num;
+		}
+		set
+		{
+			*(int*)((nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_AllowedForcedLodUpdates)) = value;
+		}
+	}
+
+	public unsafe uint LastLevelOfDetailUpdate
+	{
+		get
+		{
+			nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_LastLevelOfDetailUpdate);
+			return *(uint*)num;
+		}
+		set
+		{
+			*(uint*)((nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_LastLevelOfDetailUpdate)) = value;
+		}
+	}
+
+	public unsafe int LevelOfDetailInfractions
+	{
+		get
+		{
+			nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_LevelOfDetailInfractions);
+			return *(int*)num;
+		}
+		set
+		{
+			*(int*)((nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_LevelOfDetailInfractions)) = value;
+		}
+	}
+
+	public unsafe GridEntry HashGridEntry
+	{
+		get
+		{
+			nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_HashGridEntry);
+			System.IntPtr intPtr = *(System.IntPtr*)num;
+			return (intPtr != (System.IntPtr)0) ? Il2CppObjectPool.Get<GridEntry>(intPtr) : null;
+		}
+		set
+		{
+			System.IntPtr num = IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+			IL2CPP.il2cpp_gc_wbarrier_set_field(num, (System.IntPtr)((nint)num + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_HashGridEntry)), IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)value));
+		}
+	}
+
+	public unsafe HashGrid _hashGrid
+	{
+		get
+		{
+			nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr__hashGrid);
+			System.IntPtr intPtr = *(System.IntPtr*)num;
+			return (intPtr != (System.IntPtr)0) ? Il2CppObjectPool.Get<HashGrid>(intPtr) : null;
+		}
+		set
+		{
+			System.IntPtr num = IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+			IL2CPP.il2cpp_gc_wbarrier_set_field(num, (System.IntPtr)((nint)num + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr__hashGrid)), IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)value));
+		}
+	}
+
+	public unsafe float _nextHashGridUpdateTime
+	{
+		get
+		{
+			nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr__nextHashGridUpdateTime);
+			return *(float*)num;
+		}
+		set
+		{
+			*(float*)((nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr__nextHashGridUpdateTime)) = value;
+		}
+	}
+
+	public unsafe Vector2Int _hashGridPosition
+	{
+		get
+		{
+			nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr__hashGridPosition);
+			return *(Vector2Int*)num;
+		}
+		set
+		{
+			*(Vector2Int*)((nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr__hashGridPosition)) = value;
+		}
+	}
+
+	public unsafe uint _lastPingTick
+	{
+		get
+		{
+			nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr__lastPingTick);
+			return *(uint*)num;
+		}
+		set
+		{
+			*(uint*)((nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr__lastPingTick)) = value;
+		}
+	}
+
+	public unsafe uint _requiredPingTicks
+	{
+		get
+		{
+			nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr__requiredPingTicks);
+			return *(uint*)num;
+		}
+		set
+		{
+			*(uint*)((nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr__requiredPingTicks)) = value;
+		}
+	}
+
+	public unsafe static byte EXCESSIVE_PING_LIMIT
+	{
+		get
+		{
+			Unsafe.SkipInit(out byte result);
+			IL2CPP.il2cpp_field_static_get_value(NativeFieldInfoPtr_EXCESSIVE_PING_LIMIT, (void*)(&result));
+			return result;
+		}
+		set
+		{
+			IL2CPP.il2cpp_field_static_set_value(NativeFieldInfoPtr_EXCESSIVE_PING_LIMIT, (void*)(&value));
+		}
+	}
+
+	public unsafe MovingAverage _replicateQueueAverage
+	{
+		get
+		{
+			nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr__replicateQueueAverage);
+			System.IntPtr intPtr = *(System.IntPtr*)num;
+			return (intPtr != (System.IntPtr)0) ? Il2CppObjectPool.Get<MovingAverage>(intPtr) : null;
+		}
+		set
+		{
+			System.IntPtr num = IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+			IL2CPP.il2cpp_gc_wbarrier_set_field(num, (System.IntPtr)((nint)num + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr__replicateQueueAverage)), IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)value));
+		}
+	}
+
+	public unsafe uint _lastAverageQueueAddTick
+	{
+		get
+		{
+			nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr__lastAverageQueueAddTick);
+			return *(uint*)num;
+		}
+		set
+		{
+			*(uint*)((nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr__lastAverageQueueAddTick)) = value;
+		}
+	}
+
+	public unsafe uint _LocalReplicateTick_k__BackingField
+	{
+		get
+		{
+			nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr__LocalReplicateTick_k__BackingField);
+			return *(uint*)num;
+		}
+		set
+		{
+			*(uint*)((nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr__LocalReplicateTick_k__BackingField)) = value;
+		}
+	}
+
+	public unsafe NetworkManager NetworkManager
+	{
+		[CallerCount(7)]
+		[CachedScanResults(RefRangeStart = 2989, RefRangeEnd = 2996, XrefRangeStart = 2989, XrefRangeEnd = 2996, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+		get
+		{
+			IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+			System.IntPtr* ptr = null;
+			Unsafe.SkipInit(out System.IntPtr intPtr);
+			System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_get_NetworkManager_Public_get_NetworkManager_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+			Il2CppException.RaiseExceptionIfNecessary(intPtr);
+			return (intPtr2 != (System.IntPtr)0) ? Il2CppObjectPool.Get<NetworkManager>(intPtr2) : null;
+		}
+		[CallerCount(0)]
+		[CachedScanResults(RefRangeStart = 0, RefRangeEnd = 0, XrefRangeStart = 0, XrefRangeEnd = 0, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+		set
+		{
+			IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+			System.IntPtr* ptr = stackalloc System.IntPtr[1];
+			*ptr = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)value);
+			Unsafe.SkipInit(out System.IntPtr intPtr);
+			System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_set_NetworkManager_Private_set_Void_NetworkManager_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+			Il2CppException.RaiseExceptionIfNecessary(intPtr);
+		}
+	}
+
+	public unsafe int TransportIndex
+	{
+		[CallerCount(6)]
+		[CachedScanResults(RefRangeStart = 38560, RefRangeEnd = 38566, XrefRangeStart = 38560, XrefRangeEnd = 38566, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+		get
+		{
+			IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+			System.IntPtr* ptr = null;
+			Unsafe.SkipInit(out System.IntPtr intPtr);
+			System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_get_TransportIndex_Public_get_Int32_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+			Il2CppException.RaiseExceptionIfNecessary(intPtr);
+			return *(int*)IL2CPP.il2cpp_object_unbox(intPtr2);
+		}
+		[CallerCount(1)]
+		[CachedScanResults(RefRangeStart = 44952, RefRangeEnd = 44953, XrefRangeStart = 44952, XrefRangeEnd = 44953, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+		set
+		{
+			IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+			System.IntPtr* ptr = stackalloc System.IntPtr[1];
+			*ptr = (nint)(&value);
+			Unsafe.SkipInit(out System.IntPtr intPtr);
+			System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_set_TransportIndex_Internal_set_Void_Int32_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+			Il2CppException.RaiseExceptionIfNecessary(intPtr);
+		}
+	}
+
+	public unsafe bool Authenticated
+	{
+		[CallerCount(0)]
+		get
+		{
+			IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+			System.IntPtr* ptr = null;
+			Unsafe.SkipInit(out System.IntPtr intPtr);
+			System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_get_Authenticated_Public_get_Boolean_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+			Il2CppException.RaiseExceptionIfNecessary(intPtr);
+			return *(bool*)IL2CPP.il2cpp_object_unbox(intPtr2);
+		}
+		[CallerCount(0)]
+		set
+		{
+			IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+			System.IntPtr* ptr = stackalloc System.IntPtr[1];
+			*ptr = (nint)(&value);
+			Unsafe.SkipInit(out System.IntPtr intPtr);
+			System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_set_Authenticated_Private_set_Void_Boolean_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+			Il2CppException.RaiseExceptionIfNecessary(intPtr);
+		}
+	}
+
+	public unsafe bool IsActive
+	{
+		[CallerCount(12)]
+		[CachedScanResults(RefRangeStart = 459409, RefRangeEnd = 459421, XrefRangeStart = 459409, XrefRangeEnd = 459409, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+		get
+		{
+			IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+			System.IntPtr* ptr = null;
+			Unsafe.SkipInit(out System.IntPtr intPtr);
+			System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_get_IsActive_Public_get_Boolean_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+			Il2CppException.RaiseExceptionIfNecessary(intPtr);
+			return *(bool*)IL2CPP.il2cpp_object_unbox(intPtr2);
+		}
+	}
+
+	public unsafe bool IsValid
+	{
+		[CallerCount(25)]
+		[CachedScanResults(RefRangeStart = 459421, RefRangeEnd = 459446, XrefRangeStart = 459421, XrefRangeEnd = 459421, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+		get
+		{
+			IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+			System.IntPtr* ptr = null;
+			Unsafe.SkipInit(out System.IntPtr intPtr);
+			System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_get_IsValid_Public_get_Boolean_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+			Il2CppException.RaiseExceptionIfNecessary(intPtr);
+			return *(bool*)IL2CPP.il2cpp_object_unbox(intPtr2);
+		}
+	}
+
+	public unsafe NetworkObject FirstObject
+	{
+		[CallerCount(16)]
+		[CachedScanResults(RefRangeStart = 22399, RefRangeEnd = 22415, XrefRangeStart = 22399, XrefRangeEnd = 22415, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+		get
+		{
+			IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+			System.IntPtr* ptr = null;
+			Unsafe.SkipInit(out System.IntPtr intPtr);
+			System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_get_FirstObject_Public_get_NetworkObject_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+			Il2CppException.RaiseExceptionIfNecessary(intPtr);
+			return (intPtr2 != (System.IntPtr)0) ? Il2CppObjectPool.Get<NetworkObject>(intPtr2) : null;
+		}
+		[CallerCount(0)]
+		[CachedScanResults(RefRangeStart = 0, RefRangeEnd = 0, XrefRangeStart = 0, XrefRangeEnd = 0, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+		set
+		{
+			IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+			System.IntPtr* ptr = stackalloc System.IntPtr[1];
+			*ptr = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)value);
+			Unsafe.SkipInit(out System.IntPtr intPtr);
+			System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_set_FirstObject_Private_set_Void_NetworkObject_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+			Il2CppException.RaiseExceptionIfNecessary(intPtr);
+		}
+	}
+
+	public unsafe HashSet<Scene> Scenes
+	{
+		[CallerCount(1)]
+		[CachedScanResults(RefRangeStart = 22415, RefRangeEnd = 22416, XrefRangeStart = 22415, XrefRangeEnd = 22416, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+		get
+		{
+			IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+			System.IntPtr* ptr = null;
+			Unsafe.SkipInit(out System.IntPtr intPtr);
+			System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_get_Scenes_Public_get_HashSet_1_Scene_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+			Il2CppException.RaiseExceptionIfNecessary(intPtr);
+			return (intPtr2 != (System.IntPtr)0) ? Il2CppObjectPool.Get<HashSet<Scene>>(intPtr2) : null;
+		}
+		[CallerCount(0)]
+		[CachedScanResults(RefRangeStart = 0, RefRangeEnd = 0, XrefRangeStart = 0, XrefRangeEnd = 0, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+		set
+		{
+			IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+			System.IntPtr* ptr = stackalloc System.IntPtr[1];
+			*ptr = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)value);
+			Unsafe.SkipInit(out System.IntPtr intPtr);
+			System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_set_Scenes_Private_set_Void_HashSet_1_Scene_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+			Il2CppException.RaiseExceptionIfNecessary(intPtr);
+		}
+	}
+
+	public unsafe bool Disconnecting
+	{
+		[CallerCount(0)]
+		get
+		{
+			IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+			System.IntPtr* ptr = null;
+			Unsafe.SkipInit(out System.IntPtr intPtr);
+			System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_get_Disconnecting_Public_get_Boolean_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+			Il2CppException.RaiseExceptionIfNecessary(intPtr);
+			return *(bool*)IL2CPP.il2cpp_object_unbox(intPtr2);
+		}
+		[CallerCount(0)]
+		set
+		{
+			IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+			System.IntPtr* ptr = stackalloc System.IntPtr[1];
+			*ptr = (nint)(&value);
+			Unsafe.SkipInit(out System.IntPtr intPtr);
+			System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_set_Disconnecting_Private_set_Void_Boolean_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+			Il2CppException.RaiseExceptionIfNecessary(intPtr);
+		}
+	}
+
+	public unsafe uint DisconnectingTick
+	{
+		[CallerCount(0)]
+		get
+		{
+			IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+			System.IntPtr* ptr = null;
+			Unsafe.SkipInit(out System.IntPtr intPtr);
+			System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_get_DisconnectingTick_Internal_get_UInt32_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+			Il2CppException.RaiseExceptionIfNecessary(intPtr);
+			return *(uint*)IL2CPP.il2cpp_object_unbox(intPtr2);
+		}
+		[CallerCount(0)]
+		set
+		{
+			IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+			System.IntPtr* ptr = stackalloc System.IntPtr[1];
+			*ptr = (nint)(&value);
+			Unsafe.SkipInit(out System.IntPtr intPtr);
+			System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_set_DisconnectingTick_Private_set_Void_UInt32_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+			Il2CppException.RaiseExceptionIfNecessary(intPtr);
+		}
+	}
+
+	public unsafe uint Tick
+	{
+		[CallerCount(0)]
+		[CachedScanResults(RefRangeStart = 0, RefRangeEnd = 0, XrefRangeStart = 459463, XrefRangeEnd = 459469, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+		get
+		{
+			IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+			System.IntPtr* ptr = null;
+			Unsafe.SkipInit(out System.IntPtr intPtr);
+			System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_get_Tick_Public_get_UInt32_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+			Il2CppException.RaiseExceptionIfNecessary(intPtr);
+			return *(uint*)IL2CPP.il2cpp_object_unbox(intPtr2);
+		}
+	}
+
+	public unsafe uint LocalReplicateTick
+	{
+		[CallerCount(0)]
+		get
+		{
+			IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+			System.IntPtr* ptr = null;
+			Unsafe.SkipInit(out System.IntPtr intPtr);
+			System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_get_LocalReplicateTick_Public_get_UInt32_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+			Il2CppException.RaiseExceptionIfNecessary(intPtr);
+			return *(uint*)IL2CPP.il2cpp_object_unbox(intPtr2);
+		}
+		[CallerCount(0)]
+		set
+		{
+			IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+			System.IntPtr* ptr = stackalloc System.IntPtr[1];
+			*ptr = (nint)(&value);
+			Unsafe.SkipInit(out System.IntPtr intPtr);
+			System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_set_LocalReplicateTick_Internal_set_Void_UInt32_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+			Il2CppException.RaiseExceptionIfNecessary(intPtr);
+		}
+	}
+
+	public unsafe bool IsHost
+	{
+		[CallerCount(72)]
+		[CachedScanResults(RefRangeStart = 460013, RefRangeEnd = 460085, XrefRangeStart = 460007, XrefRangeEnd = 460013, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+		get
+		{
+			IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+			System.IntPtr* ptr = null;
+			Unsafe.SkipInit(out System.IntPtr intPtr);
+			System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_get_IsHost_Public_get_Boolean_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+			Il2CppException.RaiseExceptionIfNecessary(intPtr);
+			return *(bool*)IL2CPP.il2cpp_object_unbox(intPtr2);
+		}
+	}
+
+	public unsafe bool IsLocalClient
+	{
+		[CallerCount(302)]
+		[CachedScanResults(RefRangeStart = 460090, RefRangeEnd = 460392, XrefRangeStart = 460085, XrefRangeEnd = 460090, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+		get
+		{
+			IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+			System.IntPtr* ptr = null;
+			Unsafe.SkipInit(out System.IntPtr intPtr);
+			System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_get_IsLocalClient_Public_get_Boolean_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+			Il2CppException.RaiseExceptionIfNecessary(intPtr);
+			return *(bool*)IL2CPP.il2cpp_object_unbox(intPtr2);
+		}
+	}
+
+	static NetworkConnection()
+	{
+		Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr = IL2CPP.GetIl2CppClass("FishNet.Runtime.dll", "FishNet.Connection", "NetworkConnection");
+		IL2CPP.il2cpp_runtime_class_init(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr);
+		NativeFieldInfoPtr__toClientBundles = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, "_toClientBundles");
+		NativeFieldInfoPtr__serverDirtied = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, "_serverDirtied");
+		NativeFieldInfoPtr_OnLoadedStartScenes = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, "OnLoadedStartScenes");
+		NativeFieldInfoPtr_OnObjectAdded = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, "OnObjectAdded");
+		NativeFieldInfoPtr_OnObjectRemoved = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, "OnObjectRemoved");
+		NativeFieldInfoPtr__NetworkManager_k__BackingField = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, "<NetworkManager>k__BackingField");
+		NativeFieldInfoPtr__loadedStartScenesAsServer = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, "_loadedStartScenesAsServer");
+		NativeFieldInfoPtr__loadedStartScenesAsClient = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, "_loadedStartScenesAsClient");
+		NativeFieldInfoPtr_PredictedObjectIds = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, "PredictedObjectIds");
+		NativeFieldInfoPtr__TransportIndex_k__BackingField = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, "<TransportIndex>k__BackingField");
+		NativeFieldInfoPtr__Authenticated_k__BackingField = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, "<Authenticated>k__BackingField");
+		NativeFieldInfoPtr_ClientId = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, "ClientId");
+		NativeFieldInfoPtr_Objects = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, "Objects");
+		NativeFieldInfoPtr__FirstObject_k__BackingField = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, "<FirstObject>k__BackingField");
+		NativeFieldInfoPtr__Scenes_k__BackingField = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, "<Scenes>k__BackingField");
+		NativeFieldInfoPtr__Disconnecting_k__BackingField = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, "<Disconnecting>k__BackingField");
+		NativeFieldInfoPtr__DisconnectingTick_k__BackingField = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, "<DisconnectingTick>k__BackingField");
+		NativeFieldInfoPtr_CustomData = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, "CustomData");
+		NativeFieldInfoPtr_ServerConnectionTick = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, "ServerConnectionTick");
+		NativeFieldInfoPtr_PacketTick = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, "PacketTick");
+		NativeFieldInfoPtr_LocalTick = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, "LocalTick");
+		NativeFieldInfoPtr_UNSET_CLIENTID_VALUE = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, "UNSET_CLIENTID_VALUE");
+		NativeFieldInfoPtr_LevelOfDetails = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, "LevelOfDetails");
+		NativeFieldInfoPtr_AllowedForcedLodUpdates = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, "AllowedForcedLodUpdates");
+		NativeFieldInfoPtr_LastLevelOfDetailUpdate = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, "LastLevelOfDetailUpdate");
+		NativeFieldInfoPtr_LevelOfDetailInfractions = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, "LevelOfDetailInfractions");
+		NativeFieldInfoPtr_HashGridEntry = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, "HashGridEntry");
+		NativeFieldInfoPtr__hashGrid = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, "_hashGrid");
+		NativeFieldInfoPtr__nextHashGridUpdateTime = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, "_nextHashGridUpdateTime");
+		NativeFieldInfoPtr__hashGridPosition = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, "_hashGridPosition");
+		NativeFieldInfoPtr__lastPingTick = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, "_lastPingTick");
+		NativeFieldInfoPtr__requiredPingTicks = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, "_requiredPingTicks");
+		NativeFieldInfoPtr_EXCESSIVE_PING_LIMIT = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, "EXCESSIVE_PING_LIMIT");
+		NativeFieldInfoPtr__replicateQueueAverage = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, "_replicateQueueAverage");
+		NativeFieldInfoPtr__lastAverageQueueAddTick = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, "_lastAverageQueueAddTick");
+		NativeFieldInfoPtr__LocalReplicateTick_k__BackingField = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, "<LocalReplicateTick>k__BackingField");
+		NativeMethodInfoPtr_InitializeBuffer_Private_Void_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, 100667068);
+		NativeMethodInfoPtr_Broadcast_Public_Void_T_Boolean_Channel_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, 100667069);
+		NativeMethodInfoPtr_SendToClient_Internal_Void_Byte_ArraySegment_1_Byte_Boolean_DataOrderType_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, 100667070);
+		NativeMethodInfoPtr_GetPacketBundle_Internal_Boolean_Int32_byref_PacketBundle_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, 100667071);
+		NativeMethodInfoPtr_ServerDirty_Private_Void_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, 100667072);
+		NativeMethodInfoPtr_ResetServerDirty_Internal_Void_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, 100667073);
+		NativeMethodInfoPtr_add_OnLoadedStartScenes_Public_add_Void_Action_2_NetworkConnection_Boolean_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, 100667074);
+		NativeMethodInfoPtr_remove_OnLoadedStartScenes_Public_rem_Void_Action_2_NetworkConnection_Boolean_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, 100667075);
+		NativeMethodInfoPtr_add_OnObjectAdded_Public_add_Void_Action_1_NetworkObject_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, 100667076);
+		NativeMethodInfoPtr_remove_OnObjectAdded_Public_rem_Void_Action_1_NetworkObject_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, 100667077);
+		NativeMethodInfoPtr_add_OnObjectRemoved_Public_add_Void_Action_1_NetworkObject_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, 100667078);
+		NativeMethodInfoPtr_remove_OnObjectRemoved_Public_rem_Void_Action_1_NetworkObject_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, 100667079);
+		NativeMethodInfoPtr_get_NetworkManager_Public_get_NetworkManager_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, 100667080);
+		NativeMethodInfoPtr_set_NetworkManager_Private_set_Void_NetworkManager_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, 100667081);
+		NativeMethodInfoPtr_LoadedStartScenes_Public_Boolean_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, 100667082);
+		NativeMethodInfoPtr_LoadedStartScenes_Public_Boolean_Boolean_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, 100667083);
+		NativeMethodInfoPtr_get_TransportIndex_Public_get_Int32_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, 100667084);
+		NativeMethodInfoPtr_set_TransportIndex_Internal_set_Void_Int32_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, 100667085);
+		NativeMethodInfoPtr_get_Authenticated_Public_get_Boolean_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, 100667086);
+		NativeMethodInfoPtr_set_Authenticated_Private_set_Void_Boolean_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, 100667087);
+		NativeMethodInfoPtr_get_IsActive_Public_get_Boolean_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, 100667088);
+		NativeMethodInfoPtr_get_IsValid_Public_get_Boolean_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, 100667089);
+		NativeMethodInfoPtr_get_FirstObject_Public_get_NetworkObject_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, 100667090);
+		NativeMethodInfoPtr_set_FirstObject_Private_set_Void_NetworkObject_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, 100667091);
+		NativeMethodInfoPtr_SetFirstObject_Public_Void_NetworkObject_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, 100667092);
+		NativeMethodInfoPtr_get_Scenes_Public_get_HashSet_1_Scene_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, 100667093);
+		NativeMethodInfoPtr_set_Scenes_Private_set_Void_HashSet_1_Scene_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, 100667094);
+		NativeMethodInfoPtr_get_Disconnecting_Public_get_Boolean_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, 100667095);
+		NativeMethodInfoPtr_set_Disconnecting_Private_set_Void_Boolean_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, 100667096);
+		NativeMethodInfoPtr_get_DisconnectingTick_Internal_get_UInt32_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, 100667097);
+		NativeMethodInfoPtr_set_DisconnectingTick_Private_set_Void_UInt32_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, 100667098);
+		NativeMethodInfoPtr_get_Tick_Public_get_UInt32_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, 100667099);
+		NativeMethodInfoPtr_Equals_Public_Virtual_Boolean_Object_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, 100667100);
+		NativeMethodInfoPtr_Equals_Public_Virtual_Final_New_Boolean_NetworkConnection_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, 100667101);
+		NativeMethodInfoPtr_GetHashCode_Public_Virtual_Int32_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, 100667102);
+		NativeMethodInfoPtr_op_Equality_Public_Static_Boolean_NetworkConnection_NetworkConnection_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, 100667103);
+		NativeMethodInfoPtr_op_Inequality_Public_Static_Boolean_NetworkConnection_NetworkConnection_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, 100667104);
+		NativeMethodInfoPtr__ctor_Public_Void_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, 100667105);
+		NativeMethodInfoPtr__ctor_Public_Void_NetworkManager_Int32_Int32_Boolean_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, 100667106);
+		NativeMethodInfoPtr_Dispose_Internal_Void_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, 100667107);
+		NativeMethodInfoPtr_ToString_Public_Virtual_String_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, 100667108);
+		NativeMethodInfoPtr_Initialize_Private_Void_NetworkManager_Int32_Int32_Boolean_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, 100667109);
+		NativeMethodInfoPtr_Deinitialize_Internal_Void_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, 100667110);
+		NativeMethodInfoPtr_SetDisconnecting_Internal_Void_Boolean_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, 100667111);
+		NativeMethodInfoPtr_Disconnect_Public_Void_Boolean_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, 100667112);
+		NativeMethodInfoPtr_SetLoadedStartScenes_Internal_Boolean_Boolean_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, 100667113);
+		NativeMethodInfoPtr_ConnectionAuthenticated_Internal_Void_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, 100667114);
+		NativeMethodInfoPtr_AddObject_Internal_Void_NetworkObject_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, 100667115);
+		NativeMethodInfoPtr_RemoveObject_Internal_Void_NetworkObject_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, 100667116);
+		NativeMethodInfoPtr_ClearObjects_Private_Void_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, 100667117);
+		NativeMethodInfoPtr_SetFirstObject_Private_Void_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, 100667118);
+		NativeMethodInfoPtr_AddToScene_Internal_Boolean_Scene_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, 100667119);
+		NativeMethodInfoPtr_RemoveFromScene_Internal_Boolean_Scene_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, 100667120);
+		NativeMethodInfoPtr_IsLateForLevelOfDetail_Internal_Boolean_UInt32_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, 100667121);
+		NativeMethodInfoPtr_ResetStates_Lod_Private_Void_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, 100667122);
+		NativeMethodInfoPtr_Observers_FirstObjectChanged_Private_Void_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, 100667123);
+		NativeMethodInfoPtr_Observers_Initialize_Private_Void_NetworkManager_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, 100667124);
+		NativeMethodInfoPtr_UpdateHashGridPositions_Internal_Void_Boolean_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, 100667125);
+		NativeMethodInfoPtr_Observers_Reset_Private_Void_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, 100667126);
+		NativeMethodInfoPtr_InitializePing_Private_Void_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, 100667127);
+		NativeMethodInfoPtr_ResetPingPong_Private_Void_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, 100667128);
+		NativeMethodInfoPtr_CanPingPong_Internal_Boolean_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, 100667129);
+		NativeMethodInfoPtr_Prediction_Initialize_Internal_Void_NetworkManager_Boolean_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, 100667130);
+		NativeMethodInfoPtr_AddAverageQueueCount_Internal_Void_UInt16_UInt32_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, 100667131);
+		NativeMethodInfoPtr_GetAndResetAverageQueueCount_Internal_UInt16_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, 100667132);
+		NativeMethodInfoPtr_get_LocalReplicateTick_Public_get_UInt32_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, 100667133);
+		NativeMethodInfoPtr_set_LocalReplicateTick_Internal_set_Void_UInt32_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, 100667134);
+		NativeMethodInfoPtr_Prediction_Reset_Private_Void_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, 100667135);
+		NativeMethodInfoPtr_get_IsHost_Public_get_Boolean_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, 100667136);
+		NativeMethodInfoPtr_get_IsLocalClient_Public_get_Boolean_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, 100667137);
+		NativeMethodInfoPtr_GetAddress_Public_String_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, 100667138);
+		NativeMethodInfoPtr_Kick_Public_Void_KickReason_LoggingType_String_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, 100667139);
+		NativeMethodInfoPtr_Kick_Public_Void_Reader_KickReason_LoggingType_String_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr, 100667140);
+	}
+
+	[CallerCount(2)]
+	[CachedScanResults(RefRangeStart = 459336, RefRangeEnd = 459338, XrefRangeStart = 459326, XrefRangeEnd = 459336, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe void InitializeBuffer()
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = null;
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_InitializeBuffer_Private_Void_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+	}
+
+	[CallerCount(0)]
+	[CachedScanResults(RefRangeStart = 0, RefRangeEnd = 0, XrefRangeStart = 459338, XrefRangeEnd = 459342, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe void Broadcast<T>(T message, bool requireAuthenticated = true, Channel channel = Channel.Reliable) where T : new()
+	{
+		//IL_0061->IL0064: Incompatible stack types: I vs Ref
+		//IL_0040->IL0064: Incompatible stack types: I vs Ref
+		//IL_004d->IL0064: Incompatible stack types: I vs Ref
+		//IL_0054->IL0064: Incompatible stack types: I vs Ref
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = stackalloc System.IntPtr[3];
+		ref T reference;
+		if (!typeof(T).IsValueType)
+		{
+			object obj = message;
+			if (obj is string)
+			{
+				reference = ref *(?*)IL2CPP.ManagedStringToIl2Cpp(obj as string);
+			}
+			else
+			{
+				System.IntPtr intPtr = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)((obj is Il2CppObjectBase) ? obj : null));
+				reference = ref *(?*)intPtr;
+				if (intPtr != (System.IntPtr)0)
+				{
+					reference = ref *(?*)intPtr;
+					if (IL2CPP.il2cpp_class_is_valuetype(IL2CPP.il2cpp_object_get_class(intPtr)))
+					{
+						reference = ref *(?*)IL2CPP.il2cpp_object_unbox(intPtr);
+					}
+				}
+			}
+		}
+		else
+		{
+			reference = ref message;
+		}
+		*ptr = (nint)Unsafe.AsPointer(ref reference);
+		*(bool**)((byte*)ptr + checked((nuint)1u * unchecked((nuint)sizeof(System.IntPtr)))) = &requireAuthenticated;
+		*(Channel**)((byte*)ptr + checked((nuint)2u * unchecked((nuint)sizeof(System.IntPtr)))) = &channel;
+		Unsafe.SkipInit(out System.IntPtr intPtr2);
+		System.IntPtr intPtr3 = IL2CPP.il2cpp_runtime_invoke(MethodInfoStoreGeneric_Broadcast_Public_Void_T_Boolean_Channel_0<T>.Pointer, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr2);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr2);
+	}
+
+	[CallerCount(12)]
+	[CachedScanResults(RefRangeStart = 459355, RefRangeEnd = 459367, XrefRangeStart = 459342, XrefRangeEnd = 459355, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe void SendToClient(byte channel, Il2CppSystem.ArraySegment<byte> segment, bool forceNewBuffer = false, DataOrderType orderType = DataOrderType.Default)
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = stackalloc System.IntPtr[4];
+		*ptr = (nint)(&channel);
+		*(System.IntPtr*)((byte*)ptr + checked((nuint)1u * unchecked((nuint)sizeof(System.IntPtr)))) = IL2CPP.il2cpp_object_unbox(IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)segment));
+		*(bool**)((byte*)ptr + checked((nuint)2u * unchecked((nuint)sizeof(System.IntPtr)))) = &forceNewBuffer;
+		*(DataOrderType**)((byte*)ptr + checked((nuint)3u * unchecked((nuint)sizeof(System.IntPtr)))) = &orderType;
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_SendToClient_Internal_Void_Byte_ArraySegment_1_Byte_Boolean_DataOrderType_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+	}
+
+	[CallerCount(1)]
+	[CachedScanResults(RefRangeStart = 459374, RefRangeEnd = 459375, XrefRangeStart = 459367, XrefRangeEnd = 459374, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe bool GetPacketBundle(int channel, out PacketBundle packetBundle)
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = stackalloc System.IntPtr[2];
+		*ptr = (nint)(&channel);
+		byte* num = (byte*)ptr + checked((nuint)1u * unchecked((nuint)sizeof(System.IntPtr)));
+		nint num2 = 0;
+		*(nint**)num = &num2;
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_GetPacketBundle_Internal_Boolean_Int32_byref_PacketBundle_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+		nint num3 = num2;
+		packetBundle = ((num3 == 0) ? null : new PacketBundle(num3));
+		return *(bool*)IL2CPP.il2cpp_object_unbox(intPtr2);
+	}
+
+	[CallerCount(0)]
+	[CachedScanResults(RefRangeStart = 0, RefRangeEnd = 0, XrefRangeStart = 459375, XrefRangeEnd = 459376, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe void ServerDirty()
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = null;
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_ServerDirty_Private_Void_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+	}
+
+	[CallerCount(2)]
+	[CachedScanResults(RefRangeStart = 38320, RefRangeEnd = 38322, XrefRangeStart = 38320, XrefRangeEnd = 38322, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe void ResetServerDirty()
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = null;
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_ResetServerDirty_Internal_Void_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+	}
+
+	[SpecialName]
+	[CallerCount(0)]
+	[CachedScanResults(RefRangeStart = 0, RefRangeEnd = 0, XrefRangeStart = 459376, XrefRangeEnd = 459381, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe void add_OnLoadedStartScenes(Il2CppSystem.Action<NetworkConnection, bool> value)
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = stackalloc System.IntPtr[1];
+		*ptr = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)value);
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_add_OnLoadedStartScenes_Public_add_Void_Action_2_NetworkConnection_Boolean_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+	}
+
+	[SpecialName]
+	[CallerCount(0)]
+	[CachedScanResults(RefRangeStart = 0, RefRangeEnd = 0, XrefRangeStart = 459381, XrefRangeEnd = 459386, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe void remove_OnLoadedStartScenes(Il2CppSystem.Action<NetworkConnection, bool> value)
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = stackalloc System.IntPtr[1];
+		*ptr = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)value);
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_remove_OnLoadedStartScenes_Public_rem_Void_Action_2_NetworkConnection_Boolean_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+	}
+
+	[SpecialName]
+	[CallerCount(0)]
+	[CachedScanResults(RefRangeStart = 0, RefRangeEnd = 0, XrefRangeStart = 459386, XrefRangeEnd = 459391, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe void add_OnObjectAdded(Il2CppSystem.Action<NetworkObject> value)
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = stackalloc System.IntPtr[1];
+		*ptr = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)value);
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_add_OnObjectAdded_Public_add_Void_Action_1_NetworkObject_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+	}
+
+	[SpecialName]
+	[CallerCount(0)]
+	[CachedScanResults(RefRangeStart = 0, RefRangeEnd = 0, XrefRangeStart = 459391, XrefRangeEnd = 459396, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe void remove_OnObjectAdded(Il2CppSystem.Action<NetworkObject> value)
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = stackalloc System.IntPtr[1];
+		*ptr = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)value);
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_remove_OnObjectAdded_Public_rem_Void_Action_1_NetworkObject_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+	}
+
+	[SpecialName]
+	[CallerCount(0)]
+	[CachedScanResults(RefRangeStart = 0, RefRangeEnd = 0, XrefRangeStart = 459396, XrefRangeEnd = 459401, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe void add_OnObjectRemoved(Il2CppSystem.Action<NetworkObject> value)
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = stackalloc System.IntPtr[1];
+		*ptr = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)value);
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_add_OnObjectRemoved_Public_add_Void_Action_1_NetworkObject_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+	}
+
+	[SpecialName]
+	[CallerCount(0)]
+	[CachedScanResults(RefRangeStart = 0, RefRangeEnd = 0, XrefRangeStart = 459401, XrefRangeEnd = 459406, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe void remove_OnObjectRemoved(Il2CppSystem.Action<NetworkObject> value)
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = stackalloc System.IntPtr[1];
+		*ptr = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)value);
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_remove_OnObjectRemoved_Public_rem_Void_Action_1_NetworkObject_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+	}
+
+	[CallerCount(0)]
+	public unsafe bool LoadedStartScenes()
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = null;
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_LoadedStartScenes_Public_Boolean_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+		return *(bool*)IL2CPP.il2cpp_object_unbox(intPtr2);
+	}
+
+	[CallerCount(3)]
+	[CachedScanResults(RefRangeStart = 459406, RefRangeEnd = 459409, XrefRangeStart = 459406, XrefRangeEnd = 459406, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe bool LoadedStartScenes(bool asServer)
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = stackalloc System.IntPtr[1];
+		*ptr = (nint)(&asServer);
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_LoadedStartScenes_Public_Boolean_Boolean_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+		return *(bool*)IL2CPP.il2cpp_object_unbox(intPtr2);
+	}
+
+	[CallerCount(0)]
+	[CachedScanResults(RefRangeStart = 0, RefRangeEnd = 0, XrefRangeStart = 459446, XrefRangeEnd = 459463, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe void SetFirstObject(NetworkObject nob)
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = stackalloc System.IntPtr[1];
+		*ptr = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)nob);
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_SetFirstObject_Public_Void_NetworkObject_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+	}
+
+	[CallerCount(0)]
+	[CachedScanResults(RefRangeStart = 0, RefRangeEnd = 0, XrefRangeStart = 459469, XrefRangeEnd = 459471, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe override bool Equals(Il2CppSystem.Object obj)
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = stackalloc System.IntPtr[1];
+		*ptr = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)obj);
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(IL2CPP.il2cpp_object_get_virtual_method(IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)this), NativeMethodInfoPtr_Equals_Public_Virtual_Boolean_Object_0), IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+		return *(bool*)IL2CPP.il2cpp_object_unbox(intPtr2);
+	}
+
+	[CallerCount(0)]
+	public unsafe virtual bool Equals(NetworkConnection nc)
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = stackalloc System.IntPtr[1];
+		*ptr = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)nc);
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_Equals_Public_Virtual_Final_New_Boolean_NetworkConnection_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+		return *(bool*)IL2CPP.il2cpp_object_unbox(intPtr2);
+	}
+
+	[CallerCount(3)]
+	[CachedScanResults(RefRangeStart = 43270, RefRangeEnd = 43273, XrefRangeStart = 43270, XrefRangeEnd = 43273, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe override int GetHashCode()
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = null;
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(IL2CPP.il2cpp_object_get_virtual_method(IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)this), NativeMethodInfoPtr_GetHashCode_Public_Virtual_Int32_0), IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+		return *(int*)IL2CPP.il2cpp_object_unbox(intPtr2);
+	}
+
+	[CallerCount(157)]
+	[CachedScanResults(RefRangeStart = 459471, RefRangeEnd = 459628, XrefRangeStart = 459471, XrefRangeEnd = 459471, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe static bool operator ==(NetworkConnection a, NetworkConnection b)
+	{
+		System.IntPtr* ptr = stackalloc System.IntPtr[2];
+		*ptr = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)a);
+		*(System.IntPtr*)((byte*)ptr + checked((nuint)1u * unchecked((nuint)sizeof(System.IntPtr)))) = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)b);
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_op_Equality_Public_Static_Boolean_NetworkConnection_NetworkConnection_0, (System.IntPtr)0, (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+		return *(bool*)IL2CPP.il2cpp_object_unbox(intPtr2);
+	}
+
+	[CallerCount(12)]
+	[CachedScanResults(RefRangeStart = 459628, RefRangeEnd = 459640, XrefRangeStart = 459628, XrefRangeEnd = 459628, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe static bool operator !=(NetworkConnection a, NetworkConnection b)
+	{
+		System.IntPtr* ptr = stackalloc System.IntPtr[2];
+		*ptr = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)a);
+		*(System.IntPtr*)((byte*)ptr + checked((nuint)1u * unchecked((nuint)sizeof(System.IntPtr)))) = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)b);
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_op_Inequality_Public_Static_Boolean_NetworkConnection_NetworkConnection_0, (System.IntPtr)0, (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+		return *(bool*)IL2CPP.il2cpp_object_unbox(intPtr2);
+	}
+
+	[CallerCount(2)]
+	[CachedScanResults(RefRangeStart = 459686, RefRangeEnd = 459688, XrefRangeStart = 459640, XrefRangeEnd = 459686, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe NetworkConnection()
+		: this(IL2CPP.il2cpp_object_new(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr))
+	{
+		System.IntPtr* ptr = null;
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr__ctor_Public_Void_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+	}
+
+	[CallerCount(2)]
+	[CachedScanResults(RefRangeStart = 459743, RefRangeEnd = 459745, XrefRangeStart = 459688, XrefRangeEnd = 459743, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe NetworkConnection(NetworkManager manager, int clientId, int transportIndex, bool asServer)
+		: this(IL2CPP.il2cpp_object_new(Il2CppClassPointerStore<NetworkConnection>.NativeClassPtr))
+	{
+		System.IntPtr* ptr = stackalloc System.IntPtr[4];
+		*ptr = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)manager);
+		*(int**)((byte*)ptr + checked((nuint)1u * unchecked((nuint)sizeof(System.IntPtr)))) = &clientId;
+		*(int**)((byte*)ptr + checked((nuint)2u * unchecked((nuint)sizeof(System.IntPtr)))) = &transportIndex;
+		*(bool**)((byte*)ptr + checked((nuint)3u * unchecked((nuint)sizeof(System.IntPtr)))) = &asServer;
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr__ctor_Public_Void_NetworkManager_Int32_Int32_Boolean_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+	}
+
+	[CallerCount(4)]
+	[CachedScanResults(RefRangeStart = 459746, RefRangeEnd = 459750, XrefRangeStart = 459745, XrefRangeEnd = 459746, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe void Dispose()
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = null;
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_Dispose_Internal_Void_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+	}
+
+	[CallerCount(0)]
+	[CachedScanResults(RefRangeStart = 0, RefRangeEnd = 0, XrefRangeStart = 459750, XrefRangeEnd = 459763, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe override string ToString()
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = null;
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(IL2CPP.il2cpp_object_get_virtual_method(IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)this), NativeMethodInfoPtr_ToString_Public_Virtual_String_0), IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+		return IL2CPP.Il2CppStringToManaged(intPtr2);
+	}
+
+	[CallerCount(0)]
+	[CachedScanResults(RefRangeStart = 0, RefRangeEnd = 0, XrefRangeStart = 459763, XrefRangeEnd = 459772, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe void Initialize(NetworkManager nm, int clientId, int transportIndex, bool asServer)
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = stackalloc System.IntPtr[4];
+		*ptr = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)nm);
+		*(int**)((byte*)ptr + checked((nuint)1u * unchecked((nuint)sizeof(System.IntPtr)))) = &clientId;
+		*(int**)((byte*)ptr + checked((nuint)2u * unchecked((nuint)sizeof(System.IntPtr)))) = &transportIndex;
+		*(bool**)((byte*)ptr + checked((nuint)3u * unchecked((nuint)sizeof(System.IntPtr)))) = &asServer;
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_Initialize_Private_Void_NetworkManager_Int32_Int32_Boolean_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+	}
+
+	[CallerCount(0)]
+	[CachedScanResults(RefRangeStart = 0, RefRangeEnd = 0, XrefRangeStart = 459772, XrefRangeEnd = 459810, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe void Deinitialize()
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = null;
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_Deinitialize_Internal_Void_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+	}
+
+	[CallerCount(1)]
+	[CachedScanResults(RefRangeStart = 459811, RefRangeEnd = 459812, XrefRangeStart = 459810, XrefRangeEnd = 459811, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe void SetDisconnecting(bool value)
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = stackalloc System.IntPtr[1];
+		*ptr = (nint)(&value);
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_SetDisconnecting_Internal_Void_Boolean_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+	}
+
+	[CallerCount(6)]
+	[CachedScanResults(RefRangeStart = 459818, RefRangeEnd = 459824, XrefRangeStart = 459812, XrefRangeEnd = 459818, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe void Disconnect(bool immediately)
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = stackalloc System.IntPtr[1];
+		*ptr = (nint)(&immediately);
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_Disconnect_Public_Void_Boolean_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+	}
+
+	[CallerCount(4)]
+	[CachedScanResults(RefRangeStart = 459825, RefRangeEnd = 459829, XrefRangeStart = 459824, XrefRangeEnd = 459825, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe bool SetLoadedStartScenes(bool asServer)
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = stackalloc System.IntPtr[1];
+		*ptr = (nint)(&asServer);
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_SetLoadedStartScenes_Internal_Boolean_Boolean_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+		return *(bool*)IL2CPP.il2cpp_object_unbox(intPtr2);
+	}
+
+	[CallerCount(3)]
+	[CachedScanResults(RefRangeStart = 459829, RefRangeEnd = 459832, XrefRangeStart = 459829, XrefRangeEnd = 459829, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe void ConnectionAuthenticated()
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = null;
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_ConnectionAuthenticated_Internal_Void_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+	}
+
+	[CallerCount(0)]
+	[CachedScanResults(RefRangeStart = 0, RefRangeEnd = 0, XrefRangeStart = 459832, XrefRangeEnd = 459837, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe void AddObject(NetworkObject nob)
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = stackalloc System.IntPtr[1];
+		*ptr = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)nob);
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_AddObject_Internal_Void_NetworkObject_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+	}
+
+	[CallerCount(0)]
+	[CachedScanResults(RefRangeStart = 0, RefRangeEnd = 0, XrefRangeStart = 459837, XrefRangeEnd = 459845, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe void RemoveObject(NetworkObject nob)
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = stackalloc System.IntPtr[1];
+		*ptr = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)nob);
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_RemoveObject_Internal_Void_NetworkObject_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+	}
+
+	[CallerCount(0)]
+	[CachedScanResults(RefRangeStart = 0, RefRangeEnd = 0, XrefRangeStart = 459845, XrefRangeEnd = 459850, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe void ClearObjects()
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = null;
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_ClearObjects_Private_Void_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+	}
+
+	[CallerCount(2)]
+	[CachedScanResults(RefRangeStart = 459889, RefRangeEnd = 459891, XrefRangeStart = 459850, XrefRangeEnd = 459889, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe void SetFirstObject()
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = null;
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_SetFirstObject_Private_Void_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+	}
+
+	[CallerCount(2)]
+	[CachedScanResults(RefRangeStart = 459895, RefRangeEnd = 459897, XrefRangeStart = 459891, XrefRangeEnd = 459895, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe bool AddToScene(Scene scene)
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = stackalloc System.IntPtr[1];
+		*ptr = (nint)(&scene);
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_AddToScene_Internal_Boolean_Scene_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+		return *(bool*)IL2CPP.il2cpp_object_unbox(intPtr2);
+	}
+
+	[CallerCount(5)]
+	[CachedScanResults(RefRangeStart = 459901, RefRangeEnd = 459906, XrefRangeStart = 459897, XrefRangeEnd = 459901, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe bool RemoveFromScene(Scene scene)
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = stackalloc System.IntPtr[1];
+		*ptr = (nint)(&scene);
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_RemoveFromScene_Internal_Boolean_Scene_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+		return *(bool*)IL2CPP.il2cpp_object_unbox(intPtr2);
+	}
+
+	[CallerCount(0)]
+	[CachedScanResults(RefRangeStart = 0, RefRangeEnd = 0, XrefRangeStart = 459906, XrefRangeEnd = 459914, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe bool IsLateForLevelOfDetail(uint expectedInterval)
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = stackalloc System.IntPtr[1];
+		*ptr = (nint)(&expectedInterval);
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_IsLateForLevelOfDetail_Internal_Boolean_UInt32_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+		return *(bool*)IL2CPP.il2cpp_object_unbox(intPtr2);
+	}
+
+	[CallerCount(1)]
+	[CachedScanResults(RefRangeStart = 459937, RefRangeEnd = 459938, XrefRangeStart = 459914, XrefRangeEnd = 459937, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe void ResetStates_Lod()
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = null;
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_ResetStates_Lod_Private_Void_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+	}
+
+	[CallerCount(0)]
+	[CachedScanResults(RefRangeStart = 0, RefRangeEnd = 0, XrefRangeStart = 459938, XrefRangeEnd = 459955, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe void Observers_FirstObjectChanged()
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = null;
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_Observers_FirstObjectChanged_Private_Void_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+	}
+
+	[CallerCount(0)]
+	[CachedScanResults(RefRangeStart = 0, RefRangeEnd = 0, XrefRangeStart = 459955, XrefRangeEnd = 459959, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe void Observers_Initialize(NetworkManager nm)
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = stackalloc System.IntPtr[1];
+		*ptr = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)nm);
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_Observers_Initialize_Private_Void_NetworkManager_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+	}
+
+	[CallerCount(2)]
+	[CachedScanResults(RefRangeStart = 459976, RefRangeEnd = 459978, XrefRangeStart = 459959, XrefRangeEnd = 459976, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe void UpdateHashGridPositions(bool force)
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = stackalloc System.IntPtr[1];
+		*ptr = (nint)(&force);
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_UpdateHashGridPositions_Internal_Void_Boolean_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+	}
+
+	[CallerCount(0)]
+	[CachedScanResults(RefRangeStart = 0, RefRangeEnd = 0, XrefRangeStart = 459978, XrefRangeEnd = 459983, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe void Observers_Reset()
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = null;
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_Observers_Reset_Private_Void_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+	}
+
+	[CallerCount(2)]
+	[CachedScanResults(RefRangeStart = 459987, RefRangeEnd = 459989, XrefRangeStart = 459983, XrefRangeEnd = 459987, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe void InitializePing()
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = null;
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_InitializePing_Private_Void_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+	}
+
+	[CallerCount(0)]
+	public unsafe void ResetPingPong()
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = null;
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_ResetPingPong_Private_Void_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+	}
+
+	[CallerCount(1)]
+	[CachedScanResults(RefRangeStart = 459996, RefRangeEnd = 459997, XrefRangeStart = 459989, XrefRangeEnd = 459996, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe bool CanPingPong()
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = null;
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_CanPingPong_Internal_Boolean_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+		return *(bool*)IL2CPP.il2cpp_object_unbox(intPtr2);
+	}
+
+	[CallerCount(2)]
+	[CachedScanResults(RefRangeStart = 460002, RefRangeEnd = 460004, XrefRangeStart = 459997, XrefRangeEnd = 460002, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe void Prediction_Initialize(NetworkManager manager, bool asServer)
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = stackalloc System.IntPtr[2];
+		*ptr = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)manager);
+		*(bool**)((byte*)ptr + checked((nuint)1u * unchecked((nuint)sizeof(System.IntPtr)))) = &asServer;
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_Prediction_Initialize_Internal_Void_NetworkManager_Boolean_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+	}
+
+	[CallerCount(1)]
+	[CachedScanResults(RefRangeStart = 460006, RefRangeEnd = 460007, XrefRangeStart = 460004, XrefRangeEnd = 460006, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe void AddAverageQueueCount(ushort value, uint tick)
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = stackalloc System.IntPtr[2];
+		*ptr = (nint)(&value);
+		*(uint**)((byte*)ptr + checked((nuint)1u * unchecked((nuint)sizeof(System.IntPtr)))) = &tick;
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_AddAverageQueueCount_Internal_Void_UInt16_UInt32_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+	}
+
+	[CallerCount(0)]
+	public unsafe ushort GetAndResetAverageQueueCount()
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = null;
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_GetAndResetAverageQueueCount_Internal_UInt16_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+		return *(ushort*)IL2CPP.il2cpp_object_unbox(intPtr2);
+	}
+
+	[CallerCount(8)]
+	[CachedScanResults(RefRangeStart = 65422, RefRangeEnd = 65430, XrefRangeStart = 65422, XrefRangeEnd = 65430, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe void Prediction_Reset()
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = null;
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_Prediction_Reset_Private_Void_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+	}
+
+	[CallerCount(0)]
+	[CachedScanResults(RefRangeStart = 0, RefRangeEnd = 0, XrefRangeStart = 460392, XrefRangeEnd = 460398, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe string GetAddress()
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = null;
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_GetAddress_Public_String_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+		return IL2CPP.Il2CppStringToManaged(intPtr2);
+	}
+
+	[CallerCount(7)]
+	[CachedScanResults(RefRangeStart = 460399, RefRangeEnd = 460406, XrefRangeStart = 460398, XrefRangeEnd = 460399, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe void Kick(KickReason kickReason, LoggingType loggingType = LoggingType.Common, string log = "")
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = stackalloc System.IntPtr[3];
+		*ptr = (nint)(&kickReason);
+		*(LoggingType**)((byte*)ptr + checked((nuint)1u * unchecked((nuint)sizeof(System.IntPtr)))) = &loggingType;
+		*(System.IntPtr*)((byte*)ptr + checked((nuint)2u * unchecked((nuint)sizeof(System.IntPtr)))) = IL2CPP.ManagedStringToIl2Cpp(log);
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_Kick_Public_Void_KickReason_LoggingType_String_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+	}
+
+	[CallerCount(0)]
+	[CachedScanResults(RefRangeStart = 0, RefRangeEnd = 0, XrefRangeStart = 460406, XrefRangeEnd = 460407, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe void Kick(Reader reader, KickReason kickReason, LoggingType loggingType = LoggingType.Common, string log = "")
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = stackalloc System.IntPtr[4];
+		*ptr = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)reader);
+		*(KickReason**)((byte*)ptr + checked((nuint)1u * unchecked((nuint)sizeof(System.IntPtr)))) = &kickReason;
+		*(LoggingType**)((byte*)ptr + checked((nuint)2u * unchecked((nuint)sizeof(System.IntPtr)))) = &loggingType;
+		*(System.IntPtr*)((byte*)ptr + checked((nuint)3u * unchecked((nuint)sizeof(System.IntPtr)))) = IL2CPP.ManagedStringToIl2Cpp(log);
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_Kick_Public_Void_Reader_KickReason_LoggingType_String_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+	}
+
+	public NetworkConnection(System.IntPtr pointer)
+		: base(pointer)
+	{
+	}
+}
+You are not using the latest version of the tool, please update.
+Latest version is '11.2.0.10050' (yours is '8.2.0.7535-95108c96')

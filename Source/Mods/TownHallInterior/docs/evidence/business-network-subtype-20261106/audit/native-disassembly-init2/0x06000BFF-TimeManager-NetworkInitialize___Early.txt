@@ -1,0 +1,86 @@
+; ScheduleOne.GameTime.TimeManager::NetworkInitialize___Early/0, token 0x06000BFF, RVA 0x9C9770, next-pointer window 0x170 bytes
+; No target execution. Parser-pointer window can contain padding/cold fragments and is not exact/full function, EH or transitive coverage. Shared direct aliases are truncated to eight names.
+0x9C9770     40 57                           push rdi
+0x9C9772     48 83 EC 20                     sub rsp,20h
+0x9C9776     80 3D 53 41 23 03 00            cmp byte ptr [183BFD8D0h],0
+0x9C977D     48 8B F9                        mov rdi,rcx
+0x9C9780     75 4F                           jne short 00000001809C97D1h
+0x9C9782     48 8D 0D 27 93 02 03            lea rcx,[1839F2AB0h] ; TypeInfo: FishNet.Object.Delegating.ClientRpcDelegate
+0x9C9789     E8 12 E1 94 FF                  call 00000001803178A0h
+0x9C978E     48 8D 0D 33 D9 FD 02            lea rcx,[1839A70C8h] ; MethodRef: System.Void ScheduleOne.DevUtilities.NetworkSingleton`1<ScheduleOne.GameTime.TimeManager>.NetworkInitialize___Early
+0x9C9795     E8 06 E1 94 FF                  call 00000001803178A0h
+0x9C979A     48 8D 0D 27 6A 02 03            lea rcx,[1839F01C8h] ; MethodDef: ScheduleOne.GameTime.TimeManager::RpcReader___Observers_OnTimeSkip_Client_1692629761/2
+0x9C97A1     E8 FA E0 94 FF                  call 00000001803178A0h
+0x9C97A6     48 8D 0D F3 6A 02 03            lea rcx,[1839F02A0h] ; MethodDef: ScheduleOne.GameTime.TimeManager::RpcReader___Observers_PassMinute_Client_3316948804/2
+0x9C97AD     E8 EE E0 94 FF                  call 00000001803178A0h
+0x9C97B2     48 8D 0D BF 6B 02 03            lea rcx,[1839F0378h] ; MethodDef: ScheduleOne.GameTime.TimeManager::RpcReader___Observers_SetTimeData_Client_1794730778/2
+0x9C97B9     E8 E2 E0 94 FF                  call 00000001803178A0h
+0x9C97BE     48 8D 0D 8B 6C 02 03            lea rcx,[1839F0450h] ; MethodDef: ScheduleOne.GameTime.TimeManager::RpcReader___Target_SetTimeData_Client_1794730778/2
+0x9C97C5     E8 D6 E0 94 FF                  call 00000001803178A0h
+0x9C97CA     C6 05 FF 40 23 03 01            mov byte ptr [183BFD8D0h],1
+0x9C97D1     80 BF D0 01 00 00 00            cmp byte ptr [rdi+1D0h],0
+0x9C97D8     0F 85 F9 00 00 00               jne near ptr 00000001809C98D7h
+0x9C97DE     48 89 5C 24 30                  mov [rsp+30h],rbx
+0x9C97E3     C6 87 D0 01 00 00 01            mov byte ptr [rdi+1D0h],1
+0x9C97EA     48 8B CF                        mov rcx,rdi
+0x9C97ED     48 8B 15 D4 D8 FD 02            mov rdx,[1839A70C8h] ; MethodRef: System.Void ScheduleOne.DevUtilities.NetworkSingleton`1<ScheduleOne.GameTime.TimeManager>.NetworkInitialize___Early
+0x9C97F4     E8 07 BF D6 FF                  call 0000000180735700h ; ScheduleOne.DevUtilities.NetworkSingleton`1::NetworkInitialize___Early/0 | ScheduleOne.Configuration.ConfigurationServiceNetworker::NetworkInitialize__Late/0 | FishNet.Object.EmptyNetworkBehaviour::NetworkInitialize__Late/0
+0x9C97F9     48 8B 0D B0 92 02 03            mov rcx,[1839F2AB0h] ; TypeInfo: FishNet.Object.Delegating.ClientRpcDelegate
+0x9C9800     E8 1B E3 94 FF                  call 0000000180317B20h
+0x9C9805     4C 8B 05 6C 6B 02 03            mov r8,[1839F0378h] ; MethodDef: ScheduleOne.GameTime.TimeManager::RpcReader___Observers_SetTimeData_Client_1794730778/2
+0x9C980C     45 33 C9                        xor r9d,r9d
+0x9C980F     48 8B D7                        mov rdx,rdi
+0x9C9812     48 8B C8                        mov rcx,rax
+0x9C9815     48 8B D8                        mov rbx,rax
+0x9C9818     E8 63 39 2F 00                  call 0000000180CBD180h ; FishNet.Object.Prediction.Delegating.ReconcileRpcDelegate::.ctor/2 | FishNet.Object.Delegating.ClientRpcDelegate::.ctor/2
+0x9C981D     45 33 C9                        xor r9d,r9d
+0x9C9820     4C 8B C3                        mov r8,rbx
+0x9C9823     33 D2                           xor edx,edx
+0x9C9825     48 8B CF                        mov rcx,rdi
+0x9C9828     E8 B3 D4 B7 FF                  call 0000000180546CE0h
+0x9C982D     48 8B 0D 7C 92 02 03            mov rcx,[1839F2AB0h] ; TypeInfo: FishNet.Object.Delegating.ClientRpcDelegate
+0x9C9834     E8 E7 E2 94 FF                  call 0000000180317B20h
+0x9C9839     4C 8B 05 10 6C 02 03            mov r8,[1839F0450h] ; MethodDef: ScheduleOne.GameTime.TimeManager::RpcReader___Target_SetTimeData_Client_1794730778/2
+0x9C9840     45 33 C9                        xor r9d,r9d
+0x9C9843     48 8B D7                        mov rdx,rdi
+0x9C9846     48 8B C8                        mov rcx,rax
+0x9C9849     48 8B D8                        mov rbx,rax
+0x9C984C     E8 2F 39 2F 00                  call 0000000180CBD180h ; FishNet.Object.Prediction.Delegating.ReconcileRpcDelegate::.ctor/2 | FishNet.Object.Delegating.ClientRpcDelegate::.ctor/2
+0x9C9851     45 33 C9                        xor r9d,r9d
+0x9C9854     4C 8B C3                        mov r8,rbx
+0x9C9857     BA 01 00 00 00                  mov edx,1
+0x9C985C     48 8B CF                        mov rcx,rdi
+0x9C985F     E8 3C D8 B7 FF                  call 00000001805470A0h
+0x9C9864     48 8B 0D 45 92 02 03            mov rcx,[1839F2AB0h] ; TypeInfo: FishNet.Object.Delegating.ClientRpcDelegate
+0x9C986B     E8 B0 E2 94 FF                  call 0000000180317B20h
+0x9C9870     4C 8B 05 29 6A 02 03            mov r8,[1839F02A0h] ; MethodDef: ScheduleOne.GameTime.TimeManager::RpcReader___Observers_PassMinute_Client_3316948804/2
+0x9C9877     45 33 C9                        xor r9d,r9d
+0x9C987A     48 8B D7                        mov rdx,rdi
+0x9C987D     48 8B C8                        mov rcx,rax
+0x9C9880     48 8B D8                        mov rbx,rax
+0x9C9883     E8 F8 38 2F 00                  call 0000000180CBD180h ; FishNet.Object.Prediction.Delegating.ReconcileRpcDelegate::.ctor/2 | FishNet.Object.Delegating.ClientRpcDelegate::.ctor/2
+0x9C9888     45 33 C9                        xor r9d,r9d
+0x9C988B     4C 8B C3                        mov r8,rbx
+0x9C988E     BA 02 00 00 00                  mov edx,2
+0x9C9893     48 8B CF                        mov rcx,rdi
+0x9C9896     E8 45 D4 B7 FF                  call 0000000180546CE0h
+0x9C989B     48 8B 0D 0E 92 02 03            mov rcx,[1839F2AB0h] ; TypeInfo: FishNet.Object.Delegating.ClientRpcDelegate
+0x9C98A2     E8 79 E2 94 FF                  call 0000000180317B20h
+0x9C98A7     4C 8B 05 1A 69 02 03            mov r8,[1839F01C8h] ; MethodDef: ScheduleOne.GameTime.TimeManager::RpcReader___Observers_OnTimeSkip_Client_1692629761/2
+0x9C98AE     45 33 C9                        xor r9d,r9d
+0x9C98B1     48 8B D7                        mov rdx,rdi
+0x9C98B4     48 8B C8                        mov rcx,rax
+0x9C98B7     48 8B D8                        mov rbx,rax
+0x9C98BA     E8 C1 38 2F 00                  call 0000000180CBD180h ; FishNet.Object.Prediction.Delegating.ReconcileRpcDelegate::.ctor/2 | FishNet.Object.Delegating.ClientRpcDelegate::.ctor/2
+0x9C98BF     45 33 C9                        xor r9d,r9d
+0x9C98C2     4C 8B C3                        mov r8,rbx
+0x9C98C5     BA 03 00 00 00                  mov edx,3
+0x9C98CA     48 8B CF                        mov rcx,rdi
+0x9C98CD     E8 0E D4 B7 FF                  call 0000000180546CE0h
+0x9C98D2     48 8B 5C 24 30                  mov rbx,[rsp+30h]
+0x9C98D7     48 83 C4 20                     add rsp,20h
+0x9C98DB     5F                              pop rdi
+0x9C98DC     C3                              ret
+0x9C98DD     CC                              int 3
+0x9C98DE     CC                              int 3
+0x9C98DF     CC                              int 3

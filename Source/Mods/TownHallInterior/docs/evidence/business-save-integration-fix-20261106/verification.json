@@ -1,0 +1,125 @@
+{
+  "captured_utc": "2026-11-06T07:58:48.799238+00:00",
+  "source_revision": "b2c6c7e6c6ecc778da9624cdb68a6578b9db471a",
+  "source_worktree": "dirty",
+  "baseline_tests": {
+    "passed": 860,
+    "failed": 0
+  },
+  "cleanup_regressions_against_original_source": {
+    "passed": 3,
+    "failed": 15,
+    "total": 18
+  },
+  "legacy_getter_classification_mutation": {
+    "passed": 0,
+    "failed": 2,
+    "scope": "Copied corrected source with only old getter-as-save classification reintroduced; not an original baseline-source run"
+  },
+  "final_townhall_tests": {
+    "passed": 884,
+    "failed": 0,
+    "skipped": 0
+  },
+  "no_deploy_builds": {
+    "Normal": {
+      "status": "passed",
+      "warnings": 0,
+      "errors": 0,
+      "dll_sha256": "ffef30e6a952cc63d161d610bd196bef641e24be7a897c4b6ae013d69c0029fb"
+    },
+    "Subtype": {
+      "status": "passed",
+      "warnings": 0,
+      "errors": 0,
+      "dll_sha256": "6918b3ba81420366576ee8b54926d4f07c91830df5d400e98b71129dff9cf404"
+    },
+    "Interface": {
+      "status": "passed",
+      "warnings": 0,
+      "errors": 0,
+      "dll_sha256": "28f9d7bfa90e8d4497566583f9d202a11bb5902ff964f4d290eb4e83e56c21f0"
+    },
+    "Manager": {
+      "status": "passed",
+      "warnings": 0,
+      "errors": 0,
+      "dll_sha256": "38bd7da3159c4ab9363695e0f9717e659322ca68e852d316a13181fa9eaab72a"
+    }
+  },
+  "source_hashes": {
+    "Source/Mods/TownHallInterior/src/BusinessConstruction.cs": "159f7cbdc6c7c01db1a34c93cfe2c02c8df095c2f709678afb2bf13256b9e868",
+    "Source/Tests/TownHallInterior.Tests/BusinessSubtypeTests.cs": "1f73b0a1b425a97d30004eb522c84fc640c9398953af3f9c8785f95e7e116d78",
+    "Source/Tests/TownHallInterior.Tests/BusinessSaveIntegrationRegressionTests.cs": "55111225977871cbb496505f000858f2c9c6f15ffbc2e0d820e8c2e28ce7c867",
+    "Source/Mods/TownHallInterior/docs/CHANGELOG.md": "36cecfb7635ae853970b232ebcb1bfe3ec97ccf2174e0527c98b1b7e85cca32d",
+    "Source/Mods/TownHallInterior/docs/README.md": "d4988fa5bd493e6b27cf95756c3960affac70c634d82e1d954a57c73817a8c01",
+    "Source/Mods/TownHallInterior/docs/business-completion-plan.md": "a75c4364d14bc67d47d7e715a67805c02c92a999f996f7c2222dcf9a227e59e4",
+    "Source/Mods/TownHallInterior/docs/business-save-transition-plan.md": "1b82fbfc90720c877518bc12e92d709c3f9dee3f5faf9da5a903a6e83d52698e",
+    "Source/Mods/TownHallInterior/docs/business-manager-save-probe.md": "0537eacb294fc67962c0a07a5faf86ccee01ad53c65ad152bc192e55b4694896",
+    "docs/compatibility.md": "f2ace68843643cf3291cdcf5f852efb01c3258cbf8be81eb7b2ac22a69e70f89"
+  },
+  "isolated_pure": {
+    "status": "failed",
+    "passed_steps": 21,
+    "failed_steps": 1,
+    "failed_step_names": [
+      "versions"
+    ],
+    "xunit": {
+      "projects": 18,
+      "passed": 4815,
+      "failed": 0,
+      "total": 4815
+    },
+    "console_checks_passed": 265,
+    "game_required_shared_tests": "not executed",
+    "source_and_checkout_hashes_checked_after_run": 2018,
+    "source_file_set_matched_after_run": true,
+    "submodule_pins_matched": true
+  },
+  "installed_artifacts_before": [
+    {
+      "Path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Schedule I\\Mods\\TownHallInterior.dll",
+      "Hash": "3FFBC248F631162956EDDAAFB4F5144D0D90A56AA6B4C7D52342DD6B4C4505FE"
+    },
+    {
+      "Path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Schedule I\\UserData\\TownHallInterior\\TownHallInterior.pdb",
+      "Hash": "978F8ECA012FB214D3D4A3D35C4F73135822049A6D9F24F2663C1450E2CDE459"
+    }
+  ],
+  "deployment_performed": false,
+  "game_launched": false,
+  "native_saves_accessed": false,
+  "completed_utc": "2026-11-06T08:14:36.085703+00:00",
+  "post_run_documentation_clarification": {
+    "path": "Source/Mods/TownHallInterior/docs/business-manager-save-probe.md",
+    "snapshot_sha256": "cfa70fe5280e20a5a4a152409eee9b733f96be9aa01d15282011f603db14dc42",
+    "final_sha256": "0537eacb294fc67962c0a07a5faf86ccee01ad53c65ad152bc192e55b4694896",
+    "scope": "Qualifies cleanup rule as applying after entry into save preflight; production/tests unchanged. Same clarification copied into isolated checkout and documentation paths rechecked. No full Pure rerun after this wording-only change.",
+    "isolated_doc_path_check": "passed"
+  },
+  "installed_artifacts_after": [
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Schedule I\\Mods\\TownHallInterior.dll",
+      "sha256": "3ffbc248f631162956eddaafb4f5144d0d90a56aa6b4c7d52342dd6b4c4505fe"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Schedule I\\UserData\\TownHallInterior\\TownHallInterior.pdb",
+      "sha256": "978f8eca012fb214d3d4a3d35c4f73135822049a6d9f24f2663c1450e2cde459"
+    }
+  ],
+  "source_file_budget": 20,
+  "local_whitespace_check": "passed",
+  "git_diff_check": "passed",
+  "unrelated_source_files_unchanged": 1992,
+  "changed_preexisting_files": [
+    "Source/Mods/TownHallInterior/docs/business-manager-save-probe.md",
+    "Source/Mods/TownHallInterior/docs/business-save-transition-plan.md",
+    "Source/Mods/TownHallInterior/docs/CHANGELOG.md",
+    "Source/Mods/TownHallInterior/docs/README.md",
+    "Source/Mods/TownHallInterior/docs/business-completion-plan.md",
+    "Source/Mods/TownHallInterior/src/BusinessConstruction.cs",
+    "Source/Tests/TownHallInterior.Tests/BusinessSubtypeTests.cs",
+    "docs/compatibility.md"
+  ]
+}

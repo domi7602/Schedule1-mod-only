@@ -1,0 +1,8 @@
+[
+  {"Type":"ScheduleOne.DevUtilities.PersistentSingleton`1","Token":"0x060030C9"},
+  {"Type":"ScheduleOne.DevUtilities.Singleton`1","Token":"0x060030FF"},
+  {"Type":"ScheduleOne.DevUtilities.Singleton`1","Token":"0x06003100"},
+  {"Type":"ScheduleOne.UI.MainMenu.ConfirmExitScreen","Token":"0x06006A54"},
+  {"Type":"ScheduleOne.Tools.ExitToMenu","Token":"0x06003CFE"},
+  {"Type":"ScheduleOne.Persistence.LoadManager+<>c__DisplayClass81_1","Token":"0x0600180B"}
+]

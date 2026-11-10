@@ -1,0 +1,290 @@
+{
+  "schema": 1,
+  "assessmentUtc": "2026-11-05T17:28:45.9034925Z",
+  "reviewer": "GPT-6.1 Sol / OpenCode; separat delegierter unabhängiger Entwurfsprüfer, kein Beitrag zum geprüften Entwurf",
+  "status": "complete-bounded-design-coherence-review-no-required-corrections",
+  "evidenceKind": "Eigenständiger statischer Entwurfs-/Quellenabgleich; native Aussagen ausschließlich als gehashte, zugeschriebene Vorbefunde",
+  "designVerdict": "coherent-for-data-only-owner-design-with-nonblocking-clarifications",
+  "criterionVerdicts": { "accepted": 9, "limited": 1, "needs-correction": 0 },
+  "nativeSaveWriteAllowed": false,
+  "saveApproval": false,
+  "safeNativeUnregistrationEstablished": false,
+  "safeNativeDestroyEstablished": false,
+  "nativeWriteSuccessEstablished": false,
+  "sidecarConsistencyEstablished": false,
+  "implementationPerformed": false,
+  "implementationAuthorizedByThisReview": false,
+  "repository": {
+    "project": "schedule1-mod-only",
+    "directory": "C:/Users/pc/Schedule1-mod-only",
+    "head": "b2c6c7e6c6ecc778da9624cdb68a6578b9db471a",
+    "branch": "main",
+    "sourceWorktree": "dirty",
+    "independentlyObservedUtc": "2026-11-05T17:26:50.2792814Z",
+    "statusScope": "git status --porcelain=v1 --untracked-files=normal --ignore-submodules=all; HEAD und Branch eigenständig gelesen",
+    "preservation": "Alle vorgefundenen Änderungen erhalten. Der Parent darf andere Statusdokumente bearbeiten; keine Behauptung eines insgesamt eingefrorenen Arbeitsbaums. Maßgeblich sind die unten benannten Dateihashes."
+  },
+  "draft": {
+    "path": ".scratch/townhall-save-operation-owner-design-20261105/business-save-operation-owner-v1.md",
+    "sha256": "cd9517772af6c65a21968f812bed7d371420a1f13b674196663f4503287a58cb",
+    "bytes": 19290,
+    "lineCount": 233,
+    "maintainedCopy": "Source/Mods/TownHallInterior/docs/business-save-operation-owner.md",
+    "maintainedCopySha256": "cd9517772af6c65a21968f812bed7d371420a1f13b674196663f4503287a58cb",
+    "bothMatchFreeze": true,
+    "freezePath": ".scratch/townhall-save-operation-owner-design-20261105/design-freeze.json",
+    "freezeSha256": "b905b06fbf7ca584948002203b583f365a50c7732a4a9df7f8281fba9b579c9f",
+    "frozenUtc": "2026-11-05T17:23:54.985990+00:00",
+    "citationConvention": "draft:N-M bezeichnet Zeilen des unveränderten 233-Zeilen-Snapshots; die dauerhafte Kopie ist bytehashgleich."
+  },
+  "primaryInputFreeze": {
+    "path": ".scratch/townhall-save-operation-owner-design-20261105/input-manifest.json",
+    "sha256": "8a027724ef0ae3c502dda56b80decf86d7827a64f36fe89849111b970be737c7",
+    "capturedUtc": "2026-11-05T17:19:10.933997+00:00",
+    "protectedSourcesIndependentlyHashed": 41,
+    "protectedSourceMatches": 41,
+    "designSourcesIndependentlyHashed": 14,
+    "designSourceMatches": 14,
+    "originalAuditMarkdownsIncludedInThose14": 2,
+    "hashCheckUtc": "2026-11-05T17:26:50.2792814Z",
+    "snapshotLimit": "Erster eigener Hashabgleich nach dem Lesen, kein eigener Prä-Lese-Snapshot behauptet. Alle geprüften Fassungen stimmen mit dem früheren Parent-Freeze überein."
+  },
+  "scope": {
+    "ownedReport": ".scratch/townhall-save-operation-owner-design-20261105/owner-design-review.json",
+    "ownedSmallOutputDirectory": ".scratch/townhall-save-operation-owner-design-20261105/design-review/",
+    "included": [
+      "Eingefrorener Entwurf vollständig; gezielter Abgleich der benannten eigenen Originalquellen und tatsächlichen bedingten Aufrufer",
+      "AGENTS.md vollständig und alle sieben benannten Regel-/Skilldateien gelesen",
+      "Zwei Originalauditmarkdowns und drei ausdrücklich benannte archivierte Review-/Korrekturberichte gelesen und gehasht",
+      "Eigenständige Bytehashprüfung der 41 geschützten Produktions-/Testquellen; kein inhaltlicher Neu-/Vollreview dieser 41 Dateien"
+    ],
+    "excluded": [
+      "Implementierung, Produktions-/Test-/Entwurfs-/Quellen-/Vaultänderungen und weitere Delegation",
+      "Installierte Spiel-/Moddateien, GameAssembly/Metadaten-Neumapping, Decoder, native Neubestätigung und neue allgemeine Recherche",
+      "Saves, UserData, Sidecars, Spiel-/Bridge-/Konsolen-/native Aufrufe",
+      "Builds, Testsuiten, Quick/Pure/Full, isolierter Checkout, Downloads/Installation, Commits/Push",
+      "Wiedereröffnung alter Basisabnahmen, 681 Tests oder früherer Native-Audits"
+    ],
+    "vaultBoundary": "Vault-Regeln, SCHEMA.md, index.md, Projektkarte und letzte relevante log.md-Einträge nur gelesen; Dokumentpflege und Vaultprüfung bleiben beim Parent."
+  },
+  "summary": [
+    "Keine belastbare Pflichtkorrektur am eingefrorenen Entwurf gefunden. Das Urteil gilt für Kohärenz und Abgrenzung eines noch nicht implementierten datenbasierten Besitzers, nicht für dessen spätere Implementierung.",
+    "Die fehlenden nativen Konstruktion-/Lebensdauer-/Callback-/Entfernungsverträge sind explizite Zulassungsblocker und werden weder durch Zustimmung noch durch neue Datenfelder bewiesen.",
+    "Ein nichtblockierender Präzisierungsbedarf bleibt bei der konkreten Ordnung von Off-thread-Widerruf und Effektbeginn. Der Entwurf fordert das richtige Invariant, wählt aber noch keinen Linearisationmechanismus.",
+    "Die historische WX-06-Korrektur bleibt erhalten: StartGame-Ablehnung nur bei allowLoadStacking=false; der frühere Native-Review bleibt 7 agree / 1 limited und wird hier nicht nachbewertet."
+  ],
+  "criteria": [
+    {
+      "id": "ODR-01",
+      "criterion": "Erster Baustein ausschließlich datenbasierter verwalteter Besitzer",
+      "verdict": "accepted",
+      "locations": ["draft:10-22,51-69,100-105,218-222", "business:120-138,264-275", "variants:2-22"],
+      "reason": "Native Ports, Unity-Objekte, Dateischreiber und reale Registrierungs-/Save-/Remove-/Destroyrechte sind ausgeschlossen. Künstliche Nachrichten dürfen Zustände simulieren, ohne Engineeffekte zu erreichen. Selbst Begin am alten Save-Modell und Mod-/Loaded-/Stop-Verdrahtung sind aus dem nächsten reinen Baustein ausgenommen. Die heutige vorgeschaltete Sperre wird nicht als implementierter neuer Besitzer umgedeutet.",
+      "limit": "Keine Implementierung oder Prüfung eines ausführbaren Besitzers; ausschließlich schlüssige Entwurfsgrenze."
+    },
+    {
+      "id": "ODR-02",
+      "criterion": "Unveränderliche Welt-/Manager-/Listen-/Instanzbindung, Reload/ABA, kein Singleton-Retarget",
+      "verdict": "accepted",
+      "locations": ["draft:56-69,80-90,140-144,198", "business:234-246,1880-1894,1926-1936,2148-2173,2409-2423", "own-prior:OWN-02,OWN-03,OWN-04"],
+      "reason": "Prozess-/Auftragsidentität, eigene bestätigte Ladeepoche, Zielpfade und später konkrete alte Manager-/Listen-/Instanzreferenzen bleiben getrennt. Gleiche Pfade oder wiederverwendete Pointer erlauben keine Wiederbindung. Der Entwurf erkennt die heutige dynamische Singletonauflösung als unzureichend; reine Modellkennungen werden nicht als native Handles ausgegeben.",
+      "limit": "Die tatsächliche Bestätigung einer Epoche sowie native Lesbarkeit/Lebensdauer sind noch zu belegen und bleiben vor nativer Anbindung blockierend."
+    },
+    {
+      "id": "ODR-03",
+      "criterion": "Capacity 1/Prozesstombstone getrennt vom Saveversuch, Intent vor Teilwirkung, frühe Konstruktorcallbacks",
+      "verdict": "accepted",
+      "locations": ["draft:56,59-60,71-76,80-87,109-133,197,199-200", "business:170-181,256-275,2214-2225", "own-prior:OWN-01,OWN-06,ARCH-02"],
+      "reason": "Slotbelegung bei Bindung, unverbrauchter eigener Save und möglicher nativer Effekt werden nicht vermischt. Nach Bindung bleibt der Prozessslot auch bei rein verwaltetem Abbruch verbraucht; neuer Besitzer ist kein Retry. Typregistrierung sowie Konstruktions-/Registrierungs-/Save-/Remove-/Destroyintent sind vor Teilwirkung zu markieren. Die Lücke vor AddComponent-Rückkehr und vor Besitzerzuordnung ist ausdrücklich erkannt; Reservierung allein schließt sie nicht.",
+      "limit": "Kein neuer Konstruktionseinstieg zulässig; ein konkreter callbacksicherer Bindungsweg wird nicht behauptet. Zwei zusätzliche explizite Gegenfälle wären nützlich, siehe ODR-OPT-02."
+    },
+    {
+      "id": "ODR-04",
+      "criterion": "Reentranz, Off-thread-Eintritt, unmittelbarer Widerruf vor Effekt, Quarantäne bleibt nach Rückkehr bestehen",
+      "verdict": "limited",
+      "locations": ["draft:61,115,124-147,197,204,207", "business:154-192,230-244,1783-1812", "own-prior:OWN-05"],
+      "reason": "Der Entwurf verlangt erneute Zulassungsprüfung unmittelbar vor jedem Effekt, Reentranzschutz vor externem Eintritt, verschachtelte Eintritt/Austritt-Buchführung, thread-sicheren Widerruf ohne Unity-/Dateiarbeit sowie Abgleich nach Rückkehr. Eine reentrant gesetzte Quarantäne darf nicht durch pending überschrieben werden. Allerdings ist der genaue geordnete/linearisierte Beginn eines Effekts gegenüber einem konkurrierenden Off-thread-Widerruf noch nicht festgelegt.",
+      "whyNotNeedsCorrection": "Es handelt sich um eine ausdrücklich zukünftige Entwurfsanforderung ohne vorhandene Effektports oder Behauptung atomarer Runtimegarantien. Die fehlende konkrete Synchronisation widerspricht dem reinen Datenvertrag nicht und ist keine Pflichtkorrektur dieses Freeze. Ein späterer Effektadapter muss diese Grenze konkret nachweisen; bloßes Check-then-call genügt dann nicht.",
+      "optionalSuggestion": "ODR-OPT-01"
+    },
+    {
+      "id": "ODR-05",
+      "criterion": "Weltwechsel, Listenerverlust, Hallenexception, Stop, Codeunload und Verwaltungsreichweite",
+      "verdict": "accepted",
+      "locations": ["draft:78-98,127-133,204-205,223-227", "entry:49-89,92-107", "business:1834-1936,2118-2129,2380-2403", "own-prior:OWN-04,OWN-06,OWN-07", "world-exit-audit:207-236"],
+      "reason": "Der geplante Besitzer liegt außerhalb von Halle/Szenenwurzel und der Verwaltungszweig soll vor Hallen-/Readiness-Gates fehlerisoliert erreichbar sein. Das ist gegenüber dem heutigen _hall.Tick vor dem Probe-Tick korrekt begründet. Stop widerruft vor Abmeldung, aber bestätigt keinen Drain; Listenerverlust und ausbleibende Meldungen bestätigen keinen Abbruch. Statische Erreichbarkeit über Deinitialize wird ausdrücklich nicht mit sicher ausführbarem entladenem Callbackcode verwechselt.",
+      "limit": "Reale Aufruferverdrahtung und native Fortlebens-/Codeunloadgrenzen fehlen bewusst. Der Text verlangt deren Nachweis vor Exposition statt Quarantäne als Heilung einer unsicheren Lebensdauer auszugeben."
+    },
+    {
+      "id": "ODR-06",
+      "criterion": "Autosaves/fremde Saves nicht global blockieren; eigener Savebudgetzähler ist nicht gesamte Teilnahmemenge",
+      "verdict": "accepted",
+      "locations": ["draft:112-113,148-157,166-168,201", "probe-prior:192-204", "plan-prior:300-305", "native-save-audit:207-219"],
+      "reason": "Höchstens ein eigener expliziter Save ist ausdrücklich keine Exklusivitätssperre für Autosaves, andere Mods oder Reentranz. Globales Abfangen ist untersagt. Eine unerwartete Teilnahme vor eigenem Intent verbraucht keine vermeintliche globale Savequote, sondern widerruft den noch geplanten eigenen Save. Instanzcallback und eigene OperationKey machen fremde oder alte Durchläufe nicht korreliert.",
+      "limit": "Alle erreichbaren Fremdsave-/Defaultpfade bleiben Teilnehmer-Zulassungsblocker, keine als erfüllt angenommene Nicht-IO-Zusage."
+    },
+    {
+      "id": "ODR-07",
+      "criterion": "Keine native Quittung aus Zählernull/Idle/Completion/Frame/Retain/leerer Liste/Timeout; drei Beweisziele getrennt",
+      "verdict": "accepted",
+      "locations": ["draft:17-22,62-63,93-98,114-117,145-168,170-191,202-203,208,229-230", "business:120-138,208-244", "native-save-audit:170-232", "world-exit-audit:33-39,187-204"],
+      "reason": "Der Entwurf verwirft jede benannte Heuristik als eigenständigen Last-Use-/Erfolgsbeweis. Eigene Zähler umfassen nicht den nativen Dispatchstack. Die 60 Sekunden sind nur Diagnosefrist. Eigene letzte Nutzung/Entfernung, nativer Schreiberfolg und Moddatenkonsistenz bleiben getrennt; weder released-proven noch ein erfolgreicher Write setzen die jeweils anderen Ziele wahr.",
+      "limit": "Die positiven alten Modellfälle bleiben von CompletionContractVerified abhängige historische Modellbelege. Hier wird keine native oder globale vollständige Speicher-/Transaktionsgarantie verlangt oder hergestellt."
+    },
+    {
+      "id": "ODR-08",
+      "criterion": "Gezielte Entfernung, unknown-effect kein Retry, späte Beobachtungen und begrenzte Diagnose",
+      "verdict": "accepted",
+      "locations": ["draft:60-63,115-133,158-164,172-188,202,206-207", "business:172-190,217-226", "native-save-audit:175-195"],
+      "reason": "Abmeldung muss sich auf die alte eigene Bindung beziehen, neue Akquisition ausschließen und bereits erfasste Verbraucher gesondert lebensdauerpflichtig behandeln. Globale Clears, StopAllCoroutines und Fremdlistenmutation sind ausgeschlossen. Unklare Remove-/Destroywirkung oder fehlgeschlagener Readback bleiben terminal ohne zweiten Aufruf. Späte Hinweise werden nur angefügt; kein automatisches Wiederöffnen. 64 begrenzte Einträge plus feste Latches verhindern unbegrenztes Payload-/SaveStringpuffern.",
+      "limit": "Ein voller Ring oder eine Diagnose-/Sequenzlücke widerruft statt Beweise wegzurotieren. Das ist eine Modellanforderung, keine bereits implementierte Speicher- oder Last-Use-Grenze."
+    },
+    {
+      "id": "ODR-09",
+      "criterion": "Unterscheidende künftige Gegenfälle und enger gesonderter Implementierungsbaustein; alte Abnahmen nicht neu öffnen",
+      "verdict": "accepted",
+      "locations": ["draft:193-233", "spec-first:7-19", "probe-prior:141-177,192-204", "plan-prior:292-312"],
+      "reason": "Die Gegenfälle benennen konkrete Unterschiede: ABA, reentrante Bindung/Save, Wirkung-und-Exception, Fremdsave, irreführende Completion, unabhängige Completed-/Batchhalter, verlorenes Weltwechselsignal, Hallenfehler/Stop und teilwirksames Remove/Destroy. Nur künstliche Identitäten/Nachrichten sind für neue reine Modellprüfungen vorgesehen. Der nächste Schritt enthält gerade keine Runtimeports, alte Trial-Begin-Aufrufe oder Mod-Lifecycle-Verdrahtung.",
+      "limit": "Dies sind geplante Prüfungen, keine ausgeführten Tests und kein Anspruch auf exhaustive Vollständigkeit. Alte 681 Tests, Native-Audits und Basisabnahmen bleiben geschlossen. Dieser Review führt den erst künftig gesondert beauftragten Implementierungsschritt nicht aus."
+    },
+    {
+      "id": "ODR-10",
+      "criterion": "Native unbekannte Voraussetzungen bleiben echte BLOCKER statt neuer Bool-/Belegrecord-Freigabe",
+      "verdict": "accepted",
+      "locations": ["draft:3-22,51-76,93-98,142-144,166-168,186-191,223-233", "business:135-138,164,264-275", "world-exit-audit:9-39,225-236", "native-world-prior:WX-08,conclusion"],
+      "reason": "Proofs sind Herkunft-/Scope-Daten und standardmäßig unknown; ein Record oder Fake-true erzeugt ausdrücklich keinen Beweis. Konstruktorbindung, native Lebensdauer, Codeunload, alle tatsächlich erreichbaren Callback-/Nicht-IO-/Nicht-Retargetpfade sowie korrelierte letzte Nutzung/Entfernung sind vor nativer Anbindung blockierend. Die bestehende vorgelagerte Sperre wird nicht aufgehoben.",
+      "limit": "Ein unerfüllter nativer Zulassungsblocker macht den reinen Besitzerentwurf nicht inkohärent. Zustimmung zu diesem Entwurf erteilt keine neue Sicherheitsgarantie, Implementierungs-, Write-, Unregister-, Destroy- oder Livefreigabe."
+    }
+  ],
+  "requiredCorrections": [],
+  "requiredCorrectionCount": 0,
+  "requiredCorrectionDisposition": "Keine Pflichtkorrektur-ID oder Ersatzformulierung erforderlich: kein belastbarer Widerspruch zur erklärten reinen Entwurfsgrenze gefunden. Native offene Voraussetzungen werden nicht als bereits gelöste Designfehler nachgefordert.",
+  "optionalSuggestions": [
+    {
+      "id": "ODR-OPT-01",
+      "severity": "optional-contract-precision-not-current-blocker",
+      "locations": ["draft:124-145,207"],
+      "suggestedWording": "Für jede spätere Effektart ist ihr geordneter beziehungsweise linearisierter Eintritt gegenüber Widerruf festzulegen: Gewinnt Widerruf vor diesem Eintritt, unterbleibt der Effekt. Ein bereits eingelassener Eintritt kann mögliche Teilwirkung hinterlassen; Rückkehr hebt Widerruf nicht auf. Ein separater Boolcheck vor dem Aufruf ist allein kein Nachweis dieser Grenze.",
+      "futureCheck": "Im künftig gesonderten reinen Modell die beiden Ordnungen Widerruf vor Effektzulassung und bereits eingelassener Eintritt vor Widerruf sowie reentranten Widerruf vor Rückkehr unterscheiden. Daraus keinen Mechanismusnachweis für einen künftigen nativen Adapter ableiten.",
+      "doesNotAuthorizeImplementation": true
+    },
+    {
+      "id": "ODR-OPT-02",
+      "severity": "optional-explicit-countercase-coverage",
+      "locations": ["draft:71-76,80-83,119-122,193-212"],
+      "suggestedWording": "Die spätere Gegenfalltabelle kann zwei vorhandene Anforderungen ausdrücklich aufnehmen: synthetischer Konstruktorcallback vor Besitzerbindung und neue Besitzerinstanz nach Prozess-Tombstone. Früher ungebundener Callback darf keine Bindung/Freigabe erzeugen; Besitzerneuerzeugung darf den Prozessslot nicht zurücksetzen.",
+      "futureCheck": "Nur künstliche Nachrichten und künstliche Prozessidentität verwenden. Keinen AddComponent-/Konstruktoraufruf und keinen neuen Runtime-Test daraus ableiten; dessen sicherer Rückgabevertrag bleibt ein nativer Zulassungsblocker.",
+      "doesNotAuthorizeImplementation": true
+    }
+  ],
+  "remainingNativeAdmissionBlockers": [
+    { "id": "NB-01", "locations": ["draft:59,71-76"], "requirement": "Konkreter callbacksicherer Konstruktions-/Einmalbindungsvertrag; Reservierung und nachträgliche Ownerzuweisung genügen nicht.", "establishedByThisReview": false },
+    { "id": "NB-02", "locations": ["draft:58,88-98,127-128,204-205,223-226"], "requirement": "Tatsächliche alte Instanz-/Manager-/Listenlesbarkeit und sichere native Teilnehmer-/Callbackcodelebensdauer über Weltwechsel, Ereignisverlust, Stop/Shutdown und mögliche Codeentladung.", "establishedByThisReview": false },
+    { "id": "NB-03", "locations": ["draft:135-168,223-226"], "requirement": "Vollständiger Vertrag der tatsächlich erreichbaren eigenen und Default-/Interfacepfade einschließlich Reentranz, Off-thread-Eintritt und fremder Saves; Nicht-IO/Nicht-Retarget nicht aus no-base/leerem String ableiten.", "establishedByThisReview": false },
+    { "id": "NB-04", "locations": ["draft:170-191,223-226"], "requirement": "Korrelierter gezielter Abmelde-/Last-Use-Vertrag: konkurrierende neue Erfassung ausgeschlossen, alle relevanten bereits erfassten Halter/Verbraucher berücksichtigt, Wirkung bestätigt und Destroy weiterhin gültig ausführbar.", "establishedByThisReview": false }
+  ],
+  "historicalNativeCorrectionPreserved": {
+    "originalReviewUtc": "2026-11-05T17:04:16.1468933Z",
+    "originalReviewer": "GPT-6.1 Sol / OpenCode; separat delegierter unabhängiger enger Native-Weltwechsel-Gegenprüfer",
+    "originalVerdictsUnchanged": { "agree": 7, "limited": 1, "disagree": 0 },
+    "requiredOriginalCorrection": "C-01 / WX-06: StartGame lehnt eine bereits geladene Welt lokal nur bei allowLoadStacking=false ab. Beide untersuchten ExitToMenu→StartGame-Aufrufer setzen false. Keine Aussage über Nutzung oder Sicherheit des true-Pfads.",
+    "optionalOriginalClarification": "C-02 / WX-04: Im normalen nichtnullen Playerpfad folgt auf Client-Antwort ODER elapsed >3 Sekunden zusätzlich die gemeinsame feste 1,25-Sekunden-Realtimewartezeit; auch diese ist kein eigener Business-Drain.",
+    "locations": ["draft:41-47", "world-exit-audit:125-144,171-185,245-257", "native-world-prior:WX-04,WX-06,correctionsForParent", "corrections:dispositions"],
+    "attributionLimit": "Nur Übernahme und Entwurfskohärenz der archivierten Aussagen geprüft. Keine neuen Originalbytes, kein Remap/Decoder und keine neue unabhängige native Bestätigung; der frühere limited-Befund wird nicht nachträglich zu agree umgedeutet."
+  },
+  "designSourceHashes": [
+    { "id": "rules", "path": "AGENTS.md", "sha256": "650b6f0d731ae83f02a60dd3b16ba52ccb322a92d1fb3c39f7b597b476a50913", "readScope": "vollständig, 327 Zeilen" },
+    { "id": "primary-skill", "path": "Skills/schedule1-modding/SKILL.md", "sha256": "e53d4f97aa5a181921eecb98ef6da47992a974626b1ac300764ece4213a6e173", "readScope": "vollständig" },
+    { "id": "working-contract", "path": "Skills/schedule1-modding/references/working-contract.md", "sha256": "9a0dbcfaf4ec08ea71c32d77d54cfe08b8961fe8647bc97fa997bda1f201f5b4", "readScope": "vollständig" },
+    { "id": "evidence-policy", "path": "Skills/schedule1-modding/references/evidence-policy.md", "sha256": "05b4ad032db7609bf577ca5ffb661ab74ba3d4bb1be226c50d0fc7ea23934a9d", "readScope": "vollständig" },
+    { "id": "spec-first", "path": "Skills/schedule1-modding/references/spec-first-workflow.md", "sha256": "a21e4acc2d3973c764febf183e0fdf6e68b1d54aec4bf0f21f5eedd1b9816d7f", "readScope": "vollständig" },
+    { "id": "persistence", "path": "Skills/schedule1-persistence/SKILL.md", "sha256": "d39ed5fa6e97a77f5df95351b3d1cabdb06f3139dff39af7e61f2aa0fe454aca", "readScope": "vollständig" },
+    { "id": "lifecycle", "path": "Skills/schedule1-lifecycle-verify/SKILL.md", "sha256": "694ae152799955061505fff81d3a7ace669646ac00dd13cf6ff5dab6d58e5993", "readScope": "vollständig" },
+    { "id": "business", "path": "Source/Mods/TownHallInterior/src/BusinessConstruction.cs", "sha256": "8964512eeb94ae63acadbe5cd47caa7c36a325e10cd75af73cc5c1091c4db5d2", "readScope": "gezielt 100-275,1760-1936,2100-2225,2370-2439; kein Vollreview der Datei" },
+    { "id": "entry", "path": "Source/Mods/TownHallInterior/src/Mod.cs", "sha256": "82323dd725b033b124c0f5edd6252730676f3f1910bdd402441945f0fe4e9385", "readScope": "vollständig; insbesondere 49-89" },
+    { "id": "variants", "path": "Source/Mods/TownHallInterior/src/TownHallInterior.csproj", "sha256": "c730506d8c85e9d9fb88def2c397920f408b7771576a59aacc2c4b183bcde9df", "readScope": "vollständig; bedingte Varianten 2-22, kein Build" },
+    { "id": "native-save-audit", "path": "Source/Mods/TownHallInterior/docs/native-save-completion-audit.md", "sha256": "168abd65c1d313d897ba85ef22d6f3dd9ce814c7b29c0036ab65de85c679bd93", "readScope": "vollständig; ausschließlich zugeschriebener Offline-Audit vom 2026-11-05 mit seinen ausdrücklich begrenzten V2-/V4-/Managed-Prüfungen" },
+    { "id": "world-exit-audit", "path": "Source/Mods/TownHallInterior/docs/native-world-exit-audit.md", "sha256": "c97bfcbdfd39f8df4a87f16141f08aeb0ee20b7b6e5a3d9715db2102af3996bf", "readScope": "vollständig; ausschließlich zugeschriebener Offline-Audit vom 2026-11-05 einschließlich Korrekturdisposition" },
+    { "id": "probe-prior", "path": "Source/Mods/TownHallInterior/docs/business-manager-save-probe.md", "sha256": "e542f4b5752c52922b8562fc139ec563459deb04728dc1228a543fb8b3d46dea", "readScope": "vollständig; alte Modell-/Build-/Abnahmebelege nicht reproduziert" },
+    { "id": "plan-prior", "path": "Source/Mods/TownHallInterior/docs/business-completion-plan.md", "sha256": "7f29dc32f5208fe238da02fe387d552a2c495ae50b2cee294466c3af03f421bc", "readScope": "vollständig; nur Auftrags-/Entwurfsabgrenzung, keine neue Gesamtprojektabnahme" }
+  ],
+  "archivedReviewInputs": [
+    { "id": "own-prior", "path": "Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/own-lifecycle-review.json", "sha256": "3895fb846b141ab29f4a2af3c183d47c062762d04556121385795e6a0097aedd", "assessmentUtc": "2026-11-05T16:40:01.1726707Z", "attribution": "GPT-6.1 Sol / OpenCode, damaliger separat delegierter eigener Lifecycle-Prüfer; Bericht vollständig gelesen, aktueller eigener Quellenabgleich nur im oben benannten engeren Umfang", "matchesArchiveManifest": true },
+    { "id": "native-world-prior", "path": "Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/native-world-exit-review.json", "sha256": "a0370f7a02b2687fde0ef53b25113ed53ef12eb1c9f49c938931c0bdd5dc7ec9", "assessmentUtc": "2026-11-05T17:04:16.1468933Z", "attribution": "GPT-6.1 Sol / OpenCode, damaliger separat delegierter enger Native-Gegenprüfer; vollständig gelesen, native Ableitungen hier nicht reproduziert", "matchesArchiveManifest": true },
+    { "id": "corrections", "path": "Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/world-exit-claim-corrections.json", "sha256": "f428daef70f984ce6866412b4215ad50e665a27b6578e2bdef339f7cdd996734", "recordedDate": "2026-11-05", "attribution": "Separater Parent-Dispositionseintrag; Originalclaims und 7/1-Review bleiben unverändert", "matchesArchiveManifest": true }
+  ],
+  "priorArchiveManifestChecks": [
+    { "path": "Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/manifest.json", "sha256": "9283c0f0089391acdec90318164a56e6b9ee5c29fc7c63c88569f882d58ef795", "matchesPrimaryFreeze": true, "payloadFileCountInheritedFromParent": 135 },
+    { "path": "Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/manifest.json", "sha256": "6176543cd25dd937e5c4475775d2f18bb24c01a77430c95b196fc7dcd6363ffa", "matchesPrimaryFreeze": true, "payloadFileCountInheritedFromParent": 91 }
+  ],
+  "priorArchiveCheckLimit": "Zwei Manifestdateien eigenständig hashgleich; aus insgesamt 226 alten Payloaddateien nur die drei oben benannten Review-/Korrektur-JSONs gezielt gehasht, 223 nicht erneut gehasht. Kein neuer Gesamtabgleich aller alten Belege, kein Ausführen archivierter Analyseskripte und keine Übernahme fremder Native-Prüfungen als eigene Verifikation.",
+  "protectedSourceHashes": [
+    { "path": "Source/Mods/TownHallInterior/src/BusinessBindingProbe.cs", "sha256": "fb82cfafbee2f92b7c52d76edc9a3fe417cb905ad7f20a90a082ce681efa7fa1" },
+    { "path": "Source/Mods/TownHallInterior/src/BusinessConstruction.cs", "sha256": "8964512eeb94ae63acadbe5cd47caa7c36a325e10cd75af73cc5c1091c4db5d2" },
+    { "path": "Source/Mods/TownHallInterior/src/BusinessProbeEvidence.cs", "sha256": "37ce332858d00368ebde93c3f13af3b20482d0de15f07b559e34078597603458" },
+    { "path": "Source/Mods/TownHallInterior/src/CleanupJournal.cs", "sha256": "310955ae9d1f5115941ef5bf7920ed49f6ff47086d8187fe050f444f63f09b76" },
+    { "path": "Source/Mods/TownHallInterior/src/DoorAdapter.cs", "sha256": "6d5e638b3217b24d3d4a86ea768912e26bdf73449cef98196502586f036a6341" },
+    { "path": "Source/Mods/TownHallInterior/src/DoorChoice.cs", "sha256": "42093f9e71f5c4fe832dac0eff888654163389b86dac1d6be494f7f715943201" },
+    { "path": "Source/Mods/TownHallInterior/src/DoorHook.cs", "sha256": "10bfdd035b414e0727c01aef12a08b1fb0a33abbd897a6c3efc79e7da006934c" },
+    { "path": "Source/Mods/TownHallInterior/src/FacadePortal.cs", "sha256": "4b2cc05e14353fddccc2ddb404fed35b1859d950f5e80e6a6735a8d196cf2270" },
+    { "path": "Source/Mods/TownHallInterior/src/FurniturePlan.cs", "sha256": "17e8402738ff124a54f1e61a076618894a6ca5b3d3e6733242f71217a5a18e6b" },
+    { "path": "Source/Mods/TownHallInterior/src/HallFittings.cs", "sha256": "210301b0663b1a0b3fdbedbcb2231a007d62f2d0bb19828250c4ffd6fddc7492" },
+    { "path": "Source/Mods/TownHallInterior/src/Mod.cs", "sha256": "82323dd725b033b124c0f5edd6252730676f3f1910bdd402441945f0fe4e9385" },
+    { "path": "Source/Mods/TownHallInterior/src/NativeFacadeSwap.cs", "sha256": "58542a588017f540a7b546845b038174d96ef761acfacd7101c0004a5ceae5e3" },
+    { "path": "Source/Mods/TownHallInterior/src/NativeSceneSwap.cs", "sha256": "a526e26ffb62fbf08ad8e3725779c83dbc85558fcb22a1b34cb12dc061bed6aa" },
+    { "path": "Source/Mods/TownHallInterior/src/PublicEntrance.cs", "sha256": "4fdb304a13cd24a496e9368c211bf09f8aaf1da9041a8912fdb364f46ec9dd5f" },
+    { "path": "Source/Mods/TownHallInterior/src/PublicHallHost.cs", "sha256": "d85708f66705a1ac87aec2d1def1f4daff0cebabd78b459b93a589418be65bcc" },
+    { "path": "Source/Mods/TownHallInterior/src/RoomBuilder.cs", "sha256": "44b555668aecbb0055b902d204716861399ee59e439971f842d5f0b4a3a48f68" },
+    { "path": "Source/Mods/TownHallInterior/src/RoomPlan.cs", "sha256": "ebe89aa2620044c170f08c33382aa420bb1aa22e78d56ed74b97a4561f864233" },
+    { "path": "Source/Mods/TownHallInterior/src/TownHallInterior.csproj", "sha256": "c730506d8c85e9d9fb88def2c397920f408b7771576a59aacc2c4b183bcde9df" },
+    { "path": "Source/Mods/TownHallInterior/src/UnityRoomSink.cs", "sha256": "646b693e349e61126bc548c59e9bdf8e4f978787eeab1173a8535323f9588d17" },
+    { "path": "Source/Mods/TownHallInterior/src/VanillaFurnishings.cs", "sha256": "c434ab9c4b0055c531250b5a45b672703e266fbe962e3934ffa58f951cce98aa" },
+    { "path": "Source/Tests/TownHallInterior.Tests/BusinessActivationTests.cs", "sha256": "c43b5aa08c51a151d042f4a8e4a0c56cd79892ed98723e4fb883bba57b1b8a7f" },
+    { "path": "Source/Tests/TownHallInterior.Tests/BusinessConstructionTests.cs", "sha256": "43ac3184d66a64bfc6ae9b6ba6587df6a3eb333575d93cc187c291e45e7630b8" },
+    { "path": "Source/Tests/TownHallInterior.Tests/BusinessInterfaceTests.cs", "sha256": "d1b13f70314555a2702d732b078bafb9cef7e9b71eaea8249b74ae8736bd2abf" },
+    { "path": "Source/Tests/TownHallInterior.Tests/BusinessManagerAuditTests.cs", "sha256": "164eaeb014c1d63b776c47d0dd105f4f12bec79d4ffb02a135d3da5f5f82323d" },
+    { "path": "Source/Tests/TownHallInterior.Tests/BusinessManagerSafetyTests.cs", "sha256": "ead2dbe76be2679c8be006b114075c55d58b1cddfe08e292f8551c225f70a035" },
+    { "path": "Source/Tests/TownHallInterior.Tests/BusinessManagerSaveTests.cs", "sha256": "0d9fe4fe204e20a6850945b4a7c32c3285cc060942140b9837ac3aafc34aa963" },
+    { "path": "Source/Tests/TownHallInterior.Tests/BusinessManagerTests.cs", "sha256": "d62a8ad7a82e9cedd7554e7e489cba55fee62409dd3de347130575fb69524b1e" },
+    { "path": "Source/Tests/TownHallInterior.Tests/BusinessProbeEvidenceTests.cs", "sha256": "71797f12c5f96f633d44127a08cbdaf93dba26dc75a521c648d130f6b5b3d9de" },
+    { "path": "Source/Tests/TownHallInterior.Tests/BusinessSubtypeTests.cs", "sha256": "d58b1b960098861782725d71811fa17f27b0bf195d8e25ef37a5c586674f380a" },
+    { "path": "Source/Tests/TownHallInterior.Tests/BusinessTypeResolutionTests.cs", "sha256": "58325e28dc822ffe2cc493c1f426d1c3acf3147efa457edc32f93e317aa82c46" },
+    { "path": "Source/Tests/TownHallInterior.Tests/CleanupJournalTests.cs", "sha256": "1fc594bb24f1ac542d5ee8878ce88b54b7d295b132cce3112dc0d40c4708f1cb" },
+    { "path": "Source/Tests/TownHallInterior.Tests/DoorAdapterTests.cs", "sha256": "97e44aee74c74d5ba2f5672deec7319876eb3b1b2b8c71a12ca516f839ed907e" },
+    { "path": "Source/Tests/TownHallInterior.Tests/DoorChoiceTests.cs", "sha256": "6f9f493e814b8a6db340d916f3932d5b68b77a48b608c86e6bdaa6bb85d01946" },
+    { "path": "Source/Tests/TownHallInterior.Tests/EnclosureTests.cs", "sha256": "cc381927c62e5bdbb2f412bab72abd88a66ccd6780f5f260d26003caaa3814db" },
+    { "path": "Source/Tests/TownHallInterior.Tests/FacadePortalTests.cs", "sha256": "876eff42444821a38103b7b97173b30b4d2bb3c94aa8856b48510ff81f7bbced" },
+    { "path": "Source/Tests/TownHallInterior.Tests/FurniturePlanTests.cs", "sha256": "99f99db70533724fe939aa73b6b2bafac295d361d9280f92a42f6001eb4594aa" },
+    { "path": "Source/Tests/TownHallInterior.Tests/HallFittingsTests.cs", "sha256": "8d18df41130233be9543c38d419ef36273f2ae2d09bba520e6abfc57799a7209" },
+    { "path": "Source/Tests/TownHallInterior.Tests/NativeSceneSwapTests.cs", "sha256": "d77efe579cd909c42dc48245b427d30c59874955c1b0dcdb6652a110f441d37c" },
+    { "path": "Source/Tests/TownHallInterior.Tests/PublicEntranceTests.cs", "sha256": "1ab9d7d8825911ea4777ea56fd109bf2f7a4ef679f258108c98a42580e80d6c3" },
+    { "path": "Source/Tests/TownHallInterior.Tests/RoomPlanTests.cs", "sha256": "fdeb4a9c49d2e83b71e0edeb50ed3f0f5e68ce6508801198bedca997638a71a3" },
+    { "path": "Source/Tests/TownHallInterior.Tests/TownHallInterior.Tests.csproj", "sha256": "dc582cf6a85f3c98417c83cd67a65f28b8f8739bb1a1507fe665eaa52ceec26c" }
+  ],
+  "verificationActuallyPerformed": {
+    "semanticReview": "Die zehn benannten Entwurfskriterien gegen eingefrorenen Text und gezielte aktuelle eigene Originalquellen abgeglichen. Alle Fundstellen sind Entwurfsanforderungen oder klar zugeordnete Vorbefunde, keine neue native Laufzeitbeobachtung.",
+    "protectedSourceHashCheck": "PASS: 41/41 SHA-256 stimmen mit input-manifest.json überein. Testdateien wurden dafür nur als Bytes gehasht, nicht ausgeführt.",
+    "designSourceHashCheck": "PASS: 14/14 einschließlich beider Originalauditmarkdowns stimmen mit demselben Freeze überein.",
+    "draftHashCheck": "PASS: Snapshot und dauerhafte Arbeitsdatei jeweils 19290 Bytes, 233 Zeilen und exakt eingefrorener SHA-256.",
+    "selectedArchiveHashCheck": "PASS: beide Archivmanifeste stimmen mit dem Parent-Freeze überein; drei ausgewählte Review-/Korrekturberichte zusätzlich mit dem Weltwechsel-Archivmanifest abgeglichen, 0 Abweichungen um 17:28:45 UTC.",
+    "hashMethod": "Read-only System.IO.File.OpenRead und System.Security.Cryptography.SHA256; keine Zielassembly geladen oder aufgerufen.",
+    "helperAttempt": "Erster Hashaufruf scheiterte, weil Get-FileHash in der Shell nicht verfügbar war; keine Ausgabe geschrieben. Erfolgreicher Ersatz ausschließlich mit .NET-Standardbibliothek, kein Download/Installation.",
+    "reportReadbackAndFinalIntegrityOutput": "design-review/final-input-verification.json",
+    "notExecuted": [
+      "Implementierung, Produktions-/Teständerungen, Builds und sämtliche Testsuiten einschließlich alter 681 Tests",
+      "Native/Managed-Assembly-Neuaudit, Decoder, GameAssembly-/Metadaten-/Installationsdateizugriffe",
+      "Spiel, Bridge/Konsole, native Save-/Methodenaufrufe und Save-/UserData-/Sidecarzugriffe",
+      "Entwurfs-/Quellen-/Vaultänderungen oder Vaultvalidator, Repository-Gesamtgates und isoliertes Pure",
+      "Installation, Download, Commit, Push und Unteragenten"
+    ]
+  },
+  "conclusion": {
+    "reviewComplete": true,
+    "accessOrToolBlocker": null,
+    "designCoherenceOnly": true,
+    "requiredCorrections": 0,
+    "optionalSuggestions": 2,
+    "futureSmallestImplementationBoundary": "Nur nach gesondertem nächsten Auftrag: datenbasierter verwalteter Besitzer mit unveränderlicher Bindung, prozessweitem Kapazität-1-/Tombstonevertrag, monotonem Intent/Widerruf und begrenzter Diagnose samt neuen reinen Gegenfallprüfungen; keine Runtimeports, Dateischreiber, Unityobjekte oder Mod-/Lifecycleverdrahtung.",
+    "finalPermission": "Keine neue Sicherheitsgarantie und keine Implementierungs-/Runtime-/Write-/Unregister-/Destroyfreigabe. NativeSaveWriteAllowed bleibt false. Die benannten nativen Voraussetzungen bleiben BLOCKER; sie sind für diesen reinen Entwurfsreview nicht als bereits bewiesen vorausgesetzt."
+  }
+}

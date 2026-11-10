@@ -1,0 +1,368 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.Reflection;
+using System.Runtime.CompilerServices;
+using Il2CppInterop.Runtime.InteropTypes.Arrays;
+using Il2CppScheduleOne.Delivery;
+using Il2CppScheduleOne.Money;
+using Il2CppScheduleOne.Property;
+using Il2CppSystem;
+using Il2CppTMPro;
+using S1API.Deliveries;
+using S1API.Internal.Utils;
+using S1API.Logging;
+using UnityEngine;
+
+namespace S1API.Property;
+
+public class PropertyWrapper : BaseProperty
+{
+	[CompilerGenerated]
+	private sealed class <get_SignPaths>d__49 : IEnumerable<string>, IEnumerable, IEnumerator<string>, IEnumerator, IDisposable
+	{
+		private int <>1__state;
+
+		private string <>2__current;
+
+		private int <>l__initialThreadId;
+
+		public PropertyWrapper <>4__this;
+
+		private string <baseName>5__1;
+
+		string IEnumerator<string>.Current
+		{
+			[DebuggerHidden]
+			get
+			{
+				return <>2__current;
+			}
+		}
+
+		object IEnumerator.Current
+		{
+			[DebuggerHidden]
+			get
+			{
+				return <>2__current;
+			}
+		}
+
+		[DebuggerHidden]
+		public <get_SignPaths>d__49(int <>1__state)
+		{
+			this.<>1__state = <>1__state;
+			<>l__initialThreadId = Environment.CurrentManagedThreadId;
+		}
+
+		[DebuggerHidden]
+		void IDisposable.Dispose()
+		{
+			<baseName>5__1 = null;
+			<>1__state = -2;
+		}
+
+		private bool MoveNext()
+		{
+			switch (<>1__state)
+			{
+			default:
+				return false;
+			case 0:
+				<>1__state = -1;
+				<baseName>5__1 = <>4__this.PropertyName.Replace(" ", "");
+				<>2__current = <>4__this.SignPrefix + <baseName>5__1 + "/ForSaleSign/Price";
+				<>1__state = 1;
+				return true;
+			case 1:
+				<>1__state = -1;
+				<>2__current = <>4__this.SignPrefix + <>4__this.PropertyName + "/ForSaleSign/Price";
+				<>1__state = 2;
+				return true;
+			case 2:
+				<>1__state = -1;
+				<>2__current = <>4__this.SignPrefix + <baseName>5__1 + "/ForSaleSign (1)/Price";
+				<>1__state = 3;
+				return true;
+			case 3:
+				<>1__state = -1;
+				<>2__current = <>4__this.SignPrefix + <>4__this.PropertyName + "/ForSaleSign (1)/Price";
+				<>1__state = 4;
+				return true;
+			case 4:
+				<>1__state = -1;
+				return false;
+			}
+		}
+
+		bool IEnumerator.MoveNext()
+		{
+			//ILSpy generated this explicit interface implementation from .override directive in MoveNext
+			return this.MoveNext();
+		}
+
+		[DebuggerHidden]
+		void IEnumerator.Reset()
+		{
+			throw new NotSupportedException();
+		}
+
+		[DebuggerHidden]
+		IEnumerator<string> IEnumerable<string>.GetEnumerator()
+		{
+			<get_SignPaths>d__49 result;
+			if (<>1__state == -2 && <>l__initialThreadId == Environment.CurrentManagedThreadId)
+			{
+				<>1__state = 0;
+				result = this;
+			}
+			else
+			{
+				result = new <get_SignPaths>d__49(0)
+				{
+					<>4__this = <>4__this
+				};
+			}
+			return result;
+		}
+
+		[DebuggerHidden]
+		IEnumerator IEnumerable.GetEnumerator()
+		{
+			return ((IEnumerable<string>)this).GetEnumerator();
+		}
+	}
+
+	private static readonly Log Logger = new Log("PropertyWrapper");
+
+	private static readonly IReadOnlyList<LoadingDock> EmptyLoadingDocks = new ReadOnlyCollection<LoadingDock>(Array.Empty<LoadingDock>());
+
+	internal readonly Property InnerProperty;
+
+	public override string PropertyName => InnerProperty.PropertyName;
+
+	public override string PropertyCode => InnerProperty.PropertyCode;
+
+	public override float Price
+	{
+		get
+		{
+			return InnerProperty.Price;
+		}
+		set
+		{
+			InnerProperty.Price = value;
+			UpdatePriceDisplay(value);
+		}
+	}
+
+	public override bool IsOwned => InnerProperty.IsOwned;
+
+	public override int EmployeeCapacity
+	{
+		get
+		{
+			return InnerProperty.EmployeeCapacity;
+		}
+		set
+		{
+			InnerProperty.EmployeeCapacity = value;
+		}
+	}
+
+	public Vector3 ExteriorSpawnPosition => InnerProperty.SpawnPoint.position;
+
+	public Vector3 InteriorSpawnPosition => InnerProperty.InteriorSpawnPoint.position;
+
+	public int LoadingDockCount => InnerProperty.LoadingDockCount;
+
+	public IReadOnlyList<LoadingDock> LoadingDocks
+	{
+		get
+		{
+			Il2CppReferenceArray<LoadingDock> loadingDocks = InnerProperty.LoadingDocks;
+			if (loadingDocks == null || ((Il2CppArrayBase<LoadingDock>)(object)loadingDocks).Length == 0)
+			{
+				return EmptyLoadingDocks;
+			}
+			List<LoadingDock> list = new List<LoadingDock>(((Il2CppArrayBase<LoadingDock>)(object)loadingDocks).Length);
+			for (int i = 0; i < ((Il2CppArrayBase<LoadingDock>)(object)loadingDocks).Length; i++)
+			{
+				if ((Object)(object)((Il2CppArrayBase<LoadingDock>)(object)loadingDocks)[i] != (Object)null)
+				{
+					list.Add(LoadingDock.Wrap(((Il2CppArrayBase<LoadingDock>)(object)loadingDocks)[i]));
+				}
+			}
+			return new ReadOnlyCollection<LoadingDock>(list);
+		}
+	}
+
+	public float DefaultRotation => InnerProperty.DefaultRotation;
+
+	public bool AvailableInDemo => InnerProperty.AvailableInDemo;
+
+	public bool IsContentCulled
+	{
+		get
+		{
+			return InnerProperty.IsContentCulled;
+		}
+		set
+		{
+			InnerProperty.SetContentCulled(value);
+		}
+	}
+
+	public int EmployeeCount => InnerProperty.Employees.Count;
+
+	public int BuildableItemCount => GetCollectionCount(ReflectionUtils.TryGetFieldOrProperty(InnerProperty, "BuildableItems"), "BuildableItems");
+
+	public Vector3 NPCSpawnPosition => ((Object)(object)InnerProperty.NPCSpawnPoint != (Object)null) ? InnerProperty.NPCSpawnPoint.position : Vector3.zero;
+
+	public int EmployeeIdlePointCount => ((Il2CppArrayBase<Transform>)(object)InnerProperty.EmployeeIdlePoints)?.Length ?? 0;
+
+	internal virtual string SignPrefix => "@Properties/";
+
+	internal virtual string WhiteboardPath => "Map/Container/RE Office/Interior/Whiteboard/PropertyListing " + PropertyName + "/Price";
+
+	internal virtual IEnumerable<string> SignPaths
+	{
+		[IteratorStateMachine(typeof(<get_SignPaths>d__49))]
+		get
+		{
+			//yield-return decompiler failed: Unexpected instruction in Iterator.Dispose()
+			<get_SignPaths>d__49 <get_SignPaths>d__ = new <get_SignPaths>d__49(-2);
+			<get_SignPaths>d__.<>4__this = this;
+			return <get_SignPaths>d__;
+		}
+	}
+
+	public PropertyWrapper(Property property)
+	{
+		InnerProperty = property;
+	}
+
+	public override void SetOwned()
+	{
+		InnerProperty.SetOwned();
+	}
+
+	public override bool IsPointInside(Vector3 point)
+	{
+		//IL_0007: Unknown result type (might be due to invalid IL or missing references)
+		return InnerProperty.DoBoundsContainPoint(point);
+	}
+
+	private int GetCollectionCount(object? collectionValue, string memberName)
+	{
+		if (collectionValue == null)
+		{
+			return 0;
+		}
+		if (!(collectionValue is IList { Count: var count }))
+		{
+			Logger.Warning($"{GetType().Name}.{memberName}: value of type '{collectionValue.GetType().FullName}' does not implement IList; using fallback count path.");
+			Type type = collectionValue.GetType();
+			try
+			{
+				PropertyInfo property = type.GetProperty("Count", BindingFlags.Instance | BindingFlags.Public);
+				if (property != null && property.GetValue(collectionValue, null) is int result)
+				{
+					return result;
+				}
+				PropertyInfo property2 = type.GetProperty("Length", BindingFlags.Instance | BindingFlags.Public);
+				if (property2 != null && property2.GetValue(collectionValue, null) is int result2)
+				{
+					return result2;
+				}
+			}
+			catch (Exception ex)
+			{
+				Logger.Warning($"{GetType().Name}.{memberName}: failed reading Count/Length via reflection from '{type.FullName}': {ex.Message}");
+			}
+			if (collectionValue is IEnumerable enumerable)
+			{
+				int num = 0;
+				{
+					IEnumerator enumerator = enumerable.GetEnumerator();
+					try
+					{
+						while (enumerator.MoveNext())
+						{
+							num++;
+						}
+					}
+					finally
+					{
+						IDisposable disposable = enumerator as IDisposable;
+						if (disposable != null)
+						{
+							disposable.Dispose();
+						}
+					}
+				}
+				return num;
+			}
+			Logger.Warning($"{GetType().Name}.{memberName}: unable to determine count for value of type '{type.FullName}'; returning 0.");
+			return 0;
+		}
+		return count;
+	}
+
+	public Vector3 GetEmployeeIdlePointPosition(int index)
+	{
+		//IL_005d: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0062: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0055: Unknown result type (might be due to invalid IL or missing references)
+		//IL_005a: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0065: Unknown result type (might be due to invalid IL or missing references)
+		if (InnerProperty.EmployeeIdlePoints != null && index >= 0 && index < ((Il2CppArrayBase<Transform>)(object)InnerProperty.EmployeeIdlePoints).Length && (Object)(object)((Il2CppArrayBase<Transform>)(object)InnerProperty.EmployeeIdlePoints)[index] != (Object)null)
+		{
+			return ((Il2CppArrayBase<Transform>)(object)InnerProperty.EmployeeIdlePoints)[index].position;
+		}
+		return Vector3.zero;
+	}
+
+	public int GetUnassignedBedCount()
+	{
+		return InnerProperty.GetUnassignedBeds().Count;
+	}
+
+	internal void UpdatePriceDisplay(float price)
+	{
+		string priceText = MoneyManager.FormatAmount(price, false, false);
+		TrySetTMPText(WhiteboardPath, priceText, "whiteboard");
+		foreach (string signPath in SignPaths)
+		{
+			if (TrySetTMPText(signPath, priceText, "sign"))
+			{
+				break;
+			}
+		}
+	}
+
+	internal bool TrySetTMPText(string path, string priceText, string context)
+	{
+		GameObject val = GameObject.Find(path);
+		if ((Object)(object)val != (Object)null)
+		{
+			TMP_Text component = val.GetComponent<TMP_Text>();
+			if ((Object)(object)component != (Object)null)
+			{
+				component.text = priceText;
+				return true;
+			}
+			Debug.LogWarning(Object.op_Implicit("TMP_Text not found on " + context + " price object."));
+		}
+		else
+		{
+			Debug.LogWarning(Object.op_Implicit(context + " price object not found at path: " + path));
+		}
+		return false;
+	}
+}
+You are not using the latest version of the tool, please update.
+Latest version is '11.2.0.10050' (yours is '8.2.0.7535-95108c96')

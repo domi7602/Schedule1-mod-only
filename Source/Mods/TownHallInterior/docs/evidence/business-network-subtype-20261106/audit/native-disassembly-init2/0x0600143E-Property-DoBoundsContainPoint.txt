@@ -1,0 +1,67 @@
+; ScheduleOne.Property.Property::DoBoundsContainPoint/1, token 0x0600143E, RVA 0x554650, next-pointer window 0xF0 bytes
+; No target execution. Parser-pointer window can contain padding/cold fragments and is not exact/full function, EH or transitive coverage. Shared direct aliases are truncated to eight names.
+0x554650     48 89 6C 24 18                  mov [rsp+18h],rbp
+0x554655     48 89 7C 24 20                  mov [rsp+20h],rdi
+0x55465A     41 56                           push r14
+0x55465C     48 83 EC 30                     sub rsp,30h
+0x554660     80 3D FF 6E 6A 03 00            cmp byte ptr [183BFB566h],0
+0x554667     4C 8B F2                        mov r14,rdx
+0x55466A     48 8B E9                        mov rbp,rcx
+0x55466D     75 13                           jne short 0000000180554682h
+0x55466F     48 8D 0D 82 B9 49 03            lea rcx,[1839EFFF8h] ; TypeInfo: UnityEngine.Object
+0x554676     E8 25 32 DC FF                  call 00000001803178A0h
+0x55467B     C6 05 E4 6E 6A 03 01            mov byte ptr [183BFB566h],1
+0x554682     48 8B BD 18 02 00 00            mov rdi,[rbp+218h]
+0x554689     48 85 FF                        test rdi,rdi
+0x55468C     0F 84 9F 00 00 00               je near ptr 0000000180554731h
+0x554692     48 89 5C 24 40                  mov [rsp+40h],rbx
+0x554697     33 DB                           xor ebx,ebx
+0x554699     33 C0                           xor eax,eax
+0x55469B     48 89 74 24 48                  mov [rsp+48h],rsi
+0x5546A0     3B 47 18                        cmp eax,[rdi+18h]
+0x5546A3     0F 8D 84 00 00 00               jge near ptr 000000018055472Dh
+0x5546A9     3B 5F 18                        cmp ebx,[rdi+18h]
+0x5546AC     0F 83 85 00 00 00               jae near ptr 0000000180554737h
+0x5546B2     48 8B 0D 3F B9 49 03            mov rcx,[1839EFFF8h] ; TypeInfo: UnityEngine.Object
+0x5546B9     48 63 C3                        movsxd rax,ebx
+0x5546BC     83 B9 E0 00 00 00 00            cmp dword ptr [rcx+0E0h],0
+0x5546C3     48 8B 74 C7 20                  mov rsi,[rdi+rax*8+20h]
+0x5546C8     75 05                           jne short 00000001805546CFh
+0x5546CA     E8 61 35 DC FF                  call 0000000180317C30h
+0x5546CF     45 33 C0                        xor r8d,r8d
+0x5546D2     33 D2                           xor edx,edx
+0x5546D4     48 8B CE                        mov rcx,rsi
+0x5546D7     E8 C4 79 62 02                  call 0000000182B7C0A0h ; UnityEngine.Object::op_Equality/2
+0x5546DC     84 C0                           test al,al
+0x5546DE     75 2A                           jne short 000000018055470Ah
+0x5546E0     F2 41 0F 10 06                  movsd xmm0,qword ptr [r14]
+0x5546E5     48 8D 54 24 20                  lea rdx,[rsp+20h]
+0x5546EA     41 8B 46 08                     mov eax,[r14+8]
+0x5546EE     45 33 C9                        xor r9d,r9d
+0x5546F1     4C 8B C6                        mov r8,rsi
+0x5546F4     F2 0F 11 44 24 20               movsd qword ptr [rsp+20h],xmm0
+0x5546FA     48 8B CD                        mov rcx,rbp
+0x5546FD     89 44 24 28                     mov [rsp+28h],eax
+0x554701     E8 9A 08 00 00                  call 0000000180554FA0h ; ScheduleOne.Property.Property::IsPointInsideBox/2
+0x554706     84 C0                           test al,al
+0x554708     75 06                           jne short 0000000180554710h
+0x55470A     FF C3                           inc ebx
+0x55470C     8B C3                           mov eax,ebx
+0x55470E     EB 90                           jmp short 00000001805546A0h
+0x554710     B0 01                           mov al,1
+0x554712     48 8B 74 24 48                  mov rsi,[rsp+48h]
+0x554717     48 8B 5C 24 40                  mov rbx,[rsp+40h]
+0x55471C     48 8B 6C 24 50                  mov rbp,[rsp+50h]
+0x554721     48 8B 7C 24 58                  mov rdi,[rsp+58h]
+0x554726     48 83 C4 30                     add rsp,30h
+0x55472A     41 5E                           pop r14
+0x55472C     C3                              ret
+0x55472D     32 C0                           xor al,al
+0x55472F     EB E1                           jmp short 0000000180554712h
+0x554731     E8 4A 34 DC FF                  call 0000000180317B80h
+0x554736     CC                              int 3
+0x554737     E8 34 34 DC FF                  call 0000000180317B70h
+0x55473C     CC                              int 3
+0x55473D     CC                              int 3
+0x55473E     CC                              int 3
+0x55473F     CC                              int 3

@@ -1,0 +1,520 @@
+{
+  "Method": {
+    "Type": "ScheduleOne.Persistence.SaveManager",
+    "Name": "QueueSaveRequest",
+    "Token": "0x0600182F",
+    "ParameterCount": 1,
+    "Va": "0x1805AA510",
+    "Rva": "0x5AA510",
+    "NativePointerPresent": true
+  },
+  "Bounds": {
+    "BeginRva": 5940496,
+    "EndRva": 5940667,
+    "UnwindRva": 57295560
+  },
+  "RawOffset": "0x5A9710",
+  "ByteLength": 171,
+  "BytesSha256": "fc947ea034870aaf57fd604c02d732f12e0de5131cb02e1e678ad89a413dc6c2",
+  "Instructions": [
+    {
+      "Va": "0x1805AA510",
+      "Rva": "0x5AA510",
+      "Bytes": "48 89 5C 24 08",
+      "Text": "mov [rsp+8],rbx",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AA515",
+      "Rva": "0x5AA515",
+      "Bytes": "57",
+      "Text": "push rdi",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AA516",
+      "Rva": "0x5AA516",
+      "Bytes": "48 83 EC 20",
+      "Text": "sub rsp,20h",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AA51A",
+      "Rva": "0x5AA51A",
+      "Bytes": "80 3D 33 12 65 03 00",
+      "Text": "cmp byte ptr [183BFB754h],0",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": "0x183BFB754",
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AA521",
+      "Rva": "0x5AA521",
+      "Bytes": "48 8B DA",
+      "Text": "mov rbx,rdx",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AA524",
+      "Rva": "0x5AA524",
+      "Bytes": "48 8B F9",
+      "Text": "mov rdi,rcx",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AA527",
+      "Rva": "0x5AA527",
+      "Bytes": "75 13",
+      "Text": "jne short 00000001805AA53Ch",
+      "FlowControl": "ConditionalBranch",
+      "DirectTarget": "0x1805AA53C",
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AA529",
+      "Rva": "0x5AA529",
+      "Bytes": "48 8D 0D 60 4C 40 03",
+      "Text": "lea rcx,[1839AF190h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": "0x1839AF190",
+      "MetadataGlobal": {
+        "ResolutionError": "Exception calling \"AsMethod\" with \"0\" argument(s): \"Cannot cast metadata usage of kind MethodRef to a Method Def\""
+      }
+    },
+    {
+      "Va": "0x1805AA530",
+      "Rva": "0x5AA530",
+      "Bytes": "E8 6B D3 D6 FF",
+      "Text": "call 00000001803178A0h",
+      "FlowControl": "Call",
+      "DirectTarget": "0x1803178A0",
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AA535",
+      "Rva": "0x5AA535",
+      "Bytes": "C6 05 18 12 65 03 01",
+      "Text": "mov byte ptr [183BFB754h],1",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": "0x183BFB754",
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AA53C",
+      "Rva": "0x5AA53C",
+      "Bytes": "48 8B 4F 68",
+      "Text": "mov rcx,[rdi+68h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AA540",
+      "Rva": "0x5AA540",
+      "Bytes": "48 85 C9",
+      "Text": "test rcx,rcx",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AA543",
+      "Rva": "0x5AA543",
+      "Bytes": "74 6A",
+      "Text": "je short 00000001805AA5AFh",
+      "FlowControl": "ConditionalBranch",
+      "DirectTarget": "0x1805AA5AF",
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AA545",
+      "Rva": "0x5AA545",
+      "Bytes": "4C 8B 0D 44 4C 40 03",
+      "Text": "mov r9,[1839AF190h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": "0x1839AF190",
+      "MetadataGlobal": {
+        "ResolutionError": "Exception calling \"AsMethod\" with \"0\" argument(s): \"Cannot cast metadata usage of kind MethodRef to a Method Def\""
+      }
+    },
+    {
+      "Va": "0x1805AA54C",
+      "Rva": "0x5AA54C",
+      "Bytes": "FF 41 1C",
+      "Text": "inc dword ptr [rcx+1Ch]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AA54F",
+      "Rva": "0x5AA54F",
+      "Bytes": "48 8B 51 10",
+      "Text": "mov rdx,[rcx+10h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AA553",
+      "Rva": "0x5AA553",
+      "Bytes": "48 85 D2",
+      "Text": "test rdx,rdx",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AA556",
+      "Rva": "0x5AA556",
+      "Bytes": "74 57",
+      "Text": "je short 00000001805AA5AFh",
+      "FlowControl": "ConditionalBranch",
+      "DirectTarget": "0x1805AA5AF",
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AA558",
+      "Rva": "0x5AA558",
+      "Bytes": "4C 63 41 18",
+      "Text": "movsxd r8,dword ptr [rcx+18h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AA55C",
+      "Rva": "0x5AA55C",
+      "Bytes": "44 3B 42 18",
+      "Text": "cmp r8d,[rdx+18h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AA560",
+      "Rva": "0x5AA560",
+      "Bytes": "72 21",
+      "Text": "jb short 00000001805AA583h",
+      "FlowControl": "ConditionalBranch",
+      "DirectTarget": "0x1805AA583",
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AA562",
+      "Rva": "0x5AA562",
+      "Bytes": "49 8B 41 20",
+      "Text": "mov rax,[r9+20h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AA566",
+      "Rva": "0x5AA566",
+      "Bytes": "48 8B D3",
+      "Text": "mov rdx,rbx",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AA569",
+      "Rva": "0x5AA569",
+      "Bytes": "4C 8B 80 C0 00 00 00",
+      "Text": "mov r8,[rax+0C0h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AA570",
+      "Rva": "0x5AA570",
+      "Bytes": "4D 8B 40 70",
+      "Text": "mov r8,[r8+70h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AA574",
+      "Rva": "0x5AA574",
+      "Bytes": "48 8B 5C 24 30",
+      "Text": "mov rbx,[rsp+30h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AA579",
+      "Rva": "0x5AA579",
+      "Bytes": "48 83 C4 20",
+      "Text": "add rsp,20h",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AA57D",
+      "Rva": "0x5AA57D",
+      "Bytes": "5F",
+      "Text": "pop rdi",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AA57E",
+      "Rva": "0x5AA57E",
+      "Bytes": "E9 0D 85 32 01",
+      "Text": "jmp near ptr 00000001818D2A90h",
+      "FlowControl": "UnconditionalBranch",
+      "DirectTarget": "0x1818D2A90",
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AA583",
+      "Rva": "0x5AA583",
+      "Bytes": "41 8D 40 01",
+      "Text": "lea eax,[r8+1]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AA587",
+      "Rva": "0x5AA587",
+      "Bytes": "89 41 18",
+      "Text": "mov [rcx+18h],eax",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AA58A",
+      "Rva": "0x5AA58A",
+      "Bytes": "44 3B 42 18",
+      "Text": "cmp r8d,[rdx+18h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AA58E",
+      "Rva": "0x5AA58E",
+      "Bytes": "73 25",
+      "Text": "jae short 00000001805AA5B5h",
+      "FlowControl": "ConditionalBranch",
+      "DirectTarget": "0x1805AA5B5",
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AA590",
+      "Rva": "0x5AA590",
+      "Bytes": "4A 89 5C C2 20",
+      "Text": "mov [rdx+r8*8+20h],rbx",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AA595",
+      "Rva": "0x5AA595",
+      "Bytes": "48 83 C2 20",
+      "Text": "add rdx,20h",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AA599",
+      "Rva": "0x5AA599",
+      "Bytes": "4A 8D 0C C2",
+      "Text": "lea rcx,[rdx+r8*8]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AA59D",
+      "Rva": "0x5AA59D",
+      "Bytes": "48 8B D3",
+      "Text": "mov rdx,rbx",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AA5A0",
+      "Rva": "0x5AA5A0",
+      "Bytes": "48 8B 5C 24 30",
+      "Text": "mov rbx,[rsp+30h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AA5A5",
+      "Rva": "0x5AA5A5",
+      "Bytes": "48 83 C4 20",
+      "Text": "add rsp,20h",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AA5A9",
+      "Rva": "0x5AA5A9",
+      "Bytes": "5F",
+      "Text": "pop rdi",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AA5AA",
+      "Rva": "0x5AA5AA",
+      "Bytes": "E9 01 C5 D6 FF",
+      "Text": "jmp near ptr 0000000180316AB0h",
+      "FlowControl": "UnconditionalBranch",
+      "DirectTarget": "0x180316AB0",
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AA5AF",
+      "Rva": "0x5AA5AF",
+      "Bytes": "E8 CC D5 D6 FF",
+      "Text": "call 0000000180317B80h",
+      "FlowControl": "Call",
+      "DirectTarget": "0x180317B80",
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AA5B4",
+      "Rva": "0x5AA5B4",
+      "Bytes": "CC",
+      "Text": "int 3",
+      "FlowControl": "Interrupt",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AA5B5",
+      "Rva": "0x5AA5B5",
+      "Bytes": "E8 B6 D5 D6 FF",
+      "Text": "call 0000000180317B70h",
+      "FlowControl": "Call",
+      "DirectTarget": "0x180317B70",
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AA5BA",
+      "Rva": "0x5AA5BA",
+      "Bytes": "CC",
+      "Text": "int 3",
+      "FlowControl": "Interrupt",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    }
+  ]
+}

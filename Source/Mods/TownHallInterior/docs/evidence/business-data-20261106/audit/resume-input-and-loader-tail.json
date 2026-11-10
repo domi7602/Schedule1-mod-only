@@ -1,0 +1,55 @@
+{
+  "capturedUtc": "2026-11-06T12:24:59.230094+00:00",
+  "inputs": [
+    {
+      "path": "GameAssembly.dll",
+      "sha256": "61829050e56ca180d67be592e4bfe61ec97d2e9573f720d90a54e318a7e4381d",
+      "matches": true
+    },
+    {
+      "path": "Schedule I_Data/il2cpp_data/Metadata/global-metadata.dat",
+      "sha256": "e775c97da277da8eb1a90265478f3b65c9c3d6464aff4f7255d45280a1d1181f",
+      "matches": true
+    },
+    {
+      "path": "MelonLoader/Il2CppAssemblies/Assembly-CSharp.dll",
+      "sha256": "346205306273805a78b01a917f14b94518498af1361595c4c417baa0b32b4bd8",
+      "matches": true
+    },
+    {
+      "path": "Mods/S1API.Il2Cpp.MelonLoader.dll",
+      "sha256": "d751a3cb66003f7a616eb9f8054daf34da0d9d7f23416a5005a586738a680852",
+      "matches": true
+    },
+    {
+      "path": "MelonLoader/Il2CppAssemblies/Il2CppFishNet.Runtime.dll",
+      "sha256": "0acb5c70078f5be6e88574be17b675657fc50898eb3dd264a3b98a54545e24ec",
+      "matches": true
+    },
+    {
+      "path": "MelonLoader/Il2CppAssemblies/Il2Cppmscorlib.dll",
+      "sha256": "820cb71f117b91bd7d87112e553753f5ae566dbc4a44ab8c21f00c5d6d6a362d",
+      "matches": true
+    },
+    {
+      "path": "MelonLoader/Il2CppAssemblies/UnityEngine.CoreModule.dll",
+      "sha256": "0f21732b5693777f1171376fbe0abe20ea486c513850a3593492e28e535f96b1",
+      "matches": true
+    },
+    {
+      "path": "MelonLoader/Il2CppAssemblies/UnityEngine.PhysicsModule.dll",
+      "sha256": "29a3f4e6d609a82f65c582dbbf31c8f91359a21c506bd2d021e5d6d8baa9cb44",
+      "matches": true
+    }
+  ],
+  "loaderTailTarget": {
+    "rva": "0x43FEC0",
+    "rawOffset": "0x43f0c0",
+    "bytes": "c2 00 00 cc cc cc cc cc cc cc cc cc cc cc cc cc",
+    "decodedInstruction": "C2 00 00 = RET 0; suffix not executed by this entry",
+    "scope": "Three loader ctor bodies at RVA0x41D580 set EDX0 then tail-jump here; no field stores, registrations or IO in these bounded paths.",
+    "note": "Initial check assumed alternate one-byte RET encoding C3 and correctly failed. Actual bytes verified as valid three-byte RET 0; no target code was executed."
+  },
+  "gameInvoked": false,
+  "saveFilesRead": false
+}

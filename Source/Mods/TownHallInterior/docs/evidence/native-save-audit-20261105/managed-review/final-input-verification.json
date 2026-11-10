@@ -1,0 +1,108 @@
+﻿{
+    "CapturedUtc":  "2026-11-05T08:23:19.8908745Z",
+    "SourceHashChecks":  [
+                             {
+                                 "Path":  "AGENTS.md",
+                                 "ExpectedSha256":  "650b6f0d731ae83f02a60dd3b16ba52ccb322a92d1fb3c39f7b597b476a50913",
+                                 "ActualSha256":  "650b6f0d731ae83f02a60dd3b16ba52ccb322a92d1fb3c39f7b597b476a50913",
+                                 "Match":  true
+                             },
+                             {
+                                 "Path":  "Skills/schedule1-modding/SKILL.md",
+                                 "ExpectedSha256":  "e53d4f97aa5a181921eecb98ef6da47992a974626b1ac300764ece4213a6e173",
+                                 "ActualSha256":  "e53d4f97aa5a181921eecb98ef6da47992a974626b1ac300764ece4213a6e173",
+                                 "Match":  true
+                             },
+                             {
+                                 "Path":  "Skills/schedule1-modding/references/working-contract.md",
+                                 "ExpectedSha256":  "9a0dbcfaf4ec08ea71c32d77d54cfe08b8961fe8647bc97fa997bda1f201f5b4",
+                                 "ActualSha256":  "9a0dbcfaf4ec08ea71c32d77d54cfe08b8961fe8647bc97fa997bda1f201f5b4",
+                                 "Match":  true
+                             },
+                             {
+                                 "Path":  "Skills/schedule1-modding/references/evidence-policy.md",
+                                 "ExpectedSha256":  "05b4ad032db7609bf577ca5ffb661ab74ba3d4bb1be226c50d0fc7ea23934a9d",
+                                 "ActualSha256":  "05b4ad032db7609bf577ca5ffb661ab74ba3d4bb1be226c50d0fc7ea23934a9d",
+                                 "Match":  true
+                             },
+                             {
+                                 "Path":  "Skills/schedule1-persistence/SKILL.md",
+                                 "ExpectedSha256":  "d39ed5fa6e97a77f5df95351b3d1cabdb06f3139dff39af7e61f2aa0fe454aca",
+                                 "ActualSha256":  "d39ed5fa6e97a77f5df95351b3d1cabdb06f3139dff39af7e61f2aa0fe454aca",
+                                 "Match":  true
+                             },
+                             {
+                                 "Path":  "Skills/schedule1-mod-reversing/SKILL.md",
+                                 "ExpectedSha256":  "734e656e7ae2d6e8c72917f7deef06a4ee9f4b774b5c4ae807d39d044dbf3f1e",
+                                 "ActualSha256":  "734e656e7ae2d6e8c72917f7deef06a4ee9f4b774b5c4ae807d39d044dbf3f1e",
+                                 "Match":  true
+                             },
+                             {
+                                 "Path":  "Skills/schedule1-s1api/references/saveables.md",
+                                 "ExpectedSha256":  "b2d7f9a786ec607e306f23e2c329dda222c80a75924bc83d3ea8ba35ae5c4048",
+                                 "ActualSha256":  "b2d7f9a786ec607e306f23e2c329dda222c80a75924bc83d3ea8ba35ae5c4048",
+                                 "Match":  true
+                             },
+                             {
+                                 "Path":  "ThirdParty/S1API/AGENTS.md",
+                                 "ExpectedSha256":  "24f843d0768de8cb39f0979751d27dae1f37ead888ca247feda4a79a73a5a84a",
+                                 "ActualSha256":  "24f843d0768de8cb39f0979751d27dae1f37ead888ca247feda4a79a73a5a84a",
+                                 "Match":  true
+                             },
+                             {
+                                 "Path":  "ThirdParty/S1API/S1API/Lifecycle/GameLifecycle.cs",
+                                 "ExpectedSha256":  "c9e470eab1940b59be4cc55c80d832202521bbef97264619f092b310de527a8e",
+                                 "ActualSha256":  "c9e470eab1940b59be4cc55c80d832202521bbef97264619f092b310de527a8e",
+                                 "Match":  true
+                             },
+                             {
+                                 "Path":  "ThirdParty/S1API/S1API/S1API.cs",
+                                 "ExpectedSha256":  "d00db32deec6c72b737c0a44606ea19908f903d6b5f97077331c4050823cb28d",
+                                 "ActualSha256":  "d00db32deec6c72b737c0a44606ea19908f903d6b5f97077331c4050823cb28d",
+                                 "Match":  true
+                             },
+                             {
+                                 "Path":  "ThirdParty/S1API/S1API/Internal/Patches/GenericSaveables.Patches.cs",
+                                 "ExpectedSha256":  "d72fa119aae69ab0f2a07d14134ae2c9fa85b79f68241e6ef2b56403f443bed1",
+                                 "ActualSha256":  "d72fa119aae69ab0f2a07d14134ae2c9fa85b79f68241e6ef2b56403f443bed1",
+                                 "Match":  true
+                             },
+                             {
+                                 "Path":  "ThirdParty/S1API/S1API/Internal/Abstraction/Saveable.cs",
+                                 "ExpectedSha256":  "09344961187d877ced02169f0e6c430164d7df98b1258361a41ce49996495dc4",
+                                 "ActualSha256":  "09344961187d877ced02169f0e6c430164d7df98b1258361a41ce49996495dc4",
+                                 "Match":  true
+                             },
+                             {
+                                 "Path":  "ThirdParty/S1API/S1API/Saveables/SaveableAutoRegistry.cs",
+                                 "ExpectedSha256":  "519ef9a79d243386f217405b3c996704ce858a492e35df78a2e7d987c67c6cc7",
+                                 "ActualSha256":  "519ef9a79d243386f217405b3c996704ce858a492e35df78a2e7d987c67c6cc7",
+                                 "Match":  true
+                             },
+                             {
+                                 "Path":  "Source/Mods/TownHallInterior/docs/business-manager-save-probe.md",
+                                 "ExpectedSha256":  "1f79b7975a5cf36bfb6c5bcc5aaf7556d9d4d62c048a01a0eaf7f2455991affd",
+                                 "ActualSha256":  "1f79b7975a5cf36bfb6c5bcc5aaf7556d9d4d62c048a01a0eaf7f2455991affd",
+                                 "Match":  true
+                             },
+                             {
+                                 "Path":  "Source/Mods/TownHallInterior/docs/evidence/business-save-safety-review-20261105.json",
+                                 "ExpectedSha256":  "920d7d6efc16cc8753bcd303358455a5ca95834f3bc7faed9f2f09b7d8bd5bf8",
+                                 "ActualSha256":  "920d7d6efc16cc8753bcd303358455a5ca95834f3bc7faed9f2f09b7d8bd5bf8",
+                                 "Match":  true
+                             },
+                             {
+                                 "Path":  "Source/Mods/TownHallInterior/docs/evidence/business-save-safety-review-closed-20261105.json",
+                                 "ExpectedSha256":  "1ab167528c8a20d2dc68f95579f8f5f92b18e17d2ffc1c4321524f2f8500c972",
+                                 "ActualSha256":  "1ab167528c8a20d2dc68f95579f8f5f92b18e17d2ffc1c4321524f2f8500c972",
+                                 "Match":  true
+                             }
+                         ],
+    "SourcesAllMatch":  true,
+    "InstalledS1apiSha256":  "d751a3cb66003f7a616eb9f8054daf34da0d9d7f23416a5005a586738a680852",
+    "InstalledS1apiMatch":  true,
+    "S1apiWorktreeClean":  true,
+    "RepositoryStatusUnchanged":  true,
+    "DotnetRoot":  null,
+    "DotnetRootUnchanged":  true
+}

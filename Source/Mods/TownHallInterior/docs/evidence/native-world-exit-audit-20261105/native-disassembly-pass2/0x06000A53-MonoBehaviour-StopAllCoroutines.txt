@@ -1,0 +1,28 @@
+; UnityEngine.MonoBehaviour::StopAllCoroutines/0, token 0x06000A53, RVA 0x2B79B50, next-pointer window 0x40 bytes
+; No target execution. Parser-pointer window can contain padding/cold fragments and is not exact/full function, EH or transitive coverage. Shared direct aliases are truncated to eight names.
+0x2B79B50    40 53                           push rbx
+0x2B79B52    48 83 EC 20                     sub rsp,20h
+0x2B79B56    48 8B 05 8B 55 09 01            mov rax,[183C0F0E8h]
+0x2B79B5D    48 8B D9                        mov rbx,rcx
+0x2B79B60    48 85 C0                        test rax,rax
+0x2B79B63    75 13                           jne short 0000000182B79B78h
+0x2B79B65    48 8D 0D DC E5 3F 00            lea rcx,[182F78148h]
+0x2B79B6C    E8 7F E0 79 FD                  call 0000000180317BF0h
+0x2B79B71    48 89 05 70 55 09 01            mov [183C0F0E8h],rax
+0x2B79B78    48 8B CB                        mov rcx,rbx
+0x2B79B7B    48 83 C4 20                     add rsp,20h
+0x2B79B7F    5B                              pop rbx
+0x2B79B80    48 FF E0                        jmp rax
+0x2B79B83    CC                              int 3
+0x2B79B84    CC                              int 3
+0x2B79B85    CC                              int 3
+0x2B79B86    CC                              int 3
+0x2B79B87    CC                              int 3
+0x2B79B88    CC                              int 3
+0x2B79B89    CC                              int 3
+0x2B79B8A    CC                              int 3
+0x2B79B8B    CC                              int 3
+0x2B79B8C    CC                              int 3
+0x2B79B8D    CC                              int 3
+0x2B79B8E    CC                              int 3
+0x2B79B8F    CC                              int 3

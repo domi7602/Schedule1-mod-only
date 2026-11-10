@@ -1,0 +1,124 @@
+{
+  "schema": 1,
+  "observedUtc": "2026-11-06T08:56:01.0249478Z",
+  "reviewedUtc": "2026-11-06T09:04:51.879491+00:00",
+  "sourceRevision": "b2c6c7e6c6ecc778da9624cdb68a6578b9db471a",
+  "sourceWorktree": "dirty",
+  "sourcePath": "Source/Mods/TownHallInterior/src/BusinessConstruction.cs",
+  "sourceSha256": "159f7cbdc6c7c01db1a34c93cfe2c02c8df095c2f709678afb2bf13256b9e868",
+  "reportOriginalName": "20261106T085601025Z.json",
+  "reportSha256": "d8dc3fc70e33bfbd1f114492b997c0403bd2590b3c331b0a5f4e67a1d2c7fc38",
+  "testedAssemblySha256": "38bd7da3159c4ab9363695e0f9717e659322ca68e852d316a13181fa9eaab72a",
+  "freshNativeEvidence": true,
+  "processObservedBeforeExit": {
+    "pid": 1368,
+    "startedLocal": "2026-11-06T09:54:59.7488672+01:00"
+  },
+  "organisation": "TownHallTest",
+  "slot": "SaveGame_2",
+  "loadComplete": true,
+  "singleplayer": true,
+  "status": "observed",
+  "findings": [],
+  "save": {
+    "Status": "observed",
+    "Findings": [],
+    "AttemptConsumed": true,
+    "RegistrationAttempted": true,
+    "SaveAttempted": true,
+    "SaveReturned": true,
+    "CompletionConfirmed": true,
+    "SafeToDestroy": true,
+    "Before": {
+      "Context": {
+        "LoadComplete": true,
+        "Singleplayer": true,
+        "HallReady": true,
+        "DependenciesMatch": true,
+        "ActiveSavePath": "C:\\Users\\pc\\AppData\\LocalLow\\TVGS\\Schedule I\\Saves\\76561199109519851\\SaveGame_2",
+        "LoadedSavePath": "C:\\Users\\pc\\AppData\\LocalLow\\TVGS\\Schedule I\\Saves\\76561199109519851\\SaveGame_2",
+        "OrganisationName": "TownHallTest"
+      },
+      "Generation": 2,
+      "Manager": 1733170611296,
+      "Saveables": 1733171922528,
+      "Frame": 2694,
+      "IsSaving": false,
+      "PendingRequests": 0,
+      "OwnEntries": 0,
+      "ActiveCallbacks": 0,
+      "Started": 0,
+      "Completed": 0,
+      "ForeignSaveables": "404:32f48cf76c62f166ff38421f103d3bb8c083057a06588d57652fed5a1a05bb7e",
+      "CompletionContractVerified": true
+    },
+    "Last": {
+      "Context": {
+        "LoadComplete": true,
+        "Singleplayer": true,
+        "HallReady": true,
+        "DependenciesMatch": true,
+        "ActiveSavePath": "C:\\Users\\pc\\AppData\\LocalLow\\TVGS\\Schedule I\\Saves\\76561199109519851\\SaveGame_2",
+        "LoadedSavePath": "C:\\Users\\pc\\AppData\\LocalLow\\TVGS\\Schedule I\\Saves\\76561199109519851\\SaveGame_2",
+        "OrganisationName": "TownHallTest"
+      },
+      "Generation": 2,
+      "Manager": 1733170611296,
+      "Saveables": 1733171922528,
+      "Frame": 2698,
+      "IsSaving": false,
+      "PendingRequests": 0,
+      "OwnEntries": 0,
+      "ActiveCallbacks": 0,
+      "Started": 1,
+      "Completed": 1,
+      "ForeignSaveables": "404:32f48cf76c62f166ff38421f103d3bb8c083057a06588d57652fed5a1a05bb7e",
+      "CompletionContractVerified": true
+    },
+    "DispatchFrame": 2695,
+    "CompletionObservedFrame": 2696
+  },
+  "readback": {
+    "Inactive": true,
+    "ExactComponents": true,
+    "Unowned": true,
+    "OwnNativeClass": true,
+    "OwnVirtualTargets": true,
+    "UnexpectedLifecycleCalls": 0,
+    "InitializeSaveableCalls": 0
+  },
+  "nativeSaveWriteAllowed": false,
+  "saveCompletionContractVerifiedReportFlag": true,
+  "registriesEqual": true,
+  "foreignVtablesEqual": true,
+  "lifecycleBeforeCleanup": {
+    "ShouldSave": 1,
+    "CanBePurchased": 1,
+    "get_ShouldSaveUnderFolder": 8,
+    "GetSaveString": 1,
+    "WriteData": 1
+  },
+  "countersAfterCleanup": {
+    "ShouldSave": 1,
+    "CanBePurchased": 1,
+    "get_ShouldSaveUnderFolder": 8,
+    "GetSaveString": 1,
+    "WriteData": 1
+  },
+  "cleanupComplete": true,
+  "rootDestroyed": true,
+  "cleanupVerified": true,
+  "logSha256": "16aa4b3da735bc11b6c9001d927b26b433fa8412ca8f8741f3862b6a7f60b3ae",
+  "independentReview": {
+    "reviewer": "townhall_live_readback",
+    "status": "accepted within bounded scope"
+  },
+  "limits": [
+    "Own synchronous ISaveable.Save dispatch only; not a whole-world SaveManager.Save or file-writing Business implementation.",
+    "Frame values are monotonic observation markers; 2694 to 2698 does not prove four elapsed Unity frames.",
+    "CompletionConfirmed and SafeToDestroy are bounded report results, not general native last-use or world-exit proofs.",
+    "NativeSaveWriteAllowed remains false; no activation, purchase, laundering, persistence or reload acceptance.",
+    "Generic report Limitation text retains historical unverified-adapter wording; current wiring is established separately from source and this fresh attempt.",
+    "No native Slot 1 access; no game launch or save invocation by the reviewing agents."
+  ]
+}

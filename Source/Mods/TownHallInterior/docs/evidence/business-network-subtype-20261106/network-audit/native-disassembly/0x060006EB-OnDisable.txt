@@ -1,0 +1,114 @@
+; FishNet.Object.NetworkObject::OnDisable/0, token 0x060006EB, RVA 0xCCD690, .pdata primary extent 0x1AB bytes
+; Raw native bytes decoded without invoking the game. .pdata primary extent is not a proof of full transitive/exception-path coverage.
+0xCCD690     40 57                           push rdi
+0xCCD692     48 83 EC 20                     sub rsp,20h
+0xCCD696     80 3D D1 35 F3 02 00            cmp byte ptr [183C00C6Eh],0
+0xCCD69D     48 8B F9                        mov rdi,rcx
+0xCCD6A0     75 1F                           jne short 0000000180CCD6C1h
+0xCCD6A2     48 8D 0D 5F 3B CD 02            lea rcx,[1839A1208h]
+0xCCD6A9     E8 F2 A1 64 FF                  call 00000001803178A0h
+0xCCD6AE     48 8D 0D 43 29 D2 02            lea rcx,[1839EFFF8h] ; TypeInfo: UnityEngine.Object
+0xCCD6B5     E8 E6 A1 64 FF                  call 00000001803178A0h
+0xCCD6BA     C6 05 AD 35 F3 02 01            mov byte ptr [183C00C6Eh],1
+0xCCD6C1     80 7F 38 00                     cmp byte ptr [rdi+38h],0
+0xCCD6C5     48 89 5C 24 38                  mov [rsp+38h],rbx
+0xCCD6CA     48 89 6C 24 40                  mov [rsp+40h],rbp
+0xCCD6CF     48 89 74 24 48                  mov [rsp+48h],rsi
+0xCCD6D4     48 C7 44 24 30 00 00 00 00      mov qword ptr [rsp+30h],0
+0xCCD6DD     74 57                           je short 0000000180CCD736h
+0xCCD6DF     33 D2                           xor edx,edx
+0xCCD6E1     48 8B CF                        mov rcx,rdi
+0xCCD6E4     E8 D7 2E 00 00                  call 0000000180CD05C0h ; FishNet.Object.NetworkObject::get_Owner/0
+0xCCD6E9     48 85 C0                        test rax,rax
+0xCCD6EC     0F 84 43 01 00 00               je near ptr 0000000180CCD835h
+0xCCD6F2     33 D2                           xor edx,edx
+0xCCD6F4     48 8B C8                        mov rcx,rax
+0xCCD6F7     E8 14 77 06 00                  call 0000000180D34E10h ; FishNet.Connection.NetworkConnection::get_IsValid/0
+0xCCD6FC     84 C0                           test al,al
+0xCCD6FE     74 36                           je short 0000000180CCD736h
+0xCCD700     33 D2                           xor edx,edx
+0xCCD702     48 8B CF                        mov rcx,rdi
+0xCCD705     E8 B6 2E 00 00                  call 0000000180CD05C0h ; FishNet.Object.NetworkObject::get_Owner/0
+0xCCD70A     48 85 C0                        test rax,rax
+0xCCD70D     0F 84 22 01 00 00               je near ptr 0000000180CCD835h
+0xCCD713     45 33 C0                        xor r8d,r8d
+0xCCD716     48 8B D7                        mov rdx,rdi
+0xCCD719     48 8B C8                        mov rcx,rax
+0xCCD71C     E8 4F D6 FE FF                  call 0000000180CBAD70h
+0xCCD721     48 8B 74 24 48                  mov rsi,[rsp+48h]
+0xCCD726     48 8B 6C 24 40                  mov rbp,[rsp+40h]
+0xCCD72B     48 8B 5C 24 38                  mov rbx,[rsp+38h]
+0xCCD730     48 83 C4 20                     add rsp,20h
+0xCCD734     5F                              pop rdi
+0xCCD735     C3                              ret
+0xCCD736     33 D2                           xor edx,edx
+0xCCD738     48 8B CF                        mov rcx,rdi
+0xCCD73B     E8 C0 2C 00 00                  call 0000000180CD0400h ; FishNet.Object.NetworkObject::get_IsServer/0
+0xCCD740     84 C0                           test al,al
+0xCCD742     74 DD                           je short 0000000180CCD721h
+0xCCD744     80 7F 20 00                     cmp byte ptr [rdi+20h],0
+0xCCD748     75 D7                           jne short 0000000180CCD721h
+0xCCD74A     33 D2                           xor edx,edx
+0xCCD74C     48 8B CF                        mov rcx,rdi
+0xCCD74F     E8 5C 6C EA 01                  call 0000000182B743B0h ; UnityEngine.Component::get_gameObject/0
+0xCCD754     48 85 C0                        test rax,rax
+0xCCD757     0F 84 D8 00 00 00               je near ptr 0000000180CCD835h
+0xCCD75D     33 D2                           xor edx,edx
+0xCCD75F     48 8B C8                        mov rcx,rax
+0xCCD762     E8 D9 B1 EA 01                  call 0000000182B78940h ; UnityEngine.GameObject::get_activeSelf/0
+0xCCD767     84 C0                           test al,al
+0xCCD769     74 B6                           je short 0000000180CCD721h
+0xCCD76B     33 D2                           xor edx,edx
+0xCCD76D     48 8B CF                        mov rcx,rdi
+0xCCD770     E8 EB 6C EA 01                  call 0000000182B74460h ; UnityEngine.Component::get_transform/0
+0xCCD775     48 85 C0                        test rax,rax
+0xCCD778     0F 84 B7 00 00 00               je near ptr 0000000180CCD835h
+0xCCD77E     48 8B C8                        mov rcx,rax
+0xCCD781     33 D2                           xor edx,edx
+0xCCD783     E8 F8 85 EB 01                  call 0000000182B85D80h ; UnityEngine.Transform::get_parent/0 | UnityEngine.Transform::get_parentInternal/0 | UnityEngine.Transform::GetParent/0
+0xCCD788     48 8B D8                        mov rbx,rax
+0xCCD78B     0F 1F 44 00 00                  nop dword ptr [rax+rax]
+0xCCD790     48 8B 0D 61 28 D2 02            mov rcx,[1839EFFF8h] ; TypeInfo: UnityEngine.Object
+0xCCD797     83 B9 E0 00 00 00 00            cmp dword ptr [rcx+0E0h],0
+0xCCD79E     75 05                           jne short 0000000180CCD7A5h
+0xCCD7A0     E8 8B A4 64 FF                  call 0000000180317C30h
+0xCCD7A5     45 33 C0                        xor r8d,r8d
+0xCCD7A8     33 D2                           xor edx,edx
+0xCCD7AA     48 8B CB                        mov rcx,rbx
+0xCCD7AD     E8 8E EA EA 01                  call 0000000182B7C240h ; UnityEngine.Object::op_Inequality/2
+0xCCD7B2     84 C0                           test al,al
+0xCCD7B4     0F 84 67 FF FF FF               je near ptr 0000000180CCD721h
+0xCCD7BA     48 85 DB                        test rbx,rbx
+0xCCD7BD     74 76                           je short 0000000180CCD835h
+0xCCD7BF     4C 8B 05 42 3A CD 02            mov r8,[1839A1208h]
+0xCCD7C6     48 8D 54 24 30                  lea rdx,[rsp+30h]
+0xCCD7CB     48 8B CB                        mov rcx,rbx
+0xCCD7CE     E8 5D 95 12 00                  call 0000000180DF6D30h ; UnityEngine.Component::TryGetComponent/1
+0xCCD7D3     84 C0                           test al,al
+0xCCD7D5     74 44                           je short 0000000180CCD81Bh
+0xCCD7D7     48 8B 0D 1A 28 D2 02            mov rcx,[1839EFFF8h] ; TypeInfo: UnityEngine.Object
+0xCCD7DE     48 8B 74 24 30                  mov rsi,[rsp+30h]
+0xCCD7E3     48 8B 6F 50                     mov rbp,[rdi+50h]
+0xCCD7E7     83 B9 E0 00 00 00 00            cmp dword ptr [rcx+0E0h],0
+0xCCD7EE     75 05                           jne short 0000000180CCD7F5h
+0xCCD7F0     E8 3B A4 64 FF                  call 0000000180317C30h
+0xCCD7F5     45 33 C0                        xor r8d,r8d
+0xCCD7F8     48 8B D5                        mov rdx,rbp
+0xCCD7FB     48 8B CE                        mov rcx,rsi
+0xCCD7FE     E8 3D EA EA 01                  call 0000000182B7C240h ; UnityEngine.Object::op_Inequality/2
+0xCCD803     84 C0                           test al,al
+0xCCD805     0F 85 16 FF FF FF               jne near ptr 0000000180CCD721h
+0xCCD80B     48 8B 44 24 30                  mov rax,[rsp+30h]
+0xCCD810     48 85 C0                        test rax,rax
+0xCCD813     74 20                           je short 0000000180CCD835h
+0xCCD815     80 78 38 00                     cmp byte ptr [rax+38h],0
+0xCCD819     75 08                           jne short 0000000180CCD823h
+0xCCD81B     48 8B CB                        mov rcx,rbx
+0xCCD81E     E9 5E FF FF FF                  jmp near ptr 0000000180CCD781h
+0xCCD823     33 D2                           xor edx,edx
+0xCCD825     45 33 C0                        xor r8d,r8d
+0xCCD828     48 8B CF                        mov rcx,rdi
+0xCCD82B     E8 00 E2 FF FF                  call 0000000180CCBA30h ; FishNet.Object.NetworkObject::Despawn/1
+0xCCD830     E9 EC FE FF FF                  jmp near ptr 0000000180CCD721h
+0xCCD835     E8 46 A3 64 FF                  call 0000000180317B80h
+0xCCD83A     CC                              int 3

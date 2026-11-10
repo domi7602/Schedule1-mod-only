@@ -1,0 +1,131 @@
+{
+  "SchemaVersion": 1,
+  "Repository": "C:\\Users\\pc\\Schedule1-mod-only",
+  "RequestedMode": "Quick",
+  "Mode": "Quick",
+  "StartedUtc": "2026-11-05T05:49:24.6926930Z",
+  "FinishedUtc": "2026-11-05T05:50:06.1602954Z",
+  "GameReferences": true,
+  "GameProbe": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Schedule I\\MelonLoader\\Il2CppAssemblies\\Assembly-CSharp.dll",
+  "Dotnet": "C:\\Program Files\\dotnet\\dotnet.exe",
+  "ExitCode": 1,
+  "Passed": 6,
+  "Failed": 1,
+  "Skipped": 0,
+  "Steps": [
+    {
+      "Name": "sdk",
+      "Status": "Passed",
+      "ExitCode": 0,
+      "Seconds": 0.09,
+      "Command": "C:\\Program Files\\dotnet\\dotnet.exe",
+      "Arguments": [
+        "--version"
+      ],
+      "LogPath": "C:\\Users\\pc\\.cache\\Schedule1Tools\\verification\\verify-4a57fbd7f403\\sdk.log",
+      "Error": null
+    },
+    {
+      "Name": "format",
+      "Status": "Passed",
+      "ExitCode": 0,
+      "Seconds": 29.86,
+      "Command": "C:\\Program Files\\dotnet\\dotnet.exe",
+      "Arguments": [
+        "format",
+        "C:\\Users\\pc\\Schedule1-mod-only\\Source\\Mods\\S1Mods.sln",
+        "--verify-no-changes",
+        "--verbosity",
+        "minimal"
+      ],
+      "LogPath": "C:\\Users\\pc\\.cache\\Schedule1Tools\\verification\\verify-4a57fbd7f403\\format.log",
+      "Error": null
+    },
+    {
+      "Name": "solution",
+      "Status": "Passed",
+      "ExitCode": 0,
+      "Seconds": 5.71,
+      "Command": "C:\\Program Files\\WindowsApps\\Microsoft.PowerShell_7.6.8.0_x64__8wekyb3d8bbwe\\pwsh.exe",
+      "Arguments": [
+        "-NoProfile",
+        "-NonInteractive",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "C:\\Users\\pc\\Schedule1-mod-only\\Tools\\gen-sln.ps1",
+        "-Check"
+      ],
+      "LogPath": "C:\\Users\\pc\\.cache\\Schedule1Tools\\verification\\verify-4a57fbd7f403\\solution.log",
+      "Error": null
+    },
+    {
+      "Name": "versions",
+      "Status": "Failed",
+      "ExitCode": 1,
+      "Seconds": 1.17,
+      "Command": "C:\\Program Files\\WindowsApps\\Microsoft.PowerShell_7.6.8.0_x64__8wekyb3d8bbwe\\pwsh.exe",
+      "Arguments": [
+        "-NoProfile",
+        "-NonInteractive",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "C:\\Users\\pc\\Schedule1-mod-only\\Tools\\check-version-sync.ps1"
+      ],
+      "LogPath": "C:\\Users\\pc\\.cache\\Schedule1Tools\\verification\\verify-4a57fbd7f403\\versions.log",
+      "Error": "Child process exited 1."
+    },
+    {
+      "Name": "docs",
+      "Status": "Passed",
+      "ExitCode": 0,
+      "Seconds": 3.04,
+      "Command": "C:\\Program Files\\WindowsApps\\Microsoft.PowerShell_7.6.8.0_x64__8wekyb3d8bbwe\\pwsh.exe",
+      "Arguments": [
+        "-NoProfile",
+        "-NonInteractive",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "C:\\Users\\pc\\Schedule1-mod-only\\Tools\\check-doc-paths.ps1"
+      ],
+      "LogPath": "C:\\Users\\pc\\.cache\\Schedule1Tools\\verification\\verify-4a57fbd7f403\\docs.log",
+      "Error": null
+    },
+    {
+      "Name": "skills",
+      "Status": "Passed",
+      "ExitCode": 0,
+      "Seconds": 1.13,
+      "Command": "C:\\Program Files\\WindowsApps\\Microsoft.PowerShell_7.6.8.0_x64__8wekyb3d8bbwe\\pwsh.exe",
+      "Arguments": [
+        "-NoProfile",
+        "-NonInteractive",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "C:\\Users\\pc\\Schedule1-mod-only\\Tools\\check-skills-health.ps1"
+      ],
+      "LogPath": "C:\\Users\\pc\\.cache\\Schedule1Tools\\verification\\verify-4a57fbd7f403\\skills.log",
+      "Error": null
+    },
+    {
+      "Name": "xml",
+      "Status": "Passed",
+      "ExitCode": 0,
+      "Seconds": 0.37,
+      "Command": "C:\\Program Files\\WindowsApps\\Microsoft.PowerShell_7.6.8.0_x64__8wekyb3d8bbwe\\pwsh.exe",
+      "Arguments": [
+        "-NoProfile",
+        "-NonInteractive",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "C:\\Users\\pc\\Schedule1-mod-only\\Tools\\check-xml.ps1"
+      ],
+      "LogPath": "C:\\Users\\pc\\.cache\\Schedule1Tools\\verification\\verify-4a57fbd7f403\\xml.log",
+      "Error": null
+    }
+  ]
+}

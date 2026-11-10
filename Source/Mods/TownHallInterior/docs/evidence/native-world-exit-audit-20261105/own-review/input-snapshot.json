@@ -1,0 +1,396 @@
+{
+    "schema":  1,
+    "capturedUtc":  "2026-11-05T16:38:59.7056554Z",
+    "sourceRevision":  "b2c6c7e6c6ecc778da9624cdb68a6578b9db471a",
+    "sourceWorktree":  "dirty",
+    "primaryFreezeCapturedUtc":  "2026-11-05T16:35:51.543004+00:00",
+    "sources":  [
+                    {
+                        "path":  "AGENTS.md",
+                        "sha256":  "650b6f0d731ae83f02a60dd3b16ba52ccb322a92d1fb3c39f7b597b476a50913",
+                        "bytes":  23694
+                    },
+                    {
+                        "path":  "Skills/schedule1-modding/SKILL.md",
+                        "sha256":  "e53d4f97aa5a181921eecb98ef6da47992a974626b1ac300764ece4213a6e173",
+                        "bytes":  4451
+                    },
+                    {
+                        "path":  "Skills/schedule1-modding/references/working-contract.md",
+                        "sha256":  "9a0dbcfaf4ec08ea71c32d77d54cfe08b8961fe8647bc97fa997bda1f201f5b4",
+                        "bytes":  4310
+                    },
+                    {
+                        "path":  "Skills/schedule1-modding/references/evidence-policy.md",
+                        "sha256":  "05b4ad032db7609bf577ca5ffb661ab74ba3d4bb1be226c50d0fc7ea23934a9d",
+                        "bytes":  4146
+                    },
+                    {
+                        "path":  "Skills/schedule1-persistence/SKILL.md",
+                        "sha256":  "d39ed5fa6e97a77f5df95351b3d1cabdb06f3139dff39af7e61f2aa0fe454aca",
+                        "bytes":  4717
+                    },
+                    {
+                        "path":  "Skills/schedule1-mod-reversing/SKILL.md",
+                        "sha256":  "734e656e7ae2d6e8c72917f7deef06a4ee9f4b774b5c4ae807d39d044dbf3f1e",
+                        "bytes":  4005
+                    },
+                    {
+                        "path":  "Source/Mods/TownHallInterior/src/BusinessConstruction.cs",
+                        "sha256":  "8964512eeb94ae63acadbe5cd47caa7c36a325e10cd75af73cc5c1091c4db5d2",
+                        "bytes":  157035
+                    },
+                    {
+                        "path":  "Source/Mods/TownHallInterior/src/Mod.cs",
+                        "sha256":  "82323dd725b033b124c0f5edd6252730676f3f1910bdd402441945f0fe4e9385",
+                        "bytes":  4096
+                    },
+                    {
+                        "path":  "Source/Mods/TownHallInterior/src/TownHallInterior.csproj",
+                        "sha256":  "c730506d8c85e9d9fb88def2c397920f408b7771576a59aacc2c4b183bcde9df",
+                        "bytes":  1942
+                    },
+                    {
+                        "path":  "Source/Mods/TownHallInterior/src/BusinessBindingProbe.cs",
+                        "sha256":  "fb82cfafbee2f92b7c52d76edc9a3fe417cb905ad7f20a90a082ce681efa7fa1",
+                        "bytes":  21182
+                    },
+                    {
+                        "path":  "Source/Mods/TownHallInterior/src/PublicHallHost.cs",
+                        "sha256":  "d85708f66705a1ac87aec2d1def1f4daff0cebabd78b459b93a589418be65bcc",
+                        "bytes":  15859
+                    },
+                    {
+                        "path":  "Source/Mods/TownHallInterior/src/UnityRoomSink.cs",
+                        "sha256":  "646b693e349e61126bc548c59e9bdf8e4f978787eeab1173a8535323f9588d17",
+                        "bytes":  2795
+                    },
+                    {
+                        "path":  "Source/Mods/TownHallInterior/docs/native-save-completion-audit.md",
+                        "sha256":  "168abd65c1d313d897ba85ef22d6f3dd9ce814c7b29c0036ab65de85c679bd93",
+                        "bytes":  19773
+                    },
+                    {
+                        "path":  "Source/Mods/TownHallInterior/docs/business-manager-save-probe.md",
+                        "sha256":  "bca79d26c7a914ac1f5a8b01403e7a5b25ac25451f59fd786a780c9449d07b2c",
+                        "bytes":  12086
+                    },
+                    {
+                        "path":  "Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/managed-boundary-review.json",
+                        "sha256":  "3d48257c04fcc5d93de23f03db2432f4be87207b3fde5c533f1f0a5ba9b9ef19",
+                        "bytes":  33073
+                    },
+                    {
+                        "path":  ".scratch/townhall-native-world-exit-audit-20261105/input-manifest.json",
+                        "sha256":  "f7d3b2a163daba9b96be7d078caf3fd0f7723b718f9468ff61b3262f2f88c498",
+                        "bytes":  12457
+                    }
+                ],
+    "protectedSources":  [
+                             {
+                                 "path":  "Source/Mods/TownHallInterior/src/BusinessBindingProbe.cs",
+                                 "expectedSha256":  "fb82cfafbee2f92b7c52d76edc9a3fe417cb905ad7f20a90a082ce681efa7fa1",
+                                 "sha256":  "fb82cfafbee2f92b7c52d76edc9a3fe417cb905ad7f20a90a082ce681efa7fa1",
+                                 "matchesPrimaryFreeze":  true
+                             },
+                             {
+                                 "path":  "Source/Mods/TownHallInterior/src/BusinessConstruction.cs",
+                                 "expectedSha256":  "8964512eeb94ae63acadbe5cd47caa7c36a325e10cd75af73cc5c1091c4db5d2",
+                                 "sha256":  "8964512eeb94ae63acadbe5cd47caa7c36a325e10cd75af73cc5c1091c4db5d2",
+                                 "matchesPrimaryFreeze":  true
+                             },
+                             {
+                                 "path":  "Source/Mods/TownHallInterior/src/BusinessProbeEvidence.cs",
+                                 "expectedSha256":  "37ce332858d00368ebde93c3f13af3b20482d0de15f07b559e34078597603458",
+                                 "sha256":  "37ce332858d00368ebde93c3f13af3b20482d0de15f07b559e34078597603458",
+                                 "matchesPrimaryFreeze":  true
+                             },
+                             {
+                                 "path":  "Source/Mods/TownHallInterior/src/CleanupJournal.cs",
+                                 "expectedSha256":  "310955ae9d1f5115941ef5bf7920ed49f6ff47086d8187fe050f444f63f09b76",
+                                 "sha256":  "310955ae9d1f5115941ef5bf7920ed49f6ff47086d8187fe050f444f63f09b76",
+                                 "matchesPrimaryFreeze":  true
+                             },
+                             {
+                                 "path":  "Source/Mods/TownHallInterior/src/DoorAdapter.cs",
+                                 "expectedSha256":  "6d5e638b3217b24d3d4a86ea768912e26bdf73449cef98196502586f036a6341",
+                                 "sha256":  "6d5e638b3217b24d3d4a86ea768912e26bdf73449cef98196502586f036a6341",
+                                 "matchesPrimaryFreeze":  true
+                             },
+                             {
+                                 "path":  "Source/Mods/TownHallInterior/src/DoorChoice.cs",
+                                 "expectedSha256":  "42093f9e71f5c4fe832dac0eff888654163389b86dac1d6be494f7f715943201",
+                                 "sha256":  "42093f9e71f5c4fe832dac0eff888654163389b86dac1d6be494f7f715943201",
+                                 "matchesPrimaryFreeze":  true
+                             },
+                             {
+                                 "path":  "Source/Mods/TownHallInterior/src/DoorHook.cs",
+                                 "expectedSha256":  "10bfdd035b414e0727c01aef12a08b1fb0a33abbd897a6c3efc79e7da006934c",
+                                 "sha256":  "10bfdd035b414e0727c01aef12a08b1fb0a33abbd897a6c3efc79e7da006934c",
+                                 "matchesPrimaryFreeze":  true
+                             },
+                             {
+                                 "path":  "Source/Mods/TownHallInterior/src/FacadePortal.cs",
+                                 "expectedSha256":  "4b2cc05e14353fddccc2ddb404fed35b1859d950f5e80e6a6735a8d196cf2270",
+                                 "sha256":  "4b2cc05e14353fddccc2ddb404fed35b1859d950f5e80e6a6735a8d196cf2270",
+                                 "matchesPrimaryFreeze":  true
+                             },
+                             {
+                                 "path":  "Source/Mods/TownHallInterior/src/FurniturePlan.cs",
+                                 "expectedSha256":  "17e8402738ff124a54f1e61a076618894a6ca5b3d3e6733242f71217a5a18e6b",
+                                 "sha256":  "17e8402738ff124a54f1e61a076618894a6ca5b3d3e6733242f71217a5a18e6b",
+                                 "matchesPrimaryFreeze":  true
+                             },
+                             {
+                                 "path":  "Source/Mods/TownHallInterior/src/HallFittings.cs",
+                                 "expectedSha256":  "210301b0663b1a0b3fdbedbcb2231a007d62f2d0bb19828250c4ffd6fddc7492",
+                                 "sha256":  "210301b0663b1a0b3fdbedbcb2231a007d62f2d0bb19828250c4ffd6fddc7492",
+                                 "matchesPrimaryFreeze":  true
+                             },
+                             {
+                                 "path":  "Source/Mods/TownHallInterior/src/Mod.cs",
+                                 "expectedSha256":  "82323dd725b033b124c0f5edd6252730676f3f1910bdd402441945f0fe4e9385",
+                                 "sha256":  "82323dd725b033b124c0f5edd6252730676f3f1910bdd402441945f0fe4e9385",
+                                 "matchesPrimaryFreeze":  true
+                             },
+                             {
+                                 "path":  "Source/Mods/TownHallInterior/src/NativeFacadeSwap.cs",
+                                 "expectedSha256":  "58542a588017f540a7b546845b038174d96ef761acfacd7101c0004a5ceae5e3",
+                                 "sha256":  "58542a588017f540a7b546845b038174d96ef761acfacd7101c0004a5ceae5e3",
+                                 "matchesPrimaryFreeze":  true
+                             },
+                             {
+                                 "path":  "Source/Mods/TownHallInterior/src/NativeSceneSwap.cs",
+                                 "expectedSha256":  "a526e26ffb62fbf08ad8e3725779c83dbc85558fcb22a1b34cb12dc061bed6aa",
+                                 "sha256":  "a526e26ffb62fbf08ad8e3725779c83dbc85558fcb22a1b34cb12dc061bed6aa",
+                                 "matchesPrimaryFreeze":  true
+                             },
+                             {
+                                 "path":  "Source/Mods/TownHallInterior/src/PublicEntrance.cs",
+                                 "expectedSha256":  "4fdb304a13cd24a496e9368c211bf09f8aaf1da9041a8912fdb364f46ec9dd5f",
+                                 "sha256":  "4fdb304a13cd24a496e9368c211bf09f8aaf1da9041a8912fdb364f46ec9dd5f",
+                                 "matchesPrimaryFreeze":  true
+                             },
+                             {
+                                 "path":  "Source/Mods/TownHallInterior/src/PublicHallHost.cs",
+                                 "expectedSha256":  "d85708f66705a1ac87aec2d1def1f4daff0cebabd78b459b93a589418be65bcc",
+                                 "sha256":  "d85708f66705a1ac87aec2d1def1f4daff0cebabd78b459b93a589418be65bcc",
+                                 "matchesPrimaryFreeze":  true
+                             },
+                             {
+                                 "path":  "Source/Mods/TownHallInterior/src/RoomBuilder.cs",
+                                 "expectedSha256":  "44b555668aecbb0055b902d204716861399ee59e439971f842d5f0b4a3a48f68",
+                                 "sha256":  "44b555668aecbb0055b902d204716861399ee59e439971f842d5f0b4a3a48f68",
+                                 "matchesPrimaryFreeze":  true
+                             },
+                             {
+                                 "path":  "Source/Mods/TownHallInterior/src/RoomPlan.cs",
+                                 "expectedSha256":  "ebe89aa2620044c170f08c33382aa420bb1aa22e78d56ed74b97a4561f864233",
+                                 "sha256":  "ebe89aa2620044c170f08c33382aa420bb1aa22e78d56ed74b97a4561f864233",
+                                 "matchesPrimaryFreeze":  true
+                             },
+                             {
+                                 "path":  "Source/Mods/TownHallInterior/src/TownHallInterior.csproj",
+                                 "expectedSha256":  "c730506d8c85e9d9fb88def2c397920f408b7771576a59aacc2c4b183bcde9df",
+                                 "sha256":  "c730506d8c85e9d9fb88def2c397920f408b7771576a59aacc2c4b183bcde9df",
+                                 "matchesPrimaryFreeze":  true
+                             },
+                             {
+                                 "path":  "Source/Mods/TownHallInterior/src/UnityRoomSink.cs",
+                                 "expectedSha256":  "646b693e349e61126bc548c59e9bdf8e4f978787eeab1173a8535323f9588d17",
+                                 "sha256":  "646b693e349e61126bc548c59e9bdf8e4f978787eeab1173a8535323f9588d17",
+                                 "matchesPrimaryFreeze":  true
+                             },
+                             {
+                                 "path":  "Source/Mods/TownHallInterior/src/VanillaFurnishings.cs",
+                                 "expectedSha256":  "c434ab9c4b0055c531250b5a45b672703e266fbe962e3934ffa58f951cce98aa",
+                                 "sha256":  "c434ab9c4b0055c531250b5a45b672703e266fbe962e3934ffa58f951cce98aa",
+                                 "matchesPrimaryFreeze":  true
+                             },
+                             {
+                                 "path":  "Source/Tests/TownHallInterior.Tests/BusinessActivationTests.cs",
+                                 "expectedSha256":  "c43b5aa08c51a151d042f4a8e4a0c56cd79892ed98723e4fb883bba57b1b8a7f",
+                                 "sha256":  "c43b5aa08c51a151d042f4a8e4a0c56cd79892ed98723e4fb883bba57b1b8a7f",
+                                 "matchesPrimaryFreeze":  true
+                             },
+                             {
+                                 "path":  "Source/Tests/TownHallInterior.Tests/BusinessConstructionTests.cs",
+                                 "expectedSha256":  "43ac3184d66a64bfc6ae9b6ba6587df6a3eb333575d93cc187c291e45e7630b8",
+                                 "sha256":  "43ac3184d66a64bfc6ae9b6ba6587df6a3eb333575d93cc187c291e45e7630b8",
+                                 "matchesPrimaryFreeze":  true
+                             },
+                             {
+                                 "path":  "Source/Tests/TownHallInterior.Tests/BusinessInterfaceTests.cs",
+                                 "expectedSha256":  "d1b13f70314555a2702d732b078bafb9cef7e9b71eaea8249b74ae8736bd2abf",
+                                 "sha256":  "d1b13f70314555a2702d732b078bafb9cef7e9b71eaea8249b74ae8736bd2abf",
+                                 "matchesPrimaryFreeze":  true
+                             },
+                             {
+                                 "path":  "Source/Tests/TownHallInterior.Tests/BusinessManagerAuditTests.cs",
+                                 "expectedSha256":  "164eaeb014c1d63b776c47d0dd105f4f12bec79d4ffb02a135d3da5f5f82323d",
+                                 "sha256":  "164eaeb014c1d63b776c47d0dd105f4f12bec79d4ffb02a135d3da5f5f82323d",
+                                 "matchesPrimaryFreeze":  true
+                             },
+                             {
+                                 "path":  "Source/Tests/TownHallInterior.Tests/BusinessManagerSafetyTests.cs",
+                                 "expectedSha256":  "ead2dbe76be2679c8be006b114075c55d58b1cddfe08e292f8551c225f70a035",
+                                 "sha256":  "ead2dbe76be2679c8be006b114075c55d58b1cddfe08e292f8551c225f70a035",
+                                 "matchesPrimaryFreeze":  true
+                             },
+                             {
+                                 "path":  "Source/Tests/TownHallInterior.Tests/BusinessManagerSaveTests.cs",
+                                 "expectedSha256":  "0d9fe4fe204e20a6850945b4a7c32c3285cc060942140b9837ac3aafc34aa963",
+                                 "sha256":  "0d9fe4fe204e20a6850945b4a7c32c3285cc060942140b9837ac3aafc34aa963",
+                                 "matchesPrimaryFreeze":  true
+                             },
+                             {
+                                 "path":  "Source/Tests/TownHallInterior.Tests/BusinessManagerTests.cs",
+                                 "expectedSha256":  "d62a8ad7a82e9cedd7554e7e489cba55fee62409dd3de347130575fb69524b1e",
+                                 "sha256":  "d62a8ad7a82e9cedd7554e7e489cba55fee62409dd3de347130575fb69524b1e",
+                                 "matchesPrimaryFreeze":  true
+                             },
+                             {
+                                 "path":  "Source/Tests/TownHallInterior.Tests/BusinessProbeEvidenceTests.cs",
+                                 "expectedSha256":  "71797f12c5f96f633d44127a08cbdaf93dba26dc75a521c648d130f6b5b3d9de",
+                                 "sha256":  "71797f12c5f96f633d44127a08cbdaf93dba26dc75a521c648d130f6b5b3d9de",
+                                 "matchesPrimaryFreeze":  true
+                             },
+                             {
+                                 "path":  "Source/Tests/TownHallInterior.Tests/BusinessSubtypeTests.cs",
+                                 "expectedSha256":  "d58b1b960098861782725d71811fa17f27b0bf195d8e25ef37a5c586674f380a",
+                                 "sha256":  "d58b1b960098861782725d71811fa17f27b0bf195d8e25ef37a5c586674f380a",
+                                 "matchesPrimaryFreeze":  true
+                             },
+                             {
+                                 "path":  "Source/Tests/TownHallInterior.Tests/BusinessTypeResolutionTests.cs",
+                                 "expectedSha256":  "58325e28dc822ffe2cc493c1f426d1c3acf3147efa457edc32f93e317aa82c46",
+                                 "sha256":  "58325e28dc822ffe2cc493c1f426d1c3acf3147efa457edc32f93e317aa82c46",
+                                 "matchesPrimaryFreeze":  true
+                             },
+                             {
+                                 "path":  "Source/Tests/TownHallInterior.Tests/CleanupJournalTests.cs",
+                                 "expectedSha256":  "1fc594bb24f1ac542d5ee8878ce88b54b7d295b132cce3112dc0d40c4708f1cb",
+                                 "sha256":  "1fc594bb24f1ac542d5ee8878ce88b54b7d295b132cce3112dc0d40c4708f1cb",
+                                 "matchesPrimaryFreeze":  true
+                             },
+                             {
+                                 "path":  "Source/Tests/TownHallInterior.Tests/DoorAdapterTests.cs",
+                                 "expectedSha256":  "97e44aee74c74d5ba2f5672deec7319876eb3b1b2b8c71a12ca516f839ed907e",
+                                 "sha256":  "97e44aee74c74d5ba2f5672deec7319876eb3b1b2b8c71a12ca516f839ed907e",
+                                 "matchesPrimaryFreeze":  true
+                             },
+                             {
+                                 "path":  "Source/Tests/TownHallInterior.Tests/DoorChoiceTests.cs",
+                                 "expectedSha256":  "6f9f493e814b8a6db340d916f3932d5b68b77a48b608c86e6bdaa6bb85d01946",
+                                 "sha256":  "6f9f493e814b8a6db340d916f3932d5b68b77a48b608c86e6bdaa6bb85d01946",
+                                 "matchesPrimaryFreeze":  true
+                             },
+                             {
+                                 "path":  "Source/Tests/TownHallInterior.Tests/EnclosureTests.cs",
+                                 "expectedSha256":  "cc381927c62e5bdbb2f412bab72abd88a66ccd6780f5f260d26003caaa3814db",
+                                 "sha256":  "cc381927c62e5bdbb2f412bab72abd88a66ccd6780f5f260d26003caaa3814db",
+                                 "matchesPrimaryFreeze":  true
+                             },
+                             {
+                                 "path":  "Source/Tests/TownHallInterior.Tests/FacadePortalTests.cs",
+                                 "expectedSha256":  "876eff42444821a38103b7b97173b30b4d2bb3c94aa8856b48510ff81f7bbced",
+                                 "sha256":  "876eff42444821a38103b7b97173b30b4d2bb3c94aa8856b48510ff81f7bbced",
+                                 "matchesPrimaryFreeze":  true
+                             },
+                             {
+                                 "path":  "Source/Tests/TownHallInterior.Tests/FurniturePlanTests.cs",
+                                 "expectedSha256":  "99f99db70533724fe939aa73b6b2bafac295d361d9280f92a42f6001eb4594aa",
+                                 "sha256":  "99f99db70533724fe939aa73b6b2bafac295d361d9280f92a42f6001eb4594aa",
+                                 "matchesPrimaryFreeze":  true
+                             },
+                             {
+                                 "path":  "Source/Tests/TownHallInterior.Tests/HallFittingsTests.cs",
+                                 "expectedSha256":  "8d18df41130233be9543c38d419ef36273f2ae2d09bba520e6abfc57799a7209",
+                                 "sha256":  "8d18df41130233be9543c38d419ef36273f2ae2d09bba520e6abfc57799a7209",
+                                 "matchesPrimaryFreeze":  true
+                             },
+                             {
+                                 "path":  "Source/Tests/TownHallInterior.Tests/NativeSceneSwapTests.cs",
+                                 "expectedSha256":  "d77efe579cd909c42dc48245b427d30c59874955c1b0dcdb6652a110f441d37c",
+                                 "sha256":  "d77efe579cd909c42dc48245b427d30c59874955c1b0dcdb6652a110f441d37c",
+                                 "matchesPrimaryFreeze":  true
+                             },
+                             {
+                                 "path":  "Source/Tests/TownHallInterior.Tests/PublicEntranceTests.cs",
+                                 "expectedSha256":  "1ab9d7d8825911ea4777ea56fd109bf2f7a4ef679f258108c98a42580e80d6c3",
+                                 "sha256":  "1ab9d7d8825911ea4777ea56fd109bf2f7a4ef679f258108c98a42580e80d6c3",
+                                 "matchesPrimaryFreeze":  true
+                             },
+                             {
+                                 "path":  "Source/Tests/TownHallInterior.Tests/RoomPlanTests.cs",
+                                 "expectedSha256":  "fdeb4a9c49d2e83b71e0edeb50ed3f0f5e68ce6508801198bedca997638a71a3",
+                                 "sha256":  "fdeb4a9c49d2e83b71e0edeb50ed3f0f5e68ce6508801198bedca997638a71a3",
+                                 "matchesPrimaryFreeze":  true
+                             },
+                             {
+                                 "path":  "Source/Tests/TownHallInterior.Tests/TownHallInterior.Tests.csproj",
+                                 "expectedSha256":  "dc582cf6a85f3c98417c83cd67a65f28b8f8739bb1a1507fe665eaa52ceec26c",
+                                 "sha256":  "dc582cf6a85f3c98417c83cd67a65f28b8f8739bb1a1507fe665eaa52ceec26c",
+                                 "matchesPrimaryFreeze":  true
+                             }
+                         ],
+    "protectedSourceCount":  41,
+    "protectedSourcesAllMatch":  true,
+    "gameProcessCount":  0,
+    "dotnetRoot":  null,
+    "repositoryStatus":  [
+                             " M AGENTS.md",
+                             " M Source/Mods/TownHallInterior/docs/CHANGELOG.md",
+                             " M Source/Mods/TownHallInterior/docs/README.md",
+                             " M Source/Mods/TownHallInterior/docs/business-completion-plan.md",
+                             " M Source/Mods/TownHallInterior/docs/business-manager-registration-probe.md",
+                             " M Source/Mods/TownHallInterior/src/BusinessConstruction.cs",
+                             " M Source/Tests/TownHallInterior.Tests/BusinessManagerTests.cs",
+                             " M docs/compatibility.md",
+                             "?? Source/Mods/TownHallInterior/docs/business-manager-save-probe.md",
+                             "?? Source/Mods/TownHallInterior/docs/evidence/business-save-audit-green-20261105.trx",
+                             "?? Source/Mods/TownHallInterior/docs/evidence/business-save-audit-red-20261105.trx",
+                             "?? Source/Mods/TownHallInterior/docs/evidence/business-save-audit-red-source-20261105.cs",
+                             "?? Source/Mods/TownHallInterior/docs/evidence/business-save-baseline-20261105.trx",
+                             "?? Source/Mods/TownHallInterior/docs/evidence/business-save-coder-green-20261105.trx",
+                             "?? Source/Mods/TownHallInterior/docs/evidence/business-save-coder-red-20261105.trx",
+                             "?? Source/Mods/TownHallInterior/docs/evidence/business-save-isolated-report-20261105.json",
+                             "?? Source/Mods/TownHallInterior/docs/evidence/business-save-isolated-snapshot-20261105.json",
+                             "?? Source/Mods/TownHallInterior/docs/evidence/business-save-isolated-townhall-20261105.trx",
+                             "?? Source/Mods/TownHallInterior/docs/evidence/business-save-isolation-20261105.json",
+                             "?? Source/Mods/TownHallInterior/docs/evidence/business-save-offline-20261105.json",
+                             "?? Source/Mods/TownHallInterior/docs/evidence/business-save-quick-20261105.json",
+                             "?? Source/Mods/TownHallInterior/docs/evidence/business-save-safety-review-20261105.json",
+                             "?? Source/Mods/TownHallInterior/docs/evidence/business-save-safety-review-closed-20261105.json",
+                             "?? Source/Mods/TownHallInterior/docs/evidence/business-save-townhall-final-20261105.trx",
+                             "?? Source/Mods/TownHallInterior/docs/evidence/business-save-townhall-fixture-layout-failed-20261105.trx",
+                             "?? Source/Mods/TownHallInterior/docs/evidence/launch-binary-before-review-20261105.json",
+                             "?? Source/Mods/TownHallInterior/docs/evidence/launch-checkpoint-after-20261105.json",
+                             "?? Source/Mods/TownHallInterior/docs/evidence/launch-checkpoint-before-20261105.json",
+                             "?? Source/Mods/TownHallInterior/docs/evidence/launch-checkpoint-final-20261105.json",
+                             "?? Source/Mods/TownHallInterior/docs/evidence/launch-cloud-before-20261105.json",
+                             "?? Source/Mods/TownHallInterior/docs/evidence/launch-cloud-current-20261105.json",
+                             "?? Source/Mods/TownHallInterior/docs/evidence/launch-cloud-final-20261105.json",
+                             "?? Source/Mods/TownHallInterior/docs/evidence/launch-deploy-plan-20261105.json",
+                             "?? Source/Mods/TownHallInterior/docs/evidence/launch-deployment-backup-manifest-20261105.json",
+                             "?? Source/Mods/TownHallInterior/docs/evidence/launch-deployment-receipt-20261105.json",
+                             "?? Source/Mods/TownHallInterior/docs/evidence/launch-installation-review-20261105.json",
+                             "?? Source/Mods/TownHallInterior/docs/evidence/launch-isolated-report-20261105.json",
+                             "?? Source/Mods/TownHallInterior/docs/evidence/launch-isolated-snapshot-20261105.json",
+                             "?? Source/Mods/TownHallInterior/docs/evidence/launch-isolated-tests-20261105.txt",
+                             "?? Source/Mods/TownHallInterior/docs/evidence/launch-isolated-townhall-20261105.trx",
+                             "?? Source/Mods/TownHallInterior/docs/evidence/launch-isolated-versions-20261105.txt",
+                             "?? Source/Mods/TownHallInterior/docs/evidence/launch-isolation-20261105.json",
+                             "?? Source/Mods/TownHallInterior/docs/evidence/launch-live-loaded-20261105.json",
+                             "?? Source/Mods/TownHallInterior/docs/evidence/launch-live-loaded-excerpt-20261105.txt",
+                             "?? Source/Mods/TownHallInterior/docs/evidence/launch-phone-owner-confirmation-20261105.json",
+                             "?? Source/Mods/TownHallInterior/docs/evidence/launch-preparation-20261105.json",
+                             "?? Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/",
+                             "?? Source/Mods/TownHallInterior/docs/launch-preparation.md",
+                             "?? Source/Mods/TownHallInterior/docs/native-save-completion-audit.md",
+                             "?? Source/Tests/TownHallInterior.Tests/BusinessManagerAuditTests.cs",
+                             "?? Source/Tests/TownHallInterior.Tests/BusinessManagerSafetyTests.cs",
+                             "?? Source/Tests/TownHallInterior.Tests/BusinessManagerSaveTests.cs"
+                         ],
+    "limit":  "First independent source-byte snapshot captured after source reading; not a pre-read snapshot. No installed binary or native save files opened."
+}

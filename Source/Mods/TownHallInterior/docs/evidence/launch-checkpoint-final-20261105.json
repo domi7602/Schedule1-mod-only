@@ -1,0 +1,27 @@
+{
+  "schema": 1,
+  "capturedUtc": "2026-11-05T07:28:33.015808+00:00",
+  "checkpointId": "20261105T062735613294Z-d8477f8e",
+  "nativeTestSaveFiles": 39,
+  "nativeTestSaveUnchanged": true,
+  "nativeSlot1Accessed": false,
+  "checkpointIntegrityVerifiedAgain": true,
+  "modsFilesCompared": 38,
+  "modsChanged": [
+    "TownHallInterior.dll"
+  ],
+  "userDataFilesComparedExcludingDeployHistory": 162,
+  "userDataChanged": [
+    "TownHallInterior/TownHallInterior.pdb"
+  ],
+  "expectedTargetHashes": {
+    "TownHallInterior.dll": "614b81fd584040d4cebe7a18929bca09eabae478a6487ec6d846ea01d6062003",
+    "TownHallInterior.pdb": "8126ae65f5c12f6e8261af0a1734e622d8c0ab5522a91e6653c7b1ffd7d8c497",
+    "mod.json": "65938002b7273ef77dedbadf9092a186e6742f1e40fe404ef91576d3e4f81660"
+  },
+  "sharedAndOtherModsUnchanged": true,
+  "s1apiLoaderUnchanged": true,
+  "actualGameStarted": false,
+  "nativeSaveProbeAllowed": false,
+  "note": "Only TownHall DLL/PDB changed in live Mods/UserData. Deployment receipt/backup history is intentionally outside the UserData comparison."
+}

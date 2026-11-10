@@ -1,0 +1,32 @@
+; ScheduleOne.Persistence.ISaveable::WriteData/1, token 0x06001788, RVA 0x584200, metadata-pointer window 0x60 bytes
+; Raw native bytes only. Window ends at next distinct managed-method pointer, includes padding/cold fragments; not proof of full transitive/exception coverage. Shared target names show at most eight aliases; total count is recorded.
+0x584200     40 53                           push rbx
+0x584202     48 83 EC 20                     sub rsp,20h
+0x584206     80 3D F1 74 67 03 00            cmp byte ptr [183BFB6FEh],0
+0x58420D     75 1F                           jne short 000000018058422Eh
+0x58420F     48 8D 0D 82 CF 43 03            lea rcx,[1839C1198h] ; MethodRef: System.Void System.Collections.Generic.List`1<System.String>..ctor
+0x584216     E8 85 36 D9 FF                  call 00000001803178A0h
+0x58421B     48 8D 0D 5E 6B 48 03            lea rcx,[183A0AD80h] ; TypeInfo: System.Collections.Generic.List`1<System.String>
+0x584222     E8 79 36 D9 FF                  call 00000001803178A0h
+0x584227     C6 05 D0 74 67 03 01            mov byte ptr [183BFB6FEh],1
+0x58422E     48 8B 0D 4B 6B 48 03            mov rcx,[183A0AD80h] ; TypeInfo: System.Collections.Generic.List`1<System.String>
+0x584235     E8 E6 38 D9 FF                  call 0000000180317B20h
+0x58423A     48 8B 15 57 CF 43 03            mov rdx,[1839C1198h] ; MethodRef: System.Void System.Collections.Generic.List`1<System.String>..ctor
+0x584241     48 8B C8                        mov rcx,rax
+0x584244     48 8B D8                        mov rbx,rax
+0x584247     E8 E4 FB A2 00                  call 0000000180FB3E30h ; System.Collections.Generic.List`1::.ctor/0 | System.Collections.Generic.LowLevelList`1::.ctor/0
+0x58424C     48 8B C3                        mov rax,rbx
+0x58424F     48 83 C4 20                     add rsp,20h
+0x584253     5B                              pop rbx
+0x584254     C3                              ret
+0x584255     CC                              int 3
+0x584256     CC                              int 3
+0x584257     CC                              int 3
+0x584258     CC                              int 3
+0x584259     CC                              int 3
+0x58425A     CC                              int 3
+0x58425B     CC                              int 3
+0x58425C     CC                              int 3
+0x58425D     CC                              int 3
+0x58425E     CC                              int 3
+0x58425F     CC                              int 3

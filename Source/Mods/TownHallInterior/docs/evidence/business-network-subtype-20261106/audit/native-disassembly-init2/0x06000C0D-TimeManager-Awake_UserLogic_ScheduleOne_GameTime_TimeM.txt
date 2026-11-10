@@ -1,0 +1,66 @@
+; ScheduleOne.GameTime.TimeManager::Awake_UserLogic_ScheduleOne.GameTime.TimeManager_Assembly-CSharp.dll/0, token 0x06000C0D, RVA 0x9C8BD0, next-pointer window 0x110 bytes
+; No target execution. Parser-pointer window can contain padding/cold fragments and is not exact/full function, EH or transitive coverage. Shared direct aliases are truncated to eight names.
+0x9C8BD0     40 53                           push rbx
+0x9C8BD2     48 83 EC 20                     sub rsp,20h
+0x9C8BD6     80 3D FC 4C 23 03 00            cmp byte ptr [183BFD8D9h],0
+0x9C8BDD     48 8B D9                        mov rbx,rcx
+0x9C8BE0     75 37                           jne short 00000001809C8C19h
+0x9C8BE2     48 8D 0D 2F E3 FD 02            lea rcx,[1839A6F18h] ; MethodRef: System.Void ScheduleOne.DevUtilities.NetworkSingleton`1<ScheduleOne.GameTime.TimeManager>.Awake
+0x9C8BE9     E8 B2 EC 94 FF                  call 00000001803178A0h
+0x9C8BEE     48 8D 0D CB 37 02 03            lea rcx,[1839EC3C0h] ; MethodRef: T ScheduleOne.DevUtilities.Singleton`1<ScheduleOne.Persistence.LoadManager>.get_Instance
+0x9C8BF5     E8 A6 EC 94 FF                  call 00000001803178A0h
+0x9C8BFA     48 8D 0D EF 74 02 03            lea rcx,[1839F00F0h] ; MethodDef: ScheduleOne.GameTime.TimeManager::Clean/0
+0x9C8C01     E8 9A EC 94 FF                  call 00000001803178A0h
+0x9C8C06     48 8D 0D A3 1E FF 02            lea rcx,[1839BAAB0h] ; TypeInfo: UnityEngine.Events.UnityAction
+0x9C8C0D     E8 8E EC 94 FF                  call 00000001803178A0h
+0x9C8C12     C6 05 C0 4C 23 03 01            mov byte ptr [183BFD8D9h],1
+0x9C8C19     48 8B 15 F8 E2 FD 02            mov rdx,[1839A6F18h] ; MethodRef: System.Void ScheduleOne.DevUtilities.NetworkSingleton`1<ScheduleOne.GameTime.TimeManager>.Awake
+0x9C8C20     48 8B CB                        mov rcx,rbx
+0x9C8C23     E8 58 F1 64 00                  call 0000000181017D80h ; ScheduleOne.DevUtilities.NetworkSingleton`1::Awake/0
+0x9C8C28     48 8B 03                        mov rax,[rbx]
+0x9C8C2B     48 8B CB                        mov rcx,rbx
+0x9C8C2E     48 8B 90 50 04 00 00            mov rdx,[rax+450h]
+0x9C8C35     FF 90 48 04 00 00               call qword ptr [rax+448h]
+0x9C8C3B     48 8B 05 7E 37 02 03            mov rax,[1839EC3C0h] ; MethodRef: T ScheduleOne.DevUtilities.Singleton`1<ScheduleOne.Persistence.LoadManager>.get_Instance
+0x9C8C42     48 8B 40 20                     mov rax,[rax+20h]
+0x9C8C46     F6 80 35 01 00 00 01            test byte ptr [rax+135h],1
+0x9C8C4D     75 08                           jne short 00000001809C8C57h
+0x9C8C4F     48 8B C8                        mov rcx,rax
+0x9C8C52     E8 E9 3B 95 FF                  call 000000018031C840h
+0x9C8C57     48 8B 80 C0 00 00 00            mov rax,[rax+0C0h]
+0x9C8C5E     48 8B 40 10                     mov rax,[rax+10h]
+0x9C8C62     F6 80 35 01 00 00 01            test byte ptr [rax+135h],1
+0x9C8C69     75 08                           jne short 00000001809C8C73h
+0x9C8C6B     48 8B C8                        mov rcx,rax
+0x9C8C6E     E8 CD 3B 95 FF                  call 000000018031C840h
+0x9C8C73     48 8B 80 B8 00 00 00            mov rax,[rax+0B8h]
+0x9C8C7A     48 89 74 24 30                  mov [rsp+30h],rsi
+0x9C8C7F     48 89 7C 24 38                  mov [rsp+38h],rdi
+0x9C8C84     48 8B 08                        mov rcx,[rax]
+0x9C8C87     48 85 C9                        test rcx,rcx
+0x9C8C8A     74 4A                           je short 00000001809C8CD6h
+0x9C8C8C     48 8B 79 78                     mov rdi,[rcx+78h]
+0x9C8C90     48 8B 0D 19 1E FF 02            mov rcx,[1839BAAB0h] ; TypeInfo: UnityEngine.Events.UnityAction
+0x9C8C97     E8 84 EE 94 FF                  call 0000000180317B20h
+0x9C8C9C     4C 8B 05 4D 74 02 03            mov r8,[1839F00F0h] ; MethodDef: ScheduleOne.GameTime.TimeManager::Clean/0
+0x9C8CA3     45 33 C9                        xor r9d,r9d
+0x9C8CA6     48 8B D3                        mov rdx,rbx
+0x9C8CA9     48 8B C8                        mov rcx,rax
+0x9C8CAC     48 8B F0                        mov rsi,rax
+0x9C8CAF     E8 3C C9 A5 FF                  call 00000001804255F0h ; VLB.VolumetricLightBeamSD+OnBeamGeometryInitialized::.ctor/2 | ScheduleOne.Events.BasicEvent::.ctor/2 | System.Action::.ctor/2 | System.Threading.ThreadStart::.ctor/2 | System.Runtime.Remoting.Contexts.CrossContextDelegate::.ctor/2 | System.Windows.Forms.ListView+CollectionChangedHandler::.ctor/2 | System.Windows.Forms.MethodInvoker::.ctor/2 | UnityEngine.UIElements.SavePersistentViewData::.ctor/2 | ... SHARED TARGET: 31 aliases
+0x9C8CB4     48 85 FF                        test rdi,rdi
+0x9C8CB7     74 1D                           je short 00000001809C8CD6h
+0x9C8CB9     45 33 C0                        xor r8d,r8d
+0x9C8CBC     48 8B D6                        mov rdx,rsi
+0x9C8CBF     48 8B CF                        mov rcx,rdi
+0x9C8CC2     48 8B 7C 24 38                  mov rdi,[rsp+38h]
+0x9C8CC7     48 8B 74 24 30                  mov rsi,[rsp+30h]
+0x9C8CCC     48 83 C4 20                     add rsp,20h
+0x9C8CD0     5B                              pop rbx
+0x9C8CD1     E9 5A E0 1D 02                  jmp near ptr 0000000182BA6D30h ; UnityEngine.Events.UnityEvent::AddListener/1
+0x9C8CD6     E8 A5 EE 94 FF                  call 0000000180317B80h
+0x9C8CDB     CC                              int 3
+0x9C8CDC     CC                              int 3
+0x9C8CDD     CC                              int 3
+0x9C8CDE     CC                              int 3
+0x9C8CDF     CC                              int 3

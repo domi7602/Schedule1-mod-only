@@ -1,0 +1,136 @@
+; ScheduleOne.Persistence.Loaders.BusinessLoader::Load/1, token 0x06001863, RVA 0x59C640, next-pointer window 0x210 bytes
+; No target execution. Parser-pointer window can contain padding/cold fragments and is not exact/full function, EH or transitive coverage. Shared direct aliases are truncated to eight names.
+0x59C640     48 89 5C 24 18                  mov [rsp+18h],rbx
+0x59C645     48 89 4C 24 08                  mov [rsp+8],rcx
+0x59C64A     56                              push rsi
+0x59C64B     57                              push rdi
+0x59C64C     41 56                           push r14
+0x59C64E     48 83 EC 50                     sub rsp,50h
+0x59C652     48 8B F2                        mov rsi,rdx
+0x59C655     48 8B F9                        mov rdi,rcx
+0x59C658     80 3D 07 F1 65 03 00            cmp byte ptr [183BFB766h],0
+0x59C65F     75 2B                           jne short 000000018059C68Ch
+0x59C661     48 8D 0D 80 C4 3E 03            lea rcx,[183988AE8h] ; MethodRef: T UnityEngine.JsonUtility.FromJson<ScheduleOne.Persistence.Datas.BusinessData>
+0x59C668     E8 33 B2 D7 FF                  call 00000001803178A0h
+0x59C66D     48 8D 0D 64 76 44 03            lea rcx,[1839E3CD8h] ; MethodRef: T ScheduleOne.DevUtilities.Singleton`1<ScheduleOne.Property.BusinessManager>.get_Instance
+0x59C674     E8 27 B2 D7 FF                  call 00000001803178A0h
+0x59C679     48 8D 0D 80 99 41 03            lea rcx,[1839B6000h] ; StringLiteral: Business
+0x59C680     E8 1B B2 D7 FF                  call 00000001803178A0h
+0x59C685     C6 05 DA F0 65 03 01            mov byte ptr [183BFB766h],1
+0x59C68C     33 DB                           xor ebx,ebx
+0x59C68E     48 89 5C 24 78                  mov [rsp+78h],rbx
+0x59C693     45 33 C0                        xor r8d,r8d
+0x59C696     48 8B D6                        mov rdx,rsi
+0x59C699     48 8B CF                        mov rcx,rdi
+0x59C69C     E8 5F A2 00 00                  call 00000001805A6900h ; ScheduleOne.Persistence.Loaders.PropertyLoader::Load/1
+0x59C6A1     4C 8B 35 58 99 41 03            mov r14,[1839B6000h] ; StringLiteral: Business
+0x59C6A8     38 1D C4 F0 65 03               cmp [183BFB772h],bl
+0x59C6AE     75 13                           jne short 000000018059C6C3h
+0x59C6B0     48 8D 0D 59 AF 45 03            lea rcx,[1839F7610h] ; TypeInfo: System.IO.Path
+0x59C6B7     E8 E4 B1 D7 FF                  call 00000001803178A0h
+0x59C6BC     C6 05 AF F0 65 03 01            mov byte ptr [183BFB772h],1
+0x59C6C3     48 8B 0D 46 AF 45 03            mov rcx,[1839F7610h] ; TypeInfo: System.IO.Path
+0x59C6CA     39 99 E0 00 00 00               cmp [rcx+0E0h],ebx
+0x59C6D0     75 05                           jne short 000000018059C6D7h
+0x59C6D2     E8 59 B5 D7 FF                  call 0000000180317C30h
+0x59C6D7     45 33 C0                        xor r8d,r8d
+0x59C6DA     49 8B D6                        mov rdx,r14
+0x59C6DD     48 8B CE                        mov rcx,rsi
+0x59C6E0     E8 DB D9 5C 01                  call 0000000181B6A0C0h ; System.IO.Path::Combine/2
+0x59C6E5     48 89 5C 24 20                  mov [rsp+20h],rbx
+0x59C6EA     41 B1 01                        mov r9b,1
+0x59C6ED     4C 8D 44 24 78                  lea r8,[rsp+78h]
+0x59C6F2     48 8B D0                        mov rdx,rax
+0x59C6F5     48 8B CF                        mov rcx,rdi
+0x59C6F8     E8 43 6D 00 00                  call 00000001805A3440h ; ScheduleOne.Persistence.Loaders.Loader::TryLoadFile/3
+0x59C6FD     84 C0                           test al,al
+0x59C6FF     0F 84 2A 01 00 00               je near ptr 000000018059C82Fh
+0x59C705     48 89 9C 24 88 00 00 00         mov [rsp+88h],rbx
+0x59C70D     48 8B 15 D4 C3 3E 03            mov rdx,[183988AE8h] ; MethodRef: T UnityEngine.JsonUtility.FromJson<ScheduleOne.Persistence.Datas.BusinessData>
+0x59C714     48 8B 4C 24 78                  mov rcx,[rsp+78h]
+0x59C719     E8 A2 80 8D 00                  call 0000000180E747C0h ; UnityEngine.JsonUtility::FromJson/1
+0x59C71E     48 8B D8                        mov rbx,rax
+0x59C721     48 89 84 24 88 00 00 00         mov [rsp+88h],rax
+0x59C729     E9 A5 00 00 00                  jmp near ptr 000000018059C7D3h
+0x59C72E     33 D2                           xor edx,edx
+0x59C730     48 8B 4C 24 70                  mov rcx,[rsp+70h]
+0x59C735     E8 B6 C8 65 01                  call 0000000181BF8FF0h ; System.Object::GetType/0
+0x59C73A     48 85 C0                        test rax,rax
+0x59C73D     74 1B                           je short 000000018059C75Ah
+0x59C73F     4C 8B 00                        mov r8,[rax]
+0x59C742     49 8B 90 70 01 00 00            mov rdx,[r8+170h]
+0x59C749     48 8B C8                        mov rcx,rax
+0x59C74C     41 FF 90 68 01 00 00            call qword ptr [r8+168h]
+0x59C753     48 8B F0                        mov rsi,rax
+0x59C756     33 DB                           xor ebx,ebx
+0x59C758     EB 04                           jmp short 000000018059C75Eh
+0x59C75A     33 DB                           xor ebx,ebx
+0x59C75C     8B F3                           mov esi,ebx
+0x59C75E     48 8B 7C 24 30                  mov rdi,[rsp+30h]
+0x59C763     48 8D 0D 9E C7 3F 03            lea rcx,[183998F08h] ; StringLiteral:  error reading data: 
+0x59C76A     E8 51 B1 D7 FF                  call 00000001803178C0h
+0x59C76F     4C 8B F0                        mov r14,rax
+0x59C772     48 85 FF                        test rdi,rdi
+0x59C775     74 16                           je short 000000018059C78Dh
+0x59C777     48 8B 07                        mov rax,[rdi]
+0x59C77A     48 8B 90 70 01 00 00            mov rdx,[rax+170h]
+0x59C781     48 8B CF                        mov rcx,rdi
+0x59C784     FF 90 68 01 00 00               call qword ptr [rax+168h]
+0x59C78A     48 8B D8                        mov rbx,rax
+0x59C78D     45 33 C9                        xor r9d,r9d
+0x59C790     4C 8B C3                        mov r8,rbx
+0x59C793     49 8B D6                        mov rdx,r14
+0x59C796     48 8B CE                        mov rcx,rsi
+0x59C799     E8 72 70 44 01                  call 00000001819E3810h ; System.String::Concat/3
+0x59C79E     48 8B D8                        mov rbx,rax
+0x59C7A1     48 8D 0D C0 D5 45 03            lea rcx,[1839F9D68h] ; TypeInfo: ScheduleOne.Console
+0x59C7A8     E8 13 B1 D7 FF                  call 00000001803178C0h
+0x59C7AD     83 B8 E0 00 00 00 00            cmp dword ptr [rax+0E0h],0
+0x59C7B4     75 08                           jne short 000000018059C7BEh
+0x59C7B6     48 8B C8                        mov rcx,rax
+0x59C7B9     E8 72 B4 D7 FF                  call 0000000180317C30h
+0x59C7BE     45 33 C0                        xor r8d,r8d
+0x59C7C1     33 D2                           xor edx,edx
+0x59C7C3     48 8B CB                        mov rcx,rbx
+0x59C7C6     E8 C5 C1 30 00                  call 00000001808A8990h ; ScheduleOne.Console::LogError/2
+0x59C7CB     48 8B 9C 24 88 00 00 00         mov rbx,[rsp+88h]
+0x59C7D3     48 85 DB                        test rbx,rbx
+0x59C7D6     74 57                           je short 000000018059C82Fh
+0x59C7D8     48 8B 05 F9 74 44 03            mov rax,[1839E3CD8h] ; MethodRef: T ScheduleOne.DevUtilities.Singleton`1<ScheduleOne.Property.BusinessManager>.get_Instance
+0x59C7DF     48 8B 40 20                     mov rax,[rax+20h]
+0x59C7E3     F6 80 35 01 00 00 01            test byte ptr [rax+135h],1
+0x59C7EA     75 08                           jne short 000000018059C7F4h
+0x59C7EC     48 8B C8                        mov rcx,rax
+0x59C7EF     E8 4C 00 D8 FF                  call 000000018031C840h
+0x59C7F4     48 8B 80 C0 00 00 00            mov rax,[rax+0C0h]
+0x59C7FB     48 8B 40 10                     mov rax,[rax+10h]
+0x59C7FF     F6 80 35 01 00 00 01            test byte ptr [rax+135h],1
+0x59C806     75 08                           jne short 000000018059C810h
+0x59C808     48 8B C8                        mov rcx,rax
+0x59C80B     E8 30 00 D8 FF                  call 000000018031C840h
+0x59C810     48 8B 80 B8 00 00 00            mov rax,[rax+0B8h]
+0x59C817     48 8B 08                        mov rcx,[rax]
+0x59C81A     48 85 C9                        test rcx,rcx
+0x59C81D     74 21                           je short 000000018059C840h
+0x59C81F     45 33 C9                        xor r9d,r9d
+0x59C822     4C 8B 44 24 78                  mov r8,[rsp+78h]
+0x59C827     48 8B D3                        mov rdx,rbx
+0x59C82A     E8 31 EF FA FF                  call 000000018054B760h ; ScheduleOne.Property.BusinessManager::LoadBusiness/2
+0x59C82F     48 8B 9C 24 80 00 00 00         mov rbx,[rsp+80h]
+0x59C837     48 83 C4 50                     add rsp,50h
+0x59C83B     41 5E                           pop r14
+0x59C83D     5F                              pop rdi
+0x59C83E     5E                              pop rsi
+0x59C83F     C3                              ret
+0x59C840     E8 3B B3 D7 FF                  call 0000000180317B80h
+0x59C845     CC                              int 3
+0x59C846     CC                              int 3
+0x59C847     CC                              int 3
+0x59C848     CC                              int 3
+0x59C849     CC                              int 3
+0x59C84A     CC                              int 3
+0x59C84B     CC                              int 3
+0x59C84C     CC                              int 3
+0x59C84D     CC                              int 3
+0x59C84E     CC                              int 3
+0x59C84F     CC                              int 3

@@ -1,0 +1,78 @@
+; ScheduleOne.Property.Business::Load/2, token 0x060013A4, RVA 0x54C8E0, next-pointer window 0x110 bytes
+; No target execution. Parser-pointer window can contain padding/cold fragments and is not exact/full function, EH or transitive coverage. Shared direct aliases are truncated to eight names.
+0x54C8E0     48 89 5C 24 08                  mov [rsp+8],rbx
+0x54C8E5     48 89 74 24 10                  mov [rsp+10h],rsi
+0x54C8EA     57                              push rdi
+0x54C8EB     48 83 EC 20                     sub rsp,20h
+0x54C8EF     80 3D 2F EC 6A 03 00            cmp byte ptr [183BFB525h],0
+0x54C8F6     49 8B F8                        mov rdi,r8
+0x54C8F9     48 8B DA                        mov rbx,rdx
+0x54C8FC     48 8B F1                        mov rsi,rcx
+0x54C8FF     75 13                           jne short 000000018054C914h
+0x54C901     48 8D 0D 50 B5 49 03            lea rcx,[1839E7E58h] ; TypeInfo: ScheduleOne.Persistence.Datas.BusinessData
+0x54C908     E8 93 AF DC FF                  call 00000001803178A0h
+0x54C90D     C6 05 11 EC 6A 03 01            mov byte ptr [183BFB525h],1
+0x54C914     45 33 C9                        xor r9d,r9d
+0x54C917     4C 8B C7                        mov r8,rdi
+0x54C91A     48 8B D3                        mov rdx,rbx
+0x54C91D     48 8B CE                        mov rcx,rsi
+0x54C920     E8 2B 88 00 00                  call 0000000180555150h ; ScheduleOne.Property.Property::Load/2
+0x54C925     48 85 DB                        test rbx,rbx
+0x54C928     0F 84 A6 00 00 00               je near ptr 000000018054C9D4h
+0x54C92E     48 8B 15 23 B5 49 03            mov rdx,[1839E7E58h] ; TypeInfo: ScheduleOne.Persistence.Datas.BusinessData
+0x54C935     4C 8B 03                        mov r8,[rbx]
+0x54C938     0F B6 82 30 01 00 00            movzx eax,byte ptr [rdx+130h]
+0x54C93F     41 38 80 30 01 00 00            cmp [r8+130h],al
+0x54C946     72 18                           jb short 000000018054C960h
+0x54C948     0F B6 C8                        movzx ecx,al
+0x54C94B     49 8B 80 C8 00 00 00            mov rax,[r8+0C8h]
+0x54C952     48 39 54 C8 F8                  cmp [rax+rcx*8-8],rdx
+0x54C957     75 07                           jne short 000000018054C960h
+0x54C959     B8 01 00 00 00                  mov eax,1
+0x54C95E     EB 02                           jmp short 000000018054C962h
+0x54C960     33 C0                           xor eax,eax
+0x54C962     33 FF                           xor edi,edi
+0x54C964     85 C0                           test eax,eax
+0x54C966     48 0F 45 FB                     cmovne rdi,rbx
+0x54C96A     48 85 FF                        test rdi,rdi
+0x54C96D     74 65                           je short 000000018054C9D4h
+0x54C96F     48 83 7F 58 00                  cmp qword ptr [rdi+58h],0
+0x54C974     74 5E                           je short 000000018054C9D4h
+0x54C976     33 DB                           xor ebx,ebx
+0x54C978     33 C9                           xor ecx,ecx
+0x54C97A     66 0F 1F 44 00 00               nop word ptr [rax+rax]
+0x54C980     48 8B 47 58                     mov rax,[rdi+58h]
+0x54C984     48 85 C0                        test rax,rax
+0x54C987     74 61                           je short 000000018054C9EAh
+0x54C989     3B 48 18                        cmp ecx,[rax+18h]
+0x54C98C     7D 46                           jge short 000000018054C9D4h
+0x54C98E     48 8B C8                        mov rcx,rax
+0x54C991     48 85 C0                        test rax,rax
+0x54C994     74 54                           je short 000000018054C9EAh
+0x54C996     3B 58 18                        cmp ebx,[rax+18h]
+0x54C999     73 49                           jae short 000000018054C9E4h
+0x54C99B     48 63 C3                        movsxd rax,ebx
+0x54C99E     48 83 7C C1 20 00               cmp qword ptr [rcx+rax*8+20h],0
+0x54C9A4     74 28                           je short 000000018054C9CEh
+0x54C9A6     48 8B 47 58                     mov rax,[rdi+58h]
+0x54C9AA     45 33 C9                        xor r9d,r9d
+0x54C9AD     48 63 CB                        movsxd rcx,ebx
+0x54C9B0     4C 8B 44 C8 20                  mov r8,[rax+rcx*8+20h]
+0x54C9B5     48 63 CB                        movsxd rcx,ebx
+0x54C9B8     45 8B 40 2C                     mov r8d,[r8+2Ch]
+0x54C9BC     48 8B 54 C8 20                  mov rdx,[rax+rcx*8+20h]
+0x54C9C1     48 8B CE                        mov rcx,rsi
+0x54C9C4     F3 0F 10 4A 28                  movss xmm1,dword ptr [rdx+28h]
+0x54C9C9     E8 F2 0C 00 00                  call 000000018054D6C0h ; ScheduleOne.Property.Business::StartLaunderingOperation/2 | ScheduleOne.Property.Business::RpcWriter___Server_StartLaunderingOperation_1481775633/2
+0x54C9CE     FF C3                           inc ebx
+0x54C9D0     8B CB                           mov ecx,ebx
+0x54C9D2     EB AC                           jmp short 000000018054C980h
+0x54C9D4     48 8B 5C 24 30                  mov rbx,[rsp+30h]
+0x54C9D9     48 8B 74 24 38                  mov rsi,[rsp+38h]
+0x54C9DE     48 83 C4 20                     add rsp,20h
+0x54C9E2     5F                              pop rdi
+0x54C9E3     C3                              ret
+0x54C9E4     E8 87 B1 DC FF                  call 0000000180317B70h
+0x54C9E9     CC                              int 3
+0x54C9EA     E8 91 B1 DC FF                  call 0000000180317B80h
+0x54C9EF     CC                              int 3

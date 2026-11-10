@@ -1,0 +1,25 @@
+; FishNet.Object.NetworkBehaviour::InitializeIfDisabled/0, token 0x06000649, RVA 0xCC51E0, .pdata primary extent 0x48 bytes
+; Raw native bytes decoded without invoking the game. .pdata primary extent is not a proof of full transitive/exception-path coverage.
+0xCC51E0     40 53                           push rbx
+0xCC51E2     48 83 EC 20                     sub rsp,20h
+0xCC51E6     33 D2                           xor edx,edx
+0xCC51E8     48 8B D9                        mov rbx,rcx
+0xCC51EB     E8 C0 F1 EA 01                  call 0000000182B743B0h ; UnityEngine.Component::get_gameObject/0
+0xCC51F0     48 85 C0                        test rax,rax
+0xCC51F3     74 2D                           je short 0000000180CC5222h
+0xCC51F5     33 D2                           xor edx,edx
+0xCC51F7     48 8B C8                        mov rcx,rax
+0xCC51FA     E8 01 37 EB 01                  call 0000000182B78900h ; UnityEngine.GameObject::get_activeInHierarchy/0
+0xCC51FF     84 C0                           test al,al
+0xCC5201     75 19                           jne short 0000000180CC521Ch
+0xCC5203     48 8B 03                        mov rax,[rbx]
+0xCC5206     48 8B CB                        mov rcx,rbx
+0xCC5209     48 8B 90 20 02 00 00            mov rdx,[rax+220h]
+0xCC5210     48 83 C4 20                     add rsp,20h
+0xCC5214     5B                              pop rbx
+0xCC5215     48 FF A0 18 02 00 00            jmp qword ptr [rax+218h]
+0xCC521C     48 83 C4 20                     add rsp,20h
+0xCC5220     5B                              pop rbx
+0xCC5221     C3                              ret
+0xCC5222     E8 59 29 65 FF                  call 0000000180317B80h
+0xCC5227     CC                              int 3

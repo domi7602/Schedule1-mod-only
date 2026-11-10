@@ -1,0 +1,72 @@
+{
+  "schema": 1,
+  "capturedUtc": "2026-11-05T18:44:55.347051+00:00",
+  "project": "schedule1-mod-only",
+  "sourceRevision": "b2c6c7e6c6ecc778da9624cdb68a6578b9db471a",
+  "sourceWorktree": "dirty",
+  "scope": "Final isolated Quick after whitespace fix, canonical documentation and primary evidence archive",
+  "overallStatus": "failed-only-unrelated-version-drift",
+  "nativeSaveWriteAllowed": false,
+  "files": [
+    {
+      "path": "archive-final-checks.py",
+      "sha256": "a75eb7ec4f3c0d7236e52b4d6744612677f6bf35eebb639a794be1103b940c6d",
+      "bytes": 5813
+    },
+    {
+      "path": "docs.log.txt",
+      "sha256": "6188432a209c568c0912a8724665afce8f41c8d1145eb3a39292db7171415efb",
+      "bytes": 1399
+    },
+    {
+      "path": "format-step.json",
+      "sha256": "9d04d250a9e3be185147554dfbd9b681f71064e109e6b6e471b4e08df0d8f039",
+      "bytes": 628
+    },
+    {
+      "path": "log-path-correction.json",
+      "sha256": "aea2d2400285b219aaad96bb318458143037918a131ecd1473d0582a26e5def1",
+      "bytes": 685
+    },
+    {
+      "path": "manifest-before-log-paths.json",
+      "sha256": "ee956eda8deb795737b6b6c63160fd6c5707981788640a8a3dbb74a17b553a93",
+      "bytes": 1606
+    },
+    {
+      "path": "normalize-log-artifacts.py",
+      "sha256": "96db9ff1fe20551ffdfb19b02775c7989859847533829c606e2e2ed5df5b493d",
+      "bytes": 3445
+    },
+    {
+      "path": "report.json",
+      "sha256": "ffa9a42256ce8538ba5d02f4ca319426c83992aff95f1acb4b8d68a669fd61e9",
+      "bytes": 4644
+    },
+    {
+      "path": "runner.log.txt",
+      "sha256": "2ab55102e4ad3a26cfd85bea97b625360afda5a2fb5aba8aaf65ef0f308c1774",
+      "bytes": 28598
+    },
+    {
+      "path": "snapshot.json",
+      "sha256": "7ad67eafb8c967d870096a7085976053810ce0a02400ae636600c8bba2d766c3",
+      "bytes": 448911
+    },
+    {
+      "path": "summary.json",
+      "sha256": "102f57a56c762a5c34ee2e497ca51420fe0f03f3548e7d199081ac21683ab0af",
+      "bytes": 1632
+    },
+    {
+      "path": "versions.log.txt",
+      "sha256": "9a0ab34fd86a534eec7ee6413f158a008b9ae05c4d09ced60842201a549dddaf",
+      "bytes": 2656
+    }
+  ],
+  "logArtifactPathBindings": {
+    "docs.log": "docs.log.txt",
+    "runner.log": "runner.log.txt",
+    "versions.log": "versions.log.txt"
+  }
+}

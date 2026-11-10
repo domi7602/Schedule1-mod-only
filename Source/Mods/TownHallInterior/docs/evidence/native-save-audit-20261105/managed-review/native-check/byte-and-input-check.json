@@ -1,0 +1,848 @@
+{
+  "capturedUtc": "2026-11-05T08:38:26.209827+00:00",
+  "method": "Python 3.12 standard-library byte/PE/.pdata/rel32 verification; no target-library loading, no new disassembly, no v3 inputs",
+  "dotnetRoot": null,
+  "immutableInputFiles": [
+    {
+      "path": ".scratch/townhall-native-save-audit-20261105/input-manifest.json",
+      "sha256": "c70e14bfcaac80f0d74edf2260a5a4966f197eab1c55382d686513ed648ac3a3",
+      "bytes": 14014
+    },
+    {
+      "path": ".scratch/townhall-native-save-audit-20261105/native-map.json",
+      "sha256": "8261fa7322224c2e99175c3fd366ab4ad2e7c4c45615f8f7fccd13be5b52ff51",
+      "bytes": 30846
+    },
+    {
+      "path": ".scratch/townhall-native-save-audit-20261105/managed-boundary-review.json",
+      "sha256": "3d48257c04fcc5d93de23f03db2432f4be87207b3fde5c533f1f0a5ba9b9ef19",
+      "bytes": 33073
+    },
+    {
+      "path": ".scratch/townhall-native-save-audit-20261105/native-disassembly-v2/0x06001784-Save.json",
+      "sha256": "27fec4915c581ecfe6036712081d5737eba9ac59bed1dda2cdb1f9a26deaf604",
+      "bytes": 25640
+    },
+    {
+      "path": ".scratch/townhall-native-save-audit-20261105/native-disassembly-v2/0x06001785-WriteBaseData.json",
+      "sha256": "ec8311d00d84e6e7733eb8d5d16d6fdd2625626adb5e4f44dda3824946a7d66e",
+      "bytes": 66301
+    },
+    {
+      "path": ".scratch/townhall-native-save-audit-20261105/native-disassembly-v2/0x06001787-CompleteSave.json",
+      "sha256": "675de3dad3a41aeb0435debbecda0923ef74e0f8a46e61b067d9d8bee47e6316",
+      "bytes": 164431
+    },
+    {
+      "path": ".scratch/townhall-native-save-audit-20261105/native-disassembly-v2/0x06001788-WriteData.json",
+      "sha256": "792eff1e236e87d96e7ba856faac1267449fd9e9b570a901a7be6fac687b8684",
+      "bytes": 6602
+    },
+    {
+      "path": ".scratch/townhall-native-save-audit-20261105/native-disassembly-v2/0x0600178B-WriteSubfile.json",
+      "sha256": "dfac9c4e65d279c59c9434cabe974f1b9edb6edfe267837992ea213542ff2699",
+      "bytes": 77699
+    },
+    {
+      "path": ".scratch/townhall-native-save-audit-20261105/native-disassembly-v2/0x0600178C-WriteFolder.json",
+      "sha256": "533353bb3a4e74f6f4684d7980c6311bd40215c8e75318c65b02fbc3e119ef17",
+      "bytes": 75515
+    },
+    {
+      "path": ".scratch/townhall-native-save-audit-20261105/native-disassembly-v2/0x06001815-ReportSaveError.json",
+      "sha256": "9a7d46b6f6c3a6b892592b59b1f323acf6b62f33384ad7eab5545884c3f175fe",
+      "bytes": 3885
+    },
+    {
+      "path": ".scratch/townhall-native-save-audit-20261105/native-disassembly-v2/0x06001823-Awake.json",
+      "sha256": "1845e6cbdb626ce24e138bbadd35936ec626e2ef6ed3a8d6baa7348eb4f15223",
+      "bytes": 31702
+    },
+    {
+      "path": ".scratch/townhall-native-save-audit-20261105/native-disassembly-v2/0x06001824-Start.json",
+      "sha256": "606959c72d5066ee4be5e3d104105b1bc6556ef5f35256eeb62ee6091cec1430",
+      "bytes": 159913
+    },
+    {
+      "path": ".scratch/townhall-native-save-audit-20261105/native-disassembly-v2/0x06001827-Update.json",
+      "sha256": "adf7f2f74fc923faa509d8c4fe9f773c7ab5ccb28fb696eb0192f50baa73a74a",
+      "bytes": 9458
+    },
+    {
+      "path": ".scratch/townhall-native-save-audit-20261105/native-disassembly-v2/0x06001828-Save.json",
+      "sha256": "0e1fdb1a89fbf0a8c26214e5dfc860fd1a04eb824dfbe1609afde0a040bcb366",
+      "bytes": 10073
+    },
+    {
+      "path": ".scratch/townhall-native-save-audit-20261105/native-disassembly-v2/0x06001829-Save.json",
+      "sha256": "4db1d463191433b0a2ef96d08913660f07ad8e8b1442b695c894370c10af7704",
+      "bytes": 350233
+    },
+    {
+      "path": ".scratch/townhall-native-save-audit-20261105/native-disassembly-v2/0x0600182B-CompleteSaveable.json",
+      "sha256": "439afb75a5ba5e17111f954ff6e2a9b4a3c71fac4a62970abf34424292872cb0",
+      "bytes": 14786
+    },
+    {
+      "path": ".scratch/townhall-native-save-audit-20261105/native-disassembly-v2/0x0600182C-ClearCompletedSaveable.json",
+      "sha256": "a190d42d78fd86825ee27b7df2ab2813bdc8dca631afa1163990eee4909e26f4",
+      "bytes": 7142
+    },
+    {
+      "path": ".scratch/townhall-native-save-audit-20261105/native-disassembly-v2/0x0600182E-RegisterSaveable.json",
+      "sha256": "9db16be7a44c46e8be2d69d1a5c72ef949a42b107c1aa2c539e7939037d5270f",
+      "bytes": 24359
+    },
+    {
+      "path": ".scratch/townhall-native-save-audit-20261105/native-disassembly-v2/0x0600182F-QueueSaveRequest.json",
+      "sha256": "9dc526647e52ce998f2e0bc36d03a1c0cef7a2c00e711dc8d2be384b43518291",
+      "bytes": 13641
+    },
+    {
+      "path": ".scratch/townhall-native-save-audit-20261105/native-disassembly-v2/0x06001830-DequeueSaveRequest.json",
+      "sha256": "e1563864ccec5f37b7159ec6607caefdc99d86d874cb547b49146ec1f1ab4d6e",
+      "bytes": 6826
+    },
+    {
+      "path": ".scratch/townhall-native-save-audit-20261105/native-disassembly-v2/0x06001834-Clean.json",
+      "sha256": "0fb5d4622eae1498a917b008c3461769b0d4ab93055bb96eddf0ea6db13c8ed4",
+      "bytes": 12553
+    },
+    {
+      "path": ".scratch/townhall-native-save-audit-20261105/native-disassembly-v2/0x06001837-_ctor.json",
+      "sha256": "c78d41878040055d306ed820f7021376b35bcbd39b6892f7df9b08d70ac3995d",
+      "bytes": 33955
+    },
+    {
+      "path": ".scratch/townhall-native-save-audit-20261105/native-disassembly-v2/0x0600183A-_ctor.json",
+      "sha256": "9fd65559044c8e781ee034d5417f71bdc6135b53d7a842abc1b3d7292df9e929",
+      "bytes": 142676
+    },
+    {
+      "path": ".scratch/townhall-native-save-audit-20261105/native-disassembly-v2/0x0600183C-MoveNext.json",
+      "sha256": "f1e1c9aea06346a10ca4a193c1cab267391b6f78a8a92f7f71884c0731a6d0a0",
+      "bytes": 342142
+    },
+    {
+      "path": ".scratch/townhall-native-save-audit-20261105/native-disassembly-v2/0x0600184A-_ctor.json",
+      "sha256": "1d269c44d33825cfa25113afdefebc82fc09c0ae6dc54f0026cace76790b3061",
+      "bytes": 198981
+    },
+    {
+      "path": ".scratch/townhall-native-save-audit-20261105/native-disassembly-v2/0x0600184B-Complete.json",
+      "sha256": "d54d1dc1cda4a956b0b2bc04fc4edf663708fb512cb91544190f7eb09440013d",
+      "bytes": 14132
+    },
+    {
+      "path": ".scratch/townhall-native-save-audit-20261105/native-disassembly-v2/0x06001784-Save.txt",
+      "sha256": "2ff93ab86a5d0180d26ada15bd2981767b499b1f8b0d4695f20733b936404b6b",
+      "bytes": 6105
+    },
+    {
+      "path": ".scratch/townhall-native-save-audit-20261105/native-disassembly-v2/0x06001785-WriteBaseData.txt",
+      "sha256": "b715720fb7661daea2c507f6334eae1080e4995943321e4e07ea40c0a0066d84",
+      "bytes": 15658
+    },
+    {
+      "path": ".scratch/townhall-native-save-audit-20261105/native-disassembly-v2/0x06001787-CompleteSave.txt",
+      "sha256": "5b3e0da46170905c4a407545223ddd2d1e6eab13f5a2f5aa88fb4ea9036b9a7c",
+      "bytes": 37432
+    },
+    {
+      "path": ".scratch/townhall-native-save-audit-20261105/native-disassembly-v2/0x06001788-WriteData.txt",
+      "sha256": "21bad73a89315926c794e2c17183dda1882a4fbeabeecbd58fae1676c5cbc5c7",
+      "bytes": 1687
+    },
+    {
+      "path": ".scratch/townhall-native-save-audit-20261105/native-disassembly-v2/0x0600178B-WriteSubfile.txt",
+      "sha256": "0ce0bd2161ac1fc00813e6814d84d697ce359ad64b507fa4162447a554cbf433",
+      "bytes": 18496
+    },
+    {
+      "path": ".scratch/townhall-native-save-audit-20261105/native-disassembly-v2/0x0600178C-WriteFolder.txt",
+      "sha256": "797d5b57d86f8884e045d2bb9146a9b72bd97568b1e609949acdc6eaff1b8e45",
+      "bytes": 18086
+    },
+    {
+      "path": ".scratch/townhall-native-save-audit-20261105/native-disassembly-v2/0x06001815-ReportSaveError.txt",
+      "sha256": "035162886eae6d0d944840421b38a69f5eac5b8ec1362aa19c3ded2c8618902b",
+      "bytes": 1079
+    },
+    {
+      "path": ".scratch/townhall-native-save-audit-20261105/native-disassembly-v2/0x06001823-Awake.txt",
+      "sha256": "c04dcc25266f1d6a342dd23cdb1dda6001760ebb1a53939362ff7ba848644ccd",
+      "bytes": 7511
+    },
+    {
+      "path": ".scratch/townhall-native-save-audit-20261105/native-disassembly-v2/0x06001824-Start.txt",
+      "sha256": "142261a40b337367f9a19cf8de23c99fc092b9c0c271411ae15ae398e230694a",
+      "bytes": 127609
+    },
+    {
+      "path": ".scratch/townhall-native-save-audit-20261105/native-disassembly-v2/0x06001827-Update.txt",
+      "sha256": "1874f08c72665b2a2d4ea76cc3be612879ed4a7b8e42b80db1a8d8821627aeee",
+      "bytes": 2224
+    },
+    {
+      "path": ".scratch/townhall-native-save-audit-20261105/native-disassembly-v2/0x06001828-Save.txt",
+      "sha256": "0ca6a29a6dcbb10bda3d387a1cfebc5af466ed86c425635587dedf08a5e8518e",
+      "bytes": 2379
+    },
+    {
+      "path": ".scratch/townhall-native-save-audit-20261105/native-disassembly-v2/0x06001829-Save.txt",
+      "sha256": "98f3603e98a7a7c27cb3a71a0b6cce23d9a4c479c57f1778324ecb214e6a9259",
+      "bytes": 260766
+    },
+    {
+      "path": ".scratch/townhall-native-save-audit-20261105/native-disassembly-v2/0x0600182B-CompleteSaveable.txt",
+      "sha256": "7cc9064e70fb287dcf68e97f13f22b3a89b8204a50346c9c1318185080545289",
+      "bytes": 3439
+    },
+    {
+      "path": ".scratch/townhall-native-save-audit-20261105/native-disassembly-v2/0x0600182C-ClearCompletedSaveable.txt",
+      "sha256": "488669e2dc439a6d41b93facaa384a7f3feddb5c8380a81b5283c4297917318e",
+      "bytes": 1610
+    },
+    {
+      "path": ".scratch/townhall-native-save-audit-20261105/native-disassembly-v2/0x0600182E-RegisterSaveable.txt",
+      "sha256": "0725aa0d1d5d47e2aa2430c10bb26088b31e5513051a8c6010e6c79a2363c635",
+      "bytes": 5514
+    },
+    {
+      "path": ".scratch/townhall-native-save-audit-20261105/native-disassembly-v2/0x0600182F-QueueSaveRequest.txt",
+      "sha256": "11d94aed0487ad3c152f93b1643eaec395e7fa27a49e4157844aced3320ff132",
+      "bytes": 3159
+    },
+    {
+      "path": ".scratch/townhall-native-save-audit-20261105/native-disassembly-v2/0x06001830-DequeueSaveRequest.txt",
+      "sha256": "865d90de9a5be724ea231e13809d036cf8a8d4dbc3ee03404609964ef364d976",
+      "bytes": 1606
+    },
+    {
+      "path": ".scratch/townhall-native-save-audit-20261105/native-disassembly-v2/0x06001834-Clean.txt",
+      "sha256": "2c48c8b26517a0373c1f06e211c9845eccc36b779e2145c11c6175290172511d",
+      "bytes": 2934
+    },
+    {
+      "path": ".scratch/townhall-native-save-audit-20261105/native-disassembly-v2/0x06001837-_ctor.txt",
+      "sha256": "2e3c8bc8a776b2dcaa554eddec77d48c4a0d6944016a0b3d0e21e21bad11e985",
+      "bytes": 8309
+    },
+    {
+      "path": ".scratch/townhall-native-save-audit-20261105/native-disassembly-v2/0x0600183A-_ctor.txt",
+      "sha256": "36ab803c5d942e0a371d4c0573f14ed25eba30402b9f041cfa4baebef15561d0",
+      "bytes": 122547
+    },
+    {
+      "path": ".scratch/townhall-native-save-audit-20261105/native-disassembly-v2/0x0600183C-MoveNext.txt",
+      "sha256": "68b816b3be023048377fae7b7c7ce6cc239d7f9bb8679b9eac6f2efddb40979c",
+      "bytes": 195964
+    },
+    {
+      "path": ".scratch/townhall-native-save-audit-20261105/native-disassembly-v2/0x0600184A-_ctor.txt",
+      "sha256": "8a868a1def57571dd0b3e51e671cb6cf3ca1666177a6678b316e6727a5874ccb",
+      "bytes": 135183
+    },
+    {
+      "path": ".scratch/townhall-native-save-audit-20261105/native-disassembly-v2/0x0600184B-Complete.txt",
+      "sha256": "6757d5e1061d560a71f94c1fe356405ec37e18090facfba1692bce59e360544d",
+      "bytes": 3275
+    },
+    {
+      "path": ".scratch/townhall-native-save-audit-20261105/native-metadata/ISaveable.stub.cs",
+      "sha256": "2fabe8c7a3c82d7ad09156acbfa299696feed25adcc4ce12b90793e2acb03337",
+      "bytes": 3278
+    },
+    {
+      "path": ".scratch/townhall-native-save-audit-20261105/native-metadata/SaveManager.stub.cs",
+      "sha256": "fe976524a657fbcebf713f8838e301e06ce80e559121b7ef60f581a653ea4d19",
+      "bytes": 8054
+    },
+    {
+      "path": ".scratch/townhall-native-save-audit-20261105/native-metadata/SaveRequest.stub.cs",
+      "sha256": "4af107b5a4df7b5d3d9197d10ce8b93bb10b1e7f14f8f2aa11f4ca4458fcfabc",
+      "bytes": 1000
+    }
+  ],
+  "gameAssembly": {
+    "path": "GameAssembly.dll",
+    "sha256": "61829050e56ca180d67be592e4bfe61ec97d2e9573f720d90a54e318a7e4381d",
+    "sha512": "872dfb646c9b866c53dae12d7a34e1f9df21a3e16fac6b7c6cd21bf5fc8e4b3f99932163c5de7e3798d37641712e82b914d46e1f023d56e77970be84fb74ec3a",
+    "bytes": 66477568
+  },
+  "globalMetadata": {
+    "path": "Schedule I_Data/il2cpp_data/Metadata/global-metadata.dat",
+    "sha256": "e775c97da277da8eb1a90265478f3b65c9c3d6464aff4f7255d45280a1d1181f",
+    "bytes": 18689168,
+    "headerMagic": "0xfab11baf",
+    "integerHeaderVersion": 31
+  },
+  "imageBase": "0x180000000",
+  "machine": "0x8664",
+  "sections": [
+    {
+      "name": ".text",
+      "virtualSize": 4304060,
+      "rva": 4096,
+      "rawSize": 4304384,
+      "rawOffset": 1024
+    },
+    {
+      "name": "il2cpp",
+      "virtualSize": 44300460,
+      "rva": 4308992,
+      "rawSize": 44300800,
+      "rawOffset": 4305408
+    },
+    {
+      "name": ".rdata",
+      "virtualSize": 10787522,
+      "rva": 48611328,
+      "rawSize": 10787840,
+      "rawOffset": 48606208
+    },
+    {
+      "name": ".data",
+      "virtualSize": 6370380,
+      "rva": 59400192,
+      "rawSize": 3493376,
+      "rawOffset": 59394048
+    },
+    {
+      "name": ".pdata",
+      "virtualSize": 2543400,
+      "rva": 65773568,
+      "rawSize": 2543616,
+      "rawOffset": 62887424
+    },
+    {
+      "name": ".fptable",
+      "virtualSize": 256,
+      "rva": 68317184,
+      "rawSize": 512,
+      "rawOffset": 65431040
+    },
+    {
+      "name": ".reloc",
+      "virtualSize": 1045560,
+      "rva": 68321280,
+      "rawSize": 1046016,
+      "rawOffset": 65431552
+    }
+  ],
+  "exceptionDirectory": {
+    "rva": "0x3eba000",
+    "bytes": 2543400,
+    "entries": 211950
+  },
+  "methodMapEntriesCounted": 70,
+  "parentReportedGlobalMethodCount": 149349,
+  "globalMethodCountIndependentlyReparsed": false,
+  "verifiedV2PrimaryExtents": [
+    {
+      "token": "0x06001784",
+      "rva": "0x583A50",
+      "endRvaExclusive": "0x583ba1",
+      "rawOffset": "0x582C50",
+      "byteLength": 337,
+      "bytesSha256": "02c2b291e83866aded66feb0749920553d21aa24968afa72023a34eae10d7e83",
+      "instructions": 86,
+      "allInstructionBytesVaAndContiguityMatch": true,
+      "textInstructionRowsMatchJson": true,
+      "pdataPrimaryBoundsMatchActualPe": true,
+      "relativeControlTargetsIndependentlyChecked": 21,
+      "branchesOutsidePrimaryExtent": [],
+      "metadataGlobalResolutionErrors": 0
+    },
+    {
+      "token": "0x06001785",
+      "rva": "0x583E70",
+      "endRvaExclusive": "0x584200",
+      "rawOffset": "0x583070",
+      "byteLength": 912,
+      "bytesSha256": "403722a870f8948f87ce1d43d6b409fdbb8617b5604984fb413a931a8977ba28",
+      "instructions": 223,
+      "allInstructionBytesVaAndContiguityMatch": true,
+      "textInstructionRowsMatchJson": true,
+      "pdataPrimaryBoundsMatchActualPe": true,
+      "relativeControlTargetsIndependentlyChecked": 61,
+      "branchesOutsidePrimaryExtent": [],
+      "metadataGlobalResolutionErrors": 0
+    },
+    {
+      "token": "0x06001787",
+      "rva": "0x582F00",
+      "endRvaExclusive": "0x583834",
+      "rawOffset": "0x582100",
+      "byteLength": 2356,
+      "bytesSha256": "3173faefa6a01e31b1d03e4be0d51f3c6760fe80c478c793a4d7f8dd8ce0edf5",
+      "instructions": 553,
+      "allInstructionBytesVaAndContiguityMatch": true,
+      "textInstructionRowsMatchJson": true,
+      "pdataPrimaryBoundsMatchActualPe": true,
+      "relativeControlTargetsIndependentlyChecked": 137,
+      "branchesOutsidePrimaryExtent": [],
+      "metadataGlobalResolutionErrors": 16
+    },
+    {
+      "token": "0x06001788",
+      "rva": "0x584200",
+      "endRvaExclusive": "0x584255",
+      "rawOffset": "0x583400",
+      "byteLength": 85,
+      "bytesSha256": "42cf4bc92860b805e73f659efcf41a91acb466a3ccfb3538fb7366bd367f5f00",
+      "instructions": 19,
+      "allInstructionBytesVaAndContiguityMatch": true,
+      "textInstructionRowsMatchJson": true,
+      "pdataPrimaryBoundsMatchActualPe": true,
+      "relativeControlTargetsIndependentlyChecked": 5,
+      "branchesOutsidePrimaryExtent": [],
+      "metadataGlobalResolutionErrors": 2
+    },
+    {
+      "token": "0x0600178B",
+      "rva": "0x5846A0",
+      "endRvaExclusive": "0x584aea",
+      "rawOffset": "0x5838A0",
+      "byteLength": 1098,
+      "bytesSha256": "c28ae151c4abf37a7dc088134e1dd9012848a1a883f33d8581a64db879c6cb1e",
+      "instructions": 257,
+      "allInstructionBytesVaAndContiguityMatch": true,
+      "textInstructionRowsMatchJson": true,
+      "pdataPrimaryBoundsMatchActualPe": true,
+      "relativeControlTargetsIndependentlyChecked": 74,
+      "branchesOutsidePrimaryExtent": [],
+      "metadataGlobalResolutionErrors": 2
+    },
+    {
+      "token": "0x0600178C",
+      "rva": "0x584260",
+      "endRvaExclusive": "0x58469c",
+      "rawOffset": "0x583460",
+      "byteLength": 1084,
+      "bytesSha256": "22a72cc94a8be71e8145ae473a8df31da04b6f7536d40e54fcd3ea5c9b4840b3",
+      "instructions": 248,
+      "allInstructionBytesVaAndContiguityMatch": true,
+      "textInstructionRowsMatchJson": true,
+      "pdataPrimaryBoundsMatchActualPe": true,
+      "relativeControlTargetsIndependentlyChecked": 74,
+      "branchesOutsidePrimaryExtent": [],
+      "metadataGlobalResolutionErrors": 2
+    },
+    {
+      "token": "0x06001815",
+      "rva": "0x5AA710",
+      "endRvaExclusive": "0x5aa746",
+      "rawOffset": "0x5A9910",
+      "byteLength": 54,
+      "bytesSha256": "bcf3dfad4470e88d2f1a4e19e82523f91473f03414026f49e30fea3259bf3979",
+      "instructions": 11,
+      "allInstructionBytesVaAndContiguityMatch": true,
+      "textInstructionRowsMatchJson": true,
+      "pdataPrimaryBoundsMatchActualPe": true,
+      "relativeControlTargetsIndependentlyChecked": 2,
+      "branchesOutsidePrimaryExtent": [],
+      "metadataGlobalResolutionErrors": 0
+    },
+    {
+      "token": "0x06001823",
+      "rva": "0x5A8F70",
+      "endRvaExclusive": "0x5a913f",
+      "rawOffset": "0x5A8170",
+      "byteLength": 463,
+      "bytesSha256": "bec6c8746feb6c8fbb2d187db1de70631b09d99e7cfa71a0ee1f19f557db2dd1",
+      "instructions": 101,
+      "allInstructionBytesVaAndContiguityMatch": true,
+      "textInstructionRowsMatchJson": true,
+      "pdataPrimaryBoundsMatchActualPe": true,
+      "relativeControlTargetsIndependentlyChecked": 35,
+      "branchesOutsidePrimaryExtent": [
+        {
+          "rva": "0x5A9056",
+          "targetRva": "0x5a91d4",
+          "bytes": "0F 85 78 01 00 00"
+        },
+        {
+          "rva": "0x5A90C3",
+          "targetRva": "0x5a91d4",
+          "bytes": "0F 85 0B 01 00 00"
+        }
+      ],
+      "metadataGlobalResolutionErrors": 5
+    },
+    {
+      "token": "0x06001824",
+      "rva": "0x5AACB0",
+      "endRvaExclusive": "0x5aadb3",
+      "rawOffset": "0x5A9EB0",
+      "byteLength": 259,
+      "bytesSha256": "52c1448c802d9bc19e6244b88cd1fb817efe5cd6c318dafd5e6809b098ae403c",
+      "instructions": 59,
+      "allInstructionBytesVaAndContiguityMatch": true,
+      "textInstructionRowsMatchJson": true,
+      "pdataPrimaryBoundsMatchActualPe": true,
+      "relativeControlTargetsIndependentlyChecked": 17,
+      "branchesOutsidePrimaryExtent": [
+        {
+          "rva": "0x5AADA8",
+          "targetRva": "0x5a9230",
+          "bytes": "E9 83 E4 FF FF"
+        }
+      ],
+      "metadataGlobalResolutionErrors": 6
+    },
+    {
+      "token": "0x06001827",
+      "rva": "0x5AAE30",
+      "endRvaExclusive": "0x5aaeaf",
+      "rawOffset": "0x5AA030",
+      "byteLength": 127,
+      "bytesSha256": "deb3fe3b30488f577fd7805e5253e5b44cc458efc94a09a54b0581dda59ea38e",
+      "instructions": 30,
+      "allInstructionBytesVaAndContiguityMatch": true,
+      "textInstructionRowsMatchJson": true,
+      "pdataPrimaryBoundsMatchActualPe": true,
+      "relativeControlTargetsIndependentlyChecked": 8,
+      "branchesOutsidePrimaryExtent": [
+        {
+          "rva": "0x5AAE9A",
+          "targetRva": "0x5aaed4",
+          "bytes": "74 38"
+        },
+        {
+          "rva": "0x5AAEA0",
+          "targetRva": "0x5aaeaf",
+          "bytes": "75 0D"
+        }
+      ],
+      "metadataGlobalResolutionErrors": 2
+    },
+    {
+      "token": "0x06001828",
+      "rva": "0x5AA800",
+      "endRvaExclusive": "0x5aa886",
+      "rawOffset": "0x5A9A00",
+      "byteLength": 134,
+      "bytesSha256": "01903d197ce740ce7647585e4f821b2d12e6c882f500d31952d047722d91b2ef",
+      "instructions": 32,
+      "allInstructionBytesVaAndContiguityMatch": true,
+      "textInstructionRowsMatchJson": true,
+      "pdataPrimaryBoundsMatchActualPe": true,
+      "relativeControlTargetsIndependentlyChecked": 9,
+      "branchesOutsidePrimaryExtent": [
+        {
+          "rva": "0x5AA87B",
+          "targetRva": "0x5aa890",
+          "bytes": "E9 10 00 00 00"
+        }
+      ],
+      "metadataGlobalResolutionErrors": 2
+    },
+    {
+      "token": "0x06001829",
+      "rva": "0x5AA890",
+      "endRvaExclusive": "0x5aaca5",
+      "rawOffset": "0x5A9A90",
+      "byteLength": 1045,
+      "bytesSha256": "4aeb99c0050f5b26cabbedf0c2ff285e5218fc56c425615126a0309e04a77ce7",
+      "instructions": 231,
+      "allInstructionBytesVaAndContiguityMatch": true,
+      "textInstructionRowsMatchJson": true,
+      "pdataPrimaryBoundsMatchActualPe": true,
+      "relativeControlTargetsIndependentlyChecked": 78,
+      "branchesOutsidePrimaryExtent": [
+        {
+          "rva": "0x5AAC4E",
+          "targetRva": "0x2b79810",
+          "bytes": "E9 BD EB 5C 02"
+        }
+      ],
+      "metadataGlobalResolutionErrors": 9
+    },
+    {
+      "token": "0x0600182B",
+      "rva": "0x5A9AA0",
+      "endRvaExclusive": "0x5a9b64",
+      "rawOffset": "0x5A8CA0",
+      "byteLength": 196,
+      "bytesSha256": "d8d6ea11183021a81d159eb259bcda134f2f27af66b19680556f8c90ae52b0b9",
+      "instructions": 46,
+      "allInstructionBytesVaAndContiguityMatch": true,
+      "textInstructionRowsMatchJson": true,
+      "pdataPrimaryBoundsMatchActualPe": true,
+      "relativeControlTargetsIndependentlyChecked": 14,
+      "branchesOutsidePrimaryExtent": [
+        {
+          "rva": "0x5A9B29",
+          "targetRva": "0x2e20",
+          "bytes": "E9 F2 92 A5 FF"
+        },
+        {
+          "rva": "0x5A9B59",
+          "targetRva": "0x8a8b40",
+          "bytes": "E9 E2 EF 2F 00"
+        }
+      ],
+      "metadataGlobalResolutionErrors": 4
+    },
+    {
+      "token": "0x0600182C",
+      "rva": "0x5A9A40",
+      "endRvaExclusive": "0x5a9a94",
+      "rawOffset": "0x5A8C40",
+      "byteLength": 84,
+      "bytesSha256": "a855115b16cbf979ad5508bb9019f96bdfd0a2f56e2512aa7badec327e3c887b",
+      "instructions": 21,
+      "allInstructionBytesVaAndContiguityMatch": true,
+      "textInstructionRowsMatchJson": true,
+      "pdataPrimaryBoundsMatchActualPe": true,
+      "relativeControlTargetsIndependentlyChecked": 5,
+      "branchesOutsidePrimaryExtent": [
+        {
+          "rva": "0x5A9A89",
+          "targetRva": "0x18d83a0",
+          "bytes": "E9 12 E9 32 01"
+        }
+      ],
+      "metadataGlobalResolutionErrors": 4
+    },
+    {
+      "token": "0x0600182E",
+      "rva": "0x5AA5C0",
+      "endRvaExclusive": "0x5aa709",
+      "rawOffset": "0x5A97C0",
+      "byteLength": 329,
+      "bytesSha256": "f8a9b02b20fbf2914980fcd1ef720e23eac20285d4b1aa918a6f471b910548be",
+      "instructions": 79,
+      "allInstructionBytesVaAndContiguityMatch": true,
+      "textInstructionRowsMatchJson": true,
+      "pdataPrimaryBoundsMatchActualPe": true,
+      "relativeControlTargetsIndependentlyChecked": 21,
+      "branchesOutsidePrimaryExtent": [
+        {
+          "rva": "0x5AA6F8",
+          "targetRva": "0x316ab0",
+          "bytes": "E9 B3 C3 D6 FF"
+        }
+      ],
+      "metadataGlobalResolutionErrors": 6
+    },
+    {
+      "token": "0x0600182F",
+      "rva": "0x5AA510",
+      "endRvaExclusive": "0x5aa5bb",
+      "rawOffset": "0x5A9710",
+      "byteLength": 171,
+      "bytesSha256": "fc947ea034870aaf57fd604c02d732f12e0de5131cb02e1e678ad89a413dc6c2",
+      "instructions": 45,
+      "allInstructionBytesVaAndContiguityMatch": true,
+      "textInstructionRowsMatchJson": true,
+      "pdataPrimaryBoundsMatchActualPe": true,
+      "relativeControlTargetsIndependentlyChecked": 10,
+      "branchesOutsidePrimaryExtent": [
+        {
+          "rva": "0x5AA57E",
+          "targetRva": "0x18d2a90",
+          "bytes": "E9 0D 85 32 01"
+        },
+        {
+          "rva": "0x5AA5AA",
+          "targetRva": "0x316ab0",
+          "bytes": "E9 01 C5 D6 FF"
+        }
+      ],
+      "metadataGlobalResolutionErrors": 2
+    },
+    {
+      "token": "0x06001830",
+      "rva": "0x5A9FA0",
+      "endRvaExclusive": "0x5a9ff4",
+      "rawOffset": "0x5A91A0",
+      "byteLength": 84,
+      "bytesSha256": "f05bb581210e36628023c9750498766474ce0a3b54b09875a241d24cb1d9ebdb",
+      "instructions": 21,
+      "allInstructionBytesVaAndContiguityMatch": true,
+      "textInstructionRowsMatchJson": true,
+      "pdataPrimaryBoundsMatchActualPe": true,
+      "relativeControlTargetsIndependentlyChecked": 5,
+      "branchesOutsidePrimaryExtent": [
+        {
+          "rva": "0x5A9FE9",
+          "targetRva": "0x18d83a0",
+          "bytes": "E9 B2 E3 32 01"
+        }
+      ],
+      "metadataGlobalResolutionErrors": 2
+    },
+    {
+      "token": "0x06001834",
+      "rva": "0x5A94E0",
+      "endRvaExclusive": "0x5a9576",
+      "rawOffset": "0x5A86E0",
+      "byteLength": 150,
+      "bytesSha256": "2959d639e0f90653dfbc4a1cd125aea6e502a3a16fa412d6bdd1a32566f7d65c",
+      "instructions": 41,
+      "allInstructionBytesVaAndContiguityMatch": true,
+      "textInstructionRowsMatchJson": true,
+      "pdataPrimaryBoundsMatchActualPe": true,
+      "relativeControlTargetsIndependentlyChecked": 10,
+      "branchesOutsidePrimaryExtent": [
+        {
+          "rva": "0x5A9565",
+          "targetRva": "0x1bae500",
+          "bytes": "E9 96 4F 60 01"
+        }
+      ],
+      "metadataGlobalResolutionErrors": 2
+    },
+    {
+      "token": "0x06001837",
+      "rva": "0x5AAEE0",
+      "endRvaExclusive": "0x5ab0db",
+      "rawOffset": "0x5AA0E0",
+      "byteLength": 507,
+      "bytesSha256": "6b58762ff29ce9f536841c6f5b0db8d4023dca4bb8fd6d03d58261f4e6272d7b",
+      "instructions": 102,
+      "allInstructionBytesVaAndContiguityMatch": true,
+      "textInstructionRowsMatchJson": true,
+      "pdataPrimaryBoundsMatchActualPe": true,
+      "relativeControlTargetsIndependentlyChecked": 31,
+      "branchesOutsidePrimaryExtent": [
+        {
+          "rva": "0x5AB0D6",
+          "targetRva": "0x1070a60",
+          "bytes": "E9 85 59 AC 00"
+        }
+      ],
+      "metadataGlobalResolutionErrors": 11
+    },
+    {
+      "token": "0x0600183A",
+      "rva": "0x52D2B0",
+      "endRvaExclusive": "0x52d2d4",
+      "rawOffset": "0x52C4B0",
+      "byteLength": 36,
+      "bytesSha256": "bea02b438d5cf8b5b879909aa2e42b6d03d0c556f1b148dec96594fb99c32e1b",
+      "instructions": 12,
+      "allInstructionBytesVaAndContiguityMatch": true,
+      "textInstructionRowsMatchJson": true,
+      "pdataPrimaryBoundsMatchActualPe": true,
+      "relativeControlTargetsIndependentlyChecked": 1,
+      "branchesOutsidePrimaryExtent": [],
+      "metadataGlobalResolutionErrors": 0
+    },
+    {
+      "token": "0x0600183C",
+      "rva": "0x5B0C20",
+      "endRvaExclusive": "0x5b14dc",
+      "rawOffset": "0x5AFE20",
+      "byteLength": 2236,
+      "bytesSha256": "f777ad8d87880c40744ae8f77f48ba1f82328b5eabb82d28c1b89e6c382ec277",
+      "instructions": 512,
+      "allInstructionBytesVaAndContiguityMatch": true,
+      "textInstructionRowsMatchJson": true,
+      "pdataPrimaryBoundsMatchActualPe": true,
+      "relativeControlTargetsIndependentlyChecked": 153,
+      "branchesOutsidePrimaryExtent": [],
+      "metadataGlobalResolutionErrors": 28
+    },
+    {
+      "token": "0x0600184A",
+      "rva": "0x5ABBC0",
+      "endRvaExclusive": "0x5abeec",
+      "rawOffset": "0x5AADC0",
+      "byteLength": 812,
+      "bytesSha256": "e8d702a093eb8ecd0ef53eed3dcb0158fd0e54451fff83a107f795e7ed1ba541",
+      "instructions": 205,
+      "allInstructionBytesVaAndContiguityMatch": true,
+      "textInstructionRowsMatchJson": true,
+      "pdataPrimaryBoundsMatchActualPe": true,
+      "relativeControlTargetsIndependentlyChecked": 47,
+      "branchesOutsidePrimaryExtent": [
+        {
+          "rva": "0x5ABEA8",
+          "targetRva": "0x18d2a90",
+          "bytes": "E9 E3 6B 32 01"
+        },
+        {
+          "rva": "0x5ABED5",
+          "targetRva": "0x316ab0",
+          "bytes": "E9 D6 AB D6 FF"
+        }
+      ],
+      "metadataGlobalResolutionErrors": 4
+    },
+    {
+      "token": "0x0600184B",
+      "rva": "0x5ABA60",
+      "endRvaExclusive": "0x5abb31",
+      "rawOffset": "0x5AAC60",
+      "byteLength": 209,
+      "bytesSha256": "03270d2542e5f39fb1e83ac374798f6682ea7604b05f6f3a0c2b3770d1243cba",
+      "instructions": 44,
+      "allInstructionBytesVaAndContiguityMatch": true,
+      "textInstructionRowsMatchJson": true,
+      "pdataPrimaryBoundsMatchActualPe": true,
+      "relativeControlTargetsIndependentlyChecked": 13,
+      "branchesOutsidePrimaryExtent": [
+        {
+          "rva": "0x5ABADA",
+          "targetRva": "0x5abbb7",
+          "bytes": "0F 84 D7 00 00 00"
+        },
+        {
+          "rva": "0x5ABB03",
+          "targetRva": "0x5abbb7",
+          "bytes": "0F 84 AE 00 00 00"
+        },
+        {
+          "rva": "0x5ABB1F",
+          "targetRva": "0x5abbb7",
+          "bytes": "0F 84 92 00 00 00"
+        }
+      ],
+      "metadataGlobalResolutionErrors": 4
+    }
+  ],
+  "accessorByteChecks": [
+    {
+      "token": "0x06001818",
+      "name": "get_IsSaving",
+      "rva": "0x589FE0",
+      "rawOffset": "0x5891e0",
+      "bytes": "0F B6 41 29 C3",
+      "bytesSha256": "9be18fa0c68800d126a11d3b9ead6206603acda186612d2d40f66fba01e7553e",
+      "scope": "Only mapped short property accessor bytes; no cold-fragment expansion or target execution"
+    },
+    {
+      "token": "0x06001819",
+      "name": "set_IsSaving",
+      "rva": "0x58A0F0",
+      "rawOffset": "0x5892f0",
+      "bytes": "88 51 29 C3",
+      "bytesSha256": "b65185fbbb37e7b78dc2aed5275170ec013aa1ba5cb7f39a660708b1dd11995b",
+      "scope": "Only mapped short property accessor bytes; no cold-fragment expansion or target execution"
+    },
+    {
+      "token": "0x0600181A",
+      "name": "get_SecondsSinceLastSave",
+      "rva": "0x463B00",
+      "rawOffset": "0x462d00",
+      "bytes": "F3 0F 10 41 2C C3",
+      "bytesSha256": "e82153c42551f50ff7afe1bb56a483b5b0fee3b9a0b0ff6e03ec5d9b49f52769",
+      "scope": "Only mapped short property accessor bytes; no cold-fragment expansion or target execution"
+    },
+    {
+      "token": "0x0600181B",
+      "name": "set_SecondsSinceLastSave",
+      "rva": "0x58A110",
+      "rawOffset": "0x589310",
+      "bytes": "F3 0F 11 49 2C C3",
+      "bytesSha256": "c35ca6b30da4330cd0412fb91eaa8676441509817c2f7916ab21cc606efc7b2f",
+      "scope": "Only mapped short property accessor bytes; no cold-fragment expansion or target execution"
+    }
+  ],
+  "nativeSaveFilesRead": false,
+  "targetCodeLoadedOrInvoked": false,
+  "v3Read": false
+}

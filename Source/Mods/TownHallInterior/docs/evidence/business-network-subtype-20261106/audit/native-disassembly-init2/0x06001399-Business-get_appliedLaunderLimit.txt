@@ -1,0 +1,19 @@
+; ScheduleOne.Property.Business::get_appliedLaunderLimit/0, token 0x06001399, RVA 0x54DE00, next-pointer window 0x30 bytes
+; No target execution. Parser-pointer window can contain padding/cold fragments and is not exact/full function, EH or transitive coverage. Shared direct aliases are truncated to eight names.
+0x54DE00     48 83 EC 38                     sub rsp,38h
+0x54DE04     0F 29 74 24 20                  movaps [rsp+20h],xmm6
+0x54DE09     33 D2                           xor edx,edx
+0x54DE0B     F3 0F 10 B1 68 02 00 00         movss xmm6,dword ptr [rcx+268h]
+0x54DE13     E8 18 00 00 00                  call 000000018054DE30h ; ScheduleOne.Property.Business::get_currentLaunderTotal/0
+0x54DE18     F3 0F 5C F0                     subss xmm6,xmm0
+0x54DE1C     0F 28 C6                        movaps xmm0,xmm6
+0x54DE1F     0F 28 74 24 20                  movaps xmm6,[rsp+20h]
+0x54DE24     48 83 C4 38                     add rsp,38h
+0x54DE28     C3                              ret
+0x54DE29     CC                              int 3
+0x54DE2A     CC                              int 3
+0x54DE2B     CC                              int 3
+0x54DE2C     CC                              int 3
+0x54DE2D     CC                              int 3
+0x54DE2E     CC                              int 3
+0x54DE2F     CC                              int 3

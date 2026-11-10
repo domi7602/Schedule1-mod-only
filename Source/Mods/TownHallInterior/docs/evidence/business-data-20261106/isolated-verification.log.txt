@@ -1,0 +1,1355 @@
+Repository verification: requested=Pure, selected=Pure
+Game references: present (C:\Program Files (x86)\Steam\steamapps\common\Schedule I\MelonLoader\Il2CppAssemblies\Assembly-CSharp.dll)
+Artifacts: C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checks\verify-58c6483e8a7c
+[sdk]
+8.0.426
+[sdk] Passed (0.09s)
+[format]
+[format] Passed (33.39s)
+[solution]
+Solution deterministic: C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checkout\Source\Mods\S1Mods.sln (44 projects; no writes)
+[solution] Passed (0.93s)
+[versions]
+=== Version-Sync (Code ist Single Source of Truth) ===
+
+Mod                  Code        Json        Readme      Agents      Hdr  Sync
+---                  ----        ----        ------      ------      ---  ----
+AutoPackagingStation 0.4.7       0.4.7       0.4.7       0.4.7       -    True
+BankApp              0.5.0       0.5.0       0.5.0       0.5.0       -    True
+BusinessIncome       0.1.6       0.1.6       0.1.6       0.1.6       -    True
+CalculatorApp        0.2.3       0.2.3       0.2.3       0.2.3       -    True
+CustomSkateboard     1.1.5       1.1.5       1.1.5       1.1.5       -    True
+HitmanPhone          0.3.4       0.3.4       0.3.4       0.3.2       -   False
+LightControl         0.1.1       0.1.1       0.1.1       0.1.1       -    True
+MessagesPlus         0.4.6       0.4.6       0.4.6       0.4.6       -    True
+Minimap              2.3.7       2.3.7       2.3.7       2.3.6       -   False
+MoreSaveSlots        1.0.12      1.0.12      1.0.12      1.0.12      -    True
+NotesApp             1.0.3       1.0.3       1.0.3       1.0.3       -    True
+PhoneScrollFix       2.0.0       2.0.0       2.0.0       2.0.0       -    True
+PocketShop           0.3.9       0.3.9       0.3.9       0.3.9       -    True
+PoliceTestMode       0.1.0       0.1.0       0.1.0       (fehlt)     -   False
+PotScanner           0.7.0       0.7.0       0.7.0       0.7.0       -    True
+ProductAppQoL        0.1.0       0.1.0       0.1.0       0.1.0       -    True
+PropertyLEDs         0.1.11      0.1.11      0.1.11      0.1.11      -    True
+StackLimitMod        0.1.7       0.1.7       0.1.7       0.1.7       -    True
+StorageScanner       0.2.0       0.2.0       0.2.0       0.2.0       -    True
+TaxiDriver           1.0.6       1.0.6       1.0.6       1.0.6       -    True
+TownHallInterior     0.1.0       0.1.0       0.1.0       0.1.0       -    True
+Weather              0.4.0       0.4.0       0.4.0       0.4.0       -    True
+WorldLook            0.3.0-dev.5 0.3.0-dev.5 0.3.0-dev.5 0.3.0-dev.5 -    True
+
+
+Version-Drift in 3 Mod(s):
+  - HitmanPhone : README.md (weitere Nennung)=0.3.2 != code=0.3.4
+  - HitmanPhone : AGENTS.md=0.3.2 != code=0.3.4
+  - Minimap : AGENTS.md=2.3.6 != code=2.3.7
+  - PoliceTestMode : AGENTS.md=fehlt != code=0.1.0
+  - HitmanPhone : compatibility.md matrix=0.3.2 != code=0.3.4
+  - Minimap : compatibility.md matrix=2.3.6 != code=2.3.7
+
+Fix (schreibt MelonInfo + mod.json + CHANGELOG + AGENTS.md + README.md + compatibility.md-Matrixzeile):
+  pwsh Tools/bump-version.ps1 -Mod <Name> -Version <Code-Version>
+Nach dem Fix pruefen: pwsh Tools/check-version-sync.ps1
+[versions] Failed (1.69s)
+[docs]
+=== Doc-Pfad-Check (329 Markdown-Dateien, 1611 Quelle/Ziel-Paare) ===
+  ~ .opencode/taxi-supervisor-fix-20261031/verifier/audit.md (gitignored - lokale Voraussetzung)
+  ~ GameReferences/decompiled (dokumentierte lokale Voraussetzung / Allow)
+  ~ GameReferences/decompiled/Assembly-CSharp (dokumentierte lokale Voraussetzung / Allow)
+  ~ GameReferences/decompiled/Assembly-CSharp/Il2CppScheduleOne.EntityFramework/BuildableItem.cs (dokumentierte lokale Voraussetzung / Allow)
+  ~ GameReferences/decompiled/Assembly-CSharp/Il2CppScheduleOne.Misc/ToggleableLight.cs (dokumentierte lokale Voraussetzung / Allow)
+  ~ GameReferences/decompiled/Assembly-CSharp/Il2CppScheduleOne/AvatarFramework (dokumentierte lokale Voraussetzung / Allow)
+  ~ GameReferences/decompiled/Assembly-CSharp/Il2CppScheduleOne/Tiles (dokumentierte lokale Voraussetzung / Allow)
+  ~ Source/Mods/HitmanPhone/src/bin/Release/net6.0/HitmanPhone.dll (gitignored - lokale Voraussetzung)
+  ~ Source/Mods/WorldLook/build/logs/20261023-041153-490-d22f14f5 (gitignored - lokale Voraussetzung)
+  ~ Source/Tests/GraphicsProbe.Tests/TestResults/GraphicsProbe-final.trx (gitignored - lokale Voraussetzung)
+  ~ ThirdParty/S1API/local.build.props (dokumentierte lokale Voraussetzung / Allow)
+  ~ ThirdParty/S1MAPI/local.build.props (dokumentierte lokale Voraussetzung / Allow)
+Doc-Pfad-Check OK (Dateipfade; Anker nicht geprueft).
+[docs] Passed (4.61s)
+[skills]
+Skills health check — root: C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checkout\Skills
+  [ok]   blender-export.md: header ok
+  [ok]   rigging-and-attachment.md: header ok
+  [ok]   urp-rendering-materials.md: header ok
+  [ok]   example-project-patterns.md: header ok
+  [ok]   s1api-custom-npc-reference.md: header ok
+  [ok]   atm-double-entry.md: header ok
+  [ok]   atomic-purchase.md: header ok
+  [ok]   passive-revenue.md: header ok
+  [ok]   01-FishNet-Networking.md: header ok
+  [ok]   02-Save-Persistence.md: header ok
+  [ok]   03-Dialogue-Quest.md: header ok
+  [ok]   04-DarkMarket.md: header ok
+  [ok]   05-Achievement-Steam.md: header ok
+  [ok]   06-UI-Phone-HUD.md: header ok
+  [ok]   07-Vehicle.md: header ok
+  [ok]   08-Plant-Growing.md: header ok
+  [ok]   09-Inventory-ItemFramework.md: header ok
+  [ok]   10-Building-Construction.md: header ok
+  [ok]   11-Business-Laundering.md: header ok
+  [ok]   12-Heat-Pursuit-Law.md: header ok
+  [ok]   13-Regions.md: header ok
+  [ok]   14-NPC-Behaviour.md: header ok
+  [ok]   15-Sewer.md: header ok
+  [ok]   16-Graffiti.md: header ok
+  [ok]   17-TimeManager.md: header ok
+  [ok]   18-Trash-Recycling.md: header ok
+  [ok]   19-Customer-Budget.md: header ok
+  [ok]   20-XP-Leveling.md: header ok
+  [ok]   21-Casino-Gambling.md: header ok
+  [ok]   22-DevConsole.md: header ok
+  [ok]   23-Economy-Money.md: header ok
+  [ok]   24-Avatar-CharacterCreator.md: header ok
+  [ok]   25-Mixing-Production.md: header ok
+  [ok]   26-PlayerCamera-SelfDamageBug.md: header ok
+  [ok]   27-Tutorial-Prolog.md: header ok
+  [ok]   28-Audio.md: header ok
+  [ok]   29-Combat-Weapons.md: header ok
+  [ok]   30-Cartel.md: header ok
+  [ok]   31-Clothing.md: header ok
+  [ok]   32-Configuration.md: header ok
+  [ok]   33-Cutscenes.md: header ok
+  [ok]   34-Delivery.md: header ok
+  [ok]   35-Doors.md: header ok
+  [ok]   36-Dragging.md: header ok
+  [ok]   37-DrugEffects.md: header ok
+  [ok]   38-Employees.md: header ok
+  [ok]   39-Equipping.md: header ok
+  [ok]   40-Interaction.md: header ok
+  [ok]   41-Lighting.md: header ok
+  [ok]   42-ManagementUI.md: header ok
+  [ok]   43-MapAndLocations.md: header ok
+  [ok]   44-Messaging.md: header ok
+  [ok]   45-Multiplayer.md: header ok
+  [ok]   46-Noise.md: header ok
+  [ok]   47-ObjectStations.md: header ok
+  [ok]   48-Packaging.md: header ok
+  [ok]   49-Player.md: header ok
+  [ok]   50-PlayerTasks.md: header ok
+  [ok]   51-Police.md: header ok
+  [ok]   52-Polling.md: header ok
+  [ok]   53-ProductSystem.md: header ok
+  [ok]   54-Property.md: header ok
+  [ok]   55-Skateboard.md: header ok
+  [ok]   56-StationFramework.md: header ok
+  [ok]   57-Storage.md: header ok
+  [ok]   58-Temperature.md: header ok
+  [ok]   59-TilesGrid.md: header ok
+  [ok]   60-TVSystem.md: header ok
+  [ok]   61-Variables.md: header ok
+  [ok]   62-Vision.md: header ok
+  [ok]   63-VoiceOver.md: header ok
+  [ok]   64-Weather.md: header ok
+  [ok]   build-update-patching.md: header ok
+  [ok]   collision-and-ghosts.md: header ok
+  [ok]   outdoor-placement.md: header ok
+  [ok]   door-hooking.md: header ok
+  [ok]   minigame-screens.md: header ok
+  [ok]   procedural-room.md: header ok
+  [ok]   inventory-capacity.md: header ok
+  [ok]   registry-and-scan.md: header ok
+  [ok]   stacklimit-engine.md: header ok
+  [ok]   inventory.md: header ok
+  [ok]   search-recipes.md: header ok
+  [ok]   third-party-mod-patterns.md: header ok
+  [ok]   third-party-mod-triage.md: header ok
+  [ok]   live-debugging.md: header ok
+  [ok]   sewer-key-observation.md: header ok
+  [ok]   tool-signatures.md: header ok
+  [ok]   case-notes.md: header ok
+  [ok]   red-flags.md: header ok
+  [ok]   reversing-runbook.md: header ok
+  [ok]   architecture-and-shared.md: header ok
+  [ok]   build-and-deploy.md: header ok
+  [ok]   diag-mods-tick-counter.md: header ok
+  [ok]   evidence-policy.md: header ok
+  [ok]   il2cpp-harmony-guide.md: header ok
+  [ok]   mod-patterns.md: header ok
+  [ok]   skill-maintenance.md: header ok
+  [ok]   spec-first-workflow.md: header ok
+  [ok]   ui-and-s1api.md: header ok
+  [ok]   version-sync.md: header ok
+  [ok]   working-contract.md: header ok
+  [ok]   networked-world-state.md: header ok
+  [ok]   buildable-restore.md: header ok
+  [ok]   frozen-writes.md: header ok
+  [ok]   safestorage-atomic.md: header ok
+  [ok]   slot-isolation.md: header ok
+  [ok]   components-and-ugui.md: header ok
+  [ok]   input-focus-and-controls.md: header ok
+  [ok]   lifecycle-and-canvas.md: header ok
+  [ok]   responsive-ui-theme.md: header ok
+  [ok]   cross-compat.md: header ok
+  [ok]   entities.md: header ok
+  [ok]   game-systems.md: header ok
+  [ok]   items-products.md: header ok
+  [ok]   lifecycle.md: header ok
+  [ok]   money-economy.md: header ok
+  [ok]   phoneapp.md: header ok
+  [ok]   quests.md: header ok
+  [ok]   saveables.md: header ok
+  [ok]   building.md: header ok
+  [ok]   gltf-loading.md: header ok
+  [ok]   interior.md: header ok
+  [ok]   materials.md: header ok
+  [ok]   persistence.md: header ok
+  [ok]   procedural-mesh.md: header ok
+  [ok]   recipes.md: header ok
+  [ok]   world-tools.md: header ok
+  [ok]   common-errors.md: header ok
+  [ok]   fishnet-syncvar-diagnosis.md: header ok
+  [ok]   logscan-and-logs.md: header ok
+  [ok]   save-load-timing.md: header ok
+  [ok]   update-breakage-log.md: header ok
+  [ok]   hyland-smoke-shop-property.md: header ok
+  [ok]   world-expansion-pipeline.md: header ok
+  [ok]   urp-rendering-materials.md:96 version evidence '2022.3.62f3' — annotated historical/observed, not a pin
+  [ok]   urp-rendering-materials.md:96 version evidence 'Unity 2022.3' — annotated historical/observed, not a pin
+  [ok]   urp-rendering-materials.md:96 version evidence '2022.3.62' — annotated historical/observed, not a pin
+  [ok]   urp-rendering-materials.md:96 version evidence '14.0.12' — annotated historical/observed, not a pin
+  [ok]   s1api-custom-npc-reference.md:182 version evidence 'S1API 3.2.1' — annotated historical/observed, not a pin
+  [ok]   s1api-custom-npc-reference.md:10 version evidence '3.2.1' — annotated historical/observed, not a pin
+  [ok]   s1api-custom-npc-reference.md:182 version evidence '3.2.1' — annotated historical/observed, not a pin
+  [ok]   07-Vehicle.md:74 version evidence '1.0.4' — annotated historical/observed, not a pin
+  [ok]   17-TimeManager.md:11 version evidence '0.4.7f12' — annotated historical/observed, not a pin
+  [ok]   17-TimeManager.md:11 version evidence '0.4.7' — annotated historical/observed, not a pin
+  [ok]   17-TimeManager.md:14 version evidence '1.0.5' — annotated historical/observed, not a pin
+  [ok]   17-TimeManager.md:15 version evidence '1.0.4' — annotated historical/observed, not a pin
+  [ok]   skill-maintenance.md:68 version evidence 'S1API 3.2.1' — annotated historical/observed, not a pin
+  [ok]   skill-maintenance.md:68 version evidence '3.2.1' — annotated historical/observed, not a pin
+  [ok]   working-contract.md:12 version evidence 'S1API 3.2.1' — annotated historical/observed, not a pin
+  [ok]   working-contract.md:12 version evidence '3.2.1' — annotated historical/observed, not a pin
+  [ok]   components-and-ugui.md:9 version evidence '3.2.1' — annotated historical/observed, not a pin
+  [ok]   lifecycle-and-canvas.md:11 version evidence 'S1API 3.2.1' — annotated historical/observed, not a pin
+  [ok]   lifecycle-and-canvas.md:11 version evidence '3.2.1' — annotated historical/observed, not a pin
+  [ok]   entities.md:6 version evidence 'S1API 3.2.1' — annotated historical/observed, not a pin
+  [ok]   entities.md:6 version evidence '3.2.1' — annotated historical/observed, not a pin
+  [ok]   items-products.md:6 version evidence 'S1API 3.2.1' — annotated historical/observed, not a pin
+  [ok]   items-products.md:6 version evidence '3.2.1' — annotated historical/observed, not a pin
+  [ok]   lifecycle.md:7 version evidence 'S1API 3.2.1' — annotated historical/observed, not a pin
+  [ok]   lifecycle.md:7 version evidence '3.2.1' — annotated historical/observed, not a pin
+  [ok]   quests.md:7 version evidence 'S1API 3.2.1' — annotated historical/observed, not a pin
+  [ok]   quests.md:7 version evidence '3.2.1' — annotated historical/observed, not a pin
+  [ok]   saveables.md:6 version evidence 'S1API 3.2.1' — annotated historical/observed, not a pin
+  [ok]   hyland-smoke-shop-property.md:30 version evidence '0.3.0' — annotated historical/observed, not a pin
+  [ok]   hyland-smoke-shop-property.md:37 version evidence '0.3.0' — annotated historical/observed, not a pin
+  [ok]   hyland-smoke-shop-property.md:38 version evidence '0.3.0' — annotated historical/observed, not a pin
+  [ok]   SKILL.md:11 version evidence 'S1API 3.2.1' — annotated historical/observed, not a pin
+  [ok]   SKILL.md:69 version evidence 'S1API 3.2.1' — annotated historical/observed, not a pin
+  [ok]   SKILL.md:69 version evidence '3.2.1' — annotated historical/observed, not a pin
+  [WARN] SKILL.md: CRLF endings (convention: LF)
+
+RESULT: 0 FAIL / 1 WARN (review recommended)
+[skills] Passed (1.59s)
+[xml]
+=== XML check (71 files) ===
+XML check OK.
+[xml] Passed (0.92s)
+[tests]
+
+test-all.ps1 | selection=pure | configuration=Release
+dotnet      : C:\Program Files\dotnet\dotnet.exe
+SDK version : 8.0.426
+artifacts   : C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checks\verify-58c6483e8a7c\tests\test-all-20261106-140157-ddf0ac7a
+game probe  : C:\Program Files (x86)\Steam\steamapps\common\Schedule I\MelonLoader\Il2CppAssemblies\Assembly-CSharp.dll (present)
+S1NoDeploy  : -p:S1NoDeploy=true on every dotnet test/run (env alone is not trusted)
+
+Classification:
+  [RUN ] AutoPackagingStation.Tests       xunit          test SDK + xunit, game-free
+  [RUN ] BankApp.Tests                    xunit          test SDK + xunit, game-free
+  [RUN ] BusinessIncome.ConfigIo.Tests    xunit          test SDK + xunit, game-free
+  [RUN ] BusinessIncome.Tests             xunit          test SDK + xunit, game-free
+  [RUN ] CalculatorApp.Tests              xunit          test SDK + xunit, game-free
+  [RUN ] GoldenHour.Tests                 xunit          test SDK + xunit, game-free
+  [RUN ] HitmanPhone.Tests                xunit          test SDK + xunit, game-free
+  [RUN ] LightControl.Tests               console        OutputType Exe, declared output contract
+  [RUN ] MessagesPlus.Tests               xunit          test SDK + xunit, game-free
+  [RUN ] Minimap.Tests                    xunit          test SDK + xunit, game-free
+  [RUN ] PocketShop.Tests                 xunit          test SDK + xunit, game-free
+  [RUN ] PoliceTestMode.Tests             xunit          test SDK + xunit, game-free
+  [RUN ] PropertyLEDs.Tests               xunit          test SDK + xunit, game-free
+  [RUN ] S1MCP.Tests                      xunit          test SDK + xunit, game-free
+  [SKIP] Shared.Tests                     game-required  test SDK + xunit + game/Mods reference
+  [RUN ] StorageScanner.Tests             xunit          test SDK + xunit, game-free
+  [RUN ] TaxiDriver.Tests                 xunit          test SDK + xunit, game-free
+  [RUN ] TownHallInterior.Tests           xunit          test SDK + xunit, game-free
+  [RUN ] WaterShader.Tests                xunit          test SDK + xunit, game-free
+  [RUN ] WorldLook.Tests                  xunit          test SDK + xunit, game-free
+
+=== AutoPackagingStation.Tests (xunit) ===
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  AutoPackagingStation.Tests -> C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checkout\Source\Tests\AutoPackagingStation.Tests\bin\Release\net6.0\AutoPackagingStation.Tests.dll
+Test run for C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checkout\Source\Tests\AutoPackagingStation.Tests\bin\Release\net6.0\AutoPackagingStation.Tests.dll (.NETCoreApp,Version=v6.0)
+A total of 1 test files matched the specified pattern.
+Results File: C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checks\verify-58c6483e8a7c\tests\test-all-20261106-140157-ddf0ac7a\AutoPackagingStation.Tests\AutoPackagingStation.Tests-bbbf528cb57b.trx
+
+Passed!  - Failed:     0, Passed:    66, Skipped:     0, Total:    66, Duration: 60 ms - AutoPackagingStation.Tests.dll (net6.0)
+--- AutoPackagingStation.Tests: PASSED (66/66 passed, 0 failed, 66 executed) (2,0s) ---
+=== BankApp.Tests (xunit) ===
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  BankApp.Tests -> C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checkout\Source\Tests\BankApp.Tests\bin\Release\net6.0\BankApp.Tests.dll
+Test run for C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checkout\Source\Tests\BankApp.Tests\bin\Release\net6.0\BankApp.Tests.dll (.NETCoreApp,Version=v6.0)
+A total of 1 test files matched the specified pattern.
+Results File: C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checks\verify-58c6483e8a7c\tests\test-all-20261106-140157-ddf0ac7a\BankApp.Tests\BankApp.Tests-0e83cb22b8ad.trx
+
+Passed!  - Failed:     0, Passed:   103, Skipped:     0, Total:   103, Duration: 66 ms - BankApp.Tests.dll (net6.0)
+--- BankApp.Tests: PASSED (103/103 passed, 0 failed, 103 executed) (1,9s) ---
+=== BusinessIncome.ConfigIo.Tests (xunit) ===
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  BusinessIncome.ConfigIo.Tests -> C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checkout\Source\Tests\BusinessIncome.ConfigIo.Tests\bin\Release\net6.0\BusinessIncome.ConfigIo.Tests.dll
+Test run for C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checkout\Source\Tests\BusinessIncome.ConfigIo.Tests\bin\Release\net6.0\BusinessIncome.ConfigIo.Tests.dll (.NETCoreApp,Version=v6.0)
+A total of 1 test files matched the specified pattern.
+Results File: C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checks\verify-58c6483e8a7c\tests\test-all-20261106-140157-ddf0ac7a\BusinessIncome.ConfigIo.Tests\BusinessIncome.ConfigIo.Tests-9456288cbee9.trx
+
+Passed!  - Failed:     0, Passed:    17, Skipped:     0, Total:    17, Duration: 144 ms - BusinessIncome.ConfigIo.Tests.dll (net6.0)
+--- BusinessIncome.ConfigIo.Tests: PASSED (17/17 passed, 0 failed, 17 executed) (2,0s) ---
+=== BusinessIncome.Tests (xunit) ===
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  BusinessIncome.Tests -> C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checkout\Source\Tests\BusinessIncome.Tests\bin\Release\net6.0\BusinessIncome.Tests.dll
+Test run for C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checkout\Source\Tests\BusinessIncome.Tests\bin\Release\net6.0\BusinessIncome.Tests.dll (.NETCoreApp,Version=v6.0)
+A total of 1 test files matched the specified pattern.
+Results File: C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checks\verify-58c6483e8a7c\tests\test-all-20261106-140157-ddf0ac7a\BusinessIncome.Tests\BusinessIncome.Tests-825e6659110a.trx
+
+Passed!  - Failed:     0, Passed:   228, Skipped:     0, Total:   228, Duration: 61 ms - BusinessIncome.Tests.dll (net6.0)
+--- BusinessIncome.Tests: PASSED (228/228 passed, 0 failed, 228 executed) (2,0s) ---
+=== CalculatorApp.Tests (xunit) ===
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CalculatorApp.Tests -> C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checkout\Source\Tests\CalculatorApp.Tests\bin\Release\net6.0\CalculatorApp.Tests.dll
+Test run for C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checkout\Source\Tests\CalculatorApp.Tests\bin\Release\net6.0\CalculatorApp.Tests.dll (.NETCoreApp,Version=v6.0)
+A total of 1 test files matched the specified pattern.
+Results File: C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checks\verify-58c6483e8a7c\tests\test-all-20261106-140157-ddf0ac7a\CalculatorApp.Tests\CalculatorApp.Tests-03fa2d6cbe1f.trx
+
+Passed!  - Failed:     0, Passed:    18, Skipped:     0, Total:    18, Duration: 50 ms - CalculatorApp.Tests.dll (net6.0)
+--- CalculatorApp.Tests: PASSED (18/18 passed, 0 failed, 18 executed) (1,9s) ---
+=== GoldenHour.Tests (xunit) ===
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  GoldenHour.Tests -> C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checkout\Source\Tests\GoldenHour.Tests\bin\Release\net6.0\GoldenHour.Tests.dll
+Test run for C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checkout\Source\Tests\GoldenHour.Tests\bin\Release\net6.0\GoldenHour.Tests.dll (.NETCoreApp,Version=v6.0)
+A total of 1 test files matched the specified pattern.
+Results File: C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checks\verify-58c6483e8a7c\tests\test-all-20261106-140157-ddf0ac7a\GoldenHour.Tests\GoldenHour.Tests-ba47a230bfdc.trx
+
+Passed!  - Failed:     0, Passed:   104, Skipped:     0, Total:   104, Duration: 63 ms - GoldenHour.Tests.dll (net6.0)
+--- GoldenHour.Tests: PASSED (104/104 passed, 0 failed, 104 executed) (1,9s) ---
+=== HitmanPhone.Tests (xunit) ===
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  HitmanPhone.Tests -> C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checkout\Source\Tests\HitmanPhone.Tests\bin\Release\net6.0\HitmanPhone.Tests.dll
+Test run for C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checkout\Source\Tests\HitmanPhone.Tests\bin\Release\net6.0\HitmanPhone.Tests.dll (.NETCoreApp,Version=v6.0)
+A total of 1 test files matched the specified pattern.
+Results File: C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checks\verify-58c6483e8a7c\tests\test-all-20261106-140157-ddf0ac7a\HitmanPhone.Tests\HitmanPhone.Tests-411d5ec72449.trx
+
+Passed!  - Failed:     0, Passed:   148, Skipped:     0, Total:   148, Duration: 51 ms - HitmanPhone.Tests.dll (net6.0)
+--- HitmanPhone.Tests: PASSED (148/148 passed, 0 failed, 148 executed) (2,0s) ---
+=== LightControl.Tests (console) ===
+LightControl.Core behavioral checks | runtime 6.0.36 | 265 cases
+PASS C01 Eleven-color cycle preserves brightness
+PASS C02 Reject invalid color and intensity enums
+PASS C03 Reject nonfinite/unsafe effect parameters
+PASS C04 Persistent identity has collision-safe encoding
+PASS C05 Reject missing identities and invalid Unicode
+PASS C06 Reject duplicate logical and runtime instances
+PASS C07 Temporary unload and explicit rebind preserve state
+PASS C08 Permanent removal and replacement use default state
+PASS C09 Move preserves base state and changes effective scope
+PASS C10 New group members do not inherit previous group edits
+PASS C11 Temporarily unloaded lamps are not state-command targets
+PASS C12 Group authorization is atomic
+PASS C13 Authorization cannot reenter a mutation
+PASS C14 Authorization exceptions preserve all state
+PASS C15 Host rejects stale command revisions
+PASS C16 Host rejects wrong protocol and session
+PASS C17 Duplicate command is not executed twice
+PASS C18 Command IDs are scoped to verified sender
+PASS C19 Missing targets and unauthorized properties are rejected
+PASS C20 Client cannot become a local authority implicitly
+PASS C21 Snapshot may precede object registration
+PASS C22 Early delta prevents older initial snapshot overwrite
+PASS C23 Gap delta requires sufficiently new snapshot
+PASS C24 Delayed old snapshot cannot roll back a newer delta
+PASS C25 Invalid duplicate snapshot is rejected atomically
+PASS C26 Invalid overlapping delta is rejected atomically
+PASS C27 Wrong-session ephemeral payload does not enter model
+PASS C28 Unknown remote lamps wait for local registration
+PASS C29 Snapshot/delta constructors enforce collection bounds
+PASS C30 World/property disco precedence restores underlying effects
+PASS C31 Color edit under disco changes durable base only
+PASS C32 Brightness edit under disco acts immediately
+PASS C33 New lamp starts default and joins active disco
+PASS C34 Shared time and stable identity reproduce disco color
+PASS C35 Rainbow wraps at configurable period
+PASS C36 Disabled mode removes all visual influence
+PASS C37 Original color leaves current game color intact
+PASS C38 Intensity uses fresh baseline and leaves zero off
+PASS C39 Nonfinite or overflowing native intensity is rejected
+PASS C40 Persistence cannot write before initial load
+PASS C41 Corrupt data causes write lock
+PASS C42 Missing declaration cannot bypass load-error lock
+PASS C43 Unknown future schema remains write locked
+PASS C44 Duplicate JSON fields and lamp IDs are rejected
+PASS C45 Invalid persisted state is rejected before mutation
+PASS C46 Repeated load cycles preserve distinct identical fixtures
+PASS C47 Save A cannot read or overwrite save B
+PASS C48 Unregistered durable states survive saving
+PASS C49 Temporary effects and ephemeral IDs are not saved
+PASS C50 Local lamp state never becomes a persisted host state
+PASS C51 Old messages are rejected after session transition
+PASS C52 Loading after state mutation does not overwrite it
+PASS C53 Actual deletion removes persisted state
+PASS C54 Valid recovered JSON can unblock a failed initial load
+PASS C55 Oversized/nested/null JSON fails safely
+PASS C56 Protocol and model collections are defensive copies
+PASS C57 Concurrent commands from same revision have one winner
+PASS C58 Repeated menu sessions clear registrations and effects
+PASS C59 Authority time cannot run backwards
+PASS C60 Effect timestamps cannot originate after envelope time
+PASS C61 Duplicate successful load notification preserves write gate
+PASS C62 Later actual storage read failure blocks writes
+PASS C63 Native policy writes nothing before it owns a light
+PASS C64 Native 2x rebases on the fresh sample without compounding
+PASS C65 Native scaling follows external baseline drift
+PASS C66 Native scaling keeps zero and native flicker
+PASS C67 Original restores the latest native baseline
+PASS C68 Invalid or overflowing native samples write nothing
+PASS C69 Native teardown restores the baseline once
+PASS C70 Native identity rejects missing, empty and malformed GUIDs
+PASS C71 Native identity accepts a verified placed GUID
+PASS C72 Save slot -1 never yields a save id
+PASS C73 Load decision separates missing, unreadable and valid data
+PASS C74 A write requires the captured active slot
+PASS C75 Reconcile scans obey a bounded cadence
+PASS C76 Invalid time and nonpositive interval are rejected
+PASS C77 Color cycle visits all eleven modes
+PASS C78 Intensity cycle visits all seven levels
+PASS C79 Original action resets to the model default
+PASS C80 Native undo preserves an external write after late-update
+PASS C81 Native undo restores the baseline when nothing else wrote
+PASS C82 Native float round-trip is not misread as an external write
+PASS C83 Native teardown preserves an external write and releases ownership
+PASS C84 Native failed setter never claims ownership
+PASS C85 Native repeated 2x stays 2x and zero stays zero
+PASS C86 Color undo preserves an external write and restores otherwise
+PASS C87 Color failed setter never claims ownership
+PASS C88 Owned-property gate requires a live owned property
+PASS C89 Scan budget bounds nodes and milliseconds per frame
+PASS C90 Scan budget reports limits and truncation
+PASS C91 Fair root order rotates across scans
+PASS C92 Light pointer dedupe keeps the first distinct unowned pointer
+PASS C93 Persistence write uses the strict slot guard
+PASS C94 Persist retries a failed write at the next autosave
+PASS C95 Mod deinitializes symmetrically
+PASS C96 Ownership gate and unload/rebind wiring
+PASS C97 Cooperative bounded scan wiring
+PASS C98 App removes the exact wired UnityEvent without a button gate
+PASS C99 App action failure is reported, not silently refreshed
+PASS C100 Blocked lamp-data read surfaces a status message
+PASS C101 LED surface slot classification
+PASS C102 Foreign or empty surface slot is never overridden
+PASS C103 A switched-off lamp is never recoloured
+PASS C104 LED surface colour scales the native emission magnitude
+PASS C105 Original brightness scales the native hue only
+PASS C106 Zero percent yields zero emission without switching the lamp
+PASS C107 LED surface rebases on the native baseline and never compounds
+PASS C108 Invalid surface baseline writes nothing and releases ownership
+PASS C109 A failed surface write never claims ownership
+PASS C110 Teardown restores the native slot exactly once
+PASS C111 Original at 100 percent leaves no owned material influence
+PASS C112 Switching the lamp off restores our own clone slot
+PASS C113 An owned clone slot keeps ownership while the lamp stays on
+PASS C114 Every surface brightness level scales the baseline
+PASS C115 Owned output matching compares the exact installed floats
+PASS C116 Surface sample validation rejects unsafe values
+PASS C117 Runtime drives only the lamp's own panel and emitted light
+PASS C118 Runtime touches only shared materials and owns its clones
+PASS C119 Runtime restores and releases owned surface resources
+PASS C120 App states the unified panel and emitted-light scope
+PASS C121 LED surface clone source stays the installed native material
+PASS C122 LED surface clone source never drifts across changes
+PASS C123 LED surface release is deferred while unproven
+PASS C124 LED surface release is safe only when proven disconnected
+PASS C125 Runtime uses the ownership helper and retains unproven releases
+PASS C126 Native material identity needs a usable nonzero id
+PASS C127 Distinct wrappers of one native material are the same material
+PASS C128 An unreadable or disposed material handle is never equal
+PASS C129 An incomplete material-array scan never proves disconnection
+PASS C130 Second and third colours reuse the same clone without compounding
+PASS C131 Native identity restores across wrappers and rejects a same-named foreigner
+PASS C132 Native-id clone reuse keeps the source stable
+PASS C133 A deferred restore is never converged and must retry
+PASS C134 Runtime decides material identity by native id only
+PASS C135 Coupled lamp readiness fails closed without both outputs
+PASS C136 A chosen colour is the same hue on panel and emitted light
+PASS C137 Second and third picks update both through distinct wrappers
+PASS C138 Original restores the panel slot and the emitted light
+PASS C139 A switched-off lamp never emits our illumination
+PASS C140 Emitted intensity scales each level against its own baseline
+PASS C141 An external write after late-update is preserved
+PASS C142 One failed source cannot block another lamp's cleanup
+PASS C143 Runtime couples the panel with the lamp's own native light
+PASS C144 Verified panel pairs are LED and grow-tent halogen only
+PASS C145 The prologue RV is never tracked, even while it still exists
+PASS C146 Only a grow tent contributes a built-in light
+PASS C147 Runtime drops exploded-RV lamps and registers grow-tent lights
+PASS C148 The lamp list keeps the selected row when the filter still shows it
+PASS C149 A palette pick sets that color instead of cycling
+PASS C150 Lamps stay under the property they were first seen in
+PASS A01-A20 Selection, available targets, preview and save notices
+PASS LC02 Rebind commits new property and group with runtime identity
+PASS LC02 Rejected rebind preserves old registration and state
+PASS LC03 Throwing rebind preparation leaves model unavailable and retryable
+PASS LC06 Lost preview target rejects without changing another target
+PASS LC06 Changed catalog rejects even with identical state revision
+PASS LC06 Same-sized different target set rejects atomically
+PASS LC06 Exact confirmed targets apply and stale rejection is retryable
+PASS LC06 Duplicate confirmed keys reject without mutation
+PASS LC11 Static visual instructions are reused
+PASS LC11 Rainbow ticks are flagged and skip the apply breadcrumb
+PASS LC01 Pending restore pressure blocks new claims, not existing owners
+PASS LC01 Source wiring never discards an owned source at the soft limit
+PASS Native destruction proof is not proxy collection or a missing pointer
+PASS LC05 Material conflict and retained cleanup remain visible with empty catalog
+PASS LC04 Own clone suffix after Instance can never be a native panel
+PASS LC04 Discovery checks retained clone identity before promotion
+PASS LC11 Unowned Original100 needs no native apply, pending output still does
+PASS UI Empty catalog text distinguishes a finished scan
+PASS UI A single changed lamp has singular wording
+PASS UI Empty-state wiring updates outside catalog-only layout changes
+PASS UI Selection changes dismiss frozen world-copy confirmation
+PASS LC12 An unconsulted backup is not proof of missing data
+PASS LC03 Source wiring commits tent model before releasing and publishing
+PASS LC07 Source wiring reconciles inactive known lamps too
+PASS LC06 Source wiring reconciles before final preview and pins mutation targets
+PASS Teardown source wiring contains final persistence exceptions
+PASS LC12-01 Proven absence of main and backup confirms missing data
+PASS LC12-02 Unreadable main blocks even when a valid backup exists
+PASS LC12-03 A readable valid main is loaded from the main file
+PASS LC12-04 Unknown schema main blocks even with a valid backup
+PASS LC12-05 Foreign save-id main blocks even with a valid backup
+PASS LC12-06 Corrupt main recovers from an independently validated backup
+PASS LC12-07 Corrupt main with a foreign-save backup blocks
+PASS LC12-08 Corrupt main with an unknown-schema backup blocks
+PASS LC12-09 Corrupt main with no backup blocks as invalid JSON
+PASS LC12-10 Corrupt main with an unreadable backup blocks
+PASS LC12-11 Absent main with an unreadable backup blocks
+PASS LC12-12 Absent main with a corrupt backup blocks as invalid JSON
+PASS LC12-13 Inspect never mutates or applies data by itself
+PASS LC12-14 The adapter reads outcomes and never consults File.Exists
+PASS LC12-15 A later explicit read failure blocks an already-ready gate
+PASS N01 Late-update never rebases intensity on our own installed output
+PASS N02 Late-update never rebases colour on our own installed output
+PASS N03 Original after a missed undo restores the real baseline
+PASS N04 A failed hand-back keeps intensity ownership and its baseline
+PASS N05 A failed hand-back keeps colour ownership and its baseline
+PASS N06 A hand-back never writes when nothing of ours is installed
+PASS N07 A failed apply keeps the previously installed ownership and baseline
+PASS N08 A failed first apply still claims nothing
+PASS N09 A binding confirms each property's hand-back independently
+PASS N10 A binding supersedes a dead hand-back on the next apply
+PASS N11 A null neighbour slot is a readable empty element
+PASS N12 A restore releases only after a full re-read proves no reference
+PASS N13 Installing into a new slot hands the previous slot back first
+PASS N14 A provably destroyed light drops its claim without a write
+PASS N15 Runtime confirms native hand-backs and retains them past teardown
+PASS N16 Runtime releases a clone only after a full re-read
+PASS N17 Runtime relocates our clone when MaterialIndex moves
+PASS N18 Runtime keys its surface cache on the slot and refreshes at a bounded cadence
+PASS N19 Runtime guards the apply breadcrumb before the native read-back
+PASS Disk01 First-use missing mod directory on reachable storage is allowed
+PASS Disk02 Unreachable drive is not confirmed missing data
+PASS Disk03 Directory in place of a file blocks and never overwrites
+PASS Disk04 Validated backup recovery preserves the good backup on save
+PASS Disk05 Foreign identity and future schema never recover over main
+PASS Disk06 Locked main stays blocked after access returns
+PASS Disk07 Slot drift and thrown slot probe never write
+PASS Disk08 Ordinary saves execute the real Shared writer and rotate valid backup
+PASS Disk09 Absent main uses fully validated backup
+PASS Disk10 Repeated load cannot discard recovered backup protection
+PASS Disk11 Foreign identity remains a conflict with unexpected root fields
+PASS UI01 Temporary unload keeps the selected key, including an empty list
+PASS UI02 Only a completed scan may treat an unknown key as permanent removal
+PASS UI03 A filtered or unloaded selection keeps state but is not editable
+PASS UI04 Original, fixed color and rainbow are the only three modes
+PASS UI05 Fixed mode remembers the last solid color and falls back safely
+PASS UI06 Copy labels and the global confirmation name the source and exact count
+PASS UI07 An unchanged action never claims that lamps changed
+PASS UI08 Status keeps the actual reason, scan state and persistence even when empty
+PASS UI09 The legacy compact-layout policy keeps its bounded width decision
+PASS UI10 Phone app wires LC08 selection, LC09 availability state and LC10 status
+PASS UI11 Phone app exposes ten palette choices and seven immediate brightness steps
+PASS UI12 Phone app keeps the clipping fix, stable labels, copy confirmation and cleanup
+PASS CP01 Opening stages the source color and SELECT commits it once
+PASS CP02 Original stays unselected and Rainbow stages itself without becoming White
+PASS CP03 BACK discards the staged pick without applying
+PASS CP04 A late confirmation fails closed on a different session
+PASS CP05 A different source key cannot retarget the open picker
+PASS CP06 An unloaded or unknown source cannot be confirmed
+PASS CP07 A source changed while pending is rejected and requires a re-pick
+PASS CP08 Nine fixed colors and Rainbow can be staged; Original and invalid values cannot
+PASS CP09 Two lamps keep independent staged picks
+PASS CP10 Closing the phone or switching sessions drops the pending pick
+PASS CP11 Every documented brightness step still applies immediately
+PASS CP12 The phone app wires the immediate brightness path and keeps other actions reachable
+PASS CP13 A modal action is bound to its captured session and exact visible lamp
+PASS CP14 A brightness step applies on click and never after another card opens
+PASS CP15 The legacy modal-width policy retains its bounded behavior
+PASS CP16 Every scrollable body is width-pinned so the card never clips 50 units
+PASS CP17 An outside click dismisses while a card click is consumed by the card
+PASS CP18 The app gates every modal action and carries the session into the commit
+PASS CP19 Lamp rows use small square swatches and consistent aligned columns
+PASS CP20 Modal footer buttons reserve explicit rendered height
+PASS G01 Rainbow is staged and committed once to the captured lamp
+PASS G02 Reopening Rainbow selects Rainbow rather than a fixed color
+PASS G03 A stale Rainbow pick requires a fresh choice
+PASS G04 Original stays unselected and cancelled Rainbow cannot commit
+PASS G05 Rainbow obeys the existing session and availability gates
+PASS G06 The reference canvas fits wide, short and small hosts without overflow
+PASS G07 The palette exposes nine fixed colors followed by Rainbow
+PASS G08 Brightness bars show the documented 200-percent scale
+PASS G09 Equal actions remain distinct subscriptions at S1API's delegate-keyed boundary
+PASS G10 Released click bindings reject late callbacks independently
+PASS G11 The column heading follows its initial position then stays visible while scrolling
+RESULT: 265/265 passed; 0 failed. Core/adapter/source checks; no native-game verification.
+--- LightControl.Tests: PASSED (265/265 passed, 0 failed) (1,6s) ---
+=== MessagesPlus.Tests (xunit) ===
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  MessagesPlus.Tests -> C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checkout\Source\Tests\MessagesPlus.Tests\bin\Release\net6.0\MessagesPlus.Tests.dll
+Test run for C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checkout\Source\Tests\MessagesPlus.Tests\bin\Release\net6.0\MessagesPlus.Tests.dll (.NETCoreApp,Version=v6.0)
+A total of 1 test files matched the specified pattern.
+Results File: C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checks\verify-58c6483e8a7c\tests\test-all-20261106-140157-ddf0ac7a\MessagesPlus.Tests\MessagesPlus.Tests-9d818eade453.trx
+
+Passed!  - Failed:     0, Passed:    25, Skipped:     0, Total:    25, Duration: 55 ms - MessagesPlus.Tests.dll (net6.0)
+--- MessagesPlus.Tests: PASSED (25/25 passed, 0 failed, 25 executed) (1,9s) ---
+=== Minimap.Tests (xunit) ===
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  Minimap.Tests -> C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checkout\Source\Tests\Minimap.Tests\bin\Release\net6.0\Minimap.Tests.dll
+Test run for C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checkout\Source\Tests\Minimap.Tests\bin\Release\net6.0\Minimap.Tests.dll (.NETCoreApp,Version=v6.0)
+A total of 1 test files matched the specified pattern.
+Results File: C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checks\verify-58c6483e8a7c\tests\test-all-20261106-140157-ddf0ac7a\Minimap.Tests\Minimap.Tests-dc2732bc55bc.trx
+
+Passed!  - Failed:     0, Passed:   222, Skipped:     0, Total:   222, Duration: 65 ms - Minimap.Tests.dll (net6.0)
+--- Minimap.Tests: PASSED (222/222 passed, 0 failed, 222 executed) (2,0s) ---
+=== PocketShop.Tests (xunit) ===
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  PocketShop.Tests -> C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checkout\Source\Tests\PocketShop.Tests\bin\Release\net6.0\PocketShop.Tests.dll
+Test run for C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checkout\Source\Tests\PocketShop.Tests\bin\Release\net6.0\PocketShop.Tests.dll (.NETCoreApp,Version=v6.0)
+A total of 1 test files matched the specified pattern.
+Results File: C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checks\verify-58c6483e8a7c\tests\test-all-20261106-140157-ddf0ac7a\PocketShop.Tests\PocketShop.Tests-ddf2c32e6c24.trx
+
+Passed!  - Failed:     0, Passed:    64, Skipped:     0, Total:    64, Duration: 66 ms - PocketShop.Tests.dll (net6.0)
+--- PocketShop.Tests: PASSED (64/64 passed, 0 failed, 64 executed) (1,9s) ---
+=== PoliceTestMode.Tests (xunit) ===
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  PoliceTestMode.Tests -> C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checkout\Source\Tests\PoliceTestMode.Tests\bin\Release\net6.0\PoliceTestMode.Tests.dll
+Test run for C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checkout\Source\Tests\PoliceTestMode.Tests\bin\Release\net6.0\PoliceTestMode.Tests.dll (.NETCoreApp,Version=v6.0)
+A total of 1 test files matched the specified pattern.
+Results File: C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checks\verify-58c6483e8a7c\tests\test-all-20261106-140157-ddf0ac7a\PoliceTestMode.Tests\PoliceTestMode.Tests-c3e36358c94b.trx
+
+Passed!  - Failed:     0, Passed:    36, Skipped:     0, Total:    36, Duration: 1 s - PoliceTestMode.Tests.dll (net6.0)
+--- PoliceTestMode.Tests: PASSED (36/36 passed, 0 failed, 36 executed) (3,4s) ---
+=== PropertyLEDs.Tests (xunit) ===
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  PropertyLEDs.Tests -> C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checkout\Source\Tests\PropertyLEDs.Tests\bin\Release\net6.0\PropertyLEDs.Tests.dll
+Test run for C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checkout\Source\Tests\PropertyLEDs.Tests\bin\Release\net6.0\PropertyLEDs.Tests.dll (.NETCoreApp,Version=v6.0)
+A total of 1 test files matched the specified pattern.
+Results File: C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checks\verify-58c6483e8a7c\tests\test-all-20261106-140157-ddf0ac7a\PropertyLEDs.Tests\PropertyLEDs.Tests-87e67ac364ab.trx
+
+Passed!  - Failed:     0, Passed:   122, Skipped:     0, Total:   122, Duration: 92 ms - PropertyLEDs.Tests.dll (net6.0)
+--- PropertyLEDs.Tests: PASSED (122/122 passed, 0 failed, 122 executed) (2,0s) ---
+=== S1MCP.Tests (xunit) ===
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  S1MCP.Tests -> C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checkout\Source\Tests\S1MCP.Tests\bin\Release\net6.0\S1MCP.Tests.dll
+Test run for C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checkout\Source\Tests\S1MCP.Tests\bin\Release\net6.0\S1MCP.Tests.dll (.NETCoreApp,Version=v6.0)
+A total of 1 test files matched the specified pattern.
+Results File: C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checks\verify-58c6483e8a7c\tests\test-all-20261106-140157-ddf0ac7a\S1MCP.Tests\S1MCP.Tests-32af1c8c168a.trx
+
+Passed!  - Failed:     0, Passed:    62, Skipped:     0, Total:    62, Duration: 300 ms - S1MCP.Tests.dll (net6.0)
+--- S1MCP.Tests: PASSED (62/62 passed, 0 failed, 62 executed) (2,2s) ---
+=== StorageScanner.Tests (xunit) ===
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  StorageScanner.Tests -> C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checkout\Source\Tests\StorageScanner.Tests\bin\Release\net6.0\StorageScanner.Tests.dll
+Test run for C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checkout\Source\Tests\StorageScanner.Tests\bin\Release\net6.0\StorageScanner.Tests.dll (.NETCoreApp,Version=v6.0)
+A total of 1 test files matched the specified pattern.
+Results File: C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checks\verify-58c6483e8a7c\tests\test-all-20261106-140157-ddf0ac7a\StorageScanner.Tests\StorageScanner.Tests-4d867835f312.trx
+
+Passed!  - Failed:     0, Passed:    37, Skipped:     0, Total:    37, Duration: 58 ms - StorageScanner.Tests.dll (net6.0)
+--- StorageScanner.Tests: PASSED (37/37 passed, 0 failed, 37 executed) (1,9s) ---
+=== TaxiDriver.Tests (xunit) ===
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  TaxiDriver.Tests -> C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checkout\Source\Tests\TaxiDriver.Tests\bin\Release\net6.0\TaxiDriver.Tests.dll
+Test run for C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checkout\Source\Tests\TaxiDriver.Tests\bin\Release\net6.0\TaxiDriver.Tests.dll (.NETCoreApp,Version=v6.0)
+A total of 1 test files matched the specified pattern.
+Results File: C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checks\verify-58c6483e8a7c\tests\test-all-20261106-140157-ddf0ac7a\TaxiDriver.Tests\TaxiDriver.Tests-95ea496a5c12.trx
+
+Passed!  - Failed:     0, Passed:  1402, Skipped:     0, Total:  1402, Duration: 2 s - TaxiDriver.Tests.dll (net6.0)
+--- TaxiDriver.Tests: PASSED (1402/1402 passed, 0 failed, 1402 executed) (5,7s) ---
+=== TownHallInterior.Tests (xunit) ===
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  TownHallInterior.Tests -> C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checkout\Source\Tests\TownHallInterior.Tests\bin\Release\net6.0\TownHallInterior.Tests.dll
+Test run for C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checkout\Source\Tests\TownHallInterior.Tests\bin\Release\net6.0\TownHallInterior.Tests.dll (.NETCoreApp,Version=v6.0)
+A total of 1 test files matched the specified pattern.
+Results File: C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checks\verify-58c6483e8a7c\tests\test-all-20261106-140157-ddf0ac7a\TownHallInterior.Tests\TownHallInterior.Tests-a33cbff60c0e.trx
+
+Passed!  - Failed:     0, Passed:  1166, Skipped:     0, Total:  1166, Duration: 1 s - TownHallInterior.Tests.dll (net6.0)
+--- TownHallInterior.Tests: PASSED (1166/1166 passed, 0 failed, 1166 executed) (4,1s) ---
+=== WaterShader.Tests (xunit) ===
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  WaterShader.Tests -> C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checkout\Source\Tests\WaterShader.Tests\bin\Release\net6.0\WaterShader.Tests.dll
+Test run for C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checkout\Source\Tests\WaterShader.Tests\bin\Release\net6.0\WaterShader.Tests.dll (.NETCoreApp,Version=v6.0)
+A total of 1 test files matched the specified pattern.
+Results File: C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checks\verify-58c6483e8a7c\tests\test-all-20261106-140157-ddf0ac7a\WaterShader.Tests\WaterShader.Tests-add96e76412f.trx
+
+Passed!  - Failed:     0, Passed:  1231, Skipped:     0, Total:  1231, Duration: 224 ms - WaterShader.Tests.dll (net6.0)
+--- WaterShader.Tests: PASSED (1231/1231 passed, 0 failed, 1231 executed) (2,7s) ---
+=== WorldLook.Tests (xunit) ===
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  WorldLook.Tests -> C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checkout\Source\Tests\WorldLook.Tests\bin\Release\net6.0\WorldLook.Tests.dll
+Test run for C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checkout\Source\Tests\WorldLook.Tests\bin\Release\net6.0\WorldLook.Tests.dll (.NETCoreApp,Version=v6.0)
+A total of 1 test files matched the specified pattern.
+Results File: C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checks\verify-58c6483e8a7c\tests\test-all-20261106-140157-ddf0ac7a\WorldLook.Tests\WorldLook.Tests-33c22a38e02f.trx
+
+Passed!  - Failed:     0, Passed:    46, Skipped:     0, Total:    46, Duration: 72 ms - WorldLook.Tests.dll (net6.0)
+--- WorldLook.Tests: PASSED (46/46 passed, 0 failed, 46 executed) (1,9s) ---
+
+===== RESULTS =====
+  PASSED  AutoPackagingStation.Tests       xunit              2,0s  66/66 passed, 0 failed, 66 executed
+  PASSED  BankApp.Tests                    xunit              1,9s  103/103 passed, 0 failed, 103 executed
+  PASSED  BusinessIncome.ConfigIo.Tests    xunit              2,0s  17/17 passed, 0 failed, 17 executed
+  PASSED  BusinessIncome.Tests             xunit              2,0s  228/228 passed, 0 failed, 228 executed
+  PASSED  CalculatorApp.Tests              xunit              1,9s  18/18 passed, 0 failed, 18 executed
+  PASSED  GoldenHour.Tests                 xunit              1,9s  104/104 passed, 0 failed, 104 executed
+  PASSED  HitmanPhone.Tests                xunit              2,0s  148/148 passed, 0 failed, 148 executed
+  PASSED  LightControl.Tests               console            1,6s  265/265 passed, 0 failed
+  PASSED  MessagesPlus.Tests               xunit              1,9s  25/25 passed, 0 failed, 25 executed
+  PASSED  Minimap.Tests                    xunit              2,0s  222/222 passed, 0 failed, 222 executed
+  PASSED  PocketShop.Tests                 xunit              1,9s  64/64 passed, 0 failed, 64 executed
+  PASSED  PoliceTestMode.Tests             xunit              3,4s  36/36 passed, 0 failed, 36 executed
+  PASSED  PropertyLEDs.Tests               xunit              2,0s  122/122 passed, 0 failed, 122 executed
+  PASSED  S1MCP.Tests                      xunit              2,2s  62/62 passed, 0 failed, 62 executed
+  SKIPPED Shared.Tests                     game-required         -  -
+  PASSED  StorageScanner.Tests             xunit              1,9s  37/37 passed, 0 failed, 37 executed
+  PASSED  TaxiDriver.Tests                 xunit              5,7s  1402/1402 passed, 0 failed, 1402 executed
+  PASSED  TownHallInterior.Tests           xunit              4,1s  1166/1166 passed, 0 failed, 1166 executed
+  PASSED  WaterShader.Tests                xunit              2,7s  1231/1231 passed, 0 failed, 1231 executed
+  PASSED  WorldLook.Tests                  xunit              1,9s  46/46 passed, 0 failed, 46 executed
+
+Projects: 20 | Executed: 19 | Passed: 19 | Failed: 0 | Skipped: 1 | Elapsed: 45,1s
+Artifacts: C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checks\verify-58c6483e8a7c\tests\test-all-20261106-140157-ddf0ac7a
+Skipped projects are game-required. Use -Selection all on a machine with the game installed.
+All selected test projects passed.
+[tests] Passed (45.62s)
+[tool-bump-version.Tests]
+
+[TEST] version transition converts prior acceptance to open and keeps evidence historical
+
+[TEST] already-open acceptance cells are preserved
+
+[TEST] already-open prior evidence stays byte-identical apart from the version
+
+[TEST] plain Verified outside a bold label aborts before any write
+
+[TEST] missing compatibility row aborts before any write
+
+[TEST] duplicate compatibility rows abort before any write
+
+[TEST] duplicate AGENTS matrix rows abort before any write
+
+[TEST] unsupported plain AGENTS Verified label aborts before any write
+
+[TEST] missing README table row aborts before any write
+
+[TEST] dry-run reports the plan and writes nothing
+
+[TEST] same-version reconciliation is safe and idempotent
+
+[TEST] -Mod All composes shared documentation edits without losing a mod
+
+[TEST] check-version-sync still catches featured-card drift
+
+[TEST] check-version-sync reports duplicate current matrix rows instead of last-wins
+
+Tests: 72 passed, 0 failed
+[tool-bump-version.Tests] Passed (16.08s)
+[tool-clean-checkout.Tests]
+clean-checkout.Tests: 39 passed; 0 failed. Artifacts: C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checks\verify-58c6483e8a7c\fixtures\clean-checkout\cct-6371de4aad64
+[tool-clean-checkout.Tests] Passed (44.85s)
+[tool-clean-unity-caches.Tests]
+Synthetic cleanup fixtures: C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checks\verify-58c6483e8a7c\fixtures\clean-unity-caches\uc-3dcba7e429
+           7 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\Artifacts
+           7 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\BurstCache
+           7 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\PackageCache
+           7 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\ShaderCache
+           7 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\TempArtifacts
+           3 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\ArtifactDB
+           3 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\ArtifactDB-lock
+           3 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\SourceAssetDB
+           3 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\SourceAssetDB-lock
+           3 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\ShaderCache.db
+           7 bytes        1 files  Source\Mods\WorldLook\build\logs\p-3dc9460c\Library\Artifacts
+           7 bytes        1 files  Source\Mods\WorldLook\build\logs\p-3dc9460c\Library\BurstCache
+           7 bytes        1 files  Source\Mods\WorldLook\build\logs\p-3dc9460c\Library\PackageCache
+           7 bytes        1 files  Source\Mods\WorldLook\build\logs\p-3dc9460c\Library\ShaderCache
+           7 bytes        1 files  Source\Mods\WorldLook\build\logs\p-3dc9460c\Library\TempArtifacts
+           3 bytes        1 files  Source\Mods\WorldLook\build\logs\p-3dc9460c\Library\ArtifactDB
+           3 bytes        1 files  Source\Mods\WorldLook\build\logs\p-3dc9460c\Library\ArtifactDB-lock
+           3 bytes        1 files  Source\Mods\WorldLook\build\logs\p-3dc9460c\Library\SourceAssetDB
+           3 bytes        1 files  Source\Mods\WorldLook\build\logs\p-3dc9460c\Library\SourceAssetDB-lock
+           3 bytes        1 files  Source\Mods\WorldLook\build\logs\p-3dc9460c\Library\ShaderCache.db
+20 cache entries; 20 files; 100 bytes. Bee, BuildPlayerData, ScriptAssemblies and all unlisted paths are retained.
+PASS: default preview recognizes only both supported run layouts
+PASS: preview reports exact file count and byte sum
+PASS: preview neither deletes nor writes receipts
+           7 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\Artifacts
+           7 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\BurstCache
+           7 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\PackageCache
+           7 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\ShaderCache
+           7 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\TempArtifacts
+           3 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\ArtifactDB
+           3 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\ArtifactDB-lock
+           3 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\SourceAssetDB
+           3 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\SourceAssetDB-lock
+           3 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\ShaderCache.db
+           7 bytes        1 files  Source\Mods\WorldLook\build\logs\p-3dc9460c\Library\Artifacts
+           7 bytes        1 files  Source\Mods\WorldLook\build\logs\p-3dc9460c\Library\BurstCache
+           7 bytes        1 files  Source\Mods\WorldLook\build\logs\p-3dc9460c\Library\PackageCache
+           7 bytes        1 files  Source\Mods\WorldLook\build\logs\p-3dc9460c\Library\ShaderCache
+           7 bytes        1 files  Source\Mods\WorldLook\build\logs\p-3dc9460c\Library\TempArtifacts
+           3 bytes        1 files  Source\Mods\WorldLook\build\logs\p-3dc9460c\Library\ArtifactDB
+           3 bytes        1 files  Source\Mods\WorldLook\build\logs\p-3dc9460c\Library\ArtifactDB-lock
+           3 bytes        1 files  Source\Mods\WorldLook\build\logs\p-3dc9460c\Library\SourceAssetDB
+           3 bytes        1 files  Source\Mods\WorldLook\build\logs\p-3dc9460c\Library\SourceAssetDB-lock
+           3 bytes        1 files  Source\Mods\WorldLook\build\logs\p-3dc9460c\Library\ShaderCache.db
+20 cache entries; 20 files; 100 bytes. Bee, BuildPlayerData, ScriptAssemblies and all unlisted paths are retained.
+What if: Performing the operation "Remove 20 allowlisted cache entries (100 bytes); retain evidence and working Library" on target "C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checks\verify-58c6483e8a7c\fixtures\clean-unity-caches\uc-3dcba7e429\allowlist\Source\Mods\WorldLook\build\logs".
+PASS: ShouldProcess WhatIf performs no writes
+           7 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\Artifacts
+           7 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\BurstCache
+           7 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\PackageCache
+           7 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\ShaderCache
+           7 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\TempArtifacts
+           3 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\ArtifactDB
+           3 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\ArtifactDB-lock
+           3 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\SourceAssetDB
+           3 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\SourceAssetDB-lock
+           3 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\ShaderCache.db
+           7 bytes        1 files  Source\Mods\WorldLook\build\logs\p-3dc9460c\Library\Artifacts
+           7 bytes        1 files  Source\Mods\WorldLook\build\logs\p-3dc9460c\Library\BurstCache
+           7 bytes        1 files  Source\Mods\WorldLook\build\logs\p-3dc9460c\Library\PackageCache
+           7 bytes        1 files  Source\Mods\WorldLook\build\logs\p-3dc9460c\Library\ShaderCache
+           7 bytes        1 files  Source\Mods\WorldLook\build\logs\p-3dc9460c\Library\TempArtifacts
+           3 bytes        1 files  Source\Mods\WorldLook\build\logs\p-3dc9460c\Library\ArtifactDB
+           3 bytes        1 files  Source\Mods\WorldLook\build\logs\p-3dc9460c\Library\ArtifactDB-lock
+           3 bytes        1 files  Source\Mods\WorldLook\build\logs\p-3dc9460c\Library\SourceAssetDB
+           3 bytes        1 files  Source\Mods\WorldLook\build\logs\p-3dc9460c\Library\SourceAssetDB-lock
+           3 bytes        1 files  Source\Mods\WorldLook\build\logs\p-3dc9460c\Library\ShaderCache.db
+20 cache entries; 20 files; 100 bytes. Bee, BuildPlayerData, ScriptAssemblies and all unlisted paths are retained.
+Protected files unchanged; receipt: C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checks\verify-58c6483e8a7c\fixtures\clean-unity-caches\uc-3dcba7e429\allowlist\.scratch\unity-cache-cleanup\20261106-130347-152-f5c7cff5c63b4ef2923a02f88f50cb74\receipt.json
+PASS: Apply removes allowlisted cache roots
+PASS: all twenty planned cache entries removed
+PASS: Library and run roots are retained
+PASS: current Library, root files, reports, traces, backups and unknown runs are byte-identical
+PASS: receipt confirms protected-file hashes
+PASS: receipt records only successfully completed targets
+0 cache entries; 0 files; 0 bytes. Bee, BuildPlayerData, ScriptAssemblies and all unlisted paths are retained.
+PASS: missing caches are an idempotent no-op
+PASS: active Unity blocks before any mutation (Active Unity/game processes: Unity)
+PASS: active-process block keeps every cache and creates no receipt
+PASS: cache file/directory type mismatch fails closed (Unexpected cache entry type: C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checks\verify-58c6483e8a7c\fixtures\clean-unity-caches\uc-3dcba7e429\wrong-type\Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\Artifacts)
+PASS: type mismatch is not deleted
+PASS: candidate evidence unity.log aborts complete preflight (Diagnostic/report file inside cache; preserve and review manually: C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checks\verify-58c6483e8a7c\fixtures\clean-unity-caches\uc-3dcba7e429\evidence-unity-log\Source\Mods\WorldLook\build\logs\p-3dc9460c\Library\Artifacts\nested\unity.log)
+PASS: evidence unity.log and the earlier ordinary cache are retained
+PASS: candidate evidence last.buildreport aborts complete preflight (Diagnostic/report file inside cache; preserve and review manually: C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checks\verify-58c6483e8a7c\fixtures\clean-unity-caches\uc-3dcba7e429\evidence-last-buildreport\Source\Mods\WorldLook\build\logs\p-3dc9460c\Library\Artifacts\nested\last.buildreport)
+PASS: evidence last.buildreport and the earlier ordinary cache are retained
+PASS: candidate evidence build.traceevents aborts complete preflight (Diagnostic/report file inside cache; preserve and review manually: C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checks\verify-58c6483e8a7c\fixtures\clean-unity-caches\uc-3dcba7e429\evidence-build-traceevents\Source\Mods\WorldLook\build\logs\p-3dc9460c\Library\Artifacts\nested\build.traceevents)
+PASS: evidence build.traceevents and the earlier ordinary cache are retained
+PASS: candidate evidence crash.dmp aborts complete preflight (Diagnostic/report file inside cache; preserve and review manually: C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checks\verify-58c6483e8a7c\fixtures\clean-unity-caches\uc-3dcba7e429\evidence-crash-dmp\Source\Mods\WorldLook\build\logs\p-3dc9460c\Library\Artifacts\nested\crash.dmp)
+PASS: evidence crash.dmp and the earlier ordinary cache are retained
+PASS: candidate evidence editor.crash aborts complete preflight (Diagnostic/report file inside cache; preserve and review manually: C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checks\verify-58c6483e8a7c\fixtures\clean-unity-caches\uc-3dcba7e429\evidence-editor-crash\Source\Mods\WorldLook\build\logs\p-3dc9460c\Library\Artifacts\nested\editor.crash)
+PASS: evidence editor.crash and the earlier ordinary cache are retained
+PASS: candidate evidence shader-build.json aborts complete preflight (Diagnostic/report file inside cache; preserve and review manually: C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checks\verify-58c6483e8a7c\fixtures\clean-unity-caches\uc-3dcba7e429\evidence-shader-build-json\Source\Mods\WorldLook\build\logs\p-3dc9460c\Library\Artifacts\nested\shader-build.json)
+PASS: evidence shader-build.json and the earlier ordinary cache are retained
+PASS: candidate evidence build-info.json aborts complete preflight (Diagnostic/report file inside cache; preserve and review manually: C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checks\verify-58c6483e8a7c\fixtures\clean-unity-caches\uc-3dcba7e429\evidence-build-info-json\Source\Mods\WorldLook\build\logs\p-3dc9460c\Library\Artifacts\nested\build-info.json)
+PASS: evidence build-info.json and the earlier ordinary cache are retained
+PASS: candidate evidence preview.json aborts complete preflight (Diagnostic/report file inside cache; preserve and review manually: C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checks\verify-58c6483e8a7c\fixtures\clean-unity-caches\uc-3dcba7e429\evidence-preview-json\Source\Mods\WorldLook\build\logs\p-3dc9460c\Library\Artifacts\nested\preview.json)
+PASS: evidence preview.json and the earlier ordinary cache are retained
+           7 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\Artifacts
+           7 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\BurstCache
+           7 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\PackageCache
+           7 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\ShaderCache
+           7 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\TempArtifacts
+           3 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\ArtifactDB
+           3 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\ArtifactDB-lock
+           3 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\SourceAssetDB
+           3 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\SourceAssetDB-lock
+           3 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\ShaderCache.db
+10 cache entries; 10 files; 50 bytes. Bee, BuildPlayerData, ScriptAssemblies and all unlisted paths are retained.
+PASS: mid-target failure is explicitly partial without a rollback claim (Cleanup failed; partial removal is possible, no rollback. synthetic locked cache entry Receipt: C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checks\verify-58c6483e8a7c\fixtures\clean-unity-caches\uc-3dcba7e429\partial\.scratch\unity-cache-cleanup\20261106-130356-327-7fa48fc1e0f441a7bf4bd7d903eca20f\receipt.json)
+PASS: failure receipt retains target progress
+PASS: partial target is excluded from completed totals and evidence still checked
+PASS: partial fixture distinguishes actual removal from untouched later targets
+           7 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\Artifacts
+           7 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\BurstCache
+           7 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\PackageCache
+           7 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\ShaderCache
+           7 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\TempArtifacts
+           3 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\ArtifactDB
+           3 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\ArtifactDB-lock
+           3 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\SourceAssetDB
+           3 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\SourceAssetDB-lock
+           3 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\ShaderCache.db
+10 cache entries; 10 files; 50 bytes. Bee, BuildPlayerData, ScriptAssemblies and all unlisted paths are retained.
+PASS: protected-file change prevents success (Cleanup failed; partial removal is possible, no rollback. Protected-file preservation mismatch. Receipt: C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checks\verify-58c6483e8a7c\fixtures\clean-unity-caches\uc-3dcba7e429\protected-change\.scratch\unity-cache-cleanup\20261106-130357-398-2024fab47fb44a0586de8af96e2d178c\receipt.json)
+PASS: receipt identifies a changed protected file
+           7 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\Artifacts
+           7 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\BurstCache
+           7 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\PackageCache
+           7 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\ShaderCache
+           7 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\TempArtifacts
+           3 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\ArtifactDB
+           3 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\ArtifactDB-lock
+           3 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\SourceAssetDB
+           3 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\SourceAssetDB-lock
+           3 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\ShaderCache.db
+10 cache entries; 10 files; 50 bytes. Bee, BuildPlayerData, ScriptAssemblies and all unlisted paths are retained.
+PASS: plan changes while protected files are hashed fail before deletion (Cache plan changed during preflight; nothing removed.)
+PASS: changed-plan failure creates no receipt or cleanup mutation
+           7 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\Artifacts
+           7 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\BurstCache
+           7 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\PackageCache
+           7 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\ShaderCache
+           7 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\TempArtifacts
+           3 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\ArtifactDB
+           3 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\ArtifactDB-lock
+           3 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\SourceAssetDB
+           3 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\SourceAssetDB-lock
+           3 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\ShaderCache.db
+10 cache entries; 10 files; 50 bytes. Bee, BuildPlayerData, ScriptAssemblies and all unlisted paths are retained.
+PASS: new Unity process is checked again before removal (Cleanup failed; partial removal is possible, no rollback. Active Unity/game processes: UnityShaderCompiler Receipt: C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checks\verify-58c6483e8a7c\fixtures\clean-unity-caches\uc-3dcba7e429\process-started\.scratch\unity-cache-cleanup\20261106-130400-488-2d10136ebb2544a3a9df2e451c156cc7\receipt.json)
+PASS: late process block records zero completed removals and retained evidence
+PASS: all candidates preflight before the first deletion (Reparse path refused: C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checks\verify-58c6483e8a7c\fixtures\clean-unity-caches\uc-3dcba7e429\reparse\Source\Mods\WorldLook\build\logs\p-3dc9460c\Library\Artifacts)
+PASS: later target junction cannot delete first target or outside contents
+PASS: nested cache junction is rejected before traversal (Reparse child refused: C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checks\verify-58c6483e8a7c\fixtures\clean-unity-caches\uc-3dcba7e429\nested-reparse\Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\Artifacts\nested\link)
+PASS: nested link target remains untouched
+           7 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\Artifacts
+           7 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\BurstCache
+           7 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\PackageCache
+           7 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\ShaderCache
+           7 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\TempArtifacts
+           3 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\ArtifactDB
+           3 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\ArtifactDB-lock
+           3 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\SourceAssetDB
+           3 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\SourceAssetDB-lock
+           3 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\ShaderCache.db
+10 cache entries; 10 files; 50 bytes. Bee, BuildPlayerData, ScriptAssemblies and all unlisted paths are retained.
+PASS: receipt path cannot redirect writes through a junction (Reparse path refused: C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checks\verify-58c6483e8a7c\fixtures\clean-unity-caches\uc-3dcba7e429\receipt-reparse\.scratch)
+PASS: receipt-path refusal makes no deletion or redirected write
+           7 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\Artifacts
+           7 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\BurstCache
+           7 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\PackageCache
+           7 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\ShaderCache
+           7 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\TempArtifacts
+           3 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\ArtifactDB
+           3 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\ArtifactDB-lock
+           3 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\SourceAssetDB
+           3 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\SourceAssetDB-lock
+           3 bytes        1 files  Source\Mods\WorldLook\build\logs\20261022-174444-897-367f1db0\unity\Library\ShaderCache.db
+10 cache entries; 10 files; 50 bytes. Bee, BuildPlayerData, ScriptAssemblies and all unlisted paths are retained.
+PASS: protected-tree junction is rejected before any cleanup (Reparse child refused: C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checks\verify-58c6483e8a7c\fixtures\clean-unity-caches\uc-3dcba7e429\protected-reparse\Source\Mods\WorldLook\unity)
+PASS: protected-tree preflight prevents partial cleanup
+PASS: missing repository marker refuses arbitrary copied directory (Cannot find path 'C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checks\verify-58c6483e8a7c\fixtures\clean-unity-caches\uc-3dcba7e429\missing-marker\Source\Mods\WorldLook\src\WorldLook.csproj' because it does not exist.)
+PASS: invalid root retains its contents
+PASS: containment rejects sibling-prefix paths (Path outside the repository: C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checks\verify-58c6483e8a7c\fixtures\clean-unity-caches\uc-3dcba7e429\allowlist\AGENTS.md)
+PASS: CLI exposes no arbitrary deletion-root parameter
+Cleanup fixtures: 53 passed, 0 failed. Retained at C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checks\verify-58c6483e8a7c\fixtures\clean-unity-caches\uc-3dcba7e429
+[tool-clean-unity-caches.Tests] Passed (20.62s)
+[tool-deploy-mod.Tests]
+Scratch root: C:\Users\pc\AppData\Local\hermes\cache\scratch\s1-deploy-mod-51853bbfe71e435e87e87c39d5e14629
+[deploy-mod] FullMod -> Copied 7, Unchanged 0; receipt C:\Users\pc\AppData\Local\hermes\cache\scratch\s1-deploy-mod-51853bbfe71e435e87e87c39d5e14629\game-full\UserData\.deploy\receipts\FullMod.json
+PASS  deploy: DLL, PDB, mod.json, icons, bundle and GLB all land at the conventional paths with matching SHA256
+PASS  deploy: success status (expected 'Deployed', got 'Deployed')
+PASS  deploy: all seven plan files copied on first run (expected '7', got '7')
+PASS  deploy: first run has no unchanged files (expected '0', got '0')
+PASS  receipt: written under <GameDir>\UserData\.deploy\receipts\<Mod>.json
+PASS  receipt: status Deployed (expected 'Deployed', got 'Deployed')
+PASS  receipt: project name (expected 'FullMod', got 'FullMod')
+PASS  receipt: configuration (expected 'Release', got 'Release')
+PASS  receipt: effective GameDir recorded exactly (expected 'C:\Users\pc\AppData\Local\hermes\cache\scratch\s1-deploy-mod-51853bbfe71e435e87e87c39d5e14629\game-full', got 'C:\Users\pc\AppData\Local\hermes\cache\scratch\s1-deploy-mod-51853bbfe71e435e87e87c39d5e14629\game-full')
+PASS  receipt: git revision recorded (full SHA)
+PASS  receipt: git dirty state recorded as a boolean
+PASS  receipt: one entry per planned file (expected '7', got '7')
+PASS  receipt: exact absolute source path (expected 'C:\Users\pc\AppData\Local\hermes\cache\scratch\s1-deploy-mod-51853bbfe71e435e87e87c39d5e14629\proj-FullMod-v1-5e178d\src\FullMod.dll', got 'C:\Users\pc\AppData\Local\hermes\cache\scratch\s1-deploy-mod-51853bbfe71e435e87e87c39d5e14629\proj-FullMod-v1-5e178d\src\FullMod.dll')
+PASS  receipt: exact absolute destination path (expected 'C:\Users\pc\AppData\Local\hermes\cache\scratch\s1-deploy-mod-51853bbfe71e435e87e87c39d5e14629\game-full\Mods\FullMod.dll', got 'C:\Users\pc\AppData\Local\hermes\cache\scratch\s1-deploy-mod-51853bbfe71e435e87e87c39d5e14629\game-full\Mods\FullMod.dll')
+PASS  receipt: source SHA256 (expected '6082B202A353317AD25D268846485E263686C60AA525EE03AA18509B80C1075C', got '6082B202A353317AD25D268846485E263686C60AA525EE03AA18509B80C1075C')
+PASS  receipt: destination SHA256 (expected '6082B202A353317AD25D268846485E263686C60AA525EE03AA18509B80C1075C', got '6082B202A353317AD25D268846485E263686C60AA525EE03AA18509B80C1075C')
+PASS  receipt: GLB destination relative path recorded (expected 'Mods\FullMod\fullmod.glb', got 'Mods\FullMod\fullmod.glb')
+PASS  receipt: metadata destination recorded (expected 'C:\Users\pc\AppData\Local\hermes\cache\scratch\s1-deploy-mod-51853bbfe71e435e87e87c39d5e14629\game-full\UserData\FullMod\mod.json', got 'C:\Users\pc\AppData\Local\hermes\cache\scratch\s1-deploy-mod-51853bbfe71e435e87e87c39d5e14629\game-full\UserData\FullMod\mod.json')
+[deploy-mod] FullMod -> Copied 0, Unchanged 7; receipt C:\Users\pc\AppData\Local\hermes\cache\scratch\s1-deploy-mod-51853bbfe71e435e87e87c39d5e14629\game-full\UserData\.deploy\receipts\FullMod.json
+PASS  deploy: second run copies nothing (expected '0', got '0')
+PASS  deploy: second run reports every file unchanged (expected '7', got '7')
+PASS  deploy: all-unchanged run creates no backup
+[deploy-mod] FullMod -> Copied 1, Unchanged 6; receipt C:\Users\pc\AppData\Local\hermes\cache\scratch\s1-deploy-mod-51853bbfe71e435e87e87c39d5e14629\game-full\UserData\.deploy\receipts\FullMod.json
+PASS  deploy: only the changed DLL is copied (expected '1', got '1')
+PASS  deploy: unchanged siblings are not rewritten (expected '6', got '6')
+PASS  deploy: changed run records a backup id
+PASS  backup: only the overwritten target is backed up (expected '1', got '1')
+PASS  deploy: updated DLL hash matches source (expected 'B57FC20B9A939590ACB6F6ADB0FEC2880FB1E7031159C3DEC09F72EFC698F6BD', got 'B57FC20B9A939590ACB6F6ADB0FEC2880FB1E7031159C3DEC09F72EFC698F6BD')
+PASS  backup: manifest records the exact relative target (expected 'Mods\FullMod.dll', got 'Mods\FullMod.dll')
+PASS  rollback: copy failure surfaces as an error
+PASS  rollback: error message reports the rollback outcome
+PASS  rollback: overwritten DLL restored byte-identically from backup (expected '7A2FB944243D3B1D12ECC16F5E215D2C4ACD4E7D8786A61AC2F084D57B1BCAA4', got '7A2FB944243D3B1D12ECC16F5E215D2C4ACD4E7D8786A61AC2F084D57B1BCAA4')
+PASS  rollback: overwritten bundle restored byte-identically (expected '5D9328B9535BB0316313C6DB4E5A6A23D924D6BF4A4D08673DA01AFA5893EC0C', got '5D9328B9535BB0316313C6DB4E5A6A23D924D6BF4A4D08673DA01AFA5893EC0C')
+PASS  rollback: newly created icon removed
+PASS  rollback: newly created GLB removed
+PASS  rollback: receipt status RolledBack (expected 'RolledBack', got 'RolledBack')
+PASS  rollback: receipt records attempted restore of touched targets
+PASS  rollback: clean rollback reports no failures (expected '0', got '0')
+PASS  partial rollback: deployment fails
+PASS  partial rollback: error says the install is not back to its previous state
+PASS  partial rollback: failing target path reported
+PASS  partial rollback: receipt status RollbackFailed (expected 'RollbackFailed', got 'RollbackFailed')
+PASS  partial rollback: receipt lists the failed restore
+PASS  partial rollback: truthfully leaves the unrestorable file at the new content
+PASS  partial rollback: verified backup retained for manual recovery
+PASS  plan: same-name icons from project dir and assets dir rejected
+PASS  plan: duplicate rejection copies nothing (expected '0', got '0')
+PASS  plan: case-insensitive duplicate destinations rejected
+PASS  safety: directory occupying a file destination rejected
+PASS  safety: offending directory left untouched
+PASS  safety: no other file written after rejection
+SKIP  safety: reparse-point destination rejected (symlink creation not permitted on this host)
+[deploy-mod] ScopeMod -> Copied 7, Unchanged 0; receipt C:\Users\pc\AppData\Local\hermes\cache\scratch\s1-deploy-mod-51853bbfe71e435e87e87c39d5e14629\game-backup-scope\UserData\.deploy\receipts\ScopeMod.json
+PASS  backup scope: first run with no overwritten targets creates no backup directory
+[deploy-mod] ScopeMod -> Copied 1, Unchanged 6; receipt C:\Users\pc\AppData\Local\hermes\cache\scratch\s1-deploy-mod-51853bbfe71e435e87e87c39d5e14629\game-backup-scope\UserData\.deploy\receipts\ScopeMod.json
+PASS  backup scope: existing config.json untouched (expected '407D10DEED29068448DC16ADBEBF77BACBF6FFA4B50F3F2280BA454CEB35142C', got '407D10DEED29068448DC16ADBEBF77BACBF6FFA4B50F3F2280BA454CEB35142C')
+PASS  backup scope: existing save.json untouched (expected '5143C8B45B1F27D10E16732E49D1EF69223B349550888BAFB4404C995AD9A9B4', got '5143C8B45B1F27D10E16732E49D1EF69223B349550888BAFB4404C995AD9A9B4')
+PASS  backup scope: saves/configs never copied into the backup
+PASS  backup scope: no stray save copies in the install (expected '0', got '0')
+PASS  mutex: concurrent deploy times out and fails
+PASS  mutex: timeout copies nothing (expected '0', got '0')
+PASS  preflight: running game rejected before any write (exit code 4) (expected '4', got '4')
+PASS  preflight: running game leaves Mods untouched (expected '0', got '0')
+[deploy-mod] NoDeploy active - nothing copied.
+PASS  NoDeploy: S1NoDeploy=true writes nothing (expected '0', got '0')
+PASS  NoDeploy: no receipt/backup directories created
+[deploy-mod] NoDeploy active - nothing copied.
+PASS  NoDeploy: -NoDeploy switch writes nothing (expected '0', got '0')
+PASS  safety: path-traversal project name rejected
+PASS  safety: traversal name wrote nothing (expected '0', got '0')
+PASS  CLI: successful deploy exits 0 (expected '0', got '0')
+PASS  CLI: reports unchanged count on re-run
+PASS  CLI: missing install fails with preflight exit code 3 (expected '3', got '3')
+[deploy-mod] Shared -> Copied 1, Unchanged 0; receipt C:\Users\pc\AppData\Local\hermes\cache\scratch\s1-deploy-mod-51853bbfe71e435e87e87c39d5e14629\game-shared\UserData\.deploy\receipts\Shared.json
+PASS  Shared: a DLL-only project deploys exactly one file (expected '1', got '1')
+PASS  Shared: DLL lands in Mods
+PASS  Shared: no empty metadata folder for a project without assets
+PASS  targets: third-party deploy stays a separate target
+PASS  targets: no ordinary MSBuild Copy flow remains
+PASS  targets: DeployShared still selected only for Shared
+PASS  targets: DeployMod excludes Shared so it deploys once
+PASS  targets: DeployMod routes through deploy-mod.ps1
+PASS  targets: receipt/backup location documented in targets
+PASS  MSBuild: DeployMod target succeeds with paths containing spaces (expected '0', got '0')
+PASS  MSBuild: DLL deployed to Mods (expected '3E9DD751218221E695A79223E90B8A71E434830FA658EC3A3DF1A9195447003B', got '3E9DD751218221E695A79223E90B8A71E434830FA658EC3A3DF1A9195447003B')
+PASS  MSBuild: PDB deployed to UserData\<Mod> (expected '25684C5D72742FB38300287607EFC50B48B5C3B215CA773A8C12C3AFEA4A8C30', got '25684C5D72742FB38300287607EFC50B48B5C3B215CA773A8C12C3AFEA4A8C30')
+PASS  MSBuild: mod.json deployed to UserData\<Mod> (expected 'E62284A4D887C764E669A4D5C99345B6ADCF8CB120A241A20059C0655AD8518F', got 'E62284A4D887C764E669A4D5C99345B6ADCF8CB120A241A20059C0655AD8518F')
+PASS  MSBuild: project-dir icon deployed to Mods
+PASS  MSBuild: bundle deployed to Mods
+PASS  MSBuild: GLB deployed to Mods\<Mod>
+PASS  MSBuild: receipt written for the provider build
+PASS  MSBuild: S1NoDeploy=true still succeeds (expected '0', got '0')
+PASS  MSBuild: S1NoDeploy=true copies nothing (expected '0', got '0')
+PASS  mutex: fixed Schedule1Deploy_ prefix + first 8 SHA256 bytes (got 'Schedule1Deploy_39b34ec1191f2d37')
+PASS  rollback corruption: tampered backup reported as a failure (expected '1', got '1')
+PASS  rollback corruption: entry state RollbackFailed (expected 'RollbackFailed', got 'RollbackFailed')
+PASS  rollback corruption: destination not restored from an unverified backup (expected 'new-content', got 'new-content')
+PASS  rollback corruption: error names the backup hash mismatch
+PASS  rollback scope: backup outside the run backup directory refused (expected '1', got '1')
+PASS  rollback scope: error says the backup is outside the run directory
+PASS  rollback scope: destination left untouched (expected 'new-content-b', got 'new-content-b')
+SKIP  rollback reparse: reparse destination refused (symlink creation not permitted on this host)
+PASS  rollback removed: absent new file not counted as removed (expected '0', got '0')
+PASS  rollback removed: absent new file is not a failure (expected '0', got '0')
+PASS  rollback removed: absent new file state NotAttempted (expected 'NotAttempted', got 'NotAttempted')
+PASS  rollback removed: foreign content not counted as removed (expected '0', got '0')
+PASS  rollback removed: foreign content reported (expected '1', got '1')
+PASS  rollback removed: foreign content left in place (expected 'foreign-content', got 'foreign-content')
+PASS  staging: corrupted staged copy detected before replacement
+PASS  staging: destination still holds the previous bytes (expected '8F1913BE6C35614A68E8C4ED86A272C787A113EFD490A765AC0FB2D3240FCE8A', got '8F1913BE6C35614A68E8C4ED86A272C787A113EFD490A765AC0FB2D3240FCE8A')
+PASS  staging: no temp staging files left behind (expected '0', got '0')
+[deploy-mod] StaleMod -> Copied 7, Unchanged 0; receipt C:\Users\pc\AppData\Local\hermes\cache\scratch\s1-deploy-mod-51853bbfe71e435e87e87c39d5e14629\game-stale\UserData\.deploy\receipts\StaleMod.json
+PASS  stale: v1 icons deployed
+WARNING: [deploy-mod] Stale previously deployed file is not in this plan (left in place): 'Mods\src_icon.png'.
+WARNING: [deploy-mod] Stale previously deployed file is not in this plan (left in place): 'Mods\stalemod_icon.png'.
+[deploy-mod] StaleMod -> Copied 4, Unchanged 1; receipt C:\Users\pc\AppData\Local\hermes\cache\scratch\s1-deploy-mod-51853bbfe71e435e87e87c39d5e14629\game-stale\UserData\.deploy\receipts\StaleMod.json
+PASS  stale: both prior-owned icons reported (expected '2', got '2')
+PASS  stale: report names the exact relative paths
+PASS  stale: icons left in place (no automatic deletion)
+PASS  stale: warning emitted
+PASS  receipt: attempt id recorded
+PASS  receipt: attempt-specific receipt persisted alongside latest
+PASS  receipt: attempt receipt path recorded (expected 'C:\Users\pc\AppData\Local\hermes\cache\scratch\s1-deploy-mod-51853bbfe71e435e87e87c39d5e14629\game-stale\UserData\.deploy\receipts\StaleMod.20261106T130414231Z-5fa30bb35ae1.json', got 'C:\Users\pc\AppData\Local\hermes\cache\scratch\s1-deploy-mod-51853bbfe71e435e87e87c39d5e14629\game-stale\UserData\.deploy\receipts\StaleMod.20261106T130414231Z-5fa30bb35ae1.json')
+PASS  receipt: attempt receipt is a deploy record (expected 'Deployed', got 'Deployed')
+WARNING: [deploy-mod] Stale previously deployed file is not in this plan (left in place): 'Mods\src_icon.png'.
+WARNING: [deploy-mod] Stale previously deployed file is not in this plan (left in place): 'Mods\stalemod_icon.png'.
+[deploy-mod] StaleMod -> Copied 0, Unchanged 5; receipt C:\Users\pc\AppData\Local\hermes\cache\scratch\s1-deploy-mod-51853bbfe71e435e87e87c39d5e14629\game-stale\UserData\.deploy\receipts\StaleMod.json
+PASS  history: stale icons survive an unchanged successful rerun (expected '2', got '2')
+PASS  failure receipt: every entry has a truthful state
+PASS  failure receipt: attempted is true when targets were touched
+PASS  failure receipt: restored DLL state (expected 'Restored', got 'Restored')
+PASS  failure receipt: destination SHA recomputed after rollback (expected '310FF206FCFC71E73A65B2C1D4382EF0F6E83163D71E0273AA684E9DE2F84188', got '310FF206FCFC71E73A65B2C1D4382EF0F6E83163D71E0273AA684E9DE2F84188')
+PASS  failure receipt: absent destination SHA is null
+PASS  failure receipt: never-touched entry NotAttempted (expected 'NotAttempted', got 'NotAttempted')
+PASS  failure receipt: attempt-specific failure receipt persisted
+[deploy-mod] HistoryMod -> Copied 7, Unchanged 0; receipt C:\Users\pc\AppData\Local\hermes\cache\scratch\s1-deploy-mod-51853bbfe71e435e87e87c39d5e14629\game-history\UserData\.deploy\receipts\HistoryMod.json
+WARNING: [deploy-mod] Stale previously deployed file is not in this plan (left in place): 'Mods\src_icon.png'.
+WARNING: [deploy-mod] Stale previously deployed file is not in this plan (left in place): 'Mods\historymod_icon.png'.
+WARNING: [deploy-mod] Stale previously deployed file is not in this plan (left in place): 'Mods\src_icon.png'.
+WARNING: [deploy-mod] Stale previously deployed file is not in this plan (left in place): 'Mods\historymod_icon.png'.
+[deploy-mod] HistoryMod -> Copied 4, Unchanged 1; receipt C:\Users\pc\AppData\Local\hermes\cache\scratch\s1-deploy-mod-51853bbfe71e435e87e87c39d5e14629\game-history\UserData\.deploy\receipts\HistoryMod.json
+PASS  history: stale icons still reported after an intervening failed run (expected '2', got '2')
+PASS  history: stale warning still emitted after a failed run
+[deploy-mod] ReceiptMod -> Copied 7, Unchanged 0; receipt C:\Users\pc\AppData\Local\hermes\cache\scratch\s1-deploy-mod-51853bbfe71e435e87e87c39d5e14629\game-receipt-io\UserData\.deploy\receipts\ReceiptMod.json
+WARNING: [deploy-mod] Could not write failure receipt 'C:\Users\pc\AppData\Local\hermes\cache\scratch\s1-deploy-mod-51853bbfe71e435e87e87c39d5e14629\game-receipt-io\UserData\.deploy\receipts\ReceiptMod.20261106T130416561Z-f55ddfa7e98d.json' / 'C:\Users\pc\AppData\Local\hermes\cache\scratch\s1-deploy-mod-51853bbfe71e435e87e87c39d5e14629\game-receipt-io\UserData\.deploy\receipts\ReceiptMod.json': synthetic receipt IO failure
+PASS  receipt I/O: failure surfaces
+PASS  receipt I/O: error names the receipt
+PASS  receipt I/O: stale previous receipt called out as historical
+PASS  receipt I/O: new code not retained after the failure (DLL rolled back) (expected '027C979AA175010AAB75D35B5AE71C55002A29A0BB32758EA5DBBE8466058E28', got '027C979AA175010AAB75D35B5AE71C55002A29A0BB32758EA5DBBE8466058E28')
+
+Passed: 125 | Failed: 0 | Skipped: 2
+[tool-deploy-mod.Tests] Passed (13.05s)
+[tool-deploy.Tests]
+Scratch root: C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checks\verify-58c6483e8a7c\fixtures\deploy\s1-deploy-regression-8f24b80e6705490d98761255747bda47
+PASS  preflight: explicit GameDir overrides SCHEDULE1_PATH
+PASS  preflight: ModsDir derived from override
+PASS  preflight: arbitrary MSBuild project label accepted
+PASS  preflight: relative GameDir rejected (code 2)
+PASS  preflight: repo root rejected (code 2)
+PASS  preflight: missing install rejected (code 3)
+PASS  preflight: missing MelonLoader probe rejected (code 3)
+PASS  preflight: running game rejected (code 4)
+PASS  preflight: process enumeration failure is fail-closed (code 5)
+PASS  preflight: SCHEDULE1_PATH fallback used when GameDir omitted
+PASS  preflight CLI: JSON success (exit 0)
+PASS  preflight CLI: JSON failure reports exit 3
+PASS  deploy: missing allowlist fails (no implicit deploy-all)
+PASS  deploy: missing allowlist copied nothing
+PASS  deploy: empty allowlist succeeds
+PASS  deploy: empty allowlist deploys nothing
+PASS  deploy: shipped allowlist requires deliberate opt-in
+PASS  deploy: explicit allowlist copies one DLL and hashes match
+PASS  deploy: non-allowlisted DLL not copied
+PASS  deploy: idempotent re-run reports unchanged
+PASS  deploy: duplicate destination names rejected
+PASS  deploy: ambiguous target copied nothing
+PASS  deploy: traversal allowlist pattern rejected
+PASS  deploy: missing game install fails closed with preflight exit 3
+PASS  deploy: bad game target left untouched
+PASS  deploy: passed GameDir overrides SCHEDULE1_PATH
+PASS  deploy: running-game guard rejects before any copy
+PASS  deploy: running-game guard copied nothing
+PASS  deploy: shared mutex timeout fails instead of skipping with success
+PASS  deploy: mutex timeout copied nothing
+PASS  deploy: -NoDeploy skips all copies
+PASS  deploy: S1NoDeploy=true env skips all copies
+PASS  deploy: unmatched allowlist pattern fails and names the pattern
+PASS  deploy: unmatched pattern copied nothing (not even the valid pattern)
+PASS  deploy: workspace mod DLL name collision fails even when bytes match
+PASS  deploy: reserved-name collision copied nothing
+PASS  deploy: existing foreign DLL is refused with manual-update guidance
+PASS  deploy: foreign DLL bytes untouched
+PASS  deploy: refused plan copies nothing (no partial deployment)
+PASS  deploy: changed existing third-party DLL is refused
+PASS  deploy: changed third-party DLL bytes untouched
+PASS  deploy: byte-identical existing DLL is a no-op
+PASS  deploy: no-op left no staging files behind
+PASS  deploy: empty allowlist leaves previously copied DLLs in place
+PASS  deploy: empty allowlist warns it is not an uninstall
+PASS  deploy: third-party mutex matches Schedule1Deploy_ + first8 SHA256 hex
+PASS  deploy: mutex name trims trailing separator
+PASS  deploy: mutex name is case-insensitive (lowercased before hash)
+PASS  deploy: mutex name agrees with deploy-mod.ps1 for the same GameDir
+PASS  build-all: auto-deploy is the default
+PASS  build-all: -NoDeploy disables deploy
+PASS  build-all: existing S1NoDeploy=true is respected
+PASS  build-all: -NoDeploy wins over env=false
+PASS  build-all: passes dotnet build verb and solution
+PASS  build-all: passes effective no-deploy to MSBuild
+PASS  build-all: passes explicit GameDir to MSBuild
+PASS  build-all: deploy default without GameDir override
+PASS  build-all: dotnet SDK fallback/preflight resolves an SDK
+PASS  build-all e2e: fake solution created
+PASS  build-all e2e: -NoDeploy builds without deploy
+PASS  build-all e2e: auto-deploy default still builds
+PASS  build-all e2e: preflight failure aborts before build
+  [deploy-mod] BoundTarget -> Copied 1, Unchanged 0; receipt C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checks\verify-58c6483e8a7c\fixtures\deploy\s1-deploy-regression-8f24b80e6705490d98761255747bda47\target-game\UserData\.deploy\receipts\BoundTarget.json
+PASS  targets: real deploy target accepts fake install
+PASS  targets: DLL lands under checked GameDir
+PASS  targets: independent destination overrides cannot redirect writes
+
+Passed: 65 | Failed: 0
+[tool-deploy.Tests] Passed (27.64s)
+[tool-doc-paths.Tests]
+Doc-paths tests: 61 passed, 0 failed. Receipts: C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checks\verify-58c6483e8a7c\fixtures\doc-paths\doc-paths-ce42d3baf7e5
+[tool-doc-paths.Tests] Passed (14.88s)
+[tool-dotnet-sdk.Tests]
+dotnet-sdk: 17 passed, 0 failed. Fixtures: C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checks\verify-58c6483e8a7c\fixtures\dotnet-sdk\sdk-9f3a635ef789
+[tool-dotnet-sdk.Tests] Passed (1.63s)
+[tool-release.Tests]
+PASS Valid archive verifies every payload and clean source
+PASS DLL tampering is detected
+PASS Extra payload is refused
+PASS Missing payload is refused
+PASS Filename-only legacy ZIP is refused
+PASS Wrong commit is refused
+PASS Changed source with unchanged HEAD is refused
+PASS Wrong version is refused
+PASS Dirty package supports local distribution but cannot publish
+PASS Dirty current source cannot publish a clean package
+PASS Missing required input Mods/Fixture.dll aborts packaging
+PASS Missing required input Mods/Shared.dll aborts packaging
+PASS Missing required input UserData/Fixture/mod.json aborts packaging
+PASS Malformed metadata aborts packaging
+PASS Missing version does not fall back to 1.0.0
+PASS Metadata for another mod is refused
+PASS Consistently hashed metadata must still match manifest version
+PASS Deleting Shared from both ZIP and manifest still fails
+PASS Path traversal and case-duplicate ZIP entries are refused
+PASS Cleanup refuses outside paths and leaves files intact
+PASS Staging names are unique and independent
+PASS Source fingerprint includes content, untracked input and submodule state
+PASS Ignored SDK source and runtime assets cannot be certified as clean
+PASS Real Git ignores and info/exclude expose hidden production inputs
+Release fixtures: 24 passed, 0 failed.
+[tool-release.Tests] Passed (1.69s)
+[tool-skills-health.Tests]
+
+Tests: 30 passed, 0 failed
+[tool-skills-health.Tests] Passed (10.21s)
+[tool-test-all.Tests]
+
+test-all.Tests.ps1 | scratch: C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checks\verify-58c6483e8a7c\fixtures\test-all\tat-7cb4124ce651
+
+xunit TRX contracts
+deploy guard
+TRX placement
+console contract
+selection rules
+classifier safety
+SDK preflight
+real xunit fixtures
+
+test-all.Tests: 65/65 checks passed.
+Scratch: C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checks\verify-58c6483e8a7c\fixtures\test-all\tat-7cb4124ce651
+[tool-test-all.Tests] Passed (69.02s)
+[tool-verify.Tests]
+RESULT: 41/41 passed; 0 failed
+Fixtures: C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checks\verify-58c6483e8a7c\fixtures\verify\verify-tests-a9dd327868784cf4a700f374eb7bd8f9
+[tool-verify.Tests] Passed (100.95s)
+[tool-workspace-setup.Tests]
+workspace-setup: 57 passed, 0 failed. Fixtures: C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checks\verify-58c6483e8a7c\fixtures\workspace-setup\ws-3d972de8c21d
+[tool-workspace-setup.Tests] Passed (43.2s)
+[tool-WorldLookMcp.Tests]
+PASS: heartbeat is skipped, correlated response retained
+PASS: heartbeat preserved in evidence
+PASS: uncorrelated response is rejected (MCP response ID mismatch; no retry.)
+PASS: wrong response preserved for diagnosis
+PASS: string response ID cannot silently coerce to the request ID (MCP response ID mismatch; no retry.)
+PASS: only exact heartbeat notification is skipped (MCP response ID mismatch; no retry.)
+PASS: endless heartbeats have a bounded frame budget (MCP response frame budget exceeded.)
+PASS: invalid frame length 0 is rejected before payload allocation (Invalid or excessive MCP response length.)
+PASS: invalid frame length 1048577 is rejected before payload allocation (Invalid or excessive MCP response length.)
+PASS: truncated frame fails instead of returning partial bytes (MCP stream closed before frame completed.)
+PASS: expired response deadline blocks reads (MCP response deadline exceeded.)
+PASS: PID change is rejected (Game process identity changed or the bridge belongs to another installation.)
+PASS: PID reuse with a different process start is rejected (Game process identity changed or the bridge belongs to another installation.)
+PASS: same-named process from another game installation is rejected (Game process identity changed or the bridge belongs to another installation.)
+PASS: arbitrary MCP execution is blocked before transport (Unsupported MCP method.)
+PASS: arbitrary component method is blocked before transport (Only the parameterless WorldLook automation endpoint is allowed.)
+PASS: another Unity object is blocked before transport (Only the parameterless WorldLook automation endpoint is allowed.)
+PASS: parameter arrays are blocked before transport (Only the parameterless WorldLook automation endpoint is allowed.)
+PASS: exact ready singleplayer save is accepted
+PASS: ready false blocks mutation (WorldLook requires a ready singleplayer Main scene.)
+PASS: singleplayer false blocks mutation (WorldLook requires a ready singleplayer Main scene.)
+PASS: hostOrSingleplayer false blocks mutation (WorldLook requires a ready singleplayer Main scene.)
+PASS: gameLoaded false blocks mutation (WorldLook requires a ready singleplayer Main scene.)
+PASS: loading blocks mutation (WorldLook requires a ready singleplayer Main scene.)
+PASS: save name mismatch blocks mutation (Loaded save identity does not match the explicitly selected save.)
+PASS: save path mismatch blocks mutation (Loaded save identity does not match the explicitly selected save.)
+PASS: save selection keeps zero-based slot zero
+PASS: duplicate save identity blocks load (Save selection is missing, ambiguous or has an invalid slot index.)
+PASS: missing save identity blocks load (Save selection is missing, ambiguous or has an invalid slot index.)
+PASS: string slot cannot silently coerce to zero (Save selection is missing, ambiguous or has an invalid slot index.)
+PASS: silent null is not a successful mutation (WorldLook endpoint returned no explicit JSON result (missing method or unsupported bridge).)
+PASS: endpoint rejection is preserved (WorldLook rejected DisableLook: loading)
+PASS: string boolean is rejected rather than treated as true (Unsupported or incomplete WorldLook status schema.)
+PASS: OFF uses one explicit mutation and independent status readback
+PASS: mutation uses the parameterless bridge-compatible wrapper
+PASS: already OFF still verifies an idempotent explicit setter
+PASS: accepted setter followed by wrong state is rejected (WorldLook state/fault readback failed.)
+PASS: mutation timeout is propagated (unknown outcome timeout)
+PASS: unknown outcome does not retry mutation
+PASS: menu confirms endpoint, native scene and absent clock while preserving OFF
+PASS: load verifies actual ready save and retained OFF
+PASS: load is dispatched once
+PASS: reload cannot reset OFF to ON unnoticed (WorldLook session state changed across reload.)
+PASS: load cannot silently switch from gameplay to menu (Load requires the actual main menu; no automatic scene switch.)
+PASS: string clock availability cannot authorize loading (Native main-menu readiness was not confirmed.)
+PASS: string success flag cannot confirm loading (Load request not confirmed; no retry.)
+PASS: time checks explicit HHMM, independent clock and unchanged save
+PASS: unrelated clock readback is rejected (Independent clock readback is outside the three-minute sampling window.)
+PASS: invalid minute value -360 cannot pass modulo comparison (Independent clock readback is outside the three-minute sampling window.)
+PASS: invalid minute value 2520 cannot pass modulo comparison (Independent clock readback is outside the three-minute sampling window.)
+PASS: invalid minute value 1080 cannot pass modulo comparison (Independent clock readback is outside the three-minute sampling window.)
+PASS: string availability cannot confirm a time write (Time setter readback failed; no retry.)
+PASS: scene change during clock verification is rejected (WorldLook requires a ready singleplayer Main scene.)
+PASS: invalid HHMM fails before time mutation (Time requires a valid HHMM value.)
+PASS: invalid HHMM performs no time write
+PASS: transition deadline terminates without a mutation retry (WorldLook state transition timed out; mutation was not retried.)
+PASS: expired transition does not issue further requests
+PASS: nested socket timeout is recognized without message matching
+PASS: unmarked timeout does not authorize another poll
+PASS: connection reset is not retried as a timeout
+PASS: confirmed status read timeout is followed by a fresh successful read
+PASS: timeout recovery dispatches only GetStatus
+PASS: read timeout remains in diagnostic evidence
+PASS: load timeout recovery does not repeat load_save
+PASS: the same transport timeout on a mutation is propagated (synthetic read failure)
+PASS: timed-out mutation is never repeated
+PASS: status schema failure is never retried (Unsupported or incomplete WorldLook status schema.)
+PASS: schema failure stops after one status request
+PASS: process identity failure is never retried (Game process identity changed or the bridge belongs to another installation.)
+PASS: process failure stops after one status request
+PASS: transport timeout cannot extend the global transition deadline (WorldLook state transition timed out; mutation was not retried.)
+PASS: expired global deadline prevents another read attempt
+PASS: top-level result returns pinned session and fresh evidence path
+PASS: existing evidence cannot be overwritten (Exception calling "Open" with "3" argument(s): "The file 'C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checks\verify-58c6483e8a7c\fixtures\WorldLookMcp\4536bb700cc540a7acc3a6f411c3fa58\status.jsonl' already exists.")
+PASS: existing evidence bytes remain unchanged
+PASS: caller-specified old PID is rejected before requests (The selected game session is no longer running.)
+PASS: caller-specified old start time is rejected before requests (The selected game session is no longer running.)
+PASS: session mismatch creates no false acceptance artifact
+PASS: missing save path fails with an explicit mutation guard (Mutations require exact SaveName and absolute SavePath.)
+PASS: top-level failure is propagated (synthetic unknown response)
+PASS: failed action retains diagnostic evidence and does not retry
+WorldLook MCP synthetic checks: 81 passed, 0 failed. Fixtures: C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checks\verify-58c6483e8a7c\fixtures\WorldLookMcp\4536bb700cc540a7acc3a6f411c3fa58
+[tool-WorldLookMcp.Tests] Passed (2.31s)
+[tool-xml.Tests]
+XML tests: 6 passed, 0 failed. Receipts: C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checks\verify-58c6483e8a7c\fixtures\xml\xml-c2a5c0eed9b7
+[tool-xml.Tests] Passed (2.91s)
+Verification Pure : 21 passed, 1 failed, 0 skipped. Exit 1.
+Report: C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-05193f1a0e22\checks\verify-58c6483e8a7c\report.json

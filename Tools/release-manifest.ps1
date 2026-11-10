@@ -1,10 +1,18 @@
 #Requires -Version 7
 # Dot-source only. These helpers neither build nor publish.
 
+function Test-S1ReleaseModLocalOnly {
+    param([Parameter(Mandatory)][string]$Mod)
+    return $Mod -eq 'TownHallInterior'
+}
+
 function Assert-S1ReleaseModName {
     param([Parameter(Mandatory)][string]$Mod)
     if ($Mod -notmatch '^[A-Za-z0-9][A-Za-z0-9_-]*$' -or $Mod -in @('All', 'Shared', '_DiagPerfCounter')) {
         throw "Invalid release mod name '$Mod'."
+    }
+    if (Test-S1ReleaseModLocalOnly $Mod) {
+        throw "Mod '$Mod' is local-only. Release packaging and publication are disabled."
     }
 }
 

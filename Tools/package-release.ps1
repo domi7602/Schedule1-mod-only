@@ -7,6 +7,9 @@ param (
 
 $ErrorActionPreference = 'Stop'
 . (Join-Path $PSScriptRoot 'release-manifest.ps1')
+$packageAll = [string]::IsNullOrWhiteSpace($Mod) -or $Mod -eq 'All'
+if (-not $packageAll) { Assert-S1ReleaseModName $Mod }
+
 $workspaceRoot = Split-Path -Parent $PSScriptRoot
 $modsRoot = Join-Path $workspaceRoot 'Source/Mods'
 $releaseDir = [IO.Path]::GetFullPath($OutputDir, $workspaceRoot)
@@ -19,11 +22,11 @@ if (Get-Process -Name 'Schedule I' -ErrorAction SilentlyContinue) { throw 'Close
 
 $allMods = @(Get-ChildItem -LiteralPath $modsRoot -Directory | Where-Object {
     $_.Name -notin @('Shared', 'Archive', '_DiagPerfCounter') -and
+    -not (Test-S1ReleaseModLocalOnly $_.Name) -and
     (Test-Path -LiteralPath (Join-Path $_.FullName "src/$($_.Name).csproj") -PathType Leaf)
 } | Sort-Object Name)
-if ([string]::IsNullOrWhiteSpace($Mod) -or $Mod -eq 'All') { $targetMods = $allMods }
+if ($packageAll) { $targetMods = $allMods }
 else {
-    Assert-S1ReleaseModName $Mod
     $targetMods = @($allMods | Where-Object Name -CEQ $Mod)
     if ($targetMods.Count -ne 1) { throw "Mod '$Mod' not found in $modsRoot." }
 }

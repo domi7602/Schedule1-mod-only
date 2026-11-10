@@ -1,0 +1,841 @@
+using System;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using Il2CppInterop.Common.Attributes;
+using Il2CppInterop.Runtime;
+using Il2CppInterop.Runtime.InteropTypes;
+using Il2CppInterop.Runtime.InteropTypes.Arrays;
+using Il2CppInterop.Runtime.Runtime;
+using Il2CppSystem.Reflection;
+using Il2CppSystem.Runtime.Serialization;
+
+namespace Il2CppSystem;
+
+[System.Serializable]
+public class Delegate : Object
+{
+	private static readonly System.IntPtr NativeFieldInfoPtr_method_ptr;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr_invoke_impl;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr_m_target;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr_method;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr_delegate_trampoline;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr_extra_arg;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr_method_code;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr_interp_method;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr_interp_invoke_impl;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr_method_info;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr_original_method_info;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr_data;
+
+	private static readonly System.IntPtr NativeFieldInfoPtr_method_is_virtual;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_get_Method_Public_get_MethodInfo_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_GetVirtualMethod_internal_Private_MethodInfo_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_get_Target_Public_get_Object_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_CreateDelegate_internal_Internal_Static_Delegate_Type_Object_MethodInfo_Boolean_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_arg_type_match_Private_Static_Boolean_Type_Type_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_arg_type_match_this_Private_Static_Boolean_Type_Type_Boolean_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_return_type_match_Private_Static_Boolean_Type_Type_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_CreateDelegate_Private_Static_Delegate_Type_Object_MethodInfo_Boolean_Boolean_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_CreateDelegate_Public_Static_Delegate_Type_Object_MethodInfo_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_CreateDelegate_Public_Static_Delegate_Type_MethodInfo_Boolean_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_CreateDelegate_Public_Static_Delegate_Type_MethodInfo_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_CreateDelegate_Public_Static_Delegate_Type_Object_String_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_GetCandidateMethod_Private_Static_MethodInfo_Type_Type_String_BindingFlags_Boolean_Boolean_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_CreateDelegate_Public_Static_Delegate_Type_Type_String_Boolean_Boolean_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_CreateDelegate_Public_Static_Delegate_Type_Type_String_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_CreateDelegate_Public_Static_Delegate_Type_Type_String_Boolean_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_CreateDelegate_Public_Static_Delegate_Type_Object_String_Boolean_Boolean_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_CreateDelegate_Public_Static_Delegate_Type_Object_String_Boolean_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_DynamicInvoke_Public_Object_Il2CppReferenceArray_1_Object_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_InitializeDelegateData_Private_Void_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_DynamicInvokeImpl_Protected_Virtual_New_Object_Il2CppReferenceArray_1_Object_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_Clone_Public_Virtual_New_Object_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_Equals_Public_Virtual_Boolean_Object_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_GetHashCode_Public_Virtual_Int32_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_GetMethodImpl_Protected_Virtual_New_MethodInfo_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_GetObjectData_Public_Virtual_New_Void_SerializationInfo_StreamingContext_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_GetInvocationList_Public_Virtual_New_Il2CppReferenceArray_1_Delegate_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_Combine_Public_Static_Delegate_Delegate_Delegate_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_Combine_Public_Static_Delegate_Il2CppReferenceArray_1_Delegate_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_CombineImpl_Protected_Virtual_New_Delegate_Delegate_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_Remove_Public_Static_Delegate_Delegate_Delegate_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_RemoveImpl_Protected_Virtual_New_Delegate_Delegate_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_op_Equality_Public_Static_Boolean_Delegate_Delegate_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_op_Inequality_Public_Static_Boolean_Delegate_Delegate_0;
+
+	private static readonly System.IntPtr NativeMethodInfoPtr_AllocDelegateLike_internal_Internal_Static_MulticastDelegate_Delegate_0;
+
+	public unsafe System.IntPtr method_ptr
+	{
+		get
+		{
+			nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_method_ptr);
+			return *(System.IntPtr*)num;
+		}
+		set
+		{
+			*(System.IntPtr*)((nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_method_ptr)) = value;
+		}
+	}
+
+	public unsafe System.IntPtr invoke_impl
+	{
+		get
+		{
+			nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_invoke_impl);
+			return *(System.IntPtr*)num;
+		}
+		set
+		{
+			*(System.IntPtr*)((nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_invoke_impl)) = value;
+		}
+	}
+
+	public unsafe Object m_target
+	{
+		get
+		{
+			nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_m_target);
+			System.IntPtr intPtr = *(System.IntPtr*)num;
+			return (intPtr != (System.IntPtr)0) ? Il2CppObjectPool.Get<Object>(intPtr) : null;
+		}
+		set
+		{
+			System.IntPtr num = IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+			IL2CPP.il2cpp_gc_wbarrier_set_field(num, (System.IntPtr)((nint)num + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_m_target)), IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)value));
+		}
+	}
+
+	public unsafe System.IntPtr method
+	{
+		get
+		{
+			nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_method);
+			return *(System.IntPtr*)num;
+		}
+		set
+		{
+			*(System.IntPtr*)((nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_method)) = value;
+		}
+	}
+
+	public unsafe System.IntPtr delegate_trampoline
+	{
+		get
+		{
+			nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_delegate_trampoline);
+			return *(System.IntPtr*)num;
+		}
+		set
+		{
+			*(System.IntPtr*)((nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_delegate_trampoline)) = value;
+		}
+	}
+
+	public unsafe System.IntPtr extra_arg
+	{
+		get
+		{
+			nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_extra_arg);
+			return *(System.IntPtr*)num;
+		}
+		set
+		{
+			*(System.IntPtr*)((nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_extra_arg)) = value;
+		}
+	}
+
+	public unsafe System.IntPtr method_code
+	{
+		get
+		{
+			nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_method_code);
+			return *(System.IntPtr*)num;
+		}
+		set
+		{
+			*(System.IntPtr*)((nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_method_code)) = value;
+		}
+	}
+
+	public unsafe System.IntPtr interp_method
+	{
+		get
+		{
+			nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_interp_method);
+			return *(System.IntPtr*)num;
+		}
+		set
+		{
+			*(System.IntPtr*)((nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_interp_method)) = value;
+		}
+	}
+
+	public unsafe System.IntPtr interp_invoke_impl
+	{
+		get
+		{
+			nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_interp_invoke_impl);
+			return *(System.IntPtr*)num;
+		}
+		set
+		{
+			*(System.IntPtr*)((nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_interp_invoke_impl)) = value;
+		}
+	}
+
+	public unsafe MethodInfo method_info
+	{
+		get
+		{
+			nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_method_info);
+			System.IntPtr intPtr = *(System.IntPtr*)num;
+			return (intPtr != (System.IntPtr)0) ? Il2CppObjectPool.Get<MethodInfo>(intPtr) : null;
+		}
+		set
+		{
+			System.IntPtr num = IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+			IL2CPP.il2cpp_gc_wbarrier_set_field(num, (System.IntPtr)((nint)num + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_method_info)), IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)value));
+		}
+	}
+
+	public unsafe MethodInfo original_method_info
+	{
+		get
+		{
+			nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_original_method_info);
+			System.IntPtr intPtr = *(System.IntPtr*)num;
+			return (intPtr != (System.IntPtr)0) ? Il2CppObjectPool.Get<MethodInfo>(intPtr) : null;
+		}
+		set
+		{
+			System.IntPtr num = IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+			IL2CPP.il2cpp_gc_wbarrier_set_field(num, (System.IntPtr)((nint)num + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_original_method_info)), IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)value));
+		}
+	}
+
+	public unsafe DelegateData data
+	{
+		get
+		{
+			nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_data);
+			System.IntPtr intPtr = *(System.IntPtr*)num;
+			return (intPtr != (System.IntPtr)0) ? Il2CppObjectPool.Get<DelegateData>(intPtr) : null;
+		}
+		set
+		{
+			System.IntPtr num = IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+			IL2CPP.il2cpp_gc_wbarrier_set_field(num, (System.IntPtr)((nint)num + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_data)), IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)value));
+		}
+	}
+
+	public unsafe bool method_is_virtual
+	{
+		get
+		{
+			nint num = (nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_method_is_virtual);
+			return *(bool*)num;
+		}
+		set
+		{
+			*(bool*)((nint)IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this) + (int)IL2CPP.il2cpp_field_get_offset(NativeFieldInfoPtr_method_is_virtual)) = value;
+		}
+	}
+
+	public unsafe MethodInfo Method
+	{
+		[CallerCount(25)]
+		[CachedScanResults(RefRangeStart = 74563, RefRangeEnd = 74588, XrefRangeStart = 74563, XrefRangeEnd = 74588, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+		get
+		{
+			IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+			System.IntPtr* ptr = null;
+			Unsafe.SkipInit(out System.IntPtr intPtr);
+			System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_get_Method_Public_get_MethodInfo_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+			Il2CppException.RaiseExceptionIfNecessary(intPtr);
+			return (intPtr2 != (System.IntPtr)0) ? Il2CppObjectPool.Get<MethodInfo>(intPtr2) : null;
+		}
+	}
+
+	public unsafe Object Target
+	{
+		[CallerCount(1)]
+		[CachedScanResults(RefRangeStart = 2965, RefRangeEnd = 2966, XrefRangeStart = 2965, XrefRangeEnd = 2966, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+		get
+		{
+			IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+			System.IntPtr* ptr = null;
+			Unsafe.SkipInit(out System.IntPtr intPtr);
+			System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_get_Target_Public_get_Object_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+			Il2CppException.RaiseExceptionIfNecessary(intPtr);
+			return (intPtr2 != (System.IntPtr)0) ? Il2CppObjectPool.Get<Object>(intPtr2) : null;
+		}
+	}
+
+	static Delegate()
+	{
+		Il2CppClassPointerStore<Delegate>.NativeClassPtr = IL2CPP.GetIl2CppClass("mscorlib.dll", "System", "Delegate");
+		IL2CPP.il2cpp_runtime_class_init(Il2CppClassPointerStore<Delegate>.NativeClassPtr);
+		NativeFieldInfoPtr_method_ptr = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<Delegate>.NativeClassPtr, "method_ptr");
+		NativeFieldInfoPtr_invoke_impl = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<Delegate>.NativeClassPtr, "invoke_impl");
+		NativeFieldInfoPtr_m_target = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<Delegate>.NativeClassPtr, "m_target");
+		NativeFieldInfoPtr_method = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<Delegate>.NativeClassPtr, "method");
+		NativeFieldInfoPtr_delegate_trampoline = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<Delegate>.NativeClassPtr, "delegate_trampoline");
+		NativeFieldInfoPtr_extra_arg = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<Delegate>.NativeClassPtr, "extra_arg");
+		NativeFieldInfoPtr_method_code = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<Delegate>.NativeClassPtr, "method_code");
+		NativeFieldInfoPtr_interp_method = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<Delegate>.NativeClassPtr, "interp_method");
+		NativeFieldInfoPtr_interp_invoke_impl = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<Delegate>.NativeClassPtr, "interp_invoke_impl");
+		NativeFieldInfoPtr_method_info = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<Delegate>.NativeClassPtr, "method_info");
+		NativeFieldInfoPtr_original_method_info = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<Delegate>.NativeClassPtr, "original_method_info");
+		NativeFieldInfoPtr_data = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<Delegate>.NativeClassPtr, "data");
+		NativeFieldInfoPtr_method_is_virtual = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<Delegate>.NativeClassPtr, "method_is_virtual");
+		NativeMethodInfoPtr_get_Method_Public_get_MethodInfo_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<Delegate>.NativeClassPtr, 100667289);
+		NativeMethodInfoPtr_GetVirtualMethod_internal_Private_MethodInfo_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<Delegate>.NativeClassPtr, 100667290);
+		NativeMethodInfoPtr_get_Target_Public_get_Object_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<Delegate>.NativeClassPtr, 100667291);
+		NativeMethodInfoPtr_CreateDelegate_internal_Internal_Static_Delegate_Type_Object_MethodInfo_Boolean_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<Delegate>.NativeClassPtr, 100667292);
+		NativeMethodInfoPtr_arg_type_match_Private_Static_Boolean_Type_Type_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<Delegate>.NativeClassPtr, 100667293);
+		NativeMethodInfoPtr_arg_type_match_this_Private_Static_Boolean_Type_Type_Boolean_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<Delegate>.NativeClassPtr, 100667294);
+		NativeMethodInfoPtr_return_type_match_Private_Static_Boolean_Type_Type_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<Delegate>.NativeClassPtr, 100667295);
+		NativeMethodInfoPtr_CreateDelegate_Private_Static_Delegate_Type_Object_MethodInfo_Boolean_Boolean_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<Delegate>.NativeClassPtr, 100667296);
+		NativeMethodInfoPtr_CreateDelegate_Public_Static_Delegate_Type_Object_MethodInfo_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<Delegate>.NativeClassPtr, 100667297);
+		NativeMethodInfoPtr_CreateDelegate_Public_Static_Delegate_Type_MethodInfo_Boolean_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<Delegate>.NativeClassPtr, 100667298);
+		NativeMethodInfoPtr_CreateDelegate_Public_Static_Delegate_Type_MethodInfo_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<Delegate>.NativeClassPtr, 100667299);
+		NativeMethodInfoPtr_CreateDelegate_Public_Static_Delegate_Type_Object_String_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<Delegate>.NativeClassPtr, 100667300);
+		NativeMethodInfoPtr_GetCandidateMethod_Private_Static_MethodInfo_Type_Type_String_BindingFlags_Boolean_Boolean_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<Delegate>.NativeClassPtr, 100667301);
+		NativeMethodInfoPtr_CreateDelegate_Public_Static_Delegate_Type_Type_String_Boolean_Boolean_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<Delegate>.NativeClassPtr, 100667302);
+		NativeMethodInfoPtr_CreateDelegate_Public_Static_Delegate_Type_Type_String_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<Delegate>.NativeClassPtr, 100667303);
+		NativeMethodInfoPtr_CreateDelegate_Public_Static_Delegate_Type_Type_String_Boolean_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<Delegate>.NativeClassPtr, 100667304);
+		NativeMethodInfoPtr_CreateDelegate_Public_Static_Delegate_Type_Object_String_Boolean_Boolean_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<Delegate>.NativeClassPtr, 100667305);
+		NativeMethodInfoPtr_CreateDelegate_Public_Static_Delegate_Type_Object_String_Boolean_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<Delegate>.NativeClassPtr, 100667306);
+		NativeMethodInfoPtr_DynamicInvoke_Public_Object_Il2CppReferenceArray_1_Object_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<Delegate>.NativeClassPtr, 100667307);
+		NativeMethodInfoPtr_InitializeDelegateData_Private_Void_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<Delegate>.NativeClassPtr, 100667308);
+		NativeMethodInfoPtr_DynamicInvokeImpl_Protected_Virtual_New_Object_Il2CppReferenceArray_1_Object_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<Delegate>.NativeClassPtr, 100667309);
+		NativeMethodInfoPtr_Clone_Public_Virtual_New_Object_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<Delegate>.NativeClassPtr, 100667310);
+		NativeMethodInfoPtr_Equals_Public_Virtual_Boolean_Object_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<Delegate>.NativeClassPtr, 100667311);
+		NativeMethodInfoPtr_GetHashCode_Public_Virtual_Int32_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<Delegate>.NativeClassPtr, 100667312);
+		NativeMethodInfoPtr_GetMethodImpl_Protected_Virtual_New_MethodInfo_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<Delegate>.NativeClassPtr, 100667313);
+		NativeMethodInfoPtr_GetObjectData_Public_Virtual_New_Void_SerializationInfo_StreamingContext_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<Delegate>.NativeClassPtr, 100667314);
+		NativeMethodInfoPtr_GetInvocationList_Public_Virtual_New_Il2CppReferenceArray_1_Delegate_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<Delegate>.NativeClassPtr, 100667315);
+		NativeMethodInfoPtr_Combine_Public_Static_Delegate_Delegate_Delegate_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<Delegate>.NativeClassPtr, 100667316);
+		NativeMethodInfoPtr_Combine_Public_Static_Delegate_Il2CppReferenceArray_1_Delegate_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<Delegate>.NativeClassPtr, 100667317);
+		NativeMethodInfoPtr_CombineImpl_Protected_Virtual_New_Delegate_Delegate_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<Delegate>.NativeClassPtr, 100667318);
+		NativeMethodInfoPtr_Remove_Public_Static_Delegate_Delegate_Delegate_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<Delegate>.NativeClassPtr, 100667319);
+		NativeMethodInfoPtr_RemoveImpl_Protected_Virtual_New_Delegate_Delegate_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<Delegate>.NativeClassPtr, 100667320);
+		NativeMethodInfoPtr_op_Equality_Public_Static_Boolean_Delegate_Delegate_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<Delegate>.NativeClassPtr, 100667321);
+		NativeMethodInfoPtr_op_Inequality_Public_Static_Boolean_Delegate_Delegate_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<Delegate>.NativeClassPtr, 100667322);
+		NativeMethodInfoPtr_AllocDelegateLike_internal_Internal_Static_MulticastDelegate_Delegate_0 = IL2CPP.GetIl2CppMethodByToken(Il2CppClassPointerStore<Delegate>.NativeClassPtr, 100667323);
+	}
+
+	[CallerCount(0)]
+	[CachedScanResults(RefRangeStart = 0, RefRangeEnd = 0, XrefRangeStart = 545201, XrefRangeEnd = 545202, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe MethodInfo GetVirtualMethod_internal()
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = null;
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_GetVirtualMethod_internal_Private_MethodInfo_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+		return (intPtr2 != (System.IntPtr)0) ? Il2CppObjectPool.Get<MethodInfo>(intPtr2) : null;
+	}
+
+	[CallerCount(0)]
+	[CachedScanResults(RefRangeStart = 0, RefRangeEnd = 0, XrefRangeStart = 545202, XrefRangeEnd = 545203, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe static Delegate CreateDelegate_internal(Type type, Object target, MethodInfo info, bool throwOnBindFailure)
+	{
+		System.IntPtr* ptr = stackalloc System.IntPtr[4];
+		*ptr = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)type);
+		*(System.IntPtr*)((byte*)ptr + checked((nuint)1u * unchecked((nuint)sizeof(System.IntPtr)))) = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)target);
+		*(System.IntPtr*)((byte*)ptr + checked((nuint)2u * unchecked((nuint)sizeof(System.IntPtr)))) = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)info);
+		*(bool**)((byte*)ptr + checked((nuint)3u * unchecked((nuint)sizeof(System.IntPtr)))) = &throwOnBindFailure;
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_CreateDelegate_internal_Internal_Static_Delegate_Type_Object_MethodInfo_Boolean_0, (System.IntPtr)0, (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+		return (intPtr2 != (System.IntPtr)0) ? Il2CppObjectPool.Get<Delegate>(intPtr2) : null;
+	}
+
+	[CallerCount(6)]
+	[CachedScanResults(RefRangeStart = 545221, RefRangeEnd = 545227, XrefRangeStart = 545203, XrefRangeEnd = 545221, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe static bool arg_type_match(Type delArgType, Type argType)
+	{
+		System.IntPtr* ptr = stackalloc System.IntPtr[2];
+		*ptr = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)delArgType);
+		*(System.IntPtr*)((byte*)ptr + checked((nuint)1u * unchecked((nuint)sizeof(System.IntPtr)))) = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)argType);
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_arg_type_match_Private_Static_Boolean_Type_Type_0, (System.IntPtr)0, (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+		return *(bool*)IL2CPP.il2cpp_object_unbox(intPtr2);
+	}
+
+	[CallerCount(1)]
+	[CachedScanResults(RefRangeStart = 545233, RefRangeEnd = 545234, XrefRangeStart = 545227, XrefRangeEnd = 545233, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe static bool arg_type_match_this(Type delArgType, Type argType, bool boxedThis)
+	{
+		System.IntPtr* ptr = stackalloc System.IntPtr[3];
+		*ptr = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)delArgType);
+		*(System.IntPtr*)((byte*)ptr + checked((nuint)1u * unchecked((nuint)sizeof(System.IntPtr)))) = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)argType);
+		*(bool**)((byte*)ptr + checked((nuint)2u * unchecked((nuint)sizeof(System.IntPtr)))) = &boxedThis;
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_arg_type_match_this_Private_Static_Boolean_Type_Type_Boolean_0, (System.IntPtr)0, (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+		return *(bool*)IL2CPP.il2cpp_object_unbox(intPtr2);
+	}
+
+	[CallerCount(2)]
+	[CachedScanResults(RefRangeStart = 545240, RefRangeEnd = 545242, XrefRangeStart = 545234, XrefRangeEnd = 545240, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe static bool return_type_match(Type delReturnType, Type returnType)
+	{
+		System.IntPtr* ptr = stackalloc System.IntPtr[2];
+		*ptr = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)delReturnType);
+		*(System.IntPtr*)((byte*)ptr + checked((nuint)1u * unchecked((nuint)sizeof(System.IntPtr)))) = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)returnType);
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_return_type_match_Private_Static_Boolean_Type_Type_0, (System.IntPtr)0, (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+		return *(bool*)IL2CPP.il2cpp_object_unbox(intPtr2);
+	}
+
+	[CallerCount(4)]
+	[CachedScanResults(RefRangeStart = 545283, RefRangeEnd = 545287, XrefRangeStart = 545242, XrefRangeEnd = 545283, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe static Delegate CreateDelegate(Type type, Object firstArgument, MethodInfo method, bool throwOnBindFailure, bool allowClosed)
+	{
+		System.IntPtr* ptr = stackalloc System.IntPtr[5];
+		*ptr = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)type);
+		*(System.IntPtr*)((byte*)ptr + checked((nuint)1u * unchecked((nuint)sizeof(System.IntPtr)))) = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)firstArgument);
+		*(System.IntPtr*)((byte*)ptr + checked((nuint)2u * unchecked((nuint)sizeof(System.IntPtr)))) = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)method);
+		*(bool**)((byte*)ptr + checked((nuint)3u * unchecked((nuint)sizeof(System.IntPtr)))) = &throwOnBindFailure;
+		*(bool**)((byte*)ptr + checked((nuint)4u * unchecked((nuint)sizeof(System.IntPtr)))) = &allowClosed;
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_CreateDelegate_Private_Static_Delegate_Type_Object_MethodInfo_Boolean_Boolean_0, (System.IntPtr)0, (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+		return (intPtr2 != (System.IntPtr)0) ? Il2CppObjectPool.Get<Delegate>(intPtr2) : null;
+	}
+
+	[CallerCount(21)]
+	[CachedScanResults(RefRangeStart = 545288, RefRangeEnd = 545309, XrefRangeStart = 545287, XrefRangeEnd = 545288, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe static Delegate CreateDelegate(Type type, Object firstArgument, MethodInfo method)
+	{
+		System.IntPtr* ptr = stackalloc System.IntPtr[3];
+		*ptr = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)type);
+		*(System.IntPtr*)((byte*)ptr + checked((nuint)1u * unchecked((nuint)sizeof(System.IntPtr)))) = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)firstArgument);
+		*(System.IntPtr*)((byte*)ptr + checked((nuint)2u * unchecked((nuint)sizeof(System.IntPtr)))) = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)method);
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_CreateDelegate_Public_Static_Delegate_Type_Object_MethodInfo_0, (System.IntPtr)0, (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+		return (intPtr2 != (System.IntPtr)0) ? Il2CppObjectPool.Get<Delegate>(intPtr2) : null;
+	}
+
+	[CallerCount(0)]
+	[CachedScanResults(RefRangeStart = 0, RefRangeEnd = 0, XrefRangeStart = 545309, XrefRangeEnd = 545310, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe static Delegate CreateDelegate(Type type, MethodInfo method, bool throwOnBindFailure)
+	{
+		System.IntPtr* ptr = stackalloc System.IntPtr[3];
+		*ptr = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)type);
+		*(System.IntPtr*)((byte*)ptr + checked((nuint)1u * unchecked((nuint)sizeof(System.IntPtr)))) = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)method);
+		*(bool**)((byte*)ptr + checked((nuint)2u * unchecked((nuint)sizeof(System.IntPtr)))) = &throwOnBindFailure;
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_CreateDelegate_Public_Static_Delegate_Type_MethodInfo_Boolean_0, (System.IntPtr)0, (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+		return (intPtr2 != (System.IntPtr)0) ? Il2CppObjectPool.Get<Delegate>(intPtr2) : null;
+	}
+
+	[CallerCount(85)]
+	[CachedScanResults(RefRangeStart = 545311, RefRangeEnd = 545396, XrefRangeStart = 545310, XrefRangeEnd = 545311, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe static Delegate CreateDelegate(Type type, MethodInfo method)
+	{
+		System.IntPtr* ptr = stackalloc System.IntPtr[2];
+		*ptr = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)type);
+		*(System.IntPtr*)((byte*)ptr + checked((nuint)1u * unchecked((nuint)sizeof(System.IntPtr)))) = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)method);
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_CreateDelegate_Public_Static_Delegate_Type_MethodInfo_0, (System.IntPtr)0, (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+		return (intPtr2 != (System.IntPtr)0) ? Il2CppObjectPool.Get<Delegate>(intPtr2) : null;
+	}
+
+	[CallerCount(0)]
+	[CachedScanResults(RefRangeStart = 0, RefRangeEnd = 0, XrefRangeStart = 545396, XrefRangeEnd = 545400, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe static Delegate CreateDelegate(Type type, Object target, string method)
+	{
+		System.IntPtr* ptr = stackalloc System.IntPtr[3];
+		*ptr = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)type);
+		*(System.IntPtr*)((byte*)ptr + checked((nuint)1u * unchecked((nuint)sizeof(System.IntPtr)))) = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)target);
+		*(System.IntPtr*)((byte*)ptr + checked((nuint)2u * unchecked((nuint)sizeof(System.IntPtr)))) = IL2CPP.ManagedStringToIl2Cpp(method);
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_CreateDelegate_Public_Static_Delegate_Type_Object_String_0, (System.IntPtr)0, (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+		return (intPtr2 != (System.IntPtr)0) ? Il2CppObjectPool.Get<Delegate>(intPtr2) : null;
+	}
+
+	[CallerCount(4)]
+	[CachedScanResults(RefRangeStart = 545432, RefRangeEnd = 545436, XrefRangeStart = 545400, XrefRangeEnd = 545432, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe static MethodInfo GetCandidateMethod(Type type, Type target, string method, BindingFlags bflags, bool ignoreCase, bool throwOnBindFailure)
+	{
+		System.IntPtr* ptr = stackalloc System.IntPtr[6];
+		*ptr = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)type);
+		*(System.IntPtr*)((byte*)ptr + checked((nuint)1u * unchecked((nuint)sizeof(System.IntPtr)))) = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)target);
+		*(System.IntPtr*)((byte*)ptr + checked((nuint)2u * unchecked((nuint)sizeof(System.IntPtr)))) = IL2CPP.ManagedStringToIl2Cpp(method);
+		*(BindingFlags**)((byte*)ptr + checked((nuint)3u * unchecked((nuint)sizeof(System.IntPtr)))) = &bflags;
+		*(bool**)((byte*)ptr + checked((nuint)4u * unchecked((nuint)sizeof(System.IntPtr)))) = &ignoreCase;
+		*(bool**)((byte*)ptr + checked((nuint)5u * unchecked((nuint)sizeof(System.IntPtr)))) = &throwOnBindFailure;
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_GetCandidateMethod_Private_Static_MethodInfo_Type_Type_String_BindingFlags_Boolean_Boolean_0, (System.IntPtr)0, (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+		return (intPtr2 != (System.IntPtr)0) ? Il2CppObjectPool.Get<MethodInfo>(intPtr2) : null;
+	}
+
+	[CallerCount(3)]
+	[CachedScanResults(RefRangeStart = 545443, RefRangeEnd = 545446, XrefRangeStart = 545436, XrefRangeEnd = 545443, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe static Delegate CreateDelegate(Type type, Type target, string method, bool ignoreCase, bool throwOnBindFailure)
+	{
+		System.IntPtr* ptr = stackalloc System.IntPtr[5];
+		*ptr = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)type);
+		*(System.IntPtr*)((byte*)ptr + checked((nuint)1u * unchecked((nuint)sizeof(System.IntPtr)))) = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)target);
+		*(System.IntPtr*)((byte*)ptr + checked((nuint)2u * unchecked((nuint)sizeof(System.IntPtr)))) = IL2CPP.ManagedStringToIl2Cpp(method);
+		*(bool**)((byte*)ptr + checked((nuint)3u * unchecked((nuint)sizeof(System.IntPtr)))) = &ignoreCase;
+		*(bool**)((byte*)ptr + checked((nuint)4u * unchecked((nuint)sizeof(System.IntPtr)))) = &throwOnBindFailure;
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_CreateDelegate_Public_Static_Delegate_Type_Type_String_Boolean_Boolean_0, (System.IntPtr)0, (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+		return (intPtr2 != (System.IntPtr)0) ? Il2CppObjectPool.Get<Delegate>(intPtr2) : null;
+	}
+
+	[CallerCount(0)]
+	[CachedScanResults(RefRangeStart = 0, RefRangeEnd = 0, XrefRangeStart = 545446, XrefRangeEnd = 545447, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe static Delegate CreateDelegate(Type type, Type target, string method)
+	{
+		System.IntPtr* ptr = stackalloc System.IntPtr[3];
+		*ptr = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)type);
+		*(System.IntPtr*)((byte*)ptr + checked((nuint)1u * unchecked((nuint)sizeof(System.IntPtr)))) = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)target);
+		*(System.IntPtr*)((byte*)ptr + checked((nuint)2u * unchecked((nuint)sizeof(System.IntPtr)))) = IL2CPP.ManagedStringToIl2Cpp(method);
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_CreateDelegate_Public_Static_Delegate_Type_Type_String_0, (System.IntPtr)0, (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+		return (intPtr2 != (System.IntPtr)0) ? Il2CppObjectPool.Get<Delegate>(intPtr2) : null;
+	}
+
+	[CallerCount(2)]
+	[CachedScanResults(RefRangeStart = 545448, RefRangeEnd = 545450, XrefRangeStart = 545447, XrefRangeEnd = 545448, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe static Delegate CreateDelegate(Type type, Type target, string method, bool ignoreCase)
+	{
+		System.IntPtr* ptr = stackalloc System.IntPtr[4];
+		*ptr = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)type);
+		*(System.IntPtr*)((byte*)ptr + checked((nuint)1u * unchecked((nuint)sizeof(System.IntPtr)))) = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)target);
+		*(System.IntPtr*)((byte*)ptr + checked((nuint)2u * unchecked((nuint)sizeof(System.IntPtr)))) = IL2CPP.ManagedStringToIl2Cpp(method);
+		*(bool**)((byte*)ptr + checked((nuint)3u * unchecked((nuint)sizeof(System.IntPtr)))) = &ignoreCase;
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_CreateDelegate_Public_Static_Delegate_Type_Type_String_Boolean_0, (System.IntPtr)0, (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+		return (intPtr2 != (System.IntPtr)0) ? Il2CppObjectPool.Get<Delegate>(intPtr2) : null;
+	}
+
+	[CallerCount(0)]
+	[CachedScanResults(RefRangeStart = 0, RefRangeEnd = 0, XrefRangeStart = 545450, XrefRangeEnd = 545454, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe static Delegate CreateDelegate(Type type, Object target, string method, bool ignoreCase, bool throwOnBindFailure)
+	{
+		System.IntPtr* ptr = stackalloc System.IntPtr[5];
+		*ptr = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)type);
+		*(System.IntPtr*)((byte*)ptr + checked((nuint)1u * unchecked((nuint)sizeof(System.IntPtr)))) = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)target);
+		*(System.IntPtr*)((byte*)ptr + checked((nuint)2u * unchecked((nuint)sizeof(System.IntPtr)))) = IL2CPP.ManagedStringToIl2Cpp(method);
+		*(bool**)((byte*)ptr + checked((nuint)3u * unchecked((nuint)sizeof(System.IntPtr)))) = &ignoreCase;
+		*(bool**)((byte*)ptr + checked((nuint)4u * unchecked((nuint)sizeof(System.IntPtr)))) = &throwOnBindFailure;
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_CreateDelegate_Public_Static_Delegate_Type_Object_String_Boolean_Boolean_0, (System.IntPtr)0, (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+		return (intPtr2 != (System.IntPtr)0) ? Il2CppObjectPool.Get<Delegate>(intPtr2) : null;
+	}
+
+	[CallerCount(0)]
+	[CachedScanResults(RefRangeStart = 0, RefRangeEnd = 0, XrefRangeStart = 545454, XrefRangeEnd = 545458, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe static Delegate CreateDelegate(Type type, Object target, string method, bool ignoreCase)
+	{
+		System.IntPtr* ptr = stackalloc System.IntPtr[4];
+		*ptr = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)type);
+		*(System.IntPtr*)((byte*)ptr + checked((nuint)1u * unchecked((nuint)sizeof(System.IntPtr)))) = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)target);
+		*(System.IntPtr*)((byte*)ptr + checked((nuint)2u * unchecked((nuint)sizeof(System.IntPtr)))) = IL2CPP.ManagedStringToIl2Cpp(method);
+		*(bool**)((byte*)ptr + checked((nuint)3u * unchecked((nuint)sizeof(System.IntPtr)))) = &ignoreCase;
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_CreateDelegate_Public_Static_Delegate_Type_Object_String_Boolean_0, (System.IntPtr)0, (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+		return (intPtr2 != (System.IntPtr)0) ? Il2CppObjectPool.Get<Delegate>(intPtr2) : null;
+	}
+
+	[CallerCount(5)]
+	[CachedScanResults(RefRangeStart = 545458, RefRangeEnd = 545463, XrefRangeStart = 545458, XrefRangeEnd = 545458, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe Object DynamicInvoke([Optional] Il2CppReferenceArray<Object> args)
+	{
+		if (args == null)
+		{
+			args = new Il2CppReferenceArray<Object>(0L);
+		}
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = stackalloc System.IntPtr[1];
+		*ptr = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)args);
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_DynamicInvoke_Public_Object_Il2CppReferenceArray_1_Object_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+		return (intPtr2 != (System.IntPtr)0) ? Il2CppObjectPool.Get<Object>(intPtr2) : null;
+	}
+
+	[CallerCount(0)]
+	[CachedScanResults(RefRangeStart = 0, RefRangeEnd = 0, XrefRangeStart = 545463, XrefRangeEnd = 545474, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe void InitializeDelegateData()
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = null;
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_InitializeDelegateData_Private_Void_0, IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+	}
+
+	[CallerCount(1)]
+	[CachedScanResults(RefRangeStart = 545513, RefRangeEnd = 545514, XrefRangeStart = 545474, XrefRangeEnd = 545513, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe virtual Object DynamicInvokeImpl(Il2CppReferenceArray<Object> args)
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = stackalloc System.IntPtr[1];
+		*ptr = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)args);
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(IL2CPP.il2cpp_object_get_virtual_method(IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)this), NativeMethodInfoPtr_DynamicInvokeImpl_Protected_Virtual_New_Object_Il2CppReferenceArray_1_Object_0), IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+		return (intPtr2 != (System.IntPtr)0) ? Il2CppObjectPool.Get<Object>(intPtr2) : null;
+	}
+
+	[CallerCount(55)]
+	[CachedScanResults(RefRangeStart = 545515, RefRangeEnd = 545570, XrefRangeStart = 545514, XrefRangeEnd = 545515, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe virtual Object Clone()
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = null;
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(IL2CPP.il2cpp_object_get_virtual_method(IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)this), NativeMethodInfoPtr_Clone_Public_Virtual_New_Object_0), IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+		return (intPtr2 != (System.IntPtr)0) ? Il2CppObjectPool.Get<Object>(intPtr2) : null;
+	}
+
+	[CallerCount(1)]
+	[CachedScanResults(RefRangeStart = 545574, RefRangeEnd = 545575, XrefRangeStart = 545570, XrefRangeEnd = 545574, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe override bool Equals(Object obj)
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = stackalloc System.IntPtr[1];
+		*ptr = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)obj);
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(IL2CPP.il2cpp_object_get_virtual_method(IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)this), NativeMethodInfoPtr_Equals_Public_Virtual_Boolean_Object_0), IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+		return *(bool*)IL2CPP.il2cpp_object_unbox(intPtr2);
+	}
+
+	[CallerCount(0)]
+	[CachedScanResults(RefRangeStart = 0, RefRangeEnd = 0, XrefRangeStart = 545575, XrefRangeEnd = 545579, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe override int GetHashCode()
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = null;
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(IL2CPP.il2cpp_object_get_virtual_method(IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)this), NativeMethodInfoPtr_GetHashCode_Public_Virtual_Int32_0), IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+		return *(int*)IL2CPP.il2cpp_object_unbox(intPtr2);
+	}
+
+	[CallerCount(0)]
+	[CachedScanResults(RefRangeStart = 0, RefRangeEnd = 0, XrefRangeStart = 545579, XrefRangeEnd = 545583, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe virtual MethodInfo GetMethodImpl()
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = null;
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(IL2CPP.il2cpp_object_get_virtual_method(IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)this), NativeMethodInfoPtr_GetMethodImpl_Protected_Virtual_New_MethodInfo_0), IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+		return (intPtr2 != (System.IntPtr)0) ? Il2CppObjectPool.Get<MethodInfo>(intPtr2) : null;
+	}
+
+	[CallerCount(0)]
+	[CachedScanResults(RefRangeStart = 0, RefRangeEnd = 0, XrefRangeStart = 545583, XrefRangeEnd = 545611, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe virtual void GetObjectData(SerializationInfo info, StreamingContext context)
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = stackalloc System.IntPtr[2];
+		*ptr = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)info);
+		*(System.IntPtr*)((byte*)ptr + checked((nuint)1u * unchecked((nuint)sizeof(System.IntPtr)))) = IL2CPP.il2cpp_object_unbox(IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)context));
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(IL2CPP.il2cpp_object_get_virtual_method(IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)this), NativeMethodInfoPtr_GetObjectData_Public_Virtual_New_Void_SerializationInfo_StreamingContext_0), IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+	}
+
+	[CallerCount(0)]
+	[CachedScanResults(RefRangeStart = 0, RefRangeEnd = 0, XrefRangeStart = 545611, XrefRangeEnd = 545616, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe virtual Il2CppReferenceArray<Delegate> GetInvocationList()
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = null;
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(IL2CPP.il2cpp_object_get_virtual_method(IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)this), NativeMethodInfoPtr_GetInvocationList_Public_Virtual_New_Il2CppReferenceArray_1_Delegate_0), IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+		return (intPtr2 != (System.IntPtr)0) ? Il2CppObjectPool.Get<Il2CppReferenceArray<Delegate>>(intPtr2) : null;
+	}
+
+	[CallerCount(848)]
+	[CachedScanResults(RefRangeStart = 545622, RefRangeEnd = 546470, XrefRangeStart = 545616, XrefRangeEnd = 545622, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe static Delegate Combine(Delegate a, Delegate b)
+	{
+		System.IntPtr* ptr = stackalloc System.IntPtr[2];
+		*ptr = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)a);
+		*(System.IntPtr*)((byte*)ptr + checked((nuint)1u * unchecked((nuint)sizeof(System.IntPtr)))) = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)b);
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_Combine_Public_Static_Delegate_Delegate_Delegate_0, (System.IntPtr)0, (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+		return (intPtr2 != (System.IntPtr)0) ? Il2CppObjectPool.Get<Delegate>(intPtr2) : null;
+	}
+
+	[CallerCount(3)]
+	[CachedScanResults(RefRangeStart = 546478, RefRangeEnd = 546481, XrefRangeStart = 546470, XrefRangeEnd = 546478, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe static Delegate Combine([Optional] Il2CppReferenceArray<Delegate> delegates)
+	{
+		if (delegates == null)
+		{
+			delegates = new Il2CppReferenceArray<Delegate>(0L);
+		}
+		System.IntPtr* ptr = stackalloc System.IntPtr[1];
+		*ptr = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)delegates);
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_Combine_Public_Static_Delegate_Il2CppReferenceArray_1_Delegate_0, (System.IntPtr)0, (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+		return (intPtr2 != (System.IntPtr)0) ? Il2CppObjectPool.Get<Delegate>(intPtr2) : null;
+	}
+
+	[CallerCount(0)]
+	[CachedScanResults(RefRangeStart = 0, RefRangeEnd = 0, XrefRangeStart = 546481, XrefRangeEnd = 546488, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe virtual Delegate CombineImpl(Delegate d)
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = stackalloc System.IntPtr[1];
+		*ptr = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)d);
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(IL2CPP.il2cpp_object_get_virtual_method(IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)this), NativeMethodInfoPtr_CombineImpl_Protected_Virtual_New_Delegate_Delegate_0), IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+		return (intPtr2 != (System.IntPtr)0) ? Il2CppObjectPool.Get<Delegate>(intPtr2) : null;
+	}
+
+	[CallerCount(663)]
+	[CachedScanResults(RefRangeStart = 546494, RefRangeEnd = 547157, XrefRangeStart = 546488, XrefRangeEnd = 546494, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe static Delegate Remove(Delegate source, Delegate value)
+	{
+		System.IntPtr* ptr = stackalloc System.IntPtr[2];
+		*ptr = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)source);
+		*(System.IntPtr*)((byte*)ptr + checked((nuint)1u * unchecked((nuint)sizeof(System.IntPtr)))) = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)value);
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_Remove_Public_Static_Delegate_Delegate_Delegate_0, (System.IntPtr)0, (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+		return (intPtr2 != (System.IntPtr)0) ? Il2CppObjectPool.Get<Delegate>(intPtr2) : null;
+	}
+
+	[CallerCount(0)]
+	public unsafe virtual Delegate RemoveImpl(Delegate d)
+	{
+		IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this);
+		System.IntPtr* ptr = stackalloc System.IntPtr[1];
+		*ptr = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)d);
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(IL2CPP.il2cpp_object_get_virtual_method(IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)this), NativeMethodInfoPtr_RemoveImpl_Protected_Virtual_New_Delegate_Delegate_0), IL2CPP.Il2CppObjectBaseToPtrNotNull((Il2CppObjectBase)(object)this), (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+		return (intPtr2 != (System.IntPtr)0) ? Il2CppObjectPool.Get<Delegate>(intPtr2) : null;
+	}
+
+	[CallerCount(7)]
+	[CachedScanResults(RefRangeStart = 547157, RefRangeEnd = 547164, XrefRangeStart = 547157, XrefRangeEnd = 547157, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe static bool operator ==(Delegate d1, Delegate d2)
+	{
+		System.IntPtr* ptr = stackalloc System.IntPtr[2];
+		*ptr = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)d1);
+		*(System.IntPtr*)((byte*)ptr + checked((nuint)1u * unchecked((nuint)sizeof(System.IntPtr)))) = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)d2);
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_op_Equality_Public_Static_Boolean_Delegate_Delegate_0, (System.IntPtr)0, (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+		return *(bool*)IL2CPP.il2cpp_object_unbox(intPtr2);
+	}
+
+	[CallerCount(22)]
+	[CachedScanResults(RefRangeStart = 547164, RefRangeEnd = 547186, XrefRangeStart = 547164, XrefRangeEnd = 547164, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe static bool operator !=(Delegate d1, Delegate d2)
+	{
+		System.IntPtr* ptr = stackalloc System.IntPtr[2];
+		*ptr = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)d1);
+		*(System.IntPtr*)((byte*)ptr + checked((nuint)1u * unchecked((nuint)sizeof(System.IntPtr)))) = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)d2);
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_op_Inequality_Public_Static_Boolean_Delegate_Delegate_0, (System.IntPtr)0, (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+		return *(bool*)IL2CPP.il2cpp_object_unbox(intPtr2);
+	}
+
+	[CallerCount(0)]
+	[CachedScanResults(RefRangeStart = 0, RefRangeEnd = 0, XrefRangeStart = 547186, XrefRangeEnd = 547187, MetadataInitTokenRva = 0L, MetadataInitFlagRva = 0L)]
+	public unsafe static MulticastDelegate AllocDelegateLike_internal(Delegate d)
+	{
+		System.IntPtr* ptr = stackalloc System.IntPtr[1];
+		*ptr = IL2CPP.Il2CppObjectBaseToPtr((Il2CppObjectBase)(object)d);
+		Unsafe.SkipInit(out System.IntPtr intPtr);
+		System.IntPtr intPtr2 = IL2CPP.il2cpp_runtime_invoke(NativeMethodInfoPtr_AllocDelegateLike_internal_Internal_Static_MulticastDelegate_Delegate_0, (System.IntPtr)0, (void**)ptr, ref intPtr);
+		Il2CppException.RaiseExceptionIfNecessary(intPtr);
+		return (intPtr2 != (System.IntPtr)0) ? Il2CppObjectPool.Get<MulticastDelegate>(intPtr2) : null;
+	}
+
+	public Object DynamicInvoke(params Object[] args)
+	{
+		return DynamicInvoke(new Il2CppReferenceArray<Object>(args));
+	}
+
+	public static Delegate Combine(params Delegate[] delegates)
+	{
+		return Combine(new Il2CppReferenceArray<Delegate>(delegates));
+	}
+
+	public Delegate(System.IntPtr pointer)
+		: base(pointer)
+	{
+	}
+}
+You are not using the latest version of the tool, please update.
+Latest version is '11.2.0.10050' (yours is '8.2.0.7535-95108c96')

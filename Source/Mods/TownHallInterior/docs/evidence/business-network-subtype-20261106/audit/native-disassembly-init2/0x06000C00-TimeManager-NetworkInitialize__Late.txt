@@ -1,0 +1,22 @@
+; ScheduleOne.GameTime.TimeManager::NetworkInitialize__Late/0, token 0x06000C00, RVA 0x9C9720, next-pointer window 0x50 bytes
+; No target execution. Parser-pointer window can contain padding/cold fragments and is not exact/full function, EH or transitive coverage. Shared direct aliases are truncated to eight names.
+0x9C9720     40 53                           push rbx
+0x9C9722     48 83 EC 20                     sub rsp,20h
+0x9C9726     80 3D A4 41 23 03 00            cmp byte ptr [183BFD8D1h],0
+0x9C972D     48 8B D9                        mov rbx,rcx
+0x9C9730     75 13                           jne short 00000001809C9745h
+0x9C9732     48 8D 0D B7 D8 FD 02            lea rcx,[1839A6FF0h] ; MethodRef: System.Void ScheduleOne.DevUtilities.NetworkSingleton`1<ScheduleOne.GameTime.TimeManager>.NetworkInitialize__Late
+0x9C9739     E8 62 E1 94 FF                  call 00000001803178A0h
+0x9C973E     C6 05 8C 41 23 03 01            mov byte ptr [183BFD8D1h],1
+0x9C9745     80 BB D1 01 00 00 00            cmp byte ptr [rbx+1D1h],0
+0x9C974C     75 1B                           jne short 00000001809C9769h
+0x9C974E     C6 83 D1 01 00 00 01            mov byte ptr [rbx+1D1h],1
+0x9C9755     48 8B CB                        mov rcx,rbx
+0x9C9758     48 8B 15 91 D8 FD 02            mov rdx,[1839A6FF0h] ; MethodRef: System.Void ScheduleOne.DevUtilities.NetworkSingleton`1<ScheduleOne.GameTime.TimeManager>.NetworkInitialize__Late
+0x9C975F     48 83 C4 20                     add rsp,20h
+0x9C9763     5B                              pop rbx
+0x9C9764     E9 77 E6 64 00                  jmp near ptr 0000000181017DE0h ; ScheduleOne.DevUtilities.NetworkSingleton`1::NetworkInitialize__Late/0
+0x9C9769     48 83 C4 20                     add rsp,20h
+0x9C976D     5B                              pop rbx
+0x9C976E     C3                              ret
+0x9C976F     CC                              int 3

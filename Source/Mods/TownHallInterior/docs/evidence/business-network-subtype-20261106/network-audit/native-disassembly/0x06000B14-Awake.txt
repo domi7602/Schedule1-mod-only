@@ -1,0 +1,65 @@
+; FishNet.Managing.NetworkManager::Awake/0, token 0x06000B14, RVA 0xCF6830, .pdata primary extent 0x16D bytes
+; Raw native bytes decoded without invoking the game. .pdata primary extent is not a proof of full transitive/exception-path coverage.
+0xCF6830     48 89 5C 24 18                  mov [rsp+18h],rbx
+0xCF6835     57                              push rdi
+0xCF6836     48 83 EC 20                     sub rsp,20h
+0xCF683A     80 3D 7C A5 F0 02 00            cmp byte ptr [183C00DBDh],0
+0xCF6841     48 8B D9                        mov rbx,rcx
+0xCF6844     0F 85 03 01 00 00               jne near ptr 0000000180CF694Dh
+0xCF684A     48 8D 0D B7 A9 CA 02            lea rcx,[1839A1208h]
+0xCF6851     E8 4A 10 62 FF                  call 00000001803178A0h
+0xCF6856     48 8D 0D 83 75 D1 02            lea rcx,[183A0DDE0h] ; TypeInfo: FishNet.Managing.Object.DefaultPrefabObjects
+0xCF685D     E8 3E 10 62 FF                  call 00000001803178A0h
+0xCF6862     48 8D 0D 0F B7 C8 02            lea rcx,[183981F78h]
+0xCF6869     E8 32 10 62 FF                  call 00000001803178A0h
+0xCF686E     48 8D 0D 23 12 C9 02            lea rcx,[183987A98h]
+0xCF6875     E8 26 10 62 FF                  call 00000001803178A0h
+0xCF687A     48 8D 0D 97 68 C9 02            lea rcx,[18398D118h]
+0xCF6881     E8 1A 10 62 FF                  call 00000001803178A0h
+0xCF6886     48 8D 0D EB 95 CD 02            lea rcx,[1839CFE78h]
+0xCF688D     E8 0E 10 62 FF                  call 00000001803178A0h
+0xCF6892     48 8D 0D BF 96 CD 02            lea rcx,[1839CFF58h]
+0xCF6899     E8 02 10 62 FF                  call 00000001803178A0h
+0xCF689E     48 8D 0D 8B 97 CD 02            lea rcx,[1839D0030h]
+0xCF68A5     E8 F6 0F 62 FF                  call 00000001803178A0h
+0xCF68AA     48 8D 0D 5F 98 CD 02            lea rcx,[1839D0110h]
+0xCF68B1     E8 EA 0F 62 FF                  call 00000001803178A0h
+0xCF68B6     48 8D 0D 2B 99 CD 02            lea rcx,[1839D01E8h]
+0xCF68BD     E8 DE 0F 62 FF                  call 00000001803178A0h
+0xCF68C2     48 8D 0D FF 99 CD 02            lea rcx,[1839D02C8h]
+0xCF68C9     E8 D2 0F 62 FF                  call 00000001803178A0h
+0xCF68CE     48 8D 0D CB 9A CD 02            lea rcx,[1839D03A0h]
+0xCF68D5     E8 C6 0F 62 FF                  call 00000001803178A0h
+0xCF68DA     48 8D 0D 97 9B CD 02            lea rcx,[1839D0478h]
+0xCF68E1     E8 BA 0F 62 FF                  call 00000001803178A0h
+0xCF68E6     48 8D 0D 63 9C CD 02            lea rcx,[1839D0550h]
+0xCF68ED     E8 AE 0F 62 FF                  call 00000001803178A0h
+0xCF68F2     48 8D 0D 37 9D CD 02            lea rcx,[1839D0630h]
+0xCF68F9     E8 A2 0F 62 FF                  call 00000001803178A0h
+0xCF68FE     48 8D 0D 03 9E CD 02            lea rcx,[1839D0708h]
+0xCF6905     E8 96 0F 62 FF                  call 00000001803178A0h
+0xCF690A     48 8D 0D 2F 5B CF 02            lea rcx,[1839EC440h] ; TypeInfo: FishNet.Managing.NetworkManager
+0xCF6911     E8 8A 0F 62 FF                  call 00000001803178A0h
+0xCF6916     48 8D 0D DB 96 CF 02            lea rcx,[1839EFFF8h] ; TypeInfo: UnityEngine.Object
+0xCF691D     E8 7E 0F 62 FF                  call 00000001803178A0h
+0xCF6922     48 8D 0D 8F 9A CA 02            lea rcx,[1839A03B8h]
+0xCF6929     E8 72 0F 62 FF                  call 00000001803178A0h
+0xCF692E     48 8D 0D 23 70 CE 02            lea rcx,[1839DD958h] ; StringLiteral: NetworkObject component found on the NetworkManager object 
+0xCF6935     E8 66 0F 62 FF                  call 00000001803178A0h
+0xCF693A     48 8D 0D 87 8B CE 02            lea rcx,[1839DF4C8h] ; StringLiteral: . This is not allowed and will cause problems. Remove the NetworkObject component from this object.
+0xCF6941     E8 5A 0F 62 FF                  call 00000001803178A0h
+0xCF6946     C6 05 70 A4 F0 02 01            mov byte ptr [183C00DBDh],1
+0xCF694D     80 3D 75 A4 F0 02 00            cmp byte ptr [183C00DC9h],0
+0xCF6954     48 C7 44 24 30 00 00 00 00      mov qword ptr [rsp+30h],0
+0xCF695D     75 1F                           jne short 0000000180CF697Eh
+0xCF695F     48 8D 0D 92 96 CF 02            lea rcx,[1839EFFF8h] ; TypeInfo: UnityEngine.Object
+0xCF6966     E8 35 0F 62 FF                  call 00000001803178A0h
+0xCF696B     48 8D 0D 06 A1 CA 02            lea rcx,[1839A0A78h]
+0xCF6972     E8 29 0F 62 FF                  call 00000001803178A0h
+0xCF6977     C6 05 4B A4 F0 02 01            mov byte ptr [183C00DC9h],1
+0xCF697E     48 8B 0D 73 96 CF 02            mov rcx,[1839EFFF8h] ; TypeInfo: UnityEngine.Object
+0xCF6985     48 8B BB 88 00 00 00            mov rdi,[rbx+88h]
+0xCF698C     83 B9 E0 00 00 00 00            cmp dword ptr [rcx+0E0h],0
+0xCF6993     75 05                           jne short 0000000180CF699Ah
+0xCF6995     E8 96 12 62 FF                  call 0000000180317C30h
+0xCF699A     45 33 C0                        xor r8d,r8d

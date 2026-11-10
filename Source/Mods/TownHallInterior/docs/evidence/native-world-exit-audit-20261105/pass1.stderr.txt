@@ -1,0 +1,5 @@
+[31;1mException: [0mC:\Users\pc\Schedule1-mod-only\.scratch\townhall-native-world-exit-audit-20261105\map-world-exit.ps1:153[0m
+[31;1m[0m[36;1mLine |[0m
+[31;1m[0m[36;1m[36;1m 153 | [0m . ngth -le 0) { [36;1mthrow ('Decode failed at 0x{0:X}' -f $instruction.IP)[0m }[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m     | [31;1m                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m[31;1m[31;1m[36;1m     | [31;1mDecode failed at 0x180592579[0m

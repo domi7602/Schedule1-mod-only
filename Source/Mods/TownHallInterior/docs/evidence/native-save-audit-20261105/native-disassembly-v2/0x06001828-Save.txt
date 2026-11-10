@@ -1,0 +1,34 @@
+; ScheduleOne.Persistence.SaveManager::Save/0, token 0x06001828, RVA 0x5AA800, .pdata primary extent 0x86 bytes
+; Raw native bytes decoded without invoking the game. .pdata primary extent is not a proof of full transitive/exception-path coverage.
+0x5AA800     40 53                           push rbx
+0x5AA802     48 83 EC 20                     sub rsp,20h
+0x5AA806     80 3D 40 0F 65 03 00            cmp byte ptr [183BFB74Dh],0
+0x5AA80D     48 8B D9                        mov rbx,rcx
+0x5AA810     75 13                           jne short 00000001805AA825h
+0x5AA812     48 8D 0D A7 1B 44 03            lea rcx,[1839EC3C0h]
+0x5AA819     E8 82 D0 D6 FF                  call 00000001803178A0h
+0x5AA81E     C6 05 28 0F 65 03 01            mov byte ptr [183BFB74Dh],1
+0x5AA825     48 8B 05 94 1B 44 03            mov rax,[1839EC3C0h]
+0x5AA82C     48 8B 40 20                     mov rax,[rax+20h]
+0x5AA830     F6 80 35 01 00 00 01            test byte ptr [rax+135h],1
+0x5AA837     75 08                           jne short 00000001805AA841h
+0x5AA839     48 8B C8                        mov rcx,rax
+0x5AA83C     E8 FF 1F D7 FF                  call 000000018031C840h
+0x5AA841     48 8B 80 C0 00 00 00            mov rax,[rax+0C0h]
+0x5AA848     48 8B 40 10                     mov rax,[rax+10h]
+0x5AA84C     F6 80 35 01 00 00 01            test byte ptr [rax+135h],1
+0x5AA853     75 08                           jne short 00000001805AA85Dh
+0x5AA855     48 8B C8                        mov rcx,rax
+0x5AA858     E8 E3 1F D7 FF                  call 000000018031C840h
+0x5AA85D     48 8B 80 B8 00 00 00            mov rax,[rax+0B8h]
+0x5AA864     48 8B 10                        mov rdx,[rax]
+0x5AA867     48 85 D2                        test rdx,rdx
+0x5AA86A     74 14                           je short 00000001805AA880h
+0x5AA86C     48 8B 52 38                     mov rdx,[rdx+38h]
+0x5AA870     45 33 C0                        xor r8d,r8d
+0x5AA873     48 8B CB                        mov rcx,rbx
+0x5AA876     48 83 C4 20                     add rsp,20h
+0x5AA87A     5B                              pop rbx
+0x5AA87B     E9 10 00 00 00                  jmp near ptr 00000001805AA890h ; ScheduleOne.Persistence.SaveManager::Save/1
+0x5AA880     E8 FB D2 D6 FF                  call 0000000180317B80h
+0x5AA885     CC                              int 3

@@ -1,0 +1,61 @@
+{
+  "schema": 1,
+  "recordedUtc": "2026-11-05T18:35:49.821687+00:00",
+  "sourceRevision": "b2c6c7e6c6ecc778da9624cdb68a6578b9db471a",
+  "sourceWorktree": "dirty",
+  "finalCandidate": "candidate-v3",
+  "sourceSha256": "e4bb1d13324a3d61419d26ba172e88ba2ea53e30b15d3c6b6f43fb3e72212f50",
+  "testSha256": "0f1f3109b58908431e1d8842cb9235411d933f7e08f02351bb4db42593049c1f",
+  "independentReviewSha256": "eea7470821ecc1f94b1fc2f6eb9583497347d0c5a07120521a175e840de65891",
+  "independentReviewCandidate": "candidate-v2",
+  "independentSemanticVerdict": "accepted",
+  "reviewR01Disposition": "format-only correction verified by parent",
+  "testRunDirectories": [
+    "owner-targeted-v1",
+    "owner-targeted-v2",
+    "townhall-regression-v2",
+    "townhall-final-v3"
+  ],
+  "initialTargeted": {
+    "total": 121,
+    "passed": 120,
+    "failed": 1,
+    "kind": "preserved initial bookkeeping defect"
+  },
+  "finalTownHall": {
+    "total": 809,
+    "passed": 809,
+    "failed": 0,
+    "includedNewModelCases": 128
+  },
+  "independentProbeGroups": {
+    "passed": 33,
+    "failed": 0,
+    "includedRaceIterations": 200
+  },
+  "isolatedPure": {
+    "exitCode": 1,
+    "passedSteps": 20,
+    "failedSteps": 2,
+    "failedStepsOriginal": [
+      "format",
+      "versions"
+    ],
+    "xunitPassed": 4740,
+    "consolePassed": 265,
+    "toolSuitesPassed": 14,
+    "ownFormattingFailureCorrectedSeparately": true,
+    "unrelatedVersionDriftUnchanged": true
+  },
+  "proofs": {
+    "ReferenceProof": "unknown",
+    "NativeWriteProof": "unknown",
+    "ModDataProof": "unknown"
+  },
+  "nativeSaveWriteAllowed": false,
+  "runtimeWiringImplemented": false,
+  "installedFilesReadOrChanged": false,
+  "nativeOrGameOrSaveActions": false,
+  "modBuildAgainstGameReferencesExecuted": false,
+  "commitOrPushExecuted": false
+}

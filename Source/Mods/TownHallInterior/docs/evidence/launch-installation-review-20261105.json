@@ -1,0 +1,232 @@
+{
+  "schema": 1,
+  "audit_kind": "independent-read-only-post-installation-review",
+  "reviewer": "OpenCode / GPT-6.1 Sol, delegierter Artefaktprüfer",
+  "date": "2026-11-05",
+  "evidence_checked_utc": "2026-11-05T07:05:31.9472798Z",
+  "scope": {
+    "authorization_context": "Laut aktuellem Auftrag wählte der Eigentümer ausdrücklich 'Normalbuild installieren (Recommended)'. Parent führte die Installation über den regulären Helper aus; dieser Folgeaudit liest ausschließlich zurück.",
+    "installation_performed_by": "Parent, nicht dieser Reviewer",
+    "game_started_or_controlled_by_reviewer": false,
+    "game_assembly_executed_or_reflection_loaded": false,
+    "save_invoked": false,
+    "native_save_directories_read_or_backed_up": false,
+    "build_or_test_run": false,
+    "deployment_installation_or_deactivation_by_reviewer": false,
+    "dotnet_root_changed": false,
+    "dotnet_root_observed": null,
+    "other_mod_configuration_read": false,
+    "subagents_spawned": false,
+    "only_authored_file": ".scratch/townhall-launch-prep-20261105/installation-review.json",
+    "private_backup_files_copied_to_vault": false,
+    "other_verification_owner": "Parent prüft Native39, übrige UserData/Mods sowie Cloud-/Checkpoint-/Prozesszustand separat. Dieser Bericht übernimmt dafür keinen Prüf- oder Abnahmeanspruch."
+  },
+  "verdict": {
+    "status": "passed-static-installation-audit",
+    "installed_pair_is_previously_reviewed_normal_build": true,
+    "historical_slot1_probe_binary_replaced": true,
+    "plan_exactly_three_targets": true,
+    "changed_content_within_plan": ["dll", "pdb"],
+    "metadata_content_unchanged": true,
+    "helper_backups_match_historical_before_state": true,
+    "checked_dependencies_unchanged": true,
+    "historical_binary_review_unchanged": true,
+    "native_run_observed": false,
+    "gameplay_or_save_acceptance": false,
+    "launch_approval": false,
+    "summary": "Die echten Installationsziele entsprechen dem bereits unabhängig statisch geprüften Normalbuild-Paar 614b81fd... / 8126ae65.... Die alte Slot-1-/Doppel-Save-DLL cff67a85... ist dort ersetzt und mit ihrer passenden alten PDB im neuen Helper-Backup byteidentisch zum historischen Vorherzustand erhalten. Der konkrete Binärmodus-Blocker aus dem Vorheraudit ist damit auf Dateiebene beseitigt; ein geladener Mod, ein nativer Lauf oder eine Spiel-/Saveabnahme ist nicht nachgewiesen."
+  },
+  "game_directory": {
+    "path": "C:/Program Files (x86)/Steam/steamapps/common/Schedule I",
+    "resolution": "SCHEDULE1_PATH leer/nicht gesetzt; AGENTS.md:76-79 Default verwendet.",
+    "matches_receipt_and_parent_preinstall_game_directory": true
+  },
+  "historical_reference": {
+    "path": ".scratch/townhall-launch-prep-20261105/binary-review.json",
+    "sha256_before_and_during_followup": "05c3c3431a2ed6a714f0c891f806994893cb833aa860918f8a09c0aa183641d8",
+    "matches_originally_reported_sha256": true,
+    "not_modified": true,
+    "meaning": "Unveränderter historischer Vorherzustand mit alter installierter Probe-DLL und separater statischer Normalbuild-Prüfung. Seine damaligen installed-/Blockerfelder werden nicht als aktueller Nachherzustand umgedeutet.",
+    "old_installed_dll_sha256": "cff67a85c0d922ea0aec7bd8ffc0affcf9fbb23a1576d1cd57c908fda165fa6a",
+    "old_installed_pdb_sha256": "c1a78e0dc07ee23897738c5fc8603387359d483f61a122b615be83638f206a99",
+    "old_installed_metadata_sha256": "65938002b7273ef77dedbadf9092a186e6742f1e40fe404ef91576d3e4f81660"
+  },
+  "artifact_provenance": {
+    "normal_build_directory": ".scratch/townhall-save-step1-20261105/final/build-normal/bin/TownHallInterior/release",
+    "sealed_payload_directory": ".backups/townhall-launch-prep/20261105T062735613294Z-d8477f8e/prepared-normal-payload",
+    "provenance_chain": "Historisch geprüftes build-normal-Paar -> heute erneut gehashte build-normal-Dateien -> heute erneut gehashte versiegelte Receipt-Quellen -> heute erneut gehashte Installationsziele.",
+    "normal_pair_rehashed_without_rebuild": true,
+    "parent_reports_no_rebuild": true,
+    "receipt_git_revision": "b2c6c7e6c6ecc778da9624cdb68a6578b9db471a",
+    "receipt_git_dirty": true,
+    "source_limit": "Die exakte Artefaktidentität ist unabhängig bestätigt. Receipt-Revision/ProductVersion identifizieren wegen dirty Arbeitsstand nicht allein den gesamten Quellstand. Kein Neubuild oder erneuter Quell-/Gameplayreview in diesem Teilauftrag."
+  },
+  "targets": [
+    {
+      "kind": "dll",
+      "game_relative_path": "Mods/TownHallInterior.dll",
+      "actual_sha256": "614b81fd584040d4cebe7a18929bca09eabae478a6487ec6d846ea01d6062003",
+      "length": 1760768,
+      "last_write_utc": "2026-11-05T05:45:57.2004092Z",
+      "reviewed_build_path": ".scratch/townhall-save-step1-20261105/final/build-normal/bin/TownHallInterior/release/TownHallInterior.dll",
+      "sealed_source_filename": "TownHallInterior.dll",
+      "actual_target_source_build_and_both_receipt_hashes_equal": true,
+      "changed_from_historical_before": true,
+      "receipt_state": "Copied",
+      "receipt_action": "Copied"
+    },
+    {
+      "kind": "pdb",
+      "game_relative_path": "UserData/TownHallInterior/TownHallInterior.pdb",
+      "actual_sha256": "8126ae65f5c12f6e8261af0a1734e622d8c0ab5522a91e6653c7b1ffd7d8c497",
+      "length": 58828,
+      "last_write_utc": "2026-11-05T05:45:57.1888991Z",
+      "reviewed_build_path": ".scratch/townhall-save-step1-20261105/final/build-normal/bin/TownHallInterior/release/TownHallInterior.pdb",
+      "sealed_source_filename": "TownHallInterior.pdb",
+      "actual_target_source_build_and_both_receipt_hashes_equal": true,
+      "changed_from_historical_before": true,
+      "receipt_state": "Copied",
+      "receipt_action": "Copied"
+    },
+    {
+      "kind": "metadata",
+      "game_relative_path": "UserData/TownHallInterior/mod.json",
+      "actual_sha256": "65938002b7273ef77dedbadf9092a186e6742f1e40fe404ef91576d3e4f81660",
+      "length": 395,
+      "last_write_utc": "2026-10-29T07:57:05.4223492Z",
+      "repository_source_path": "Source/Mods/TownHallInterior/docs/mod.json",
+      "sealed_source_filename": "mod.json",
+      "actual_target_sealed_source_repository_source_receipt_and_historical_hashes_equal": true,
+      "changed_from_historical_before": false,
+      "timestamp_matches_historical_before": true,
+      "receipt_state": "NotAttempted",
+      "receipt_action": "Unchanged"
+    }
+  ],
+  "direct_dll_pdb_identity_readback": {
+    "method": "System.Reflection.Metadata PEReader und Portable-PDB-Reader, keine Assemblyausführung oder Assembly.Load.",
+    "assembly_name": "TownHallInterior",
+    "assembly_version": "1.0.0.0",
+    "product_version": "1.0.0+b2c6c7e6c6ecc778da9624cdb68a6578b9db471a",
+    "mvid": "acc54537-3980-4782-b2bb-f8a10fc9ec5b",
+    "type_definition_count_including_module_and_generated_types": 125,
+    "codeview_guid": "a3e5e3b7-0db5-4b5f-bdad-a7020f4a04cf",
+    "codeview_age": 1,
+    "codeview_stamp": 2410010927,
+    "codeview_pdb_path": "C:/Users/pc/Schedule1-mod-only/.scratch/townhall-save-step1-20261105/final/build-normal/obj/TownHallInterior/release/TownHallInterior.pdb",
+    "portable_pdb_id_hex": "b7e3e5a3b50d5f4bbdada7020f4a04cf2fd9a58f",
+    "portable_pdb_guid": "a3e5e3b7-0db5-4b5f-bdad-a7020f4a04cf",
+    "portable_pdb_stamp": 2410010927,
+    "pdb_guid_and_stamp_match_dll_codeview": true,
+    "identity_matches_previously_reviewed_normal_pair": true
+  },
+  "business_runtime_wiring": {
+    "evidence_basis": "Hashidentität mit dem Normalbuild aus unverändertem binary-review.json, comparison_builds[name=build-normal], runtime_type_inventory und full_il_callsite_inventory.",
+    "no_new_decompilation_required_or_performed": true,
+    "inherited_static_findings": [
+      "Mod.OnInitializeMelon (Normalbuild-Token 0x060003C5): Warnung und DoorHook.Install, kein Business-Probestart.",
+      "Mod.OnUpdate (Normalbuild-Token 0x060003C7): nur Hall-Tick, kein BusinessSubtypeRuntime-/BusinessBindingProbe-Tick.",
+      "BusinessBindingProbe, BusinessSubtypeRuntime, NativeSubtypePort und ProbeBusinessSubtype fehlen als Runtime-Typdefinitionen im geprüften Normalbuild.",
+      "Keine direkte SaveManager.Save-Aufrufstelle im damals vollständig geprüften Normalbuild-IL. Reine Save-Modelltypen sind enthalten, aber kein nativer Save-Adapter damit belegt."
+    ],
+    "meaning_for_current_installation": "Wegen identischer DLL-Bytes gelten diese begrenzten statischen Befunde für die jetzt installierte DLL. Kein nativer Lauf oder Save-/Load-Erfolg daraus abgeleitet."
+  },
+  "plan_and_receipts": {
+    "plan_path": ".scratch/townhall-launch-prep-20261105/deploy-plan.json",
+    "plan_sha256": "4f1583765c1f4a612b858df58392c9894d4dd494611a3a8aa18fcfadd6441ff7",
+    "plan_entry_count": 3,
+    "exact_kind_target_set": [
+      "dll|Mods/TownHallInterior.dll",
+      "pdb|UserData/TownHallInterior/TownHallInterior.pdb",
+      "metadata|UserData/TownHallInterior/mod.json"
+    ],
+    "receipt_entry_count": 3,
+    "receipt_kind_target_set_equals_plan_and_expected_set": true,
+    "latest_receipt_game_relative_path": "UserData/.deploy/receipts/TownHallInterior.json",
+    "attempt_receipt_game_relative_path": "UserData/.deploy/receipts/TownHallInterior.20261105T070247714Z-6be896f89e79.json",
+    "both_new_receipt_sha256": "c24551ce2c0e5833e3f6bae699d0ab2182d7a3e82740ef2c3a3329612d406904",
+    "status": "Deployed",
+    "configuration": "Release",
+    "attempt_id": "20261105T070247714Z-6be896f89e79",
+    "deployed_at_utc": "2026-11-05T07:02:47.8943231Z",
+    "previous_attempt_id_matches_historical_receipt": true,
+    "previous_attempt_id": "20261104T071609112Z-cb66074eb842",
+    "old_attempt_receipt_remains_sha256": "c9cdbde939290e073f4e9062a3b02d8a64ab744896afaace5b18ccabc7c6209f",
+    "copied_entries": 2,
+    "unchanged_entries": 1,
+    "stale_entries": 0,
+    "rollback_attempted": false,
+    "rollback_failures": [],
+    "fundstellen": "Neue Receiptdateien: Zeilen 2-18 Status/Identität/Vorgänger; 23-31 DLL; 33-41 PDB; 43-51 unveränderte Metadaten; 54-58 Rollback.",
+    "parent_install_script_read_not_executed": ".scratch/townhall-launch-prep-20261105/install-normal.ps1:12-26; exakte Drei-Ziel-Sperre und Hashprüfung vor dem regulären Tools/deploy-mod.ps1-Aufruf, kein Buildaufruf.",
+    "parent_install_script_sha256": "dde76a8ec75f11ed78dce991c48eb9fc2ecf364ceef9db4ead97a17bc00a795d",
+    "deployment_log_path": ".scratch/townhall-launch-prep-20261105/deployment.log",
+    "deployment_log_sha256": "e2d686bdf9c92c885920b44680cce210b9ed5cf6792b4dcb6ed892a1b9fa9efd",
+    "deployment_log_finding": "Zeile 1: Copied 2, Unchanged 1; stimmt mit Receipt und unabhängigem Hash-Readback überein.",
+    "scope_limit": "Nur die drei geplanten Nutzdateien sind hier vollständig abgeglichen. Der Helper erzeugt zusätzlich seine Quittungen und Backups. Eine globale Aussage über alle anderen Dateien der Installation gehört zur separaten Parent-Prüfung."
+  },
+  "new_helper_backup": {
+    "game_relative_directory": "UserData/.deploy/backups/20261105T070247752Z-TownHallInterior-41bf1114",
+    "manifest_filename": "manifest.json",
+    "manifest_sha256": "6d351bd90aa59e53dd909c9d523305a52843db0f7525131ebbc285e29565543d",
+    "manifest_created_utc": "2026-11-05T07:02:47.7716453Z",
+    "manifest_entry_count": 2,
+    "directory_files_exactly_two_backup_artifacts_plus_manifest": true,
+    "entries": [
+      {
+        "filename": "000-TownHallInterior.dll",
+        "destination_relative": "Mods/TownHallInterior.dll",
+        "actual_sha256": "cff67a85c0d922ea0aec7bd8ffc0affcf9fbb23a1576d1cd57c908fda165fa6a",
+        "length": 1832960,
+        "matches_manifest_and_unchanged_historical_binary_review": true,
+        "also_matches_parent_preinstall_townhall_dll_hash": true,
+        "manifest_fundstelle": "manifest.json:7-11"
+      },
+      {
+        "filename": "001-TownHallInterior.pdb",
+        "destination_relative": "UserData/TownHallInterior/TownHallInterior.pdb",
+        "actual_sha256": "c1a78e0dc07ee23897738c5fc8603387359d483f61a122b615be83638f206a99",
+        "length": 69104,
+        "matches_manifest_and_unchanged_historical_binary_review": true,
+        "manifest_fundstelle": "manifest.json:13-17"
+      }
+    ],
+    "metadata_backup_needed_or_created": false,
+    "backup_limit": "Nur Integrität und Zuordnung der beiden tatsächlich vorhandenen alten Mod-Artefakte geprüft. Keine Wiederherstellung ausgeführt, kein Backup in den Vault kopiert und kein nativer Save-Backup-Bestand gelesen."
+  },
+  "unchanged_dependencies": {
+    "baseline_attribution": "Fünf Hashes stammen aus dem eigenen unveränderten binary-review.json. Shared und S1API-Loader werden gegen den vom Parent aufgenommenen Vorher-Snapshot abgeglichen; aktuelle Dateihashes wurden unabhängig erneut gelesen.",
+    "parent_preinstall_snapshot_reference": ".scratch/townhall-launch-prep-20261105/pre-install.private.json; nur modsBefore.Shared.dll, modsBefore.S1API.Il2Cpp.MelonLoader.dll, modsBefore.TownHallInterior.dll, loaderSha256 sowie Nutzpayload-/Game-Zuordnung verwendet, keine privaten Konfigurationsinhalte veröffentlicht.",
+    "parent_preinstall_snapshot_sha256": "8f5e376b9d4e6dd1c5eeabc78bd182474efccca84030b3475e1e3b5454ae4f98",
+    "files": [
+      { "game_relative_path": "Mods/Shared.dll", "actual_and_before_sha256": "bfec0d663f2ef15f7733839c3b36aa10211af08b81cdca17d0527f0b40ae4e6f", "unchanged": true, "baseline": "Parent modsBefore.Shared.dll" },
+      { "game_relative_path": "Mods/S1API.Il2Cpp.MelonLoader.dll", "actual_and_before_sha256": "d751a3cb66003f7a616eb9f8054daf34da0d9d7f23416a5005a586738a680852", "unchanged": true, "baseline": "Eigener Vorheraudit; auch Parent modsBefore.S1API.Il2Cpp.MelonLoader.dll gleich" },
+      { "game_relative_path": "Plugins/S1APILoader.MelonLoader.dll", "actual_and_before_sha256": "b05187bd64be49acf5c5ac8f67a21a2f6605712afbc2d626c8ba55ccd89ac576", "unchanged": true, "baseline": "Parent loaderSha256" },
+      { "game_relative_path": "MelonLoader/Il2CppAssemblies/Assembly-CSharp.dll", "actual_and_before_sha256": "346205306273805a78b01a917f14b94518498af1361595c4c417baa0b32b4bd8", "unchanged": true, "baseline": "Eigener Vorheraudit" },
+      { "game_relative_path": "MelonLoader/Il2CppAssemblies/Il2CppFishNet.Runtime.dll", "actual_and_before_sha256": "0acb5c70078f5be6e88574be17b675657fc50898eb3dd264a3b98a54545e24ec", "unchanged": true, "baseline": "Eigener Vorheraudit" },
+      { "game_relative_path": "MelonLoader/net6/Il2CppInterop.Runtime.dll", "actual_and_before_sha256": "3878ce0ba0c60385f76f2ba37e07ad0ee3649d019703aec8695db3402abeedd7", "unchanged": true, "baseline": "Eigener Vorheraudit" },
+      { "game_relative_path": "MelonLoader/net6/0Harmony.dll", "actual_and_before_sha256": "6c898933b52149e8bcf6722305c7e4d94add47c9e53b364096f91721624c0877", "unchanged": true, "baseline": "Eigener Vorheraudit" }
+    ],
+    "passed": "7/7 benannte Abhängigkeitsdateien hashgleich zum jeweiligen Vorherbeleg."
+  },
+  "checks": {
+    "passed": [
+      "3/3 echte Nutzdateiziele gegen neue Receipt-Quellen/-Ziele, versiegelte Payload und benannte Vergleichsdateien abgeglichen.",
+      "2/2 Normalbuild-Dateien erneut hashgleich zum historisch geprüften Paar.",
+      "DLL-MVID und DLL/PDB-GUID-/Stamp-/ID-Zuordnung direkt erneut geprüft und passend.",
+      "Plan und Receipt enthalten jeweils genau die drei erwarteten Kind-/Zielkombinationen; nur DLL/PDB-Inhalte geändert, Metadatenhash und -Zeitstempel unverändert.",
+      "Beide neuen Receiptdateien byteidentisch; alter Attempt-Receipt weiterhin passend zum Vorherbeleg.",
+      "2/2 Helper-Backupdateien gegen Manifest und historischen DLL-/PDB-Vorherzustand geprüft.",
+      "7/7 benannte Abhängigkeitsdateien unverändert.",
+      "Historischer binary-review.json-Hash unverändert; Datei nicht bearbeitet."
+    ],
+    "failed": [],
+    "not_run": [
+      "Spielstart, Steuerung, Slot-Load, Melon-Initialisierung oder Save-Aufruf.",
+      "Build, Modtests, erneute Dekompilation, Deployment oder Wiederherstellung durch diesen Reviewer.",
+      "Native39-/Save-/Cloud-/übrige-UserData-/übrige-Mods-Verifikation; separate Parent-Zuständigkeit.",
+      "Spiel-, Save-, Persistenz- oder neue Innenraumabnahme."
+    ],
+    "remaining_boundary": "Dieser Audit bestätigt Installation und Sicherung des konkret geprüften Normalbuild-Paars sowie den statischen Wegfall der Business-Probeverdrahtung per Hashbezug. Er startet das Spiel nicht und erteilt weder eine umfassende Sicherheitsgarantie noch eine Laufzeit-/Spiel-/Savefreigabe."
+  }
+}

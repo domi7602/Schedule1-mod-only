@@ -1,0 +1,58 @@
+; FishNet.Managing.Client.ClientObjects::RemoveFromSpawned/3, token 0x06000E11, RVA 0xD112C0, .pdata primary extent 0xEB bytes
+; Raw native bytes decoded without invoking the game. .pdata primary extent is not a proof of full transitive/exception-path coverage.
+0xD112C0     48 89 5C 24 08                  mov [rsp+8],rbx
+0xD112C5     48 89 74 24 10                  mov [rsp+10h],rsi
+0xD112CA     57                              push rdi
+0xD112CB     48 83 EC 20                     sub rsp,20h
+0xD112CF     80 3D B7 FC EE 02 00            cmp byte ptr [183C00F8Dh],0
+0xD112D6     41 0F B6 F0                     movzx esi,r8b
+0xD112DA     48 8B DA                        mov rbx,rdx
+0xD112DD     48 8B F9                        mov rdi,rcx
+0xD112E0     75 13                           jne short 0000000180D112F5h
+0xD112E2     48 8D 0D 27 C9 C7 02            lea rcx,[18398DC10h]
+0xD112E9     E8 B2 65 60 FF                  call 00000001803178A0h
+0xD112EE     C6 05 98 FC EE 02 01            mov byte ptr [183C00F8Dh],1
+0xD112F5     48 8B 4F 30                     mov rcx,[rdi+30h]
+0xD112F9     48 85 C9                        test rcx,rcx
+0xD112FC     0F 84 A3 00 00 00               je near ptr 0000000180D113A5h
+0xD11302     4C 8B 05 07 C9 C7 02            mov r8,[18398DC10h]
+0xD11309     48 8B D3                        mov rdx,rbx
+0xD1130C     E8 8F 70 BC 00                  call 00000001818D83A0h
+0xD11311     80 3D 27 FC EE 02 00            cmp byte ptr [183C00F3Fh],0
+0xD11318     75 13                           jne short 0000000180D1132Dh
+0xD1131A     48 8D 0D EF D0 CB 02            lea rcx,[1839CE410h]
+0xD11321     E8 7A 65 60 FF                  call 00000001803178A0h
+0xD11326     C6 05 12 FC EE 02 01            mov byte ptr [183C00F3Fh],1
+0xD1132D     48 85 DB                        test rbx,rbx
+0xD11330     74 73                           je short 0000000180D113A5h
+0xD11332     48 8B 4F 10                     mov rcx,[rdi+10h]
+0xD11336     48 85 C9                        test rcx,rcx
+0xD11339     74 6A                           je short 0000000180D113A5h
+0xD1133B     4C 8B 05 CE D0 CB 02            mov r8,[1839CE410h]
+0xD11342     8B 53 34                        mov edx,[rbx+34h]
+0xD11345     E8 D6 98 79 00                  call 00000001814AAC20h
+0xD1134A     40 84 F6                        test sil,sil
+0xD1134D     74 46                           je short 0000000180D11395h
+0xD1134F     33 D2                           xor edx,edx
+0xD11351     48 8B CB                        mov rcx,rbx
+0xD11354     E8 57 F0 FB FF                  call 0000000180CD03B0h ; FishNet.Object.NetworkObject::get_IsSceneObject/0
+0xD11359     84 C0                           test al,al
+0xD1135B     74 38                           je short 0000000180D11395h
+0xD1135D     80 3D E2 FB EE 02 00            cmp byte ptr [183C00F46h],0
+0xD11364     75 13                           jne short 0000000180D11379h
+0xD11366     48 8D 0D 63 D7 CF 02            lea rcx,[183A0EAD0h]
+0xD1136D     E8 2E 65 60 FF                  call 00000001803178A0h
+0xD11372     C6 05 CD FB EE 02 01            mov byte ptr [183C00F46h],1
+0xD11379     48 8B 4F 20                     mov rcx,[rdi+20h]
+0xD1137D     48 85 C9                        test rcx,rcx
+0xD11380     74 23                           je short 0000000180D113A5h
+0xD11382     4C 8B 05 47 D7 CF 02            mov r8,[183A0EAD0h]
+0xD11389     48 8B 93 60 01 00 00            mov rdx,[rbx+160h]
+0xD11390     E8 3B C5 85 00                  call 000000018156D8D0h
+0xD11395     48 8B 5C 24 30                  mov rbx,[rsp+30h]
+0xD1139A     48 8B 74 24 38                  mov rsi,[rsp+38h]
+0xD1139F     48 83 C4 20                     add rsp,20h
+0xD113A3     5F                              pop rdi
+0xD113A4     C3                              ret
+0xD113A5     E8 D6 67 60 FF                  call 0000000180317B80h
+0xD113AA     CC                              int 3

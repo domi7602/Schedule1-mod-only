@@ -1,0 +1,70 @@
+{
+  "schema": 1,
+  "observedUtc": "2026-11-06T10:55:28.1959678Z",
+  "reviewedUtc": "2026-11-06T10:59:25.766746+00:00",
+  "sourceRevision": "b2c6c7e6c6ecc778da9624cdb68a6578b9db471a",
+  "sourceWorktree": "dirty",
+  "sourcePath": "Source/Mods/TownHallInterior/src/BusinessConstruction.cs",
+  "sourceSha256": "32724b5085d1d6ca6bb34340e6b95198f450c4f67a2c5e5bbb187b68286ad708",
+  "reportOriginalName": "20261106T105528196Z.json",
+  "reportSha256": "5770b58eb4c9b9f22db129b3d424e6aed426fde1ad35810968c8e66a3cad8602",
+  "testedAssemblySha256": "c07ada69d74f7491528efff2f4518319a9404ccd3a8e5ba948e876f8eaf38b34",
+  "freshNativeEvidence": true,
+  "processObservedBeforeExit": {
+    "pid": 9212,
+    "startedLocal": "2026-11-06T11:54:34.8605856+01:00"
+  },
+  "organisation": "TownHallTest",
+  "slot": "SaveGame_2",
+  "loadComplete": true,
+  "singleplayer": true,
+  "status": "observed",
+  "findings": [],
+  "activationReturned": true,
+  "activeInHierarchyObserved": true,
+  "frameSource": "UnityEngine.Time.frameCount; no synthetic advancement",
+  "frameBefore": 2243,
+  "frameLast": 2244,
+  "lifecycleBeforeCleanup": {
+    "ShouldSave": 1,
+    "CanBePurchased": 1,
+    "Awake": 1,
+    "OnEnable": 1,
+    "Start": 1,
+    "FixedUpdate": 10,
+    "OnDisable": 1
+  },
+  "countersAfterCleanup": {
+    "ShouldSave": 1,
+    "CanBePurchased": 1,
+    "Awake": 1,
+    "OnEnable": 1,
+    "Start": 1,
+    "FixedUpdate": 10,
+    "OnDisable": 1,
+    "OnDestroy": 1
+  },
+  "cleanupComplete": true,
+  "rootDestroyed": true,
+  "cleanupVerified": true,
+  "registriesEqual": true,
+  "registryCount": 10,
+  "foreignVtablesEqual": true,
+  "foreignVtableCount": 14,
+  "nativeSaveWriteAllowed": false,
+  "worldPublicationAllowed": false,
+  "networkObjectAdded": false,
+  "logSha256": "f62bfc70418264a558c71423bbee528236c029d1e7a1387b363ae71455fb8bb1",
+  "independentReview": {
+    "reviewer": "townhall_live_readback",
+    "status": "accepted within bounded scope"
+  },
+  "limits": [
+    "Own active no-base subtype only; no native Business initialization, NetworkObject, registry publication, Save, purchase, laundering, persistence or reload acceptance.",
+    "Unity frameCount progressed from 2243 to 2244; ten FixedUpdate callbacks do not mean ten elapsed frames.",
+    "Cleanup proves native absence of the owned root and component in this attempt; type registration remains until process exit.",
+    "No general world-exit, native last-use or code-unload proof.",
+    "Save file equality does not establish absence of all filesystem operations; empty source directory baseline was not recorded.",
+    "No game launch, live command or native Save invocation by reviewing agents."
+  ]
+}

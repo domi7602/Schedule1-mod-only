@@ -1,0 +1,154 @@
+﻿{
+    "CapturedUtc":  "2026-11-05T08:21:01.2077945Z",
+    "Project":  "schedule1-mod-only",
+    "BaseRevision":  "b2c6c7e6c6ecc778da9624cdb68a6578b9db471a",
+    "Worktree":  "dirty",
+    "Status":  [
+                   " M AGENTS.md",
+                   " M Source/Mods/TownHallInterior/docs/CHANGELOG.md",
+                   " M Source/Mods/TownHallInterior/docs/README.md",
+                   " M Source/Mods/TownHallInterior/docs/business-completion-plan.md",
+                   " M Source/Mods/TownHallInterior/docs/business-manager-registration-probe.md",
+                   " M Source/Mods/TownHallInterior/src/BusinessConstruction.cs",
+                   " M Source/Tests/TownHallInterior.Tests/BusinessManagerTests.cs",
+                   " M docs/compatibility.md",
+                   "?? Source/Mods/TownHallInterior/docs/business-manager-save-probe.md",
+                   "?? Source/Mods/TownHallInterior/docs/evidence/business-save-audit-green-20261105.trx",
+                   "?? Source/Mods/TownHallInterior/docs/evidence/business-save-audit-red-20261105.trx",
+                   "?? Source/Mods/TownHallInterior/docs/evidence/business-save-audit-red-source-20261105.cs",
+                   "?? Source/Mods/TownHallInterior/docs/evidence/business-save-baseline-20261105.trx",
+                   "?? Source/Mods/TownHallInterior/docs/evidence/business-save-coder-green-20261105.trx",
+                   "?? Source/Mods/TownHallInterior/docs/evidence/business-save-coder-red-20261105.trx",
+                   "?? Source/Mods/TownHallInterior/docs/evidence/business-save-isolated-report-20261105.json",
+                   "?? Source/Mods/TownHallInterior/docs/evidence/business-save-isolated-snapshot-20261105.json",
+                   "?? Source/Mods/TownHallInterior/docs/evidence/business-save-isolated-townhall-20261105.trx",
+                   "?? Source/Mods/TownHallInterior/docs/evidence/business-save-isolation-20261105.json",
+                   "?? Source/Mods/TownHallInterior/docs/evidence/business-save-offline-20261105.json",
+                   "?? Source/Mods/TownHallInterior/docs/evidence/business-save-quick-20261105.json",
+                   "?? Source/Mods/TownHallInterior/docs/evidence/business-save-safety-review-20261105.json",
+                   "?? Source/Mods/TownHallInterior/docs/evidence/business-save-safety-review-closed-20261105.json",
+                   "?? Source/Mods/TownHallInterior/docs/evidence/business-save-townhall-final-20261105.trx",
+                   "?? Source/Mods/TownHallInterior/docs/evidence/business-save-townhall-fixture-layout-failed-20261105.trx",
+                   "?? Source/Mods/TownHallInterior/docs/evidence/launch-binary-before-review-20261105.json",
+                   "?? Source/Mods/TownHallInterior/docs/evidence/launch-checkpoint-after-20261105.json",
+                   "?? Source/Mods/TownHallInterior/docs/evidence/launch-checkpoint-before-20261105.json",
+                   "?? Source/Mods/TownHallInterior/docs/evidence/launch-checkpoint-final-20261105.json",
+                   "?? Source/Mods/TownHallInterior/docs/evidence/launch-cloud-before-20261105.json",
+                   "?? Source/Mods/TownHallInterior/docs/evidence/launch-cloud-current-20261105.json",
+                   "?? Source/Mods/TownHallInterior/docs/evidence/launch-cloud-final-20261105.json",
+                   "?? Source/Mods/TownHallInterior/docs/evidence/launch-deploy-plan-20261105.json",
+                   "?? Source/Mods/TownHallInterior/docs/evidence/launch-deployment-backup-manifest-20261105.json",
+                   "?? Source/Mods/TownHallInterior/docs/evidence/launch-deployment-receipt-20261105.json",
+                   "?? Source/Mods/TownHallInterior/docs/evidence/launch-installation-review-20261105.json",
+                   "?? Source/Mods/TownHallInterior/docs/evidence/launch-isolated-report-20261105.json",
+                   "?? Source/Mods/TownHallInterior/docs/evidence/launch-isolated-snapshot-20261105.json",
+                   "?? Source/Mods/TownHallInterior/docs/evidence/launch-isolated-tests-20261105.txt",
+                   "?? Source/Mods/TownHallInterior/docs/evidence/launch-isolated-townhall-20261105.trx",
+                   "?? Source/Mods/TownHallInterior/docs/evidence/launch-isolated-versions-20261105.txt",
+                   "?? Source/Mods/TownHallInterior/docs/evidence/launch-isolation-20261105.json",
+                   "?? Source/Mods/TownHallInterior/docs/evidence/launch-live-loaded-20261105.json",
+                   "?? Source/Mods/TownHallInterior/docs/evidence/launch-live-loaded-excerpt-20261105.txt",
+                   "?? Source/Mods/TownHallInterior/docs/evidence/launch-phone-owner-confirmation-20261105.json",
+                   "?? Source/Mods/TownHallInterior/docs/evidence/launch-preparation-20261105.json",
+                   "?? Source/Mods/TownHallInterior/docs/launch-preparation.md",
+                   "?? Source/Tests/TownHallInterior.Tests/BusinessManagerAuditTests.cs",
+                   "?? Source/Tests/TownHallInterior.Tests/BusinessManagerSafetyTests.cs",
+                   "?? Source/Tests/TownHallInterior.Tests/BusinessManagerSaveTests.cs"
+               ],
+    "S1apiRevision":  "6b6d7bada39054822732224508cf0f4f45ee7c26",
+    "S1apiTag":  "v3.2.2",
+    "S1apiStatus":  [
+
+                    ],
+    "DotnetRoot":  null,
+    "IlspyPath":  "C:\\Users\\pc\\.dotnet\\tools\\ilspycmd.exe",
+    "InstalledS1api":  {
+                           "Path":  "C:/Program Files (x86)/Steam/steamapps/common/Schedule I/Mods/S1API.Il2Cpp.MelonLoader.dll",
+                           "Sha256":  "d751a3cb66003f7a616eb9f8054daf34da0d9d7f23416a5005a586738a680852",
+                           "Length":  1590784,
+                           "ProductVersion":  "3.2.2+6b6d7bada39054822732224508cf0f4f45ee7c26",
+                           "FileVersion":  "3.2.2.0"
+                       },
+    "Sources":  [
+                    {
+                        "Path":  "AGENTS.md",
+                        "Sha256":  "650b6f0d731ae83f02a60dd3b16ba52ccb322a92d1fb3c39f7b597b476a50913",
+                        "Length":  23694
+                    },
+                    {
+                        "Path":  "Skills/schedule1-modding/SKILL.md",
+                        "Sha256":  "e53d4f97aa5a181921eecb98ef6da47992a974626b1ac300764ece4213a6e173",
+                        "Length":  4451
+                    },
+                    {
+                        "Path":  "Skills/schedule1-modding/references/working-contract.md",
+                        "Sha256":  "9a0dbcfaf4ec08ea71c32d77d54cfe08b8961fe8647bc97fa997bda1f201f5b4",
+                        "Length":  4310
+                    },
+                    {
+                        "Path":  "Skills/schedule1-modding/references/evidence-policy.md",
+                        "Sha256":  "05b4ad032db7609bf577ca5ffb661ab74ba3d4bb1be226c50d0fc7ea23934a9d",
+                        "Length":  4146
+                    },
+                    {
+                        "Path":  "Skills/schedule1-persistence/SKILL.md",
+                        "Sha256":  "d39ed5fa6e97a77f5df95351b3d1cabdb06f3139dff39af7e61f2aa0fe454aca",
+                        "Length":  4717
+                    },
+                    {
+                        "Path":  "Skills/schedule1-mod-reversing/SKILL.md",
+                        "Sha256":  "734e656e7ae2d6e8c72917f7deef06a4ee9f4b774b5c4ae807d39d044dbf3f1e",
+                        "Length":  4005
+                    },
+                    {
+                        "Path":  "Skills/schedule1-s1api/references/saveables.md",
+                        "Sha256":  "b2d7f9a786ec607e306f23e2c329dda222c80a75924bc83d3ea8ba35ae5c4048",
+                        "Length":  4032
+                    },
+                    {
+                        "Path":  "ThirdParty/S1API/AGENTS.md",
+                        "Sha256":  "24f843d0768de8cb39f0979751d27dae1f37ead888ca247feda4a79a73a5a84a",
+                        "Length":  9448
+                    },
+                    {
+                        "Path":  "ThirdParty/S1API/S1API/Lifecycle/GameLifecycle.cs",
+                        "Sha256":  "c9e470eab1940b59be4cc55c80d832202521bbef97264619f092b310de527a8e",
+                        "Length":  11537
+                    },
+                    {
+                        "Path":  "ThirdParty/S1API/S1API/S1API.cs",
+                        "Sha256":  "d00db32deec6c72b737c0a44606ea19908f903d6b5f97077331c4050823cb28d",
+                        "Length":  4042
+                    },
+                    {
+                        "Path":  "ThirdParty/S1API/S1API/Internal/Patches/GenericSaveables.Patches.cs",
+                        "Sha256":  "d72fa119aae69ab0f2a07d14134ae2c9fa85b79f68241e6ef2b56403f443bed1",
+                        "Length":  7865
+                    },
+                    {
+                        "Path":  "ThirdParty/S1API/S1API/Internal/Abstraction/Saveable.cs",
+                        "Sha256":  "09344961187d877ced02169f0e6c430164d7df98b1258361a41ce49996495dc4",
+                        "Length":  14198
+                    },
+                    {
+                        "Path":  "ThirdParty/S1API/S1API/Saveables/SaveableAutoRegistry.cs",
+                        "Sha256":  "519ef9a79d243386f217405b3c996704ce858a492e35df78a2e7d987c67c6cc7",
+                        "Length":  7001
+                    },
+                    {
+                        "Path":  "Source/Mods/TownHallInterior/docs/business-manager-save-probe.md",
+                        "Sha256":  "1f79b7975a5cf36bfb6c5bcc5aaf7556d9d4d62c048a01a0eaf7f2455991affd",
+                        "Length":  9777
+                    },
+                    {
+                        "Path":  "Source/Mods/TownHallInterior/docs/evidence/business-save-safety-review-20261105.json",
+                        "Sha256":  "920d7d6efc16cc8753bcd303358455a5ca95834f3bc7faed9f2f09b7d8bd5bf8",
+                        "Length":  14144
+                    },
+                    {
+                        "Path":  "Source/Mods/TownHallInterior/docs/evidence/business-save-safety-review-closed-20261105.json",
+                        "Sha256":  "1ab167528c8a20d2dc68f95579f8f5f92b18e17d2ffc1c4321524f2f8500c972",
+                        "Length":  8408
+                    }
+                ]
+}

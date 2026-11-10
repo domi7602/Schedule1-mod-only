@@ -1,0 +1,1135 @@
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Reflection.Emit;
+using System.Runtime.InteropServices;
+using System.Runtime.Serialization;
+using System.Text;
+using Il2CppInterop.Common;
+using Il2CppInterop.Runtime.Attributes;
+using Il2CppInterop.Runtime.InteropTypes;
+using Il2CppInterop.Runtime.InteropTypes.Arrays;
+using Il2CppInterop.Runtime.InteropTypes.Fields;
+using Il2CppInterop.Runtime.Runtime;
+using Il2CppInterop.Runtime.Runtime.VersionSpecific.Assembly;
+using Il2CppInterop.Runtime.Runtime.VersionSpecific.Class;
+using Il2CppInterop.Runtime.Runtime.VersionSpecific.FieldInfo;
+using Il2CppInterop.Runtime.Runtime.VersionSpecific.MethodInfo;
+using Il2CppInterop.Runtime.Runtime.VersionSpecific.ParameterInfo;
+using Il2CppInterop.Runtime.Runtime.VersionSpecific.Type;
+using Il2CppSystem;
+using Microsoft.Extensions.Logging;
+
+namespace Il2CppInterop.Runtime.Injection;
+
+public static class ClassInjector
+{
+	[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+	private unsafe delegate void InvokerDelegateMetadataV29(IntPtr methodPointer, Il2CppMethodInfo* methodInfo, IntPtr obj, IntPtr* args, IntPtr* returnValue);
+
+	[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+	private unsafe delegate IntPtr InvokerDelegate(IntPtr methodPointer, Il2CppMethodInfo* methodInfo, IntPtr obj, IntPtr* args);
+
+	[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+	private delegate void VoidCtorDelegate(IntPtr objectPointer);
+
+	private static readonly HashSet<string> InjectedTypes = new HashSet<string>();
+
+	internal static readonly Dictionary<IntPtr, (MethodInfo, Dictionary<IntPtr, IntPtr>)> InflatedMethodFromContextDictionary = new Dictionary<IntPtr, (MethodInfo, Dictionary<IntPtr, IntPtr>)>();
+
+	private static readonly ConcurrentDictionary<string, Delegate> InvokerCache = new ConcurrentDictionary<string, Delegate>();
+
+	private static readonly ConcurrentDictionary<(Type type, FieldAttributes attrs), IntPtr> _injectedFieldTypes = new ConcurrentDictionary<(Type, FieldAttributes), IntPtr>();
+
+	private static readonly VoidCtorDelegate FinalizeDelegate = Finalize;
+
+	public static void ProcessNewObject(Il2CppObjectBase obj)
+	{
+		IntPtr pointer = obj.Pointer;
+		GCHandle gcHandle = GCHandle.Alloc(obj, GCHandleType.Normal);
+		AssignGcHandle(pointer, gcHandle);
+	}
+
+	public static IntPtr DerivedConstructorPointer<T>()
+	{
+		return IL2CPP.il2cpp_object_new(Il2CppClassPointerStore<T>.NativeClassPtr);
+	}
+
+	public static void DerivedConstructorBody(Il2CppObjectBase objectBase)
+	{
+		if (!objectBase.isWrapped)
+		{
+			FieldInfo[] array = objectBase.GetType().GetFields(BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic).Where(IsFieldEligible)
+				.ToArray();
+			foreach (FieldInfo fieldInfo in array)
+			{
+				fieldInfo.SetValue(objectBase, fieldInfo.FieldType.GetConstructor(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, null, new Type[2]
+				{
+					typeof(Il2CppObjectBase),
+					typeof(string)
+				}, Array.Empty<ParameterModifier>()).Invoke(new object[2] { objectBase, fieldInfo.Name }));
+			}
+			GCHandle gcHandle = GCHandle.Alloc(objectBase, GCHandleType.Normal);
+			AssignGcHandle(objectBase.Pointer, gcHandle);
+		}
+	}
+
+	public unsafe static void AssignGcHandle(IntPtr pointer, GCHandle gcHandle)
+	{
+		GCHandle.ToIntPtr(gcHandle);
+		if (pointer == IntPtr.Zero)
+		{
+			throw new NullReferenceException("pointer");
+		}
+		ClassInjectorBase.GetInjectedData(pointer)->managedGcHandle = GCHandle.ToIntPtr(gcHandle);
+	}
+
+	public static bool IsTypeRegisteredInIl2Cpp<T>() where T : class
+	{
+		return IsTypeRegisteredInIl2Cpp(typeof(T));
+	}
+
+	public static bool IsTypeRegisteredInIl2Cpp(Type type)
+	{
+		if (Il2CppClassPointerStore.GetNativeClassPointer(type) != IntPtr.Zero)
+		{
+			return true;
+		}
+		if (IsManagedTypeInjected(type))
+		{
+			return true;
+		}
+		return false;
+	}
+
+	internal static bool IsManagedTypeInjected(Type type)
+	{
+		lock (InjectedTypes)
+		{
+			if (InjectedTypes.Contains(type.FullName))
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public static void RegisterTypeInIl2Cpp<T>() where T : class
+	{
+		RegisterTypeInIl2Cpp(typeof(T));
+	}
+
+	public static void RegisterTypeInIl2Cpp(Type type)
+	{
+		RegisterTypeInIl2Cpp(type, RegisterTypeOptions.Default);
+	}
+
+	public static void RegisterTypeInIl2Cpp<T>(RegisterTypeOptions options) where T : class
+	{
+		RegisterTypeInIl2Cpp(typeof(T), options);
+	}
+
+	public unsafe static void RegisterTypeInIl2Cpp(Type type, RegisterTypeOptions options)
+	{
+		Il2CppInterfaceCollection il2CppInterfaceCollection = options.Interfaces;
+		if (il2CppInterfaceCollection == null)
+		{
+			il2CppInterfaceCollection = type.GetCustomAttribute<Il2CppImplementsAttribute>()?.Interfaces ?? options.InterfacesResolver?.Invoke(type) ?? Array.Empty<Type>();
+		}
+		if (type == null)
+		{
+			throw new ArgumentException("Type argument cannot be null");
+		}
+		if (type.IsGenericType || type.IsGenericTypeDefinition)
+		{
+			throw new ArgumentException($"Type {type} is generic and can't be used in il2cpp");
+		}
+		if (Il2CppClassPointerStore.GetNativeClassPointer(type) != IntPtr.Zero)
+		{
+			return;
+		}
+		Type baseType = type.BaseType;
+		if (baseType == null)
+		{
+			throw new ArgumentException($"Class {type} does not inherit from a class registered in il2cpp");
+		}
+		INativeClassStruct nativeClassStruct = UnityVersionHandler.Wrap((Il2CppClass*)(void*)Il2CppClassPointerStore.GetNativeClassPointer(baseType));
+		if (nativeClassStruct == null)
+		{
+			RegisterTypeInIl2Cpp(baseType, new RegisterTypeOptions
+			{
+				LogSuccess = options.LogSuccess
+			});
+			nativeClassStruct = UnityVersionHandler.Wrap((Il2CppClass*)(void*)Il2CppClassPointerStore.GetNativeClassPointer(baseType));
+		}
+		InjectorHelpers.Setup();
+		InjectorHelpers.ClassInit(nativeClassStruct.ClassPointer);
+		if (nativeClassStruct.ValueType || nativeClassStruct.EnumType)
+		{
+			throw new ArgumentException($"Base class {baseType} is value type and can't be inherited from");
+		}
+		if (nativeClassStruct.IsGeneric)
+		{
+			throw new ArgumentException($"Base class {baseType} is generic and can't be inherited from");
+		}
+		if ((nativeClassStruct.Flags & Il2CppClassAttributes.TYPE_ATTRIBUTE_SEALED) != 0)
+		{
+			throw new ArgumentException($"Base class {baseType} is sealed and can't be inherited from");
+		}
+		if ((nativeClassStruct.Flags & Il2CppClassAttributes.TYPE_ATTRIBUTE_CLASS_SEMANTIC_MASK) != 0)
+		{
+			throw new ArgumentException($"Base class {baseType} is an interface and can't be inherited from");
+		}
+		if (il2CppInterfaceCollection.Any((INativeClassStruct i) => (i.Flags & Il2CppClassAttributes.TYPE_ATTRIBUTE_CLASS_SEMANTIC_MASK) == 0))
+		{
+			throw new ArgumentException($"Some of the interfaces in {il2CppInterfaceCollection} are not interfaces");
+		}
+		lock (InjectedTypes)
+		{
+			if (!InjectedTypes.Add(type.FullName))
+			{
+				throw new ArgumentException("Type with FullName " + type.FullName + " is already injected. Don't inject the same type twice, or use a different namespace");
+			}
+		}
+		int num = il2CppInterfaceCollection.Sum((INativeClassStruct i) => i.MethodCount);
+		INativeClassStruct nativeClassStruct2 = UnityVersionHandler.NewClass(nativeClassStruct.VtableCount + num);
+		nativeClassStruct2.Image = InjectorHelpers.InjectedImage.ImagePointer;
+		nativeClassStruct2.Parent = nativeClassStruct.ClassPointer;
+		nativeClassStruct2.ElementClass = (nativeClassStruct2.Class = (nativeClassStruct2.CastClass = nativeClassStruct2.ClassPointer));
+		nativeClassStruct2.NativeSize = -1;
+		nativeClassStruct2.ActualSize = (nativeClassStruct2.InstanceSize = nativeClassStruct.InstanceSize);
+		nativeClassStruct2.Initialized = true;
+		nativeClassStruct2.InitializedAndNoError = true;
+		nativeClassStruct2.SizeInited = true;
+		nativeClassStruct2.HasFinalize = true;
+		nativeClassStruct2.IsVtableInitialized = true;
+		nativeClassStruct2.Name = Marshal.StringToCoTaskMemUTF8(type.Name);
+		nativeClassStruct2.Namespace = Marshal.StringToCoTaskMemUTF8(type.Namespace ?? string.Empty);
+		nativeClassStruct2.ThisArg.Type = (nativeClassStruct2.ByValArg.Type = Il2CppTypeEnum.IL2CPP_TYPE_CLASS);
+		nativeClassStruct2.ThisArg.ByRef = true;
+		nativeClassStruct2.Flags = nativeClassStruct.Flags;
+		if (!type.IsAbstract)
+		{
+			nativeClassStruct2.Flags &= ~Il2CppClassAttributes.TYPE_ATTRIBUTE_ABSTRACT;
+		}
+		FieldInfo[] array = type.GetFields(BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic).Where(IsFieldEligible).ToArray();
+		nativeClassStruct2.FieldCount = (ushort)array.Length;
+		Il2CppFieldInfo* ptr = (Il2CppFieldInfo*)(void*)Marshal.AllocHGlobal(nativeClassStruct2.FieldCount * UnityVersionHandler.FieldInfoSize());
+		int num2 = (int)nativeClassStruct2.InstanceSize;
+		for (int j = 0; j < nativeClassStruct2.FieldCount; j++)
+		{
+			INativeFieldInfoStruct nativeFieldInfoStruct = UnityVersionHandler.Wrap(ptr + j * UnityVersionHandler.FieldInfoSize());
+			nativeFieldInfoStruct.Name = Marshal.StringToCoTaskMemUTF8(array[j].Name);
+			nativeFieldInfoStruct.Parent = nativeClassStruct2.ClassPointer;
+			nativeFieldInfoStruct.Offset = num2;
+			Type type2 = ((array[j].FieldType == typeof(Il2CppStringField)) ? typeof(string) : array[j].FieldType.GenericTypeArguments[0]);
+			FieldAttributes attributes = array[j].Attributes;
+			IntPtr nativeClassPointer = Il2CppClassPointerStore.GetNativeClassPointer(type2);
+			if (!_injectedFieldTypes.TryGetValue((type2, attributes), out var value))
+			{
+				INativeTypeStruct nativeTypeStruct = UnityVersionHandler.Wrap((Il2CppTypeStruct*)(void*)IL2CPP.il2cpp_class_get_type(nativeClassPointer));
+				INativeTypeStruct nativeTypeStruct2 = UnityVersionHandler.NewType();
+				nativeTypeStruct2.Data = nativeTypeStruct.Data;
+				nativeTypeStruct2.Attrs = (ushort)attributes;
+				nativeTypeStruct2.Type = nativeTypeStruct.Type;
+				nativeTypeStruct2.ByRef = nativeTypeStruct.ByRef;
+				nativeTypeStruct2.Pinned = nativeTypeStruct.Pinned;
+				_injectedFieldTypes[(type2, attributes)] = nativeTypeStruct2.Pointer;
+				value = nativeTypeStruct2.Pointer;
+			}
+			nativeFieldInfoStruct.Type = (Il2CppTypeStruct*)(void*)value;
+			if (nativeClassPointer == IntPtr.Zero)
+			{
+				throw new Exception($"Type {type2} in {type}.{array[j].Name} doesn't exist in Il2Cpp");
+			}
+			if (IL2CPP.il2cpp_class_is_valuetype(nativeClassPointer))
+			{
+				uint align = 0u;
+				int num3 = IL2CPP.il2cpp_class_value_size(nativeClassPointer, ref align);
+				num2 += num3;
+			}
+			else
+			{
+				num2 += sizeof(Il2CppObject*);
+			}
+		}
+		nativeClassStruct2.Fields = ptr;
+		nativeClassStruct2.InstanceSize = (uint)(num2 + sizeof(InjectedClassData));
+		nativeClassStruct2.ActualSize = nativeClassStruct2.InstanceSize;
+		MethodInfo[] array2 = type.GetMethods(BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic).Where(IsMethodEligible).ToArray();
+		int num4 = (type.IsAbstract ? 1 : 2);
+		int num5 = num4 + array2.Length;
+		nativeClassStruct2.MethodCount = (ushort)num5;
+		Il2CppMethodInfo** ptr2 = (Il2CppMethodInfo**)(void*)Marshal.AllocHGlobal(num5 * IntPtr.Size);
+		nativeClassStruct2.Methods = ptr2;
+		*ptr2 = ConvertStaticMethod(FinalizeDelegate, "Finalize", nativeClassStruct2);
+		INativeMethodInfoStruct nativeMethodInfoStruct = UnityVersionHandler.Wrap(*ptr2);
+		FieldInfo[] fieldsToInitialize = type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic).Where(IsFieldEligible).ToArray();
+		if (!type.IsAbstract)
+		{
+			ptr2[1] = ConvertStaticMethod(CreateEmptyCtor(type, fieldsToInitialize), ".ctor", nativeClassStruct2);
+		}
+		Dictionary<(string, int, bool), int> dictionary = new Dictionary<(string, int, bool), int>(array2.Length);
+		for (int k = 0; k < array2.Length; k++)
+		{
+			MethodInfo methodInfo = array2[k];
+			Il2CppMethodInfo* ptr3 = (ptr2[k + num4] = ConvertMethodInfo(methodInfo, nativeClassStruct2));
+			if (methodInfo.IsGenericMethod && !methodInfo.IsAbstract)
+			{
+				InflatedMethodFromContextDictionary.Add((IntPtr)ptr3, (methodInfo, new Dictionary<IntPtr, IntPtr>()));
+			}
+			dictionary[(methodInfo.Name, methodInfo.GetParameters().Length, methodInfo.IsGenericMethod)] = k + num4;
+		}
+		MethodInfo[] array3 = array2.Where((MethodInfo x) => x.IsAbstract).ToArray();
+		VirtualInvokeData* vTablePointer = (VirtualInvokeData*)(void*)nativeClassStruct2.VTable;
+		VirtualInvokeData* ptr4 = (VirtualInvokeData*)(void*)nativeClassStruct.VTable;
+		nativeClassStruct2.VtableCount = (ushort)(nativeClassStruct.VtableCount + num + array3.Length);
+		bool extendsAbstract = nativeClassStruct.Flags.HasFlag(Il2CppClassAttributes.TYPE_ATTRIBUTE_ABSTRACT);
+		List<INativeMethodInfoStruct> abstractBaseMethods = new List<INativeMethodInfoStruct>();
+		if (extendsAbstract)
+		{
+			FindAbstractMethods(abstractBaseMethods, nativeClassStruct);
+		}
+		int abstractV = 0;
+		for (int l = 0; l < nativeClassStruct.VtableCount; l++)
+		{
+			vTablePointer[l] = ptr4[l];
+			INativeMethodInfoStruct nativeMethodInfoStruct2 = ((ptr4[l].method != null) ? UnityVersionHandler.Wrap(vTablePointer[l].method) : HandleAbstractMethod(l));
+			if (nativeMethodInfoStruct2.Name == IntPtr.Zero)
+			{
+				nativeMethodInfoStruct2 = HandleAbstractMethod(l);
+			}
+			string text = Marshal.PtrToStringUTF8(nativeMethodInfoStruct2.Name);
+			if (text == "Finalize")
+			{
+				vTablePointer[l].method = *ptr2;
+				vTablePointer[l].methodPtr = nativeMethodInfoStruct.MethodPointer;
+				continue;
+			}
+			Type[] array4 = new Type[nativeMethodInfoStruct2.ParametersCount];
+			for (int n = 0; n < nativeMethodInfoStruct2.ParametersCount; n++)
+			{
+				Type type3 = SystemTypeFromIl2CppType(UnityVersionHandler.Wrap(nativeMethodInfoStruct2.Parameters, n).ParameterType);
+				array4[n] = type3;
+			}
+			MethodInfo method = type.GetMethod(text, BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, array4);
+			if (!(method != null) || !method.IsAbstract)
+			{
+				int num6 = Array.IndexOf(array2, method);
+				if (num6 >= 0)
+				{
+					INativeMethodInfoStruct nativeMethodInfoStruct3 = UnityVersionHandler.Wrap(ptr2[num6 + num4]);
+					vTablePointer[l].method = ptr2[num6 + num4];
+					vTablePointer[l].methodPtr = nativeMethodInfoStruct3.MethodPointer;
+				}
+				if (vTablePointer[l].method == null || vTablePointer[l].methodPtr == IntPtr.Zero)
+				{
+					throw new Exception("No method found for vtable entry " + text);
+				}
+			}
+		}
+		int[] array5 = new int[il2CppInterfaceCollection.Count];
+		ushort num7 = nativeClassStruct.VtableCount;
+		for (int num8 = 0; num8 < il2CppInterfaceCollection.Count; num8++)
+		{
+			array5[num8] = num7;
+			for (int num9 = 0; num9 < il2CppInterfaceCollection[num8].MethodCount; num9++)
+			{
+				INativeMethodInfoStruct nativeMethodInfoStruct4 = UnityVersionHandler.Wrap(il2CppInterfaceCollection[num8].Methods[num9]);
+				string item = Marshal.PtrToStringUTF8(nativeMethodInfoStruct4.Name);
+				if (!dictionary.TryGetValue((item, nativeMethodInfoStruct4.ParametersCount, nativeMethodInfoStruct4.IsGeneric), out var value2))
+				{
+					num7++;
+					continue;
+				}
+				Il2CppMethodInfo* ptr5 = ptr2[value2];
+				vTablePointer[(int)num7].method = ptr5;
+				vTablePointer[(int)num7].methodPtr = UnityVersionHandler.Wrap(ptr5).MethodPointer;
+				num7++;
+			}
+		}
+		int num10 = nativeClassStruct.InterfaceCount + il2CppInterfaceCollection.Count;
+		nativeClassStruct2.InterfaceCount = (ushort)num10;
+		nativeClassStruct2.ImplementedInterfaces = (Il2CppClass**)(void*)Marshal.AllocHGlobal(num10 * IntPtr.Size);
+		for (int num11 = 0; num11 < nativeClassStruct.InterfaceCount; num11++)
+		{
+			nativeClassStruct2.ImplementedInterfaces[num11] = nativeClassStruct.ImplementedInterfaces[num11];
+		}
+		for (int num12 = nativeClassStruct.InterfaceCount; num12 < num10; num12++)
+		{
+			nativeClassStruct2.ImplementedInterfaces[num12] = il2CppInterfaceCollection[num12 - nativeClassStruct.InterfaceCount].ClassPointer;
+		}
+		int num13 = nativeClassStruct.InterfaceOffsetsCount + il2CppInterfaceCollection.Count;
+		nativeClassStruct2.InterfaceOffsetsCount = (ushort)num13;
+		nativeClassStruct2.InterfaceOffsets = (Il2CppRuntimeInterfaceOffsetPair*)(void*)Marshal.AllocHGlobal(num13 * Marshal.SizeOf<Il2CppRuntimeInterfaceOffsetPair>());
+		for (int num14 = 0; num14 < nativeClassStruct.InterfaceOffsetsCount; num14++)
+		{
+			nativeClassStruct2.InterfaceOffsets[num14] = nativeClassStruct.InterfaceOffsets[num14];
+		}
+		for (int num15 = nativeClassStruct.InterfaceOffsetsCount; num15 < num13; num15++)
+		{
+			nativeClassStruct2.InterfaceOffsets[num15] = new Il2CppRuntimeInterfaceOffsetPair
+			{
+				interfaceType = il2CppInterfaceCollection[num15 - nativeClassStruct.InterfaceOffsetsCount].ClassPointer,
+				offset = array5[num15 - nativeClassStruct.InterfaceOffsetsCount]
+			};
+		}
+		for (int num16 = 0; num16 < array3.Length; num16++)
+		{
+			vTablePointer[(int)num7++] = default(VirtualInvokeData);
+		}
+		int num17 = 1 + nativeClassStruct.TypeHierarchyDepth;
+		nativeClassStruct2.TypeHierarchyDepth = (byte)num17;
+		nativeClassStruct2.TypeHierarchy = (Il2CppClass**)(void*)Marshal.AllocHGlobal(num17 * IntPtr.Size);
+		for (int num18 = 0; num18 < num17; num18++)
+		{
+			nativeClassStruct2.TypeHierarchy[num18] = nativeClassStruct.TypeHierarchy[num18];
+		}
+		nativeClassStruct2.TypeHierarchy[num17 - 1] = nativeClassStruct2.ClassPointer;
+		nativeClassStruct2.ByValArg.Data = (nativeClassStruct2.ThisArg.Data = (IntPtr)InjectorHelpers.CreateClassToken(nativeClassStruct2.Pointer));
+		RuntimeSpecificsStore.SetClassInfo(nativeClassStruct2.Pointer, wasInjected: true);
+		Il2CppClassPointerStore.SetNativeClassPointer(type, nativeClassStruct2.Pointer);
+		InjectorHelpers.AddTypeToLookup(type, nativeClassStruct2.Pointer);
+		if (options.LogSuccess)
+		{
+			Logger.Instance.LogInformation("Registered mono type {Type} in il2cpp domain", type);
+		}
+		unsafe static void FindAbstractMethods(List<INativeMethodInfoStruct> list, INativeClassStruct klass)
+		{
+			if (klass.Parent != null)
+			{
+				FindAbstractMethods(list, UnityVersionHandler.Wrap(klass.Parent));
+			}
+			for (int num19 = 0; num19 < klass.MethodCount; num19++)
+			{
+				INativeMethodInfoStruct baseMethod = UnityVersionHandler.Wrap(klass.Methods[num19]);
+				string name = Marshal.PtrToStringUTF8(baseMethod.Name);
+				if (baseMethod.Flags.HasFlag(Il2CppMethodFlags.METHOD_ATTRIBUTE_ABSTRACT))
+				{
+					list.Add(baseMethod);
+				}
+				else
+				{
+					INativeMethodInfoStruct nativeMethodInfoStruct6 = list.SingleOrDefault(delegate(INativeMethodInfoStruct m)
+					{
+						if (Marshal.PtrToStringUTF8(m.Name) != name)
+						{
+							return false;
+						}
+						if (m.ParametersCount != baseMethod.ParametersCount)
+						{
+							return false;
+						}
+						if (GetIl2CppTypeFullName(m.ReturnType) != GetIl2CppTypeFullName(baseMethod.ReturnType))
+						{
+							return false;
+						}
+						for (int num20 = 0; num20 < m.ParametersCount; num20++)
+						{
+							INativeParameterInfoStruct nativeParameterInfoStruct = UnityVersionHandler.Wrap(baseMethod.Parameters, num20);
+							INativeParameterInfoStruct nativeParameterInfoStruct2 = UnityVersionHandler.Wrap(m.Parameters, num20);
+							if (GetIl2CppTypeFullName(nativeParameterInfoStruct.ParameterType) != GetIl2CppTypeFullName(nativeParameterInfoStruct2.ParameterType))
+							{
+								return false;
+							}
+						}
+						return true;
+					});
+					if (nativeMethodInfoStruct6 != null)
+					{
+						list.Remove(nativeMethodInfoStruct6);
+					}
+				}
+			}
+		}
+		unsafe INativeMethodInfoStruct HandleAbstractMethod(int position)
+		{
+			if (!extendsAbstract)
+			{
+				throw new NullReferenceException("VTable method was null even though base type isn't abstract");
+			}
+			INativeMethodInfoStruct nativeMethodInfoStruct5 = abstractBaseMethods[abstractV++];
+			vTablePointer[position].method = nativeMethodInfoStruct5.MethodInfoPointer;
+			vTablePointer[position].methodPtr = nativeMethodInfoStruct5.MethodPointer;
+			return nativeMethodInfoStruct5;
+		}
+	}
+
+	private static bool IsTypeSupported(Type type)
+	{
+		if (type.IsValueType || type == typeof(string) || type.IsGenericParameter)
+		{
+			return true;
+		}
+		if (type.IsByRef)
+		{
+			return IsTypeSupported(type.GetElementType());
+		}
+		return typeof(Il2CppObjectBase).IsAssignableFrom(type);
+	}
+
+	private static bool IsFieldEligible(FieldInfo field)
+	{
+		if (!field.FieldType.IsGenericType)
+		{
+			return field.FieldType == typeof(Il2CppStringField);
+		}
+		Type genericTypeDefinition = field.FieldType.GetGenericTypeDefinition();
+		if (genericTypeDefinition != typeof(Il2CppReferenceField<>) && genericTypeDefinition != typeof(Il2CppValueField<>))
+		{
+			return false;
+		}
+		return IsTypeSupported(field.FieldType.GenericTypeArguments[0]);
+	}
+
+	private static bool IsMethodEligible(MethodInfo method)
+	{
+		MethodInfo method2 = method;
+		if (method2.Name == "Finalize")
+		{
+			return false;
+		}
+		if (method2.IsStatic)
+		{
+			return false;
+		}
+		if (method2.CustomAttributes.Any((CustomAttributeData it) => typeof(HideFromIl2CppAttribute).IsAssignableFrom(it.AttributeType)))
+		{
+			return false;
+		}
+		if (method2.DeclaringType != null)
+		{
+			if ((from property in method2.DeclaringType.GetProperties(BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+				where property.GetAccessors(nonPublic: true).Contains(method2)
+				select property).Any((PropertyInfo property) => property.CustomAttributes.Any((CustomAttributeData it) => typeof(HideFromIl2CppAttribute).IsAssignableFrom(it.AttributeType))))
+			{
+				return false;
+			}
+			EventInfo[] events = method2.DeclaringType.GetEvents(BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+			foreach (EventInfo eventInfo in events)
+			{
+				if ((eventInfo.GetAddMethod(nonPublic: true) == method2 || eventInfo.GetRemoveMethod(nonPublic: true) == method2) && eventInfo.GetCustomAttribute<HideFromIl2CppAttribute>() != null)
+				{
+					return false;
+				}
+			}
+		}
+		if (!IsTypeSupported(method2.ReturnType))
+		{
+			Logger.Instance.LogWarning("Method {Method} on type {DeclaringType} has unsupported return type {ReturnType}", method2.ToString(), method2.DeclaringType, method2.ReturnType);
+			return false;
+		}
+		ParameterInfo[] parameters = method2.GetParameters();
+		foreach (ParameterInfo parameterInfo in parameters)
+		{
+			Type parameterType = parameterInfo.ParameterType;
+			if (!IsTypeSupported(parameterType))
+			{
+				Logger.Instance.LogWarning("Method {Method} on type {DeclaringType} has unsupported parameter {Parameter} of type {ParameterType}", method2.ToString(), method2.DeclaringType, parameterInfo, parameterType);
+				return false;
+			}
+		}
+		return true;
+	}
+
+	private unsafe static Il2CppMethodInfo* ConvertStaticMethod(VoidCtorDelegate voidCtor, string methodName, INativeClassStruct declaringClass)
+	{
+		INativeMethodInfoStruct nativeMethodInfoStruct = UnityVersionHandler.NewMethod();
+		nativeMethodInfoStruct.Name = Marshal.StringToCoTaskMemUTF8(methodName);
+		nativeMethodInfoStruct.Class = declaringClass.ClassPointer;
+		Delegate @delegate = ((!UnityVersionHandler.IsMetadataV29OrHigher) ? ((MulticastDelegate)new InvokerDelegate(StaticVoidIntPtrInvoker)) : ((MulticastDelegate)new InvokerDelegateMetadataV29(StaticVoidIntPtrInvoker_MetadataV29)));
+		GCHandle.Alloc(@delegate);
+		nativeMethodInfoStruct.InvokerMethod = Marshal.GetFunctionPointerForDelegate(@delegate);
+		nativeMethodInfoStruct.MethodPointer = Marshal.GetFunctionPointerForDelegate(voidCtor);
+		nativeMethodInfoStruct.Slot = ushort.MaxValue;
+		nativeMethodInfoStruct.ReturnType = (Il2CppTypeStruct*)(void*)IL2CPP.il2cpp_class_get_type(Il2CppClassPointerStore<Void>.NativeClassPtr);
+		nativeMethodInfoStruct.Flags = Il2CppMethodFlags.METHOD_ATTRIBUTE_PUBLIC | Il2CppMethodFlags.METHOD_ATTRIBUTE_HIDE_BY_SIG | Il2CppMethodFlags.METHOD_ATTRIBUTE_SPECIAL_NAME | Il2CppMethodFlags.METHOD_ATTRIBUTE_RT_SPECIAL_NAME;
+		return nativeMethodInfoStruct.MethodInfoPointer;
+	}
+
+	internal unsafe static Il2CppMethodInfo* ConvertMethodInfo(MethodInfo monoMethod, INativeClassStruct declaringClass)
+	{
+		INativeMethodInfoStruct nativeMethodInfoStruct = UnityVersionHandler.NewMethod();
+		nativeMethodInfoStruct.Name = Marshal.StringToCoTaskMemUTF8(monoMethod.Name);
+		nativeMethodInfoStruct.Class = declaringClass.ClassPointer;
+		ParameterInfo[] parameters = monoMethod.GetParameters();
+		if (parameters.Length != 0)
+		{
+			nativeMethodInfoStruct.ParametersCount = (byte)parameters.Length;
+			Il2CppParameterInfo*[] array = UnityVersionHandler.NewMethodParameterArray(parameters.Length);
+			nativeMethodInfoStruct.Parameters = array[0];
+			for (int i = 0; i < parameters.Length; i++)
+			{
+				ParameterInfo parameterInfo = parameters[i];
+				INativeParameterInfoStruct nativeParameterInfoStruct = UnityVersionHandler.Wrap(array[i]);
+				if (UnityVersionHandler.ParameterInfoHasNamePosToken())
+				{
+					nativeParameterInfoStruct.Name = Marshal.StringToCoTaskMemUTF8(parameterInfo.Name);
+					nativeParameterInfoStruct.Position = i;
+					nativeParameterInfoStruct.Token = 0u;
+				}
+				Type parameterType = parameterInfo.ParameterType;
+				if (!parameterType.IsGenericParameter)
+				{
+					if (parameterType.IsByRef)
+					{
+						Type elementType = parameterType.GetElementType();
+						if (!elementType.IsGenericParameter)
+						{
+							INativeTypeStruct nativeTypeStruct = UnityVersionHandler.Wrap((Il2CppTypeStruct*)(void*)IL2CPP.il2cpp_class_get_type(Il2CppClassPointerStore.GetNativeClassPointer(elementType)));
+							INativeTypeStruct nativeTypeStruct2 = UnityVersionHandler.NewType();
+							nativeTypeStruct2.Data = nativeTypeStruct.Data;
+							nativeTypeStruct2.Attrs = nativeTypeStruct.Attrs;
+							nativeTypeStruct2.Type = nativeTypeStruct.Type;
+							nativeTypeStruct2.ByRef = true;
+							nativeTypeStruct2.Pinned = nativeTypeStruct.Pinned;
+							nativeParameterInfoStruct.ParameterType = nativeTypeStruct2.TypePointer;
+						}
+						else
+						{
+							INativeTypeStruct nativeTypeStruct3 = UnityVersionHandler.NewType();
+							nativeTypeStruct3.Type = Il2CppTypeEnum.IL2CPP_TYPE_MVAR;
+							nativeTypeStruct3.ByRef = true;
+							nativeParameterInfoStruct.ParameterType = nativeTypeStruct3.TypePointer;
+						}
+					}
+					else
+					{
+						nativeParameterInfoStruct.ParameterType = (Il2CppTypeStruct*)(void*)IL2CPP.il2cpp_class_get_type(Il2CppClassPointerStore.GetNativeClassPointer(parameterType));
+					}
+				}
+				else
+				{
+					INativeTypeStruct nativeTypeStruct4 = UnityVersionHandler.NewType();
+					nativeTypeStruct4.Type = Il2CppTypeEnum.IL2CPP_TYPE_MVAR;
+					nativeParameterInfoStruct.ParameterType = nativeTypeStruct4.TypePointer;
+				}
+			}
+		}
+		if (monoMethod.IsGenericMethod)
+		{
+			if (monoMethod.ContainsGenericParameters)
+			{
+				nativeMethodInfoStruct.IsGeneric = true;
+			}
+			else
+			{
+				nativeMethodInfoStruct.IsInflated = true;
+			}
+		}
+		if (!monoMethod.ContainsGenericParameters && !monoMethod.IsAbstract)
+		{
+			nativeMethodInfoStruct.InvokerMethod = Marshal.GetFunctionPointerForDelegate(GetOrCreateInvoker(monoMethod));
+			nativeMethodInfoStruct.MethodPointer = Marshal.GetFunctionPointerForDelegate(GetOrCreateTrampoline(monoMethod));
+			nativeMethodInfoStruct.VirtualMethodPointer = nativeMethodInfoStruct.MethodPointer;
+		}
+		nativeMethodInfoStruct.Slot = ushort.MaxValue;
+		if (!monoMethod.ReturnType.IsGenericParameter)
+		{
+			nativeMethodInfoStruct.ReturnType = (Il2CppTypeStruct*)(void*)IL2CPP.il2cpp_class_get_type(Il2CppClassPointerStore.GetNativeClassPointer(monoMethod.ReturnType));
+		}
+		else
+		{
+			INativeTypeStruct nativeTypeStruct5 = UnityVersionHandler.NewType();
+			nativeTypeStruct5.Type = Il2CppTypeEnum.IL2CPP_TYPE_MVAR;
+			nativeMethodInfoStruct.ReturnType = nativeTypeStruct5.TypePointer;
+		}
+		nativeMethodInfoStruct.Flags = Il2CppMethodFlags.METHOD_ATTRIBUTE_PUBLIC | Il2CppMethodFlags.METHOD_ATTRIBUTE_HIDE_BY_SIG;
+		if (monoMethod.IsAbstract)
+		{
+			nativeMethodInfoStruct.Flags |= Il2CppMethodFlags.METHOD_ATTRIBUTE_ABSTRACT;
+		}
+		return nativeMethodInfoStruct.MethodInfoPointer;
+	}
+
+	private static VoidCtorDelegate CreateEmptyCtor(Type targetType, FieldInfo[] fieldsToInitialize)
+	{
+		DynamicMethod dynamicMethod = new DynamicMethod("FromIl2CppCtorDelegate", MethodAttributes.Public | MethodAttributes.Static, CallingConventions.Standard, typeof(void), new Type[1] { typeof(IntPtr) }, targetType, skipVisibility: true);
+		ILGenerator iLGenerator = dynamicMethod.GetILGenerator();
+		ConstructorInfo constructor = targetType.GetConstructor(new Type[1] { typeof(IntPtr) });
+		if (constructor != null)
+		{
+			iLGenerator.Emit(OpCodes.Ldarg_0);
+			iLGenerator.Emit(OpCodes.Newobj, constructor);
+		}
+		else
+		{
+			LocalBuilder local = iLGenerator.DeclareLocal(targetType);
+			iLGenerator.Emit(OpCodes.Ldtoken, targetType);
+			iLGenerator.Emit(OpCodes.Call, typeof(Type).GetMethod("GetTypeFromHandle", BindingFlags.Static | BindingFlags.Public));
+			iLGenerator.Emit(OpCodes.Call, typeof(FormatterServices).GetMethod("GetUninitializedObject", BindingFlags.Static | BindingFlags.Public));
+			iLGenerator.Emit(OpCodes.Stloc, local);
+			iLGenerator.Emit(OpCodes.Ldloc, local);
+			iLGenerator.Emit(OpCodes.Ldarg_0);
+			iLGenerator.Emit(OpCodes.Call, typeof(Il2CppObjectBase).GetMethod("CreateGCHandle", BindingFlags.Instance | BindingFlags.NonPublic));
+			iLGenerator.Emit(OpCodes.Ldloc, local);
+			iLGenerator.Emit(OpCodes.Ldc_I4_1);
+			iLGenerator.Emit(OpCodes.Stfld, typeof(Il2CppObjectBase).GetField("isWrapped", BindingFlags.Instance | BindingFlags.NonPublic));
+			iLGenerator.Emit(OpCodes.Ldloc, local);
+			iLGenerator.Emit(OpCodes.Call, targetType.GetConstructor(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, null, Type.EmptyTypes, Array.Empty<ParameterModifier>()));
+			iLGenerator.Emit(OpCodes.Ldloc, local);
+		}
+		foreach (FieldInfo fieldInfo in fieldsToInitialize)
+		{
+			iLGenerator.Emit(OpCodes.Dup);
+			iLGenerator.Emit(OpCodes.Dup);
+			iLGenerator.Emit(OpCodes.Ldstr, fieldInfo.Name);
+			iLGenerator.Emit(OpCodes.Newobj, fieldInfo.FieldType.GetConstructor(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, null, new Type[2]
+			{
+				typeof(Il2CppObjectBase),
+				typeof(string)
+			}, Array.Empty<ParameterModifier>()));
+			iLGenerator.Emit(OpCodes.Stfld, fieldInfo);
+		}
+		iLGenerator.Emit(OpCodes.Call, typeof(ClassInjector).GetMethod("ProcessNewObject"));
+		iLGenerator.Emit(OpCodes.Ret);
+		VoidCtorDelegate obj = (VoidCtorDelegate)dynamicMethod.CreateDelegate(typeof(VoidCtorDelegate));
+		GCHandle.Alloc(obj);
+		return obj;
+	}
+
+	public static void Finalize(IntPtr ptr)
+	{
+		GCHandle.FromIntPtr(ClassInjectorBase.GetGcHandlePtrFromIl2CppObject(ptr)).Free();
+	}
+
+	private static Delegate GetOrCreateInvoker(MethodInfo monoMethod)
+	{
+		return InvokerCache.GetOrAdd(ExtractSignature(monoMethod), (string _, MethodInfo monoMethodInner) => CreateInvoker(monoMethodInner), monoMethod);
+	}
+
+	private static Delegate GetOrCreateTrampoline(MethodInfo monoMethod)
+	{
+		return CreateTrampoline(monoMethod);
+	}
+
+	private unsafe static Delegate CreateInvoker(MethodInfo monoMethod)
+	{
+		DynamicMethod dynamicMethod;
+		if (UnityVersionHandler.IsMetadataV29OrHigher)
+		{
+			Type[] parameterTypes = new Type[5]
+			{
+				typeof(IntPtr),
+				typeof(Il2CppMethodInfo*),
+				typeof(IntPtr),
+				typeof(IntPtr*),
+				typeof(IntPtr*)
+			};
+			dynamicMethod = new DynamicMethod("Invoker_" + ExtractSignature(monoMethod), MethodAttributes.Public | MethodAttributes.Static, CallingConventions.Standard, typeof(void), parameterTypes, monoMethod.DeclaringType, skipVisibility: true);
+		}
+		else
+		{
+			Type[] parameterTypes2 = new Type[4]
+			{
+				typeof(IntPtr),
+				typeof(Il2CppMethodInfo*),
+				typeof(IntPtr),
+				typeof(IntPtr*)
+			};
+			dynamicMethod = new DynamicMethod("Invoker_" + ExtractSignature(monoMethod), MethodAttributes.Public | MethodAttributes.Static, CallingConventions.Standard, typeof(IntPtr), parameterTypes2, monoMethod.DeclaringType, skipVisibility: true);
+		}
+		ILGenerator iLGenerator = dynamicMethod.GetILGenerator();
+		iLGenerator.Emit(OpCodes.Ldarg_2);
+		for (int i = 0; i < monoMethod.GetParameters().Length; i++)
+		{
+			ParameterInfo parameterInfo = monoMethod.GetParameters()[i];
+			iLGenerator.Emit(OpCodes.Ldarg_3);
+			iLGenerator.Emit(OpCodes.Ldc_I4, i * IntPtr.Size);
+			iLGenerator.Emit(OpCodes.Add_Ovf_Un);
+			Type type = parameterInfo.ParameterType.NativeType();
+			iLGenerator.Emit(OpCodes.Ldobj, typeof(IntPtr));
+			if (type != typeof(IntPtr))
+			{
+				iLGenerator.Emit(OpCodes.Ldobj, type);
+			}
+		}
+		iLGenerator.Emit(OpCodes.Ldarg_0);
+		iLGenerator.EmitCalli(OpCodes.Calli, CallingConvention.Cdecl, monoMethod.ReturnType.NativeType(), new Type[1] { typeof(IntPtr) }.Concat(from it in monoMethod.GetParameters()
+			select it.ParameterType.NativeType()).ToArray());
+		if (UnityVersionHandler.IsMetadataV29OrHigher)
+		{
+			if (monoMethod.ReturnType != typeof(void))
+			{
+				LocalBuilder localBuilder = iLGenerator.DeclareLocal(monoMethod.ReturnType.NativeType());
+				iLGenerator.Emit(OpCodes.Stloc, localBuilder);
+				iLGenerator.Emit(OpCodes.Ldarg_S, (byte)4);
+				iLGenerator.Emit(OpCodes.Ldloc, localBuilder);
+				iLGenerator.Emit(OpCodes.Stobj, localBuilder.LocalType);
+			}
+		}
+		else if (monoMethod.ReturnType == typeof(void))
+		{
+			iLGenerator.Emit(OpCodes.Ldc_I4_0);
+			iLGenerator.Emit(OpCodes.Conv_I);
+		}
+		else if (monoMethod.ReturnType.IsValueType)
+		{
+			LocalBuilder local = iLGenerator.DeclareLocal(monoMethod.ReturnType);
+			iLGenerator.Emit(OpCodes.Stloc, local);
+			FieldInfo field = typeof(Il2CppClassPointerStore<>).MakeGenericType(monoMethod.ReturnType).GetField("NativeClassPtr");
+			iLGenerator.Emit(OpCodes.Ldsfld, field);
+			iLGenerator.Emit(OpCodes.Ldloca, local);
+			iLGenerator.Emit(OpCodes.Call, typeof(IL2CPP).GetMethod("il2cpp_value_box"));
+		}
+		iLGenerator.Emit(OpCodes.Ret);
+		GCHandle.Alloc(dynamicMethod);
+		Delegate @delegate = dynamicMethod.CreateDelegate(GetInvokerDelegateType());
+		GCHandle.Alloc(@delegate);
+		return @delegate;
+	}
+
+	private static Type GetInvokerDelegateType()
+	{
+		if (UnityVersionHandler.IsMetadataV29OrHigher)
+		{
+			return typeof(InvokerDelegateMetadataV29);
+		}
+		return typeof(InvokerDelegate);
+	}
+
+	private unsafe static IntPtr StaticVoidIntPtrInvoker(IntPtr methodPointer, Il2CppMethodInfo* methodInfo, IntPtr obj, IntPtr* args)
+	{
+		Marshal.GetDelegateForFunctionPointer<VoidCtorDelegate>(methodPointer)(obj);
+		return IntPtr.Zero;
+	}
+
+	private unsafe static void StaticVoidIntPtrInvoker_MetadataV29(IntPtr methodPointer, Il2CppMethodInfo* methodInfo, IntPtr obj, IntPtr* args, IntPtr* returnValue)
+	{
+		Marshal.GetDelegateForFunctionPointer<VoidCtorDelegate>(methodPointer)(obj);
+	}
+
+	private unsafe static Delegate CreateTrampoline(MethodInfo monoMethod)
+	{
+		Type[] parameterTypes = new Type[1] { typeof(IntPtr) }.Concat((from it in monoMethod.GetParameters()
+			select it.ParameterType.NativeType()).Concat(new Type[1] { typeof(Il2CppMethodInfo*) })).ToArray();
+		Type[] array = new Type[1] { monoMethod.DeclaringType }.Concat(from it in monoMethod.GetParameters()
+			select it.ParameterType).ToArray();
+		DynamicMethod dynamicMethod = new DynamicMethod("Trampoline_" + ExtractSignature(monoMethod) + monoMethod.DeclaringType?.ToString() + monoMethod.Name, MethodAttributes.Public | MethodAttributes.Static, CallingConventions.Standard, monoMethod.ReturnType.NativeType(), parameterTypes, monoMethod.DeclaringType, skipVisibility: true);
+		Type orCreateDelegateType = DelegateSupport.GetOrCreateDelegateType(new DelegateSupport.MethodSignature(monoMethod, hasThis: true), monoMethod);
+		ILGenerator body = dynamicMethod.GetILGenerator();
+		body.BeginExceptionBlock();
+		body.Emit(OpCodes.Ldarg_0);
+		body.Emit(OpCodes.Call, typeof(ClassInjectorBase).GetMethod("GetMonoObjectFromIl2CppPointer"));
+		body.Emit(OpCodes.Castclass, monoMethod.DeclaringType);
+		LocalBuilder[] array2 = new LocalBuilder[array.Length];
+		for (int i = 1; i < array.Length; i++)
+		{
+			Type type2 = array[i];
+			if (type2.IsSubclassOf(typeof(ValueType)))
+			{
+				body.Emit(OpCodes.Ldc_I8, Il2CppClassPointerStore.GetNativeClassPointer(type2).ToInt64());
+				body.Emit(OpCodes.Conv_I);
+				body.Emit(Environment.Is64BitProcess ? OpCodes.Ldarg : OpCodes.Ldarga_S, i);
+				body.Emit(OpCodes.Call, typeof(IL2CPP).GetMethod("il2cpp_value_box"));
+			}
+			else
+			{
+				body.Emit(OpCodes.Ldarg, i);
+			}
+			if (!type2.IsValueType)
+			{
+				if (type2.IsByRef)
+				{
+					Type elementType = type2.GetElementType();
+					array2[i] = body.DeclareLocal(elementType);
+					body.Emit(OpCodes.Ldind_I);
+					HandleTypeConversion(elementType);
+					body.Emit(OpCodes.Stloc, array2[i]);
+					body.Emit(OpCodes.Ldloca, array2[i]);
+				}
+				else
+				{
+					HandleTypeConversion(type2);
+				}
+			}
+		}
+		body.Emit(OpCodes.Call, monoMethod);
+		LocalBuilder localBuilder = null;
+		if (monoMethod.ReturnType != typeof(void))
+		{
+			localBuilder = body.DeclareLocal(monoMethod.ReturnType);
+			body.Emit(OpCodes.Stloc, localBuilder);
+		}
+		for (int j = 1; j < array.Length; j++)
+		{
+			LocalBuilder localBuilder2 = array2[j];
+			if (localBuilder2 != null)
+			{
+				body.Emit(OpCodes.Ldarg_S, j);
+				body.Emit(OpCodes.Ldloc, localBuilder2);
+				Type elementType2 = array[j].GetElementType();
+				if (elementType2 == typeof(string))
+				{
+					body.Emit(OpCodes.Call, typeof(IL2CPP).GetMethod("ManagedStringToIl2Cpp"));
+				}
+				else if (!elementType2.IsValueType)
+				{
+					body.Emit(OpCodes.Call, typeof(IL2CPP).GetMethod("Il2CppObjectBaseToPtr"));
+				}
+				body.Emit(InjectorHelpers.StIndOpcodes.TryGetValue(elementType2, out var value) ? value : OpCodes.Stind_I);
+			}
+		}
+		LocalBuilder local = body.DeclareLocal(typeof(Exception));
+		body.BeginCatchBlock(typeof(Exception));
+		body.Emit(OpCodes.Stloc, local);
+		body.Emit(OpCodes.Ldstr, "Exception in IL2CPP-to-Managed trampoline, not passing it to il2cpp: ");
+		body.Emit(OpCodes.Ldloc, local);
+		body.Emit(OpCodes.Callvirt, typeof(object).GetMethod("ToString"));
+		body.Emit(OpCodes.Call, typeof(string).GetMethod("Concat", new Type[2]
+		{
+			typeof(string),
+			typeof(string)
+		}));
+		body.Emit(OpCodes.Call, typeof(ClassInjector).GetMethod("LogError", BindingFlags.Static | BindingFlags.NonPublic));
+		body.EndExceptionBlock();
+		if (localBuilder != null)
+		{
+			body.Emit(OpCodes.Ldloc, localBuilder);
+			if (monoMethod.ReturnType == typeof(string))
+			{
+				body.Emit(OpCodes.Call, typeof(IL2CPP).GetMethod("ManagedStringToIl2Cpp"));
+			}
+			else if (!monoMethod.ReturnType.IsValueType)
+			{
+				body.Emit(OpCodes.Call, typeof(IL2CPP).GetMethod("Il2CppObjectBaseToPtr"));
+			}
+		}
+		body.Emit(OpCodes.Ret);
+		Delegate @delegate = dynamicMethod.CreateDelegate(orCreateDelegateType);
+		GCHandle.Alloc(@delegate);
+		return @delegate;
+		void HandleTypeConversion(Type type)
+		{
+			if (type == typeof(string))
+			{
+				body.Emit(OpCodes.Call, typeof(IL2CPP).GetMethod("Il2CppStringToManaged"));
+			}
+			else if (type.IsSubclassOf(typeof(Il2CppObjectBase)))
+			{
+				Label label = body.DefineLabel();
+				Label label2 = body.DefineLabel();
+				body.Emit(OpCodes.Dup);
+				body.Emit(OpCodes.Brfalse, label);
+				body.Emit(OpCodes.Newobj, type.GetConstructors().FirstOrDefault(delegate(ConstructorInfo ci)
+				{
+					ParameterInfo[] parameters = ci.GetParameters();
+					return parameters.Length == 1 && parameters[0].ParameterType == typeof(IntPtr);
+				}));
+				body.Emit(OpCodes.Br, label2);
+				body.MarkLabel(label);
+				body.Emit(OpCodes.Pop);
+				body.Emit(OpCodes.Ldnull);
+				body.MarkLabel(label2);
+			}
+		}
+	}
+
+	private static void LogError(string message)
+	{
+		Logger.Instance.LogError("{Message}", message);
+	}
+
+	private static string ExtractSignature(MethodInfo monoMethod)
+	{
+		StringBuilder stringBuilder = new StringBuilder();
+		stringBuilder.Append(monoMethod.ReturnType.NativeType().Name);
+		stringBuilder.Append(monoMethod.IsStatic ? "" : "This");
+		ParameterInfo[] parameters = monoMethod.GetParameters();
+		foreach (ParameterInfo parameterInfo in parameters)
+		{
+			stringBuilder.Append(parameterInfo.ParameterType.NativeType().Name);
+		}
+		return stringBuilder.ToString();
+	}
+
+	private static Type RewriteType(Type type)
+	{
+		if (type.IsByRef)
+		{
+			return RewriteType(type.GetElementType()).MakeByRefType();
+		}
+		if (type.IsValueType && !type.IsEnum)
+		{
+			return type;
+		}
+		if (type == typeof(string))
+		{
+			return type;
+		}
+		if (type.IsArray)
+		{
+			Type elementType = type.GetElementType();
+			if (elementType.FullName == "System.String")
+			{
+				return typeof(Il2CppStringArray);
+			}
+			Type type2 = RewriteType(elementType);
+			if (elementType.IsGenericParameter)
+			{
+				return typeof(Il2CppArrayBase<>).MakeGenericType(type2);
+			}
+			return (type2.IsValueType ? typeof(Il2CppStructArray<>) : typeof(Il2CppReferenceArray<>)).MakeGenericType(type2);
+		}
+		if (type.FullName.StartsWith("System"))
+		{
+			string fullName = "Il2Cpp" + type.FullName;
+			Type type3 = Type.GetType(fullName + ", Il2Cpp" + type.Assembly.GetName().Name, throwOnError: false);
+			if (type3 != null)
+			{
+				return type3;
+			}
+			return (from a in AppDomain.CurrentDomain.GetAssemblies()
+				select a.GetType(fullName, throwOnError: false)).First((Type t) => t != null);
+		}
+		return type;
+	}
+
+	private unsafe static string GetIl2CppTypeFullName(Il2CppTypeStruct* typePointer)
+	{
+		INativeClassStruct nativeClassStruct = UnityVersionHandler.Wrap((Il2CppClass*)(void*)IL2CPP.il2cpp_class_from_type((IntPtr)typePointer));
+		INativeAssemblyStruct nativeAssemblyStruct = UnityVersionHandler.Wrap(UnityVersionHandler.Wrap(nativeClassStruct.Image).Assembly);
+		StringBuilder stringBuilder = new StringBuilder();
+		Stack<string> stack = new Stack<string>();
+		INativeClassStruct nativeClassStruct2 = nativeClassStruct;
+		INativeClassStruct nativeClassStruct3 = nativeClassStruct;
+		do
+		{
+			stack.Push(Marshal.PtrToStringUTF8(nativeClassStruct2.Name) ?? "");
+			nativeClassStruct3 = nativeClassStruct2;
+		}
+		while ((nativeClassStruct2 = UnityVersionHandler.Wrap(nativeClassStruct2.DeclaringType)) != null);
+		string text = ((nativeClassStruct3.Namespace != IntPtr.Zero) ? (Marshal.PtrToStringUTF8(nativeClassStruct3.Namespace) ?? "") : "");
+		stringBuilder.Append(text);
+		if (text.Length > 0)
+		{
+			stringBuilder.Append('.');
+		}
+		stringBuilder.Append(string.Join("+", stack));
+		string text2 = Marshal.PtrToStringUTF8(nativeAssemblyStruct.Name.Name);
+		if (text2 != "mscorlib")
+		{
+			stringBuilder.Append(", ");
+			stringBuilder.Append(text2);
+		}
+		return stringBuilder.ToString();
+	}
+
+	internal unsafe static Type SystemTypeFromIl2CppType(Il2CppTypeStruct* typePointer)
+	{
+		string il2CppTypeFullName = GetIl2CppTypeFullName(typePointer);
+		Type type = Type.GetType(il2CppTypeFullName) ?? Type.GetType(il2CppTypeFullName.Contains('.') ? ("Il2Cpp" + il2CppTypeFullName) : ("Il2Cpp." + il2CppTypeFullName)) ?? throw new NullReferenceException("Couldn't find System.Type for Il2Cpp type: " + il2CppTypeFullName);
+		INativeTypeStruct nativeTypeStruct = UnityVersionHandler.Wrap(typePointer);
+		if (nativeTypeStruct.Type == Il2CppTypeEnum.IL2CPP_TYPE_GENERICINST)
+		{
+			Il2CppGenericClass* ptr = (Il2CppGenericClass*)(void*)nativeTypeStruct.Data;
+			uint type_argc = ptr->context.class_inst->type_argc;
+			Il2CppTypeStruct** type_argv = ptr->context.class_inst->type_argv;
+			Type[] array = new Type[type_argc];
+			for (int i = 0; i < type_argc; i++)
+			{
+				array[i] = SystemTypeFromIl2CppType(type_argv[i]);
+			}
+			type = type.MakeGenericType(array);
+		}
+		if (nativeTypeStruct.ByRef)
+		{
+			type = type.MakeByRefType();
+		}
+		return RewriteType(type);
+	}
+
+	public unsafe static void Dump<T>()
+	{
+		Dump((Il2CppClass*)(void*)Il2CppClassPointerStore<T>.NativeClassPtr);
+	}
+
+	private unsafe static string ToString(Il2CppClass* il2CppClass)
+	{
+		if (il2CppClass == null)
+		{
+			return "null";
+		}
+		INativeClassStruct nativeClassStruct = UnityVersionHandler.Wrap(il2CppClass);
+		return Marshal.PtrToStringUTF8(nativeClassStruct.Namespace) + "." + Marshal.PtrToStringUTF8(nativeClassStruct.Name);
+	}
+
+	private unsafe static string ToString(Il2CppTypeStruct* il2CppType)
+	{
+		if (il2CppType == null)
+		{
+			return "null";
+		}
+		return IL2CPP.il2cpp_type_get_name_((IntPtr)il2CppType);
+	}
+
+	public unsafe static void Dump(Il2CppClass* il2CppClass)
+	{
+		if (il2CppClass == null)
+		{
+			throw new ArgumentNullException("il2CppClass");
+		}
+		InjectorHelpers.Setup();
+		InjectorHelpers.ClassInit(il2CppClass);
+		INativeClassStruct nativeClassStruct = UnityVersionHandler.Wrap(il2CppClass);
+		Logger.Instance.LogDebug("Dumping {Pointer:X}", nativeClassStruct.Pointer);
+		Logger.Instance.LogDebug(" Namespace = {Namespace}", Marshal.PtrToStringUTF8(nativeClassStruct.Namespace));
+		Logger.Instance.LogDebug(" Name = {Name}", Marshal.PtrToStringUTF8(nativeClassStruct.Name));
+		Logger.Instance.LogDebug(" Parent = {Parent}", ToString(nativeClassStruct.Parent));
+		Logger.Instance.LogDebug(" InstanceSize = {InstanceSize}", nativeClassStruct.InstanceSize);
+		Logger.Instance.LogDebug(" NativeSize = {NativeSize}", nativeClassStruct.NativeSize);
+		Logger.Instance.LogDebug(" ActualSize = {ActualSize}", nativeClassStruct.ActualSize);
+		Logger.Instance.LogDebug(" Flags = {Flags}", nativeClassStruct.Flags);
+		Logger.Instance.LogDebug(" ValueType = {ValueType}", nativeClassStruct.ValueType);
+		Logger.Instance.LogDebug(" EnumType = {EnumType}", nativeClassStruct.EnumType);
+		Logger.Instance.LogDebug(" IsGeneric = {IsGeneric}", nativeClassStruct.IsGeneric);
+		Logger.Instance.LogDebug(" Initialized = {Initialized}", nativeClassStruct.Initialized);
+		Logger.Instance.LogDebug(" InitializedAndNoError = {InitializedAndNoError}", nativeClassStruct.InitializedAndNoError);
+		Logger.Instance.LogDebug(" SizeInited = {SizeInited}", nativeClassStruct.SizeInited);
+		Logger.Instance.LogDebug(" HasFinalize = {HasFinalize}", nativeClassStruct.HasFinalize);
+		Logger.Instance.LogDebug(" IsVtableInitialized = {IsVtableInitialized}", nativeClassStruct.IsVtableInitialized);
+		VirtualInvokeData* ptr = (VirtualInvokeData*)(void*)nativeClassStruct.VTable;
+		Logger.Instance.LogDebug(" VTable ({VtableCount}):", nativeClassStruct.VtableCount);
+		for (int i = 0; i < nativeClassStruct.VtableCount; i++)
+		{
+			VirtualInvokeData virtualInvokeData = ptr[i];
+			string text = ((virtualInvokeData.method == null) ? "<null>" : Marshal.PtrToStringUTF8(UnityVersionHandler.Wrap(virtualInvokeData.method).Name));
+			Logger.Instance.LogDebug("  [{I}] {MethodName} - {MethodPtr}", i, text, (virtualInvokeData.methodPtr == (IntPtr)0) ? "<null>" : ((object)virtualInvokeData.methodPtr));
+		}
+		Logger.Instance.LogDebug(" Fields ({FieldCount}):", nativeClassStruct.FieldCount);
+		for (int j = 0; j < nativeClassStruct.FieldCount; j++)
+		{
+			INativeFieldInfoStruct nativeFieldInfoStruct = UnityVersionHandler.Wrap(nativeClassStruct.Fields + j * UnityVersionHandler.FieldInfoSize());
+			Logger.Instance.LogDebug($"  [{j}] {ToString(nativeFieldInfoStruct.Type)} {Marshal.PtrToStringUTF8(nativeFieldInfoStruct.Name)} - {nativeFieldInfoStruct.Offset}");
+		}
+		Logger.Instance.LogDebug(" Methods ({MethodCount}):", nativeClassStruct.MethodCount);
+		for (int k = 0; k < nativeClassStruct.MethodCount; k++)
+		{
+			INativeMethodInfoStruct nativeMethodInfoStruct = UnityVersionHandler.Wrap(nativeClassStruct.Methods[k]);
+			Logger.Instance.LogDebug("  [{I}] {ReturnType} {Name}({ParametersCount}), {Flags}, {Slot}", k, ToString(nativeMethodInfoStruct.ReturnType), Marshal.PtrToStringUTF8(nativeMethodInfoStruct.Name), nativeMethodInfoStruct.ParametersCount, nativeMethodInfoStruct.Flags, nativeMethodInfoStruct.Slot);
+		}
+		Logger.Instance.LogDebug(" ImplementedInterfaces ({InterfaceCount}):", nativeClassStruct.InterfaceCount);
+		for (int l = 0; l < nativeClassStruct.InterfaceCount; l++)
+		{
+			INativeClassStruct nativeClassStruct2 = UnityVersionHandler.Wrap(nativeClassStruct.ImplementedInterfaces[l]);
+			Logger.Instance.LogDebug("  [{I}] {Name}", l, Marshal.PtrToStringUTF8(nativeClassStruct2.Name));
+		}
+		Logger.Instance.LogDebug(" InterfaceOffsets ({InterfaceOffsetsCount}):", nativeClassStruct.InterfaceOffsetsCount);
+		for (int m = 0; m < nativeClassStruct.InterfaceOffsetsCount; m++)
+		{
+			Il2CppRuntimeInterfaceOffsetPair il2CppRuntimeInterfaceOffsetPair = nativeClassStruct.InterfaceOffsets[m];
+			INativeClassStruct nativeClassStruct3 = UnityVersionHandler.Wrap(il2CppRuntimeInterfaceOffsetPair.interfaceType);
+			Logger.Instance.LogDebug("  [{I}] {Offset} - {Name}", m, il2CppRuntimeInterfaceOffsetPair.offset, Marshal.PtrToStringUTF8(nativeClassStruct3.Name));
+		}
+		Logger.Instance.LogDebug(" TypeHierarchy ({TypeHierarchyDepth}):", nativeClassStruct.TypeHierarchyDepth);
+		for (int n = 0; n < nativeClassStruct.TypeHierarchyDepth; n++)
+		{
+			INativeClassStruct nativeClassStruct4 = UnityVersionHandler.Wrap(nativeClassStruct.TypeHierarchy[n]);
+			Logger.Instance.LogDebug("  [{I}] {Name}", n, Marshal.PtrToStringUTF8(nativeClassStruct4.Name));
+		}
+	}
+}
+You are not using the latest version of the tool, please update.
+Latest version is '11.2.0.10050' (yours is '8.2.0.7535-95108c96')

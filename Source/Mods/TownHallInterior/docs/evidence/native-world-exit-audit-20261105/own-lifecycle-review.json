@@ -1,0 +1,210 @@
+{
+  "schema": 1,
+  "assessmentUtc": "2026-11-05T16:40:01.1726707Z",
+  "reviewer": "GPT-6.1 Sol / OpenCode; separat delegierter unabhängiger Prüfer der TownHall-eigenen Lebensdauergrenzen",
+  "status": "own-lifecycle-source-review-complete-native-world-exit-and-release-contract-not-established",
+  "evidenceKind": "Gezielte statische Quelltextprüfung; übernommene Native-/Managed-Vorbefunde ausdrücklich getrennt; keine Laufzeitbeobachtung",
+  "nativeSaveWriteAllowed": false,
+  "saveApproval": false,
+  "safeNativeUnregistrationEstablished": false,
+  "safeNativeDestroyEstablished": false,
+  "implementationPerformed": false,
+  "summary": [
+    "Heute gibt es keine verdrahtete asynchrone Saveprobe: die Manager-Variante wird im SubtypeTrial vor Portmethoden, Typregistrierung und Save gesperrt; die reine Save-Zustandsmaschine hat keinen RuntimeSaveAdapter und keinen Runtime-Besitzer.",
+    "Die eigenen Leaving-/Stop-/Main-Unload-Pfade widerrufen Bereitschaft und Generation, übergeben aber weder eine alte Manager-/Listeninstanz noch einen eingefrorenen Altweltauftrag an einen Abbruch-/Quarantänebesitzer. Das ist keine neue Fehlfunktion des heute gesperrten Codes, sondern eine noch nicht implementierte Zukunftsgrenze.",
+    "Ein statisch gehaltener Port hält verwaltete Wrapper und eine alte Generation-Closure; das beweist weder die native Lebensdauer seiner Unity-Wurzel noch Slotisolation oder letzte Nutzung. Die eigenen nativen Callbackmethoden besitzen derzeit nur Zähler, keine Welt-/Operationsbindung und keine Eintritt/Austritt-Quieszenzbuchführung.",
+    "Bestehendes synchrones Subtype-Cleanup und Hallen-Cleanup dürfen nicht als Rückbau einer künftig offenen Savearbeit wiederverwendet werden. Main-Unload und Deinitialize liefern aus dem betrachteten eigenen Code keine Drainquittung.",
+    "Ohne neue allgemeine GameHooks sind ein eigener dauerhaft erreichbarer Einmalversuch-Besitzer, eingefrorene Altidentität, lokale Widerruf-/Quarantäneregeln und per-Instanz-Gates entwerfbar. Sie ersetzen aber keinen nativen Last-Use-/Entfernungsnachweis und erteilen jetzt keine Write-/Unregister-/Destroyfreigabe."
+  ],
+  "repository": {
+    "project": "schedule1-mod-only",
+    "directory": "C:/Users/pc/Schedule1-mod-only",
+    "baseRevision": "b2c6c7e6c6ecc778da9624cdb68a6578b9db471a",
+    "workingTree": "dirty; sämtliche vorgefundenen Änderungen sind fremde/frühere Arbeit und wurden erhalten",
+    "primaryFreeze": ".scratch/townhall-native-world-exit-audit-20261105/input-manifest.json",
+    "primaryFreezeSha256": "f7d3b2a163daba9b96be7d078caf3fd0f7723b718f9468ff61b3262f2f88c498",
+    "primaryFreezeCapturedUtc": "2026-11-05T16:35:51.543004+00:00",
+    "independentSnapshot": ".scratch/townhall-native-world-exit-audit-20261105/own-review/input-snapshot.json",
+    "independentSnapshotSha256": "07e6872d1d9acb44470d7ad841dd9b459e7527368597776455eb97f2aea419fd",
+    "independentSnapshotCapturedUtc": "2026-11-05T16:38:59.7056554Z",
+    "snapshotLimit": "Der erste eigene Bytehash-Snapshot entstand nach dem Lesen der Quellen. Alle 41 geschützten Produktions-/Testquelldateien stimmen dabei mit dem früheren Parent-Freeze überein; kein eigener Prä-Lese-Snapshot wird behauptet."
+  },
+  "scope": {
+    "included": [
+      "BusinessConstruction.cs: Save-Port-/Zustandsmaschinenvertrag, vorgeschaltete Save-Sperre, SubtypeRuntime, eigene Subtype-Callbacks, Portbesitz und synchroner Cleanup",
+      "Mod.cs und csproj: tatsächliche bedingte Start-/Tick-/Main-Unload-/Deinitialize-Aufrufer der betroffenen Route",
+      "BusinessBindingProbe.cs: nur eigene Lebenszyklusabonnements, Beobachtercharakter und Stop-Grenze",
+      "PublicHallHost.cs und UnityRoomSink.cs: nur Abgrenzung des Hallenbesitzes und Hallen-Cleanup von einem künftigen Save-Besitzer",
+      "Beide neuen Audit-/Saveprobe-Dokumente und bereits vorhandener Managed-Grenzbericht als zugeordnete Vorbefunde"
+    ],
+    "excluded": [
+      "Neue GameAssembly-/LoadManager-/Clean-/Exit-Xref-/Coroutine-Analyse; exklusive Parent-Zuständigkeit",
+      "Erneute vollständige S1API-Relay-/Postfixprüfung oder neue Dekompilation installierter Spiel-/Modassemblies",
+      "Wiedereröffnung der geschlossenen Modellfehler, 681 Tests oder abgeschlossenen Start-/Lade-/Handy-Basisabnahme",
+      "Produktions-/Test-/Repositorydokument-/Vaultänderungen; diese Berichte integriert ausschließlich der Parent",
+      "Builds, Testsuiten, Installation, Download, Spielstart/-steuerung, Bridge/Konsole, native Aufrufe und native Save-Dateizugriffe",
+      "Private UserData, Sidecars, Saves, fremde DLL-/GameAssembly-Loader, Subagents, Commit und Push"
+    ],
+    "onlyReportOwnedByReviewer": ".scratch/townhall-native-world-exit-audit-20261105/own-lifecycle-review.json",
+    "onlyToolOutputDirectoryOwnedByReviewer": ".scratch/townhall-native-world-exit-audit-20261105/own-review/",
+    "independence": "Eigenständige Quelltextableitung vor Kenntnis neuer Native-Ergebnisse des Parent. Kein Produktionsbeitrag und keine weitere Delegation."
+  },
+  "sources": [
+    { "id": "business", "path": "Source/Mods/TownHallInterior/src/BusinessConstruction.cs", "sha256": "8964512eeb94ae63acadbe5cd47caa7c36a325e10cd75af73cc5c1091c4db5d2", "locations": ["120-249: reiner Savevertrag", "264-275,294-351: gesperrte Save-Route und synchroner Trial", "525-559: Kontext/Gates", "1781-1812: eigene Callbackmethoden", "1814-1939: Runtime, Lebenszyklus und Kontextauflösung", "2118-2129,2148-2173,2214-2226: Portbesitz und Singletonzugriffe", "2380-2424: synchroner Cleanup und historische Registrierungsroute"] },
+    { "id": "entry", "path": "Source/Mods/TownHallInterior/src/Mod.cs", "sha256": "82323dd725b033b124c0f5edd6252730676f3f1910bdd402441945f0fe4e9385", "locations": ["13-30: bedingter Start und Hallen-Closure", "32-47: Main-Halle", "49-75: Tick und Main-Unload", "77-109: Stop und Hallen-Cleanup"] },
+    { "id": "project", "path": "Source/Mods/TownHallInterior/src/TownHallInterior.csproj", "sha256": "c730506d8c85e9d9fb88def2c397920f408b7771576a59aacc2c4b183bcde9df", "locations": ["2-22: bedingte Probenvarianten"] },
+    { "id": "observer", "path": "Source/Mods/TownHallInterior/src/BusinessBindingProbe.cs", "sha256": "fb82cfafbee2f92b7c52d76edc9a3fe417cb905ad7f20a90a082ce681efa7fa1", "locations": ["24-67: Beobachter und Fehlerisolation", "82-92,116-139: Lifecycle-/Loaderbeobachtung", "428-448: Stop und Unpatch"] },
+    { "id": "hall", "path": "Source/Mods/TownHallInterior/src/PublicHallHost.cs", "sha256": "d85708f66705a1ac87aec2d1def1f4daff0cebabd78b459b93a589418be65bcc", "locations": ["12-35,75-89: eigener Hallenbesitz", "277-321: Hallen-/Fassaden-/Möbelwiederherstellung"] },
+    { "id": "room", "path": "Source/Mods/TownHallInterior/src/UnityRoomSink.cs", "sha256": "646b693e349e61126bc548c59e9bdf8e4f978787eeab1173a8535323f9588d17", "locations": ["13-37: szenenbezogene Hallenwurzel", "65-73: Destroy der Hallenwurzel und Materialien"] },
+    { "id": "native-prior", "path": "Source/Mods/TownHallInterior/docs/native-save-completion-audit.md", "sha256": "168abd65c1d313d897ba85ef22d6f3dd9ce814c7b29c0036ab65de85c679bd93", "locations": ["105-147: übernommene Queue-/Abschlussreihenfolge", "170-195: Halter und Last-Use-Lücke", "197-232: getrennte Beweisziele", "274-279: weiterhin gesperrte Route"] },
+    { "id": "probe-prior", "path": "Source/Mods/TownHallInterior/docs/business-manager-save-probe.md", "sha256": "bca79d26c7a914ac1f5a8b01403e7a5b25ac25451f59fd786a780c9449d07b2c", "locations": ["15-67: Auftrag, Sperre und Modellgrenze", "69-123: übernommene Managed-/Native-Grenzen", "176-188: gesonderter Live-Auftrag und Abnahmegrenze"] },
+    { "id": "managed-prior", "path": "Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/managed-boundary-review.json", "sha256": "3d48257c04fcc5d93de23f03db2432f4be87207b3fde5c533f1f0a5ba9b9ef19", "locations": ["9-15: Zusammenfassung des früheren Prüfers", "199-239: MB-02 bis MB-04; Listener/Reset ohne Drain", "339-369: frühere N-01 bis N-06"] }
+  ],
+  "findings": [
+    {
+      "id": "OWN-01",
+      "classification": "current-source-inspected",
+      "title": "Der heutige Schutz ist Nicht-Einstieg, kein implementierter Save-Abbruch",
+      "source": ["project:2-13", "business:120-138,264-275,1816-1827,1892-1909", "entry:17-29,55-61"],
+      "current": "Die Manager-Buildproperty aktiviert Subtype/Manager und setzt ProbeSave=true, nicht ProbeManager. Run liefert im zulässigen Testslot sofort blocked/native-save-completion-contract-unverified, bevor Capture/RegisterType/Prepare/RegisterOnce erreicht werden. Die Portkonstruktion selbst speichert nur eine Func und einen Modus. Im Produktions-src gibt es weder eine IBusinessSavePort-Implementierung noch einen Runtimeaufrufer von BusinessManagerSaveTrial; kein eigener OnSaveStart-/OnSaveComplete-Handler ist dort verdrahtet.",
+      "prospectiveLimit": "Aus dem Vorhandensein der reinen Zustandsmaschine folgt kein laufender Retain-/Cancel-/Pump-Vertrag. Ihre spätere Verdrahtung wäre eigenständige Implementierung und neue Prüfung, keine bloße Aktivierung eines bereits belegten Adapters.",
+      "notClaimed": "Kein neuer IL-/Binärvergleich des installierten Normalbuilds; dessen Identität und abgeschlossene Baseline werden nur aus dem Parent-Auftrag/Vorbefund übernommen."
+    },
+    {
+      "id": "OWN-02",
+      "classification": "current-source-inspected-with-prospective-consequence",
+      "title": "Leaving widerruft die aktuelle Generation, übergibt aber keinen Altauftrag",
+      "source": ["business:1834-1841,1857-1859,1867-1894,1919-1936", "entry:64-89"],
+      "current": "Loaded erhöht _generation und setzt _loaded/_due. OnPreLoad und OnPreSceneChange führen zu Leaving; Main-Unload ruft Leaving zusätzlich direkt vor dem Hallen-Cleanup. Leaving erhöht nur _generation, setzt _loaded=false und _due=-1. Stop ruft Leaving, setzt _ready=false und entfernt drei Abonnements. Keiner dieser eigenen Aufrufe erhält oder übergibt alte Weltpfade, Manager-/Listenreferenzen, eine Operationsidentität oder eine Drainquittung.",
+      "prospectiveLimit": "Ein Weltwechsel muss einen bereits vor dem Übergang eingefrorenen Auftrag widerrufen/quarantänisieren. Erst beim Leaving den dann aktuellen Singleton oder Savepfad abzufragen wäre keine verlässliche Übergabe der alten Identität. Die lokale Aufrufreihenfolge beweist weder Zustellung jedes Ereignisses noch dessen Zeitpunkt gegenüber nativer Zerstörung; Main-Unload ist kein Last-Use-Beleg.",
+      "importantDistinction": "Die Generation ist eine eigene Invalidierungsmarke. Mehrere Signale dürfen sie mehrfach erhöhen; daraus folgt weder eine native Welt-ID noch ein eindeutiger Requestabschluss. Nicht jeder Szenenmarker wird hier als bestätigter Weltwechsel ausgegeben."
+    },
+    {
+      "id": "OWN-03",
+      "classification": "current-source-inspected-with-prospective-consequence",
+      "title": "Aktueller Singleton-Kontext und eingefrorene Altmanageridentität sind verschieden",
+      "source": ["business:120-129,161-183,234-246,1880-1894,1926-1936,2148-2173,2409-2423"],
+      "current": "ContextValid friert eine eigene Generationszahl ein, liest CurrentContext aber erneut aus den aktuellen LoadManager-/SaveManager-Singletons. ConstructionContext/Gate prüft geladene Testwelt und übereinstimmende Active-/Loaded-Pfade, enthält selbst keine Manageridentität. NativeSubtypePort.Capture löst SaveManager ebenfalls jeweils neu auf. Nur die synchrone RegisterOnce-Methode hält ihren lokalen save/list für die Dauer ihres eigenen Aufrufs.",
+      "modelBoundary": "ManagerSaveState und RequireIdentity vergleichen bereits Manager-/Saveables-Zahlenwert, Generation, normalisierte Pfade und ForeignSaveables. Das ist sinnvolle Modellkorrelation, aber kein Besitzer konkreter alter Manager-/Listenobjekte, kein nativer Requesttoken und kein festgelegtes Halterinventar. Was der opaque ForeignSaveables-String oder ActiveCallbacks tatsächlich abdeckt, müsste ein künftiger Port implementieren und belegen. CompletionContractVerified=true ist eine vom Port gelieferte Voraussetzung, kein vom Modell bewiesenes Ergebnis; ein Fakewert liefert keinen nativen Beleg.",
+      "prospectiveLimit": "Ein neuer Adapter muss alte Instanz-/Listenbindung und bestätigte Ladeidentität beziehungsweise autoritative eigene Ladeepoche für Beobachtung, Callbacks und etwaige Entfernung bewahren. Eine aktuelle passende Testslotbezeichnung oder ein erneut passender Singleton darf den alten Auftrag nicht auf eine spätere Welt umhängen."
+    },
+    {
+      "id": "OWN-04",
+      "classification": "current-source-inspected",
+      "title": "Eigene statische Erreichbarkeit ist weder nativer Rootschutz noch Weltisolation",
+      "source": ["business:1834-1840,1843-1845,1890-1894,1919-1925,2118-2137,2214-2226", "entry:24-25,92-107", "room:65-73"],
+      "current": "BusinessSubtypeRuntime hält _port statisch und ersetzt einen einmal gespeicherten Port nicht. Der Port hält seine ursprüngliche ContextValid-Closure sowie gegebenenfalls _root/_business. _hallReady hält die Mod-Instanzclosure. Leaving/Stop löschen diese Felder nicht. Ein späterer Tick verwendet den vorhandenen Port mit dessen alter Closure; die bisherige Einmalversuchsperre beziehungsweise Save-Sperre verhindert einen neuen nativen Versuch.",
+      "nativeLifetimeLimit": "Die Subtype-Wurzel wird als eigener inaktiver GameObject erzeugt, nicht unter die Halle gehängt und nicht ausdrücklich DontDestroyOnLoad gesetzt. Eine starke verwaltete Wrapperreferenz beweist daher nicht, dass Unity die native Instanz bei einem Szenenwechsel erhält. Umgekehrt würde eine künftig persistent gehaltene native Instanz allein keine Nutzung durch den persistenten Manager in der nächsten Welt verhindern.",
+      "prospectiveLimit": "Quarantäne braucht einen eigenständigen, erreichbaren Besitzer und eine ausdrücklich geprüfte native Objektlebensdauer. Weder Portbeibehaltung noch RootRetain bis Prozessende darf als Erlaubnis für neue Weltnutzung, Abmeldung oder Destroy ausgegeben werden."
+    },
+    {
+      "id": "OWN-05",
+      "classification": "current-source-inspected-with-prospective-consequence",
+      "title": "Die vorhandenen eigenen nativen Callbacks sind Messzähler, kein Quieszenzvertrag",
+      "source": ["business:1783-1812,2128-2136,2249-2252,2330-2349", "business:120-129,208-223"],
+      "current": "ProbeBusinessSubtype zählt Aufrufe und gibt in ShouldSave/CanBePurchased false sowie in GetSaveString einen leeren String zurück. Diese Overrides prüfen keine eingefrorene Generation, keinen Manager, Zielpfad, Versuchstoken oder Widerruf. Es gibt dort kein ActiveCallbacks-Eintritt/Austritt-Paar in try/finally. Die erwarteten Interfacecallbacks betreffen ausschließlich den früheren InitializeSaveable-Versuch, nicht laufende Savearbeit.",
+      "prospectiveLimit": "Ein künftiger Besitzer könnte lokale Eintritt-/Austrittsbuchführung und per-Instanz-/Operations-Gates entwerfen, ohne eine geteilte native Spielmethode zu detouren. Das würde nur die tatsächlich umschlossenen eigenen Callbackrümpfe zählen. Es beweist weder das Ende des umgebenden nativen Dispatchstacks noch, dass nach Zählerstand null kein späterer Callback mehr möglich ist.",
+      "notAReleaseProof": "Leerer SaveString, no-base-Callbacks, false aus ShouldSave oder ein Folgeframe sind keine allgemeine No-IO-/Last-Use-Zusage des ungeprüften restlichen Interfacepfades. Der Parent-Vorbefund zu Default-Interface-Nacharbeiten bleibt hierfür maßgeblich."
+    },
+    {
+      "id": "OWN-06",
+      "classification": "current-source-inspected-with-prospective-consequence",
+      "title": "Bestehendes synchrones Destroy-Cleanup ist kein Cleanup offener Savearbeit",
+      "source": ["business:294-351,2380-2403", "entry:74,77-107", "hall:277-321", "room:65-73"],
+      "current": "Der alte inaktive SubtypeTrial ruft nach seinem synchronen Ablauf im finally höchstens zweimal port.Cleanup. NativeSubtypePort.Cleanup prüft eigene Root-/Komponentenidentität und DestroyImmediate/Callbackzähler, aber keinen Saveabschluss oder nativen Halterdrain. Der gesperrte ProbeSave-Zweig erreicht dieses finally gerade nicht. Der getrennte Hallen-Cleanup restauriert Fassade/Möbel/Collider/Renderer und zerstört danach die Hallenwurzel; er verwaltet keinen Saveauftrag.",
+      "prospectiveLimit": "Eine künftig pending/quarantined Saveinstanz darf nicht in diesen synchronen finally-/Hallen-Cleanup eingehängt werden. CleanupComplete/IsClean aus der bestehenden Probe bestätigt nicht die Entfernung aus Saveables, BaseSaveables, Completed, Requests, Batchlisten oder laufendem Dispatch.",
+      "scopeRespect": "Keine Wiedereröffnung früherer bestandener Konstruktions-/Interface-/Registrierungsabnahmen. Nur die Übertragung ihres begrenzten Cleanupnachweises auf einen neuen asynchronen Savepfad wird verworfen."
+    },
+    {
+      "id": "OWN-07",
+      "classification": "current-source-inspected-plus-inherited-managed-boundary",
+      "title": "Stop und Main-Unload beenden die eigene Beobachtbarkeit, nicht bewiesen die Arbeit",
+      "source": ["entry:64-89", "business:1872-1876,1919-1925", "observer:428-448", "managed-prior:199-239"],
+      "current": "Stop invalidiert die Subtype-Route und nimmt Abonnements ab; es wartet nicht und bestätigt keinen nativen Abbruch. Runtime.Tick ist zudem ein einmaliger verzögerter Versuch pro Loaded-Signal: es setzt _due vor Trial.Run auf -1, ist also auch innerhalb derselben Welt keine laufende Save-Pumpe. Der Diagnosebeobachter entfernt separat seine Eventabonnements/Harmonybeobachter, besitzt aber keinen Saveauftrag und kein per-Save-Callbackdrain. Im betrachteten Mod gibt es keine eigene OnApplicationQuit-/Shutdown-Quittierung für offene Savearbeit.",
+      "inheritedNotReaudited": "Der frühere MB-02/MB-03/MB-04-Bericht belegt für seinen Prüfzeitpunkt mögliche ausgefallene spätere Managed-Teilnehmer, Main-Reset ohne Drain und stehenbleibende statische Managed-Abonnements. Das wurde hier nicht nochmals vollständig geprüft; insbesondere wird fehlende Completion nach Listenerverlust nicht als Abbruchbeweis gewertet.",
+      "prospectiveLimit": "Wird eine spätere Quarantäne nur per aktuell _loaded/_due gegatetem Tick gepumpt, verliert sie gerade beim Leaving ihren normalen Aufrufpfad. Benötigt wird eine getrennte eigene Verwaltungsreichweite. Auch diese darf nach Stop oder fehlender Zustellung keine native Freigabe erfinden."
+    },
+    {
+      "id": "OWN-08",
+      "classification": "inherited-static-native-evidence-not-rechecked",
+      "title": "Die nativen Halter bleiben getrennt von eigener Callbackbuchführung",
+      "source": ["native-prior:105-147,170-195,221-232"],
+      "inherited": "Der vorherige Native-Audit nennt Saveables/BaseSaveables, Queue/Requests mit Teilnehmer und Pfad, unabhängige Batchliste und laufenden Dispatch, CompletedSaveables sowie Coroutine-/Eventkontexte. Er belegt Queueentnahme vor WriteBaseData und Completion/Idle vor Fehlerauswertung, aber keinen vollständigen Altwelt-Last-Use-Vertrag.",
+      "consequence": "Ein eigener Eintritt/Austritt-Zähler, RemoveSaveable-Readback oder Retain adressiert höchstens einen Teil dieser Halter. Letzte mögliche Nutzung/gezielte Entfernung, nativer Speichererfolg und Erfolg zusätzlicher Moddaten bleiben getrennte Beweisziele. Dieser Bericht ergänzt keine neue native Xref-, Exit- oder Coroutineaussage."
+    }
+  ],
+  "retentionAndCallbackMap": [
+    { "holder": "BusinessSubtypeRuntime._port", "evidence": "business:1839,1892-1894,1919-1925", "scope": "Heute statischer eigener Wrapper-/Closurebesitz; nach erfolgreichem historischen Versuch gegebenenfalls alte native Handles. Kein Beweis nativer Fortlebensfähigkeit oder späterer Wiederverwendung." },
+    { "holder": "NativeSubtypePort._root/_business und _contextValid", "evidence": "business:2120-2129,2218-2225", "scope": "Port hält eigene Wrapper und alte lokale Generation-Closure. Callbackmethoden des Business fragen diese Closure nicht ab." },
+    { "holder": "BusinessSubtypeRuntime._hallReady -> Mod -> _hall/_staged", "evidence": "entry:24-25,94-107; business:1835,1845", "scope": "Verwaltete Erreichbarkeit und dynamische Hallenbereitschaft. Hallenreferenzen werden beim Cleanup abgetrennt; kein Saveauftrag und keine alte Manageridentität." },
+    { "holder": "Statische Lifecycle-Abonnements und gegebenenfalls ein bereits aufgerufener Delegate", "evidence": "business:1857-1859,1867-1872,1919-1925; managed-prior:199-239", "scope": "Eigene Events referenzieren statische Methoden. Unsubscribe beweist nicht, dass ein bereits laufender Invoke zurückgekehrt ist. Loaded prüft _ready/Thread; Leaving bleibt ein bloßer Invalidierer. Tatsächliche Teilnehmerreihenfolge ist hier nicht inventarisiert." },
+    { "holder": "ClassInjector-/native Typregistrierung", "evidence": "business:256-257,2175-2193", "scope": "Typregistrierung ist prozessweit irreversibel. Das ist nicht gleichbedeutend mit einem Beweis, dass jede konkrete Instanz gerootet ist oder jeder Interfacepfad ausschließlich sichere eigene Overrides nutzt." },
+    { "holder": "BusinessManagerSaveTrial._port/_contextCurrent/_before/_last", "evidence": "business:141-148,170-181,196-249", "scope": "Nur prospektiver Modellbesitz. Ohne einen Runtimeaufrufer ist diese Halterkette heute nicht an die native Welt angeschlossen; ein künftiger äußerer Besitzer muss sie selbst erreichbar halten." },
+    { "holder": "Native Manager-/Request-/Batch-/Completed-/Dispatch-Halter", "evidence": "native-prior:170-195", "scope": "Übernommener Vorbefund, keine neue Analyse. Kann nicht aus eigener Port-/Eventabmeldung als beendet erklärt werden." }
+  ],
+  "boundedArchitectureDecisionsWithoutNewGeneralGameHooks": [
+    {
+      "id": "ARCH-01",
+      "classification": "recommendation-to-preserve-current-guard-not-new-implementation",
+      "decision": "Fail-Closed beibehalten",
+      "detail": "Keine native Saveprobe anschließen, solange eigener nativer Last-Use-/Weltwechselvertrag offen ist. Das ist die sofort vorhandene und ausreichend belegte Schutzgrenze; weder eine neue globale Savesperre noch ein geteilter Spieldetour ist dafür erforderlich."
+    },
+    {
+      "id": "ARCH-02",
+      "classification": "design-requirement-not-implemented",
+      "decision": "Ein einziger eigenständiger Altauftrag-Besitzer statt Hallenbesitz",
+      "detail": "Vor jeglicher möglichen Registrierung eine unveränderliche Operationsidentität, bestätigte Ladeepoche/Zielpfade, konkrete alte Manager-/Listenbindung und eigene Instanzbindung erfassen. Versuch/Teilwirkung/Abschluss/Entfernung getrennt halten. Besitzer und erreichbarer Quarantänezustand dürfen beim Hallen-Cleanup oder Loaded-Ersatz nicht verloren gehen; Kapazität eins und kein Retarget/Blindretry."
+    },
+    {
+      "id": "ARCH-03",
+      "classification": "design-requirement-not-implemented",
+      "decision": "Bestehende eigene Aufrufer als Invalidierung, nicht als Freigabe benutzen",
+      "detail": "OnPreLoad/OnPreSceneChange und direkte Mod-Main-Unload-/Deinitialize-Aufrufer können eine eigene Epoche widerrufen und neue Mutation schließen. Ein gesonderter eigener Verwaltungszweig in Mod.OnUpdate könnte einen gehaltenen Auftrag unabhängig von Hallenbereitschaft verwalten. Nach Identitätsverlust keine Ersatzerfassung des aktuellen Singletons; alte native Handles nur bei gesondert bestätigter Lesbarkeit verwenden, sonst terminal unbekannt bleiben. Ereignisverlust und Prozessabbruch bleiben ausdrücklich ohne Quittung."
+    },
+    {
+      "id": "ARCH-04",
+      "classification": "design-option-with-unresolved-native-preconditions",
+      "decision": "Eigene per-Instanz-Callbacks eng binden",
+      "detail": "Operations-/Generationsbindung, widerrufene Mutationsfähigkeit und echte Eintritt/Austritt-Buchführung können in eigenen Methoden liegen, ohne neue allgemeine GameHooks. Das darf nur für nachgewiesen tatsächlich eigene Eintrittspunkte beansprucht werden. Unbewiesene Default-/Interfacepfade, native Umgebung vor/nach dem Callback und spätere Wiederaufrufe bleiben nicht erfasst."
+    },
+    {
+      "id": "ARCH-05",
+      "classification": "design-alternatives-not-release-proofs",
+      "decision": "Objektlebensdauer ausdrücklich wählen, nicht aus Retain ableiten",
+      "detail": "Entweder eine beweisbar vor Weltwechsel vollständig gelöste transiente Probe oder ein eigens entworfener dauerhaft gültiger, nach Widerruf inert gehaltener Teilnehmer. Die zweite Variante verlangt zusätzlich einen belegten Nicht-Retarget-/Nicht-IO-Vertrag für alle erreichbaren Pfade; bloßes DontDestroyOnLoad oder RootRetain bis Prozessende reicht nicht. Keine dieser Alternativen ist hier umgesetzt oder für Livebetrieb freigegeben."
+    }
+  ],
+  "questionsReservedForParentNativeResultOrLaterNarrowCrossReview": [
+    "Welche konkrete native Weltwechsel-/Exit-/Abort-Reihenfolge beendet beziehungsweise behält Requests, Batch-/Coroutinecaptures, Completed und laufenden Dispatch der alten Managerinstanz?",
+    "Kann eine alte Manager-/Listenidentität nach Main-Unload weiterleben, ersetzt werden oder in der nächsten Welt erneut verwendet werden, und welche belegte eigene Grenze verhindert dann einen Zugriff auf den alten Teilnehmer?",
+    "Gibt es eine tatsächlich korrelierbare letzte Nutzung/gezielte Entfernung für die eigene Instanz, einschließlich Fehlern, Reentranz und Listenerverlust?",
+    "Welche nativen Interface-/Defaultpfade können vor oder nach eigenen Overrides arbeiten? Ein lokaler Guard darf nicht als Beleg für unberührte native Umgebungsarbeit ausgegeben werden."
+  ],
+  "verificationActuallyPerformed": {
+    "instructionsRead": [
+      "Repository AGENTS.md vollständig: 327 Zeilen",
+      "Skills/schedule1-modding/SKILL.md und references/working-contract.md sowie evidence-policy.md",
+      "Skills/schedule1-persistence/SKILL.md und Skills/schedule1-mod-reversing/SKILL.md",
+      "Vault AGENTS.md im Sitzungskontext sowie SCHEMA.md, index.md, Projektkarte, connections.local.json und letzte relevante log.md-Einträge; nur gelesen"
+    ],
+    "targetedSourceReview": "Abgeschlossen für die benannten eigenen Quellabschnitte; kein Vollreview der alten Construction-/zurückgezogenen Activation-Routen.",
+    "independentProtectedSourceHashCheck": "PASS zum eigenen Snapshot: 41/41 stimmen mit dem Parent-Freeze von 16:35:51 UTC überein. Hashprüfung der Testdateien ist keine erneute inhaltliche Prüfung oder Testausführung.",
+    "targetedSourceAndInstructionHashes": "16 benannte Dateien mit Bytehash/Größe im eigenen input-snapshot.json; neun fachliche Quellen zusätzlich oben mit Fundstellen.",
+    "repositoryBaseAndStatus": "HEAD unabhängig b2c6c7e6c6ecc778da9624cdb68a6578b9db471a; dirty Status gelesen, nichts zurückgesetzt oder bereinigt.",
+    "environmentAtSnapshot": { "gameProcessCount": 0, "dotnetRoot": null, "dotnetRootChanged": false },
+    "finalReadbackAndIntegrityOutput": ".scratch/townhall-native-world-exit-audit-20261105/own-review/final-input-verification.json",
+    "inheritedOnly": "Sieben benannte Installations-/Analyseeingaben und 135 frühere Belege gelten hier als Parent-Freeze-Angaben. Sie wurden von diesem eigenen Lifecycle-Review nicht neu geöffnet oder vollständig erneut gehasht. Die aus ihnen übernommenen Aussagen bleiben dem ursprünglichen Prüfer/Datum zugeordnet.",
+    "notExecuted": [
+      "Neue native Implementierungsanalyse, neue S1API-Dekompilation oder Laden/Invocation einer Spiel-/Modassembly",
+      "Builds, Testsuiten, Installation, Download, Spiel, Bridge/Konsole, Save oder Zugriff auf native Save-Dateien/private Sidecars",
+      "Repository-/Vault-Dokumentänderungen, Vaultvalidierung, Quick/Pure/Full oder erneute 681er-Modellsuite",
+      "Commit, Push, Deployment und weitere Delegation"
+    ]
+  },
+  "blockersAndConclusion": {
+    "accessOrToolBlocker": "Keiner für diesen eng beauftragten lesenden Quellreview.",
+    "unresolvedProofBoundary": "Die alten eigenen Aufrufer liefern Invalidierung, aber noch keine eingefrorene Altauftrag-Übergabe, keine belegte native Objektfortlebensfähigkeit und keine letzte Nutzungs-/Entfernungsquittung. Die Parent-Nativeanalyse kann diese Lücke begrenzen; sie wird hier nicht vorweggenommen.",
+    "currentVersusFuture": "Heute sicherheitsentscheidend ist die Sperre vor Registrierung/Save. Die beschriebenen Zukunftsentscheidungen sind Erkenntnis/Entwurf, keine Umsetzung und keine neu eröffnete alte Abnahme.",
+    "finalPermission": "Keine Write-, Destroy- oder Unregisterfreigabe. NativeSaveWriteAllowed bleibt false; kein RuntimeSaveAdapter. Nach Parent-Nativeergebnis ist nur ein ausdrücklich enger Gegenreview sinnvoll."
+  }
+}

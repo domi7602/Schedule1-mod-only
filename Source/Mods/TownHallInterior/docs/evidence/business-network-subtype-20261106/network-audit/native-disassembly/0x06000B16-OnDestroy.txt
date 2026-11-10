@@ -1,0 +1,29 @@
+; FishNet.Managing.NetworkManager::OnDestroy/0, token 0x06000B16, RVA 0xCF82E0, .pdata primary extent 0x79 bytes
+; Raw native bytes decoded without invoking the game. .pdata primary extent is not a proof of full transitive/exception-path coverage.
+0xCF82E0     40 53                           push rbx
+0xCF82E2     48 83 EC 20                     sub rsp,20h
+0xCF82E6     80 3D D1 8A F0 02 00            cmp byte ptr [183C00DBEh],0
+0xCF82ED     48 8B D9                        mov rbx,rcx
+0xCF82F0     75 1F                           jne short 0000000180CF8311h
+0xCF82F2     48 8D 0D F7 4E C9 02            lea rcx,[18398D1F0h]
+0xCF82F9     E8 A2 F5 61 FF                  call 00000001803178A0h
+0xCF82FE     48 8D 0D 3B 41 CF 02            lea rcx,[1839EC440h] ; TypeInfo: FishNet.Managing.NetworkManager
+0xCF8305     E8 96 F5 61 FF                  call 00000001803178A0h
+0xCF830A     C6 05 AD 8A F0 02 01            mov byte ptr [183C00DBEh],1
+0xCF8311     48 8B 05 28 41 CF 02            mov rax,[1839EC440h] ; TypeInfo: FishNet.Managing.NetworkManager
+0xCF8318     83 B8 E0 00 00 00 00            cmp dword ptr [rax+0E0h],0
+0xCF831F     75 0F                           jne short 0000000180CF8330h
+0xCF8321     48 8B C8                        mov rcx,rax
+0xCF8324     E8 07 F9 61 FF                  call 0000000180317C30h
+0xCF8329     48 8B 05 10 41 CF 02            mov rax,[1839EC440h] ; TypeInfo: FishNet.Managing.NetworkManager
+0xCF8330     48 8B 80 B8 00 00 00            mov rax,[rax+0B8h]
+0xCF8337     48 8B 08                        mov rcx,[rax]
+0xCF833A     48 85 C9                        test rcx,rcx
+0xCF833D     74 14                           je short 0000000180CF8353h
+0xCF833F     4C 8B 05 AA 4E C9 02            mov r8,[18398D1F0h]
+0xCF8346     48 8B D3                        mov rdx,rbx
+0xCF8349     48 83 C4 20                     add rsp,20h
+0xCF834D     5B                              pop rbx
+0xCF834E     E9 4D 00 BE 00                  jmp near ptr 00000001818D83A0h
+0xCF8353     E8 28 F8 61 FF                  call 0000000180317B80h
+0xCF8358     CC                              int 3

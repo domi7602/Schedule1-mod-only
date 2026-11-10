@@ -69,7 +69,7 @@ in force, including preservation of unrelated changes and commit/push/deployment
 ## 1. Setup
 
 **Recorded local baseline:** Schedule I Open Beta **v0.4.7f12**, Unity **2022.3.62f2**,
-Steam build **25796331** (log/manifest, 2026-10-08); MelonLoader **0.7.3**, S1API **3.2.2 stable** (installed 2026-11-02, not yet loaded),
+Steam build **25796331** (log/manifest, 2026-10-08); MelonLoader **0.7.3**, S1API **3.2.2 stable** (installed 2026-11-02, startup/load observed 2026-11-05),
 S1MAPI **2.0.1**. Mods use `net6.0`, C# 12 and nullable references. SDK **8.0.426** and
 runtimes **6.0.36 / 8.0.32** are global in `C:\Program Files\dotnet` (2026-10-24).
 
@@ -83,7 +83,10 @@ runtimes **6.0.36 / 8.0.32** are global in `C:\Program Files\dotnet` (2026-10-24
 - S1API source target: `6b6d7bada39054822732224508cf0f4f45ee7c26` / `v3.2.2`;
   clean submodule checkout updated, superproject change uncommitted. Official release
   IL2CPP `d751a3cb…` and loader `b05187bd…` installed with verified 3.2.1 backups.
-  ProductVersion `3.2.2+6b6d7bada…`; no new game load/acceptance. Whole-solution no-deploy
+  ProductVersion `3.2.2+6b6d7bada…`; matching runtime/loader hashes and TownHallTest
+  startup/load observed 2026-11-05; phone opening/closing subsequently owner-confirmed,
+  no broad API/gameplay acceptance. [Bounded live record](Source/Mods/TownHallInterior/docs/launch-preparation.md).
+  Whole-solution no-deploy
   build 0 warnings/errors, 4,157 tests + 265 console checks passed; ApiCompat passed.
   [Upgrade evidence and rollback](docs/s1api-upgrade-3.2.2.md) owns exact hashes and limits.
   **Do not downgrade to 3.2.0**: pre-f6 NPC renames cause
@@ -144,7 +147,7 @@ Keep exactly one inventory row per mod and supported bold acceptance labels.
 | **WorldLook** | ✅ (v0.3.0-dev.5, **Verified, owner-confirmed 2026-10-25**) | `Mods/WorldLook/` | `WorldLook.dll` + embedded bundle | Owner-confirmed finished in the last session; actions not itemized; prior shader-reload evidence retained |
 | **TownHallInterior** | 🧪 (v0.1.0, **In-Game-Verify open**) | `Mods/TownHallInterior/` | `TownHallInterior.dll` | Public hall, geometric portal; hash-pinned local slices, not distributable |
 | **Shared** | ✅ workspace library | `Mods/Shared/` | `Shared.dll` | Reusable helpers; section 5 |
-| **S1API** | ✅ 3.2.2 stable (installed, not yet loaded) | — | `S1API.Il2Cpp.MelonLoader.dll` + `Plugins/S1APILoader.MelonLoader.dll` | Release hashes/backups verified; no-deploy build/tests/API checks passed; section 1 |
+| **S1API** | ✅ 3.2.2 stable (startup/load observed 2026-11-05) | — | `S1API.Il2Cpp.MelonLoader.dll` + `Plugins/S1APILoader.MelonLoader.dll` | Matching runtime/loader hashes and TownHallTest load observed; phone open/close owner-confirmed; no individual app or broad API/gameplay acceptance; section 1 |
 
 Archived: BackpackMod, DayCounter, HomelessMod, ProfitTracker, SnackVendor, TVBrowser and
 _DiagPerfCounter plus archived tests. The staged TownHallInterior door dialog was moved to

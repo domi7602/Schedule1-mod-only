@@ -1,0 +1,211 @@
+; ScheduleOne.Persistence.SaveRequest::.ctor/2, token 0x0600184A, RVA 0x5ABBC0, metadata-pointer window 0x330 bytes
+; Raw native bytes only. Window ends at next distinct managed-method pointer, includes padding/cold fragments; not proof of full transitive/exception coverage. Shared target names show at most eight aliases; total count is recorded.
+0x5ABBC0     4C 89 44 24 18                  mov [rsp+18h],r8
+0x5ABBC5     48 89 54 24 10                  mov [rsp+10h],rdx
+0x5ABBCA     48 89 4C 24 08                  mov [rsp+8],rcx
+0x5ABBCF     53                              push rbx
+0x5ABBD0     56                              push rsi
+0x5ABBD1     57                              push rdi
+0x5ABBD2     41 56                           push r14
+0x5ABBD4     41 57                           push r15
+0x5ABBD6     48 83 EC 50                     sub rsp,50h
+0x5ABBDA     49 8B F8                        mov rdi,r8
+0x5ABBDD     4C 8B F2                        mov r14,rdx
+0x5ABBE0     48 8B D9                        mov rbx,rcx
+0x5ABBE3     80 3D 79 FB 64 03 00            cmp byte ptr [183BFB763h],0
+0x5ABBEA     75 2B                           jne short 00000001805ABC17h
+0x5ABBEC     48 8D 0D 0D 90 40 03            lea rcx,[1839B4C00h] ; TypeInfo: ScheduleOne.Persistence.ISaveable
+0x5ABBF3     E8 A8 BC D6 FF                  call 00000001803178A0h
+0x5ABBF8     48 8D 0D C1 67 44 03            lea rcx,[1839F23C0h] ; MethodRef: T ScheduleOne.DevUtilities.Singleton`1<ScheduleOne.Persistence.SaveManager>.get_Instance
+0x5ABBFF     E8 9C BC D6 FF                  call 00000001803178A0h
+0x5ABC04     48 8D 0D D5 F2 3E 03            lea rcx,[18399AEE0h] ; TypeInfo: System.String
+0x5ABC0B     E8 90 BC D6 FF                  call 00000001803178A0h
+0x5ABC10     C6 05 4C FB 64 03 01            mov byte ptr [183BFB763h],1
+0x5ABC17     33 D2                           xor edx,edx
+0x5ABC19     48 8B CB                        mov rcx,rbx
+0x5ABC1C     E8 9F 42 E9 FF                  call 000000018043FEC0h ; VFXRainPass::Dispose/0 | LightningLightController+<DoStrikeRoutine>d__7::System.IDisposable.Dispose/0 | ActionList+<<InvokeAllStaggered>g__StaggeredInvoke|6_0>d::System.IDisposable.Dispose/0 | CameraCaptureToPNG+<CaptureCameraView>d__5::System.IDisposable.Dispose/0 | DeveloperManager+<DoDeveloperRoutine>d__9::System.IDisposable.Dispose/0 | UnityServicesManager::Start/0 | UnityServicesManager::Update/0 | EntityConfigurationData::Start/0 | ... SHARED TARGET: 1731 method aliases total
+0x5ABC21     4C 89 73 10                     mov [rbx+10h],r14
+0x5ABC25     48 8D 4B 10                     lea rcx,[rbx+10h]
+0x5ABC29     49 8B D6                        mov rdx,r14
+0x5ABC2C     E8 7F AE D6 FF                  call 0000000180316AB0h
+0x5ABC31     48 89 7B 18                     mov [rbx+18h],rdi
+0x5ABC35     48 8D 4B 18                     lea rcx,[rbx+18h]
+0x5ABC39     48 8B D7                        mov rdx,rdi
+0x5ABC3C     E8 6F AE D6 FF                  call 0000000180316AB0h
+0x5ABC41     90                              nop
+0x5ABC42     4D 85 F6                        test r14,r14
+0x5ABC45     0F 84 95 02 00 00               je near ptr 00000001805ABEE0h
+0x5ABC4B     B9 0B 00 00 00                  mov ecx,0Bh
+0x5ABC50     4D 8B C6                        mov r8,r14
+0x5ABC53     48 8B 15 A6 8F 40 03            mov rdx,[1839B4C00h] ; TypeInfo: ScheduleOne.Persistence.ISaveable
+0x5ABC5A     E8 11 79 A5 FF                  call 0000000180003570h
+0x5ABC5F     48 89 43 20                     mov [rbx+20h],rax
+0x5ABC63     48 8D 4B 20                     lea rcx,[rbx+20h]
+0x5ABC67     48 8B D0                        mov rdx,rax
+0x5ABC6A     E8 41 AE D6 FF                  call 0000000180316AB0h
+0x5ABC6F     90                              nop
+0x5ABC70     33 F6                           xor esi,esi
+0x5ABC72     E9 EC 00 00 00                  jmp near ptr 00000001805ABD63h
+0x5ABC77     4C 8B B4 24 88 00 00 00         mov r14,[rsp+88h]
+0x5ABC7F     4D 85 F6                        test r14,r14
+0x5ABC82     0F 84 52 02 00 00               je near ptr 00000001805ABEDAh
+0x5ABC88     33 D2                           xor edx,edx
+0x5ABC8A     49 8B CE                        mov rcx,r14
+0x5ABC8D     E8 5E D3 64 01                  call 0000000181BF8FF0h ; System.Object::GetType/0
+0x5ABC92     48 85 C0                        test rax,rax
+0x5ABC95     0F 84 3F 02 00 00               je near ptr 00000001805ABEDAh
+0x5ABC9B     4C 8B 00                        mov r8,[rax]
+0x5ABC9E     49 8B 90 70 01 00 00            mov rdx,[r8+170h]
+0x5ABCA5     48 8B C8                        mov rcx,rax
+0x5ABCA8     41 FF 90 68 01 00 00            call qword ptr [r8+168h]
+0x5ABCAF     4C 8B F8                        mov r15,rax
+0x5ABCB2     48 8B 4C 24 30                  mov rcx,[rsp+30h]
+0x5ABCB7     48 85 C9                        test rcx,rcx
+0x5ABCBA     0F 84 1A 02 00 00               je near ptr 00000001805ABEDAh
+0x5ABCC0     4C 8B 01                        mov r8,[rcx]
+0x5ABCC3     49 8B 90 90 01 00 00            mov rdx,[r8+190h]
+0x5ABCCA     41 FF 90 88 01 00 00            call qword ptr [r8+188h]
+0x5ABCD1     48 8B F8                        mov rdi,rax
+0x5ABCD4     48 8D 0D CD 72 44 03            lea rcx,[1839F2FA8h] ; StringLiteral: : 
+0x5ABCDB     E8 E0 BB D6 FF                  call 00000001803178C0h
+0x5ABCE0     48 8B D8                        mov rbx,rax
+0x5ABCE3     48 8D 0D D6 CD 3F 03            lea rcx,[1839A8AC0h] ; StringLiteral: Error generating save string for 
+0x5ABCEA     E8 D1 BB D6 FF                  call 00000001803178C0h
+0x5ABCEF     33 F6                           xor esi,esi
+0x5ABCF1     48 89 74 24 20                  mov [rsp+20h],rsi
+0x5ABCF6     4C 8B CF                        mov r9,rdi
+0x5ABCF9     4C 8B C3                        mov r8,rbx
+0x5ABCFC     49 8B D7                        mov rdx,r15
+0x5ABCFF     48 8B C8                        mov rcx,rax
+0x5ABD02     E8 09 75 43 01                  call 00000001819E3210h ; System.String::Concat/4
+0x5ABD07     48 8B D8                        mov rbx,rax
+0x5ABD0A     48 8D 0D FF DE 45 03            lea rcx,[183A09C10h] ; TypeInfo: UnityEngine.Debug
+0x5ABD11     E8 AA BB D6 FF                  call 00000001803178C0h
+0x5ABD16     39 B0 E0 00 00 00               cmp [rax+0E0h],esi
+0x5ABD1C     75 08                           jne short 00000001805ABD26h
+0x5ABD1E     48 8B C8                        mov rcx,rax
+0x5ABD21     E8 0A BF D6 FF                  call 0000000180317C30h
+0x5ABD26     33 D2                           xor edx,edx
+0x5ABD28     48 8B CB                        mov rcx,rbx
+0x5ABD2B     E8 D0 5C 59 02                  call 0000000182B41A00h ; UnityEngine.Debug::LogError/1
+0x5ABD30     48 8D 0D A9 F1 3E 03            lea rcx,[18399AEE0h] ; TypeInfo: System.String
+0x5ABD37     E8 84 BB D6 FF                  call 00000001803178C0h
+0x5ABD3C     48 8B 88 B8 00 00 00            mov rcx,[rax+0B8h]
+0x5ABD43     48 8B 11                        mov rdx,[rcx]
+0x5ABD46     48 8B 9C 24 80 00 00 00         mov rbx,[rsp+80h]
+0x5ABD4E     48 89 53 20                     mov [rbx+20h],rdx
+0x5ABD52     48 8D 4B 20                     lea rcx,[rbx+20h]
+0x5ABD56     E8 55 AD D6 FF                  call 0000000180316AB0h
+0x5ABD5B     48 8B BC 24 90 00 00 00         mov rdi,[rsp+90h]
+0x5ABD63     48 8B 05 76 F1 3E 03            mov rax,[18399AEE0h] ; TypeInfo: System.String
+0x5ABD6A     48 8B 90 B8 00 00 00            mov rdx,[rax+0B8h]
+0x5ABD71     45 33 C0                        xor r8d,r8d
+0x5ABD74     48 8B 12                        mov rdx,[rdx]
+0x5ABD77     48 8B 4B 20                     mov rcx,[rbx+20h]
+0x5ABD7B     E8 00 21 44 01                  call 00000001819EDE80h ; System.String::op_Inequality/2
+0x5ABD80     84 C0                           test al,al
+0x5ABD82     75 7A                           jne short 00000001805ABDFEh
+0x5ABD84     48 8B 15 75 8E 40 03            mov rdx,[1839B4C00h] ; TypeInfo: ScheduleOne.Persistence.ISaveable
+0x5ABD8B     4D 8B 0E                        mov r9,[r14]
+0x5ABD8E     41 0F B7 89 2E 01 00 00         movzx ecx,word ptr [r9+12Eh]
+0x5ABD96     66 3B F1                        cmp si,cx
+0x5ABD99     73 1B                           jae short 00000001805ABDB6h
+0x5ABD9B     4D 8B 81 B0 00 00 00            mov r8,[r9+0B0h]
+0x5ABDA2     0F B7 C6                        movzx eax,si
+0x5ABDA5     48 03 C0                        add rax,rax
+0x5ABDA8     49 39 14 C0                     cmp [r8+rax*8],rdx
+0x5ABDAC     74 31                           je short 00000001805ABDDFh
+0x5ABDAE     66 FF C6                        inc si
+0x5ABDB1     66 3B F1                        cmp si,cx
+0x5ABDB4     72 EC                           jb short 00000001805ABDA2h
+0x5ABDB6     41 B8 0F 00 00 00               mov r8d,0Fh
+0x5ABDBC     49 8B CE                        mov rcx,r14
+0x5ABDBF     E8 9C 03 D7 FF                  call 000000018031C160h
+0x5ABDC4     4C 8B 48 08                     mov r9,[rax+8]
+0x5ABDC8     45 33 C0                        xor r8d,r8d
+0x5ABDCB     48 8B D7                        mov rdx,rdi
+0x5ABDCE     49 8B CE                        mov rcx,r14
+0x5ABDD1     48 83 C4 50                     add rsp,50h
+0x5ABDD5     41 5F                           pop r15
+0x5ABDD7     41 5E                           pop r14
+0x5ABDD9     5F                              pop rdi
+0x5ABDDA     5E                              pop rsi
+0x5ABDDB     5B                              pop rbx
+0x5ABDDC     48 FF 20                        jmp qword ptr [rax]
+0x5ABDDF     0F B7 CE                        movzx ecx,si
+0x5ABDE2     48 03 C9                        add rcx,rcx
+0x5ABDE5     41 8B 44 C8 08                  mov eax,[r8+rcx*8+8]
+0x5ABDEA     83 C0 0F                        add eax,0Fh
+0x5ABDED     48 98                           cdqe
+0x5ABDEF     48 C1 E0 04                     shl rax,4
+0x5ABDF3     48 05 38 01 00 00               add rax,138h
+0x5ABDF9     49 03 C1                        add rax,r9
+0x5ABDFC     EB C6                           jmp short 00000001805ABDC4h
+0x5ABDFE     48 8B 05 BB 65 44 03            mov rax,[1839F23C0h] ; MethodRef: T ScheduleOne.DevUtilities.Singleton`1<ScheduleOne.Persistence.SaveManager>.get_Instance
+0x5ABE05     48 8B 40 20                     mov rax,[rax+20h]
+0x5ABE09     F6 80 35 01 00 00 01            test byte ptr [rax+135h],1
+0x5ABE10     75 08                           jne short 00000001805ABE1Ah
+0x5ABE12     48 8B C8                        mov rcx,rax
+0x5ABE15     E8 26 0A D7 FF                  call 000000018031C840h
+0x5ABE1A     48 8B 80 C0 00 00 00            mov rax,[rax+0C0h]
+0x5ABE21     48 8B 40 10                     mov rax,[rax+10h]
+0x5ABE25     F6 80 35 01 00 00 01            test byte ptr [rax+135h],1
+0x5ABE2C     75 08                           jne short 00000001805ABE36h
+0x5ABE2E     48 8B C8                        mov rcx,rax
+0x5ABE31     E8 0A 0A D7 FF                  call 000000018031C840h
+0x5ABE36     48 8B 80 B8 00 00 00            mov rax,[rax+0B8h]
+0x5ABE3D     48 8B 38                        mov rdi,[rax]
+0x5ABE40     48 85 FF                        test rdi,rdi
+0x5ABE43     0F 84 91 00 00 00               je near ptr 00000001805ABEDAh
+0x5ABE49     80 3D 04 F9 64 03 00            cmp byte ptr [183BFB754h],0
+0x5ABE50     75 13                           jne short 00000001805ABE65h
+0x5ABE52     48 8D 0D 37 33 40 03            lea rcx,[1839AF190h] ; MethodRef: System.Void System.Collections.Generic.List`1<ScheduleOne.Persistence.SaveRequest>.Add
+0x5ABE59     E8 42 BA D6 FF                  call 00000001803178A0h
+0x5ABE5E     C6 05 EF F8 64 03 01            mov byte ptr [183BFB754h],1
+0x5ABE65     48 8B 4F 68                     mov rcx,[rdi+68h]
+0x5ABE69     48 85 C9                        test rcx,rcx
+0x5ABE6C     74 6C                           je short 00000001805ABEDAh
+0x5ABE6E     4C 8B 0D 1B 33 40 03            mov r9,[1839AF190h] ; MethodRef: System.Void System.Collections.Generic.List`1<ScheduleOne.Persistence.SaveRequest>.Add
+0x5ABE75     FF 41 1C                        inc dword ptr [rcx+1Ch]
+0x5ABE78     48 8B 51 10                     mov rdx,[rcx+10h]
+0x5ABE7C     48 85 D2                        test rdx,rdx
+0x5ABE7F     74 59                           je short 00000001805ABEDAh
+0x5ABE81     4C 63 41 18                     movsxd r8,dword ptr [rcx+18h]
+0x5ABE85     44 3B 42 18                     cmp r8d,[rdx+18h]
+0x5ABE89     72 22                           jb short 00000001805ABEADh
+0x5ABE8B     49 8B 41 20                     mov rax,[r9+20h]
+0x5ABE8F     4C 8B 80 C0 00 00 00            mov r8,[rax+0C0h]
+0x5ABE96     4D 8B 40 70                     mov r8,[r8+70h]
+0x5ABE9A     48 8B D3                        mov rdx,rbx
+0x5ABE9D     48 83 C4 50                     add rsp,50h
+0x5ABEA1     41 5F                           pop r15
+0x5ABEA3     41 5E                           pop r14
+0x5ABEA5     5F                              pop rdi
+0x5ABEA6     5E                              pop rsi
+0x5ABEA7     5B                              pop rbx
+0x5ABEA8     E9 E3 6B 32 01                  jmp near ptr 00000001818D2A90h
+0x5ABEAD     41 8D 40 01                     lea eax,[r8+1]
+0x5ABEB1     89 41 18                        mov [rcx+18h],eax
+0x5ABEB4     44 3B 42 18                     cmp r8d,[rdx+18h]
+0x5ABEB8     73 2C                           jae short 00000001805ABEE6h
+0x5ABEBA     4A 89 5C C2 20                  mov [rdx+r8*8+20h],rbx
+0x5ABEBF     49 8D 40 04                     lea rax,[r8+4]
+0x5ABEC3     48 8D 0C C2                     lea rcx,[rdx+rax*8]
+0x5ABEC7     48 8B D3                        mov rdx,rbx
+0x5ABECA     48 83 C4 50                     add rsp,50h
+0x5ABECE     41 5F                           pop r15
+0x5ABED0     41 5E                           pop r14
+0x5ABED2     5F                              pop rdi
+0x5ABED3     5E                              pop rsi
+0x5ABED4     5B                              pop rbx
+0x5ABED5     E9 D6 AB D6 FF                  jmp near ptr 0000000180316AB0h
+0x5ABEDA     E8 A1 BC D6 FF                  call 0000000180317B80h
+0x5ABEDF     90                              nop
+0x5ABEE0     E8 9B BC D6 FF                  call 0000000180317B80h
+0x5ABEE5     90                              nop
+0x5ABEE6     E8 85 BC D6 FF                  call 0000000180317B70h
+0x5ABEEB     CC                              int 3
+0x5ABEEC     CC                              int 3
+0x5ABEED     CC                              int 3
+0x5ABEEE     CC                              int 3
+0x5ABEEF     CC                              int 3

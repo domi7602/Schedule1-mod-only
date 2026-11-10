@@ -1,0 +1,143 @@
+{
+  "checkedUtc": "2026-11-06T09:48:23.100637+00:00",
+  "status": "Failed",
+  "passedSteps": 21,
+  "failedSteps": [
+    "versions"
+  ],
+  "preexistingVersionDrift": [
+    "HitmanPhone",
+    "Minimap",
+    "PoliceTestMode"
+  ],
+  "snapshotFilesCompared": 2069,
+  "sourceAndCheckoutHashAndFileSetsEqualAfterRun": true,
+  "submodulesVerified": [
+    {
+      "path": "ThirdParty/S1API",
+      "commit": "6b6d7bada39054822732224508cf0f4f45ee7c26"
+    },
+    {
+      "path": "ThirdParty/S1MAPI",
+      "commit": "89b8d0173946324bb21b3eb1fa584ee9c5f3e618"
+    }
+  ],
+  "xunitProjects": 18,
+  "xunitPassed": 4904,
+  "xunitFailed": 0,
+  "townHallPassed": 973,
+  "testProjects": [
+    {
+      "file": "AutoPackagingStation.Tests-3b87c405870f.trx",
+      "total": 66,
+      "passed": 66,
+      "failed": 0
+    },
+    {
+      "file": "BankApp.Tests-62d46f4a2efc.trx",
+      "total": 103,
+      "passed": 103,
+      "failed": 0
+    },
+    {
+      "file": "BusinessIncome.ConfigIo.Tests-b4cac3e2305b.trx",
+      "total": 17,
+      "passed": 17,
+      "failed": 0
+    },
+    {
+      "file": "BusinessIncome.Tests-ac6efe00a243.trx",
+      "total": 228,
+      "passed": 228,
+      "failed": 0
+    },
+    {
+      "file": "CalculatorApp.Tests-2e225c0e643c.trx",
+      "total": 18,
+      "passed": 18,
+      "failed": 0
+    },
+    {
+      "file": "GoldenHour.Tests-80168a1a2c76.trx",
+      "total": 104,
+      "passed": 104,
+      "failed": 0
+    },
+    {
+      "file": "HitmanPhone.Tests-f0359341f99e.trx",
+      "total": 148,
+      "passed": 148,
+      "failed": 0
+    },
+    {
+      "file": "MessagesPlus.Tests-08493ffa0720.trx",
+      "total": 25,
+      "passed": 25,
+      "failed": 0
+    },
+    {
+      "file": "Minimap.Tests-6b2019dc37bc.trx",
+      "total": 222,
+      "passed": 222,
+      "failed": 0
+    },
+    {
+      "file": "PocketShop.Tests-4cac1a946954.trx",
+      "total": 64,
+      "passed": 64,
+      "failed": 0
+    },
+    {
+      "file": "PoliceTestMode.Tests-74349053aeb0.trx",
+      "total": 36,
+      "passed": 36,
+      "failed": 0
+    },
+    {
+      "file": "PropertyLEDs.Tests-7df6c084d4c5.trx",
+      "total": 122,
+      "passed": 122,
+      "failed": 0
+    },
+    {
+      "file": "S1MCP.Tests-3ef597e963be.trx",
+      "total": 62,
+      "passed": 62,
+      "failed": 0
+    },
+    {
+      "file": "StorageScanner.Tests-9e06dae83279.trx",
+      "total": 37,
+      "passed": 37,
+      "failed": 0
+    },
+    {
+      "file": "TaxiDriver.Tests-e2a3082ccbc5.trx",
+      "total": 1402,
+      "passed": 1402,
+      "failed": 0
+    },
+    {
+      "file": "TownHallInterior.Tests-2679dd9f17b9.trx",
+      "total": 973,
+      "passed": 973,
+      "failed": 0
+    },
+    {
+      "file": "WaterShader.Tests-4ee0870f4fb0.trx",
+      "total": 1231,
+      "passed": 1231,
+      "failed": 0
+    },
+    {
+      "file": "WorldLook.Tests-c8ab34f08ed8.trx",
+      "total": 46,
+      "passed": 46,
+      "failed": 0
+    }
+  ],
+  "installedNormalPayloadAndReceiptUnchanged": true,
+  "limit": "No repository-wide pass; only versions failed. Final evidence additions after this comparison are not part of the captured snapshot; production, tests and status documents remain unchanged.",
+  "consolePassed": 265,
+  "toolSuitesPassed": 14
+}

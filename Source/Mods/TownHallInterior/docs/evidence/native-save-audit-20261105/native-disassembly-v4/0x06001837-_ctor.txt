@@ -1,0 +1,109 @@
+; ScheduleOne.Persistence.SaveManager::.ctor/0, token 0x06001837, RVA 0x5AAEE0, metadata-pointer window 0x200 bytes
+; Raw native bytes only. Window ends at next distinct managed-method pointer, includes padding/cold fragments; not proof of full transitive/exception coverage. Shared target names show at most eight aliases; total count is recorded.
+0x5AAEE0     48 89 5C 24 08                  mov [rsp+8],rbx
+0x5AAEE5     57                              push rdi
+0x5AAEE6     48 83 EC 20                     sub rsp,20h
+0x5AAEEA     80 3D 6B 08 65 03 00            cmp byte ptr [183BFB75Ch],0
+0x5AAEF1     48 8B F9                        mov rdi,rcx
+0x5AAEF4     0F 85 8B 00 00 00               jne near ptr 00000001805AAF85h
+0x5AAEFA     48 8D 0D 37 AF 44 03            lea rcx,[1839F5E38h] ; MethodRef: System.Void System.Collections.Generic.List`1<ScheduleOne.Persistence.ISaveable>..ctor
+0x5AAF01     E8 9A C9 D6 FF                  call 00000001803178A0h
+0x5AAF06     48 8D 0D AB 41 40 03            lea rcx,[1839AF0B8h] ; MethodRef: System.Void System.Collections.Generic.List`1<ScheduleOne.Persistence.SaveRequest>..ctor
+0x5AAF0D     E8 8E C9 D6 FF                  call 00000001803178A0h
+0x5AAF12     48 8D 0D 7F 62 41 03            lea rcx,[1839C1198h] ; MethodRef: System.Void System.Collections.Generic.List`1<System.String>..ctor
+0x5AAF19     E8 82 C9 D6 FF                  call 00000001803178A0h
+0x5AAF1E     48 8D 0D CB 54 44 03            lea rcx,[1839F03F0h] ; MethodRef: System.Void System.Collections.Generic.List`1<ScheduleOne.Persistence.IBaseSaveable>..ctor
+0x5AAF25     E8 76 C9 D6 FF                  call 00000001803178A0h
+0x5AAF2A     48 8D 0D 17 CF 45 03            lea rcx,[183A07E48h] ; TypeInfo: System.Collections.Generic.List`1<ScheduleOne.Persistence.SaveRequest>
+0x5AAF31     E8 6A C9 D6 FF                  call 00000001803178A0h
+0x5AAF36     48 8D 0D 43 F1 44 03            lea rcx,[1839FA080h] ; TypeInfo: System.Collections.Generic.List`1<ScheduleOne.Persistence.IBaseSaveable>
+0x5AAF3D     E8 5E C9 D6 FF                  call 00000001803178A0h
+0x5AAF42     48 8D 0D C7 03 45 03            lea rcx,[1839FB310h] ; TypeInfo: System.Collections.Generic.List`1<ScheduleOne.Persistence.ISaveable>
+0x5AAF49     E8 52 C9 D6 FF                  call 00000001803178A0h
+0x5AAF4E     48 8D 0D 2B FE 45 03            lea rcx,[183A0AD80h] ; TypeInfo: System.Collections.Generic.List`1<System.String>
+0x5AAF55     E8 46 C9 D6 FF                  call 00000001803178A0h
+0x5AAF5A     48 8D 0D 07 3B 41 03            lea rcx,[1839BEA68h] ; MethodRef: System.Void ScheduleOne.DevUtilities.PersistentSingleton`1<ScheduleOne.Persistence.SaveManager>..ctor
+0x5AAF61     E8 3A C9 D6 FF                  call 00000001803178A0h
+0x5AAF66     48 8D 0D 73 FF 3E 03            lea rcx,[18399AEE0h] ; TypeInfo: System.String
+0x5AAF6D     E8 2E C9 D6 FF                  call 00000001803178A0h
+0x5AAF72     48 8D 0D 07 2B 3E 03            lea rcx,[18398DA80h] ; StringLiteral: DevSave
+0x5AAF79     E8 22 C9 D6 FF                  call 00000001803178A0h
+0x5AAF7E     C6 05 D7 07 65 03 01            mov byte ptr [183BFB75Ch],1
+0x5AAF85     48 8B 05 54 FF 3E 03            mov rax,[18399AEE0h] ; TypeInfo: System.String
+0x5AAF8C     48 8B 88 B8 00 00 00            mov rcx,[rax+0B8h]
+0x5AAF93     48 8B 11                        mov rdx,[rcx]
+0x5AAF96     48 8D 4F 30                     lea rcx,[rdi+30h]
+0x5AAF9A     48 89 57 30                     mov [rdi+30h],rdx
+0x5AAF9E     E8 0D BB D6 FF                  call 0000000180316AB0h
+0x5AAFA3     48 8B 05 36 FF 3E 03            mov rax,[18399AEE0h] ; TypeInfo: System.String
+0x5AAFAA     48 8B 88 B8 00 00 00            mov rcx,[rax+0B8h]
+0x5AAFB1     48 8B 11                        mov rdx,[rcx]
+0x5AAFB4     48 8D 4F 38                     lea rcx,[rdi+38h]
+0x5AAFB8     48 89 57 38                     mov [rdi+38h],rdx
+0x5AAFBC     E8 EF BA D6 FF                  call 0000000180316AB0h
+0x5AAFC1     48 8B 05 B8 2A 3E 03            mov rax,[18398DA80h] ; StringLiteral: DevSave
+0x5AAFC8     48 8D 4F 40                     lea rcx,[rdi+40h]
+0x5AAFCC     48 89 47 40                     mov [rdi+40h],rax
+0x5AAFD0     48 8B 15 A9 2A 3E 03            mov rdx,[18398DA80h] ; StringLiteral: DevSave
+0x5AAFD7     E8 D4 BA D6 FF                  call 0000000180316AB0h
+0x5AAFDC     48 8B 0D 2D 03 45 03            mov rcx,[1839FB310h] ; TypeInfo: System.Collections.Generic.List`1<ScheduleOne.Persistence.ISaveable>
+0x5AAFE3     E8 38 CB D6 FF                  call 0000000180317B20h
+0x5AAFE8     48 8B 15 49 AE 44 03            mov rdx,[1839F5E38h] ; MethodRef: System.Void System.Collections.Generic.List`1<ScheduleOne.Persistence.ISaveable>..ctor
+0x5AAFEF     48 8B C8                        mov rcx,rax
+0x5AAFF2     48 8B D8                        mov rbx,rax
+0x5AAFF5     E8 36 8E A0 00                  call 0000000180FB3E30h ; System.Collections.Generic.List`1::.ctor/0 | System.Collections.Generic.LowLevelList`1::.ctor/0
+0x5AAFFA     48 8D 4F 48                     lea rcx,[rdi+48h]
+0x5AAFFE     48 89 5F 48                     mov [rdi+48h],rbx
+0x5AB002     48 8B D3                        mov rdx,rbx
+0x5AB005     E8 A6 BA D6 FF                  call 0000000180316AB0h
+0x5AB00A     48 8B 0D 6F F0 44 03            mov rcx,[1839FA080h] ; TypeInfo: System.Collections.Generic.List`1<ScheduleOne.Persistence.IBaseSaveable>
+0x5AB011     E8 0A CB D6 FF                  call 0000000180317B20h
+0x5AB016     48 8B 15 D3 53 44 03            mov rdx,[1839F03F0h] ; MethodRef: System.Void System.Collections.Generic.List`1<ScheduleOne.Persistence.IBaseSaveable>..ctor
+0x5AB01D     48 8B C8                        mov rcx,rax
+0x5AB020     48 8B D8                        mov rbx,rax
+0x5AB023     E8 08 8E A0 00                  call 0000000180FB3E30h ; System.Collections.Generic.List`1::.ctor/0 | System.Collections.Generic.LowLevelList`1::.ctor/0
+0x5AB028     48 8D 4F 50                     lea rcx,[rdi+50h]
+0x5AB02C     48 89 5F 50                     mov [rdi+50h],rbx
+0x5AB030     48 8B D3                        mov rdx,rbx
+0x5AB033     E8 78 BA D6 FF                  call 0000000180316AB0h
+0x5AB038     48 8B 0D 41 FD 45 03            mov rcx,[183A0AD80h] ; TypeInfo: System.Collections.Generic.List`1<System.String>
+0x5AB03F     E8 DC CA D6 FF                  call 0000000180317B20h
+0x5AB044     48 8B 15 4D 61 41 03            mov rdx,[1839C1198h] ; MethodRef: System.Void System.Collections.Generic.List`1<System.String>..ctor
+0x5AB04B     48 8B C8                        mov rcx,rax
+0x5AB04E     48 8B D8                        mov rbx,rax
+0x5AB051     E8 DA 8D A0 00                  call 0000000180FB3E30h ; System.Collections.Generic.List`1::.ctor/0 | System.Collections.Generic.LowLevelList`1::.ctor/0
+0x5AB056     48 8D 4F 58                     lea rcx,[rdi+58h]
+0x5AB05A     48 89 5F 58                     mov [rdi+58h],rbx
+0x5AB05E     48 8B D3                        mov rdx,rbx
+0x5AB061     E8 4A BA D6 FF                  call 0000000180316AB0h
+0x5AB066     48 8B 0D A3 02 45 03            mov rcx,[1839FB310h] ; TypeInfo: System.Collections.Generic.List`1<ScheduleOne.Persistence.ISaveable>
+0x5AB06D     E8 AE CA D6 FF                  call 0000000180317B20h
+0x5AB072     48 8B 15 BF AD 44 03            mov rdx,[1839F5E38h] ; MethodRef: System.Void System.Collections.Generic.List`1<ScheduleOne.Persistence.ISaveable>..ctor
+0x5AB079     48 8B C8                        mov rcx,rax
+0x5AB07C     48 8B D8                        mov rbx,rax
+0x5AB07F     E8 AC 8D A0 00                  call 0000000180FB3E30h ; System.Collections.Generic.List`1::.ctor/0 | System.Collections.Generic.LowLevelList`1::.ctor/0
+0x5AB084     48 8D 4F 60                     lea rcx,[rdi+60h]
+0x5AB088     48 89 5F 60                     mov [rdi+60h],rbx
+0x5AB08C     48 8B D3                        mov rdx,rbx
+0x5AB08F     E8 1C BA D6 FF                  call 0000000180316AB0h
+0x5AB094     48 8B 0D AD CD 45 03            mov rcx,[183A07E48h] ; TypeInfo: System.Collections.Generic.List`1<ScheduleOne.Persistence.SaveRequest>
+0x5AB09B     E8 80 CA D6 FF                  call 0000000180317B20h
+0x5AB0A0     48 8B 15 11 40 40 03            mov rdx,[1839AF0B8h] ; MethodRef: System.Void System.Collections.Generic.List`1<ScheduleOne.Persistence.SaveRequest>..ctor
+0x5AB0A7     48 8B C8                        mov rcx,rax
+0x5AB0AA     48 8B D8                        mov rbx,rax
+0x5AB0AD     E8 7E 8D A0 00                  call 0000000180FB3E30h ; System.Collections.Generic.List`1::.ctor/0 | System.Collections.Generic.LowLevelList`1::.ctor/0
+0x5AB0B2     48 8D 4F 68                     lea rcx,[rdi+68h]
+0x5AB0B6     48 89 5F 68                     mov [rdi+68h],rbx
+0x5AB0BA     48 8B D3                        mov rdx,rbx
+0x5AB0BD     E8 EE B9 D6 FF                  call 0000000180316AB0h
+0x5AB0C2     48 8B 15 9F 39 41 03            mov rdx,[1839BEA68h] ; MethodRef: System.Void ScheduleOne.DevUtilities.PersistentSingleton`1<ScheduleOne.Persistence.SaveManager>..ctor
+0x5AB0C9     48 8B CF                        mov rcx,rdi
+0x5AB0CC     48 8B 5C 24 30                  mov rbx,[rsp+30h]
+0x5AB0D1     48 83 C4 20                     add rsp,20h
+0x5AB0D5     5F                              pop rdi
+0x5AB0D6     E9 85 59 AC 00                  jmp near ptr 0000000181070A60h ; ScheduleOne.DevUtilities.PersistentSingleton`1::.ctor/0
+0x5AB0DB     CC                              int 3
+0x5AB0DC     CC                              int 3
+0x5AB0DD     CC                              int 3
+0x5AB0DE     CC                              int 3
+0x5AB0DF     CC                              int 3

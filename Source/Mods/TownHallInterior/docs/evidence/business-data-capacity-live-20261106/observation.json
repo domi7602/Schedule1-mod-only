@@ -1,0 +1,72 @@
+{
+  "schema": 1,
+  "checkedUtc": "2026-11-06T14:50:14.005958+00:00",
+  "sourceRevision": "b2c6c7e6c6ecc778da9624cdb68a6578b9db471a",
+  "sourceWorktree": "dirty",
+  "candidateSha256": "b449c1c18062edff3729483b020eca578c7483ad958ef3d7c3ad72a57f9cce01",
+  "candidatePdbSha256": "943b9176dadc0e72690a0b2861b442649fc8b0e099b4a6ea6b7a6beec142078a",
+  "target": "TownHallTest / SaveGame_2",
+  "context": {
+    "LoadComplete": true,
+    "Singleplayer": true,
+    "HallReady": true,
+    "DependenciesMatch": true,
+    "ActiveSavePath": "C:\\Users\\pc\\AppData\\LocalLow\\TVGS\\Schedule I\\Saves\\76561199109519851\\SaveGame_2",
+    "LoadedSavePath": "C:\\Users\\pc\\AppData\\LocalLow\\TVGS\\Schedule I\\Saves\\76561199109519851\\SaveGame_2",
+    "OrganisationName": "TownHallTest"
+  },
+  "report": "live-report.json",
+  "reportSha256": "032048ae2515f21a98d6eb20b5174c473a80457fc0477175dbd38472babe6868",
+  "capturedUtc": "2026-11-06T14:49:12.4064468Z",
+  "status": "observed",
+  "findings": [],
+  "dataListenerDiagnostics": {
+    "minute-list": "1E10B8141E0|class=1DFFD19BDA0|size=889|capacity=1024|items=1E3A2311000|version=891|countProperty=889|countPropertyMatchesSize=True|nodes=889|maxChildren=0"
+  },
+  "dataQuery": {
+    "Business": 2068217372672,
+    "Container": 2068214910816,
+    "BoundsCollider": 2068225653056,
+    "WrapperBusiness": 2068217372672,
+    "CurrentLaunderTotal": 0,
+    "AppliedLaunderLimit": 0,
+    "Inside": true,
+    "Outside": false
+  },
+  "dataPreparationConfirmed": true,
+  "setPropertyReturned": true,
+  "dataCleanupVerified": true,
+  "rootDestroyed": true,
+  "cleanupComplete": true,
+  "snapshotsEqual": true,
+  "registries": 32,
+  "foreignVtables": 19,
+  "lifecycleBeforeCleanup": {
+    "ShouldSave": 1,
+    "CanBePurchased": 1,
+    "Awake": 1,
+    "OnEnable": 1,
+    "Start": 1,
+    "FixedUpdate": 10,
+    "OnDisable": 1
+  },
+  "countersAfterCleanup": {
+    "ShouldSave": 1,
+    "CanBePurchased": 1,
+    "Awake": 1,
+    "OnEnable": 1,
+    "Start": 1,
+    "FixedUpdate": 10,
+    "OnDisable": 1,
+    "OnDestroy": 1
+  },
+  "nativeSaveWriteAllowed": false,
+  "worldPublicationAllowed": false,
+  "nativeDataQueriesObserved": true,
+  "limits": [
+    "The own diagnostic data/query probe succeeded; this is not a complete native Business initialization.",
+    "Purchase, nonempty laundering, Save/persistence and world-exit guarantees remain unproved.",
+    "Type registration persists until process exit.",
+    "The listener snapshot read 889 of 1024 slots with 889 graph nodes; the child-array limit was not exercised."
+  ]
+}

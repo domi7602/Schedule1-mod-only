@@ -1,0 +1,124 @@
+; ScheduleOne.Property.Property::OnDestroy/0, token 0x06001427, RVA 0x555490, next-pointer window 0x220 bytes
+; No target execution. Parser-pointer window can contain padding/cold fragments and is not exact/full function, EH or transitive coverage. Shared direct aliases are truncated to eight names.
+0x555490     40 57                           push rdi
+0x555492     48 83 EC 20                     sub rsp,20h
+0x555496     80 3D BB 60 6A 03 00            cmp byte ptr [183BFB558h],0
+0x55549D     48 8B F9                        mov rdi,rcx
+0x5554A0     75 43                           jne short 00000001805554E5h
+0x5554A2     48 8D 0D 9F FC 4A 03            lea rcx,[183A05148h] ; TypeInfo: System.Action`1<ScheduleOne.Money.MoneyManager+FloatContainer>
+0x5554A9     E8 F2 23 DC FF                  call 00000001803178A0h
+0x5554AE     48 8D 0D CB BF 44 03            lea rcx,[1839A1480h] ; MethodRef: System.Boolean System.Collections.Generic.List`1<ScheduleOne.Property.Property>.Remove
+0x5554B5     E8 E6 23 DC FF                  call 00000001803178A0h
+0x5554BA     48 8D 0D 57 E4 44 03            lea rcx,[1839A3918h] ; MethodRef: System.Boolean ScheduleOne.DevUtilities.NetworkSingleton`1<ScheduleOne.Money.MoneyManager>.get_InstanceExists
+0x5554C1     E8 DA 23 DC FF                  call 00000001803178A0h
+0x5554C6     48 8D 0D 73 E3 44 03            lea rcx,[1839A3840h] ; MethodRef: T ScheduleOne.DevUtilities.NetworkSingleton`1<ScheduleOne.Money.MoneyManager>.get_Instance
+0x5554CD     E8 CE 23 DC FF                  call 00000001803178A0h
+0x5554D2     48 8D 0D B7 DA 4A 03            lea rcx,[183A02F90h] ; TypeInfo: ScheduleOne.Property.Property
+0x5554D9     E8 C2 23 DC FF                  call 00000001803178A0h
+0x5554DE     C6 05 73 60 6A 03 01            mov byte ptr [183BFB558h],1
+0x5554E5     48 8B 0D 2C E4 44 03            mov rcx,[1839A3918h] ; MethodRef: System.Boolean ScheduleOne.DevUtilities.NetworkSingleton`1<ScheduleOne.Money.MoneyManager>.get_InstanceExists
+0x5554EC     48 89 5C 24 30                  mov [rsp+30h],rbx
+0x5554F1     48 89 6C 24 38                  mov [rsp+38h],rbp
+0x5554F6     48 89 74 24 40                  mov [rsp+40h],rsi
+0x5554FB     E8 C0 29 AC 00                  call 0000000181017EC0h ; ScheduleOne.DevUtilities.NetworkSingleton`1::get_InstanceExists/0
+0x555500     84 C0                           test al,al
+0x555502     0F 84 ED 00 00 00               je near ptr 00000001805555F5h
+0x555508     48 8B 05 31 E3 44 03            mov rax,[1839A3840h] ; MethodRef: T ScheduleOne.DevUtilities.NetworkSingleton`1<ScheduleOne.Money.MoneyManager>.get_Instance
+0x55550F     48 8B 40 20                     mov rax,[rax+20h]
+0x555513     F6 80 35 01 00 00 01            test byte ptr [rax+135h],1
+0x55551A     75 08                           jne short 0000000180555524h
+0x55551C     48 8B C8                        mov rcx,rax
+0x55551F     E8 1C 73 DC FF                  call 000000018031C840h
+0x555524     48 8B 80 C0 00 00 00            mov rax,[rax+0C0h]
+0x55552B     48 8B 40 10                     mov rax,[rax+10h]
+0x55552F     F6 80 35 01 00 00 01            test byte ptr [rax+135h],1
+0x555536     75 08                           jne short 0000000180555540h
+0x555538     48 8B C8                        mov rcx,rax
+0x55553B     E8 00 73 DC FF                  call 000000018031C840h
+0x555540     48 8B 80 B8 00 00 00            mov rax,[rax+0B8h]
+0x555547     48 8B 18                        mov rbx,[rax]
+0x55554A     48 85 DB                        test rbx,rbx
+0x55554D     0F 84 3F 01 00 00               je near ptr 0000000180555692h
+0x555553     48 8B 0D EE FB 4A 03            mov rcx,[183A05148h] ; TypeInfo: System.Action`1<ScheduleOne.Money.MoneyManager+FloatContainer>
+0x55555A     48 8B AB 58 01 00 00            mov rbp,[rbx+158h]
+0x555561     E8 BA 25 DC FF                  call 0000000180317B20h
+0x555566     48 8B F0                        mov rsi,rax
+0x555569     48 85 FF                        test rdi,rdi
+0x55556C     0F 84 20 01 00 00               je near ptr 0000000180555692h
+0x555572     4C 8B 07                        mov r8,[rdi]
+0x555575     45 33 C9                        xor r9d,r9d
+0x555578     48 8B D7                        mov rdx,rdi
+0x55557B     48 8B C8                        mov rcx,rax
+0x55557E     4D 8B 80 30 04 00 00            mov r8,[r8+430h]
+0x555585     E8 16 15 FE FF                  call 0000000180536AA0h ; VLB.MaterialModifier+Callback::.ctor/2 | LiquidVolumeFX.PropertiesChangedEvent::.ctor/2 | ScheduleOne.Vehicles.AI.NavigationUtility+PathGroupEvent::.ctor/2 | ScheduleOne.Vision.VisionCone+EventStateChange::.ctor/2 | ScheduleOne.UI.Input.InputPromptReferenceEventHandler::.ctor/2 | UnityEngine.UIElements.EventCallback`1::.ctor/2 | UnityEngine.Rendering.Universal.DecalProjector+DecalProjectorAction::.ctor/2 | System.IOAsyncCallback::.ctor/2 | ... SHARED TARGET: 9 aliases
+0x55558A     45 33 C0                        xor r8d,r8d
+0x55558D     48 8B D6                        mov rdx,rsi
+0x555590     48 8B CD                        mov rcx,rbp
+0x555593     E8 98 C6 69 01                  call 0000000181BF1C30h ; System.Delegate::Remove/2
+0x555598     48 8B F0                        mov rsi,rax
+0x55559B     48 85 C0                        test rax,rax
+0x55559E     75 09                           jne short 00000001805555A9h
+0x5555A0     48 89 83 58 01 00 00            mov [rbx+158h],rax
+0x5555A7     EB 3D                           jmp short 00000001805555E6h
+0x5555A9     48 8B 2D 98 FB 4A 03            mov rbp,[183A05148h] ; TypeInfo: System.Action`1<ScheduleOne.Money.MoneyManager+FloatContainer>
+0x5555B0     48 8B CE                        mov rcx,rsi
+0x5555B3     48 8B D5                        mov rdx,rbp
+0x5555B6     E8 15 15 DC FF                  call 0000000180316AD0h
+0x5555BB     48 8B CE                        mov rcx,rsi
+0x5555BE     48 85 C0                        test rax,rax
+0x5555C1     0F 84 DD 00 00 00               je near ptr 00000001805556A4h
+0x5555C7     48 89 83 58 01 00 00            mov [rbx+158h],rax
+0x5555CE     48 8B 2D 73 FB 4A 03            mov rbp,[183A05148h] ; TypeInfo: System.Action`1<ScheduleOne.Money.MoneyManager+FloatContainer>
+0x5555D5     48 8B D5                        mov rdx,rbp
+0x5555D8     E8 F3 14 DC FF                  call 0000000180316AD0h
+0x5555DD     48 85 C0                        test rax,rax
+0x5555E0     0F 84 B2 00 00 00               je near ptr 0000000180555698h
+0x5555E6     48 8D 8B 58 01 00 00            lea rcx,[rbx+158h]
+0x5555ED     48 8B D0                        mov rdx,rax
+0x5555F0     E8 BB 14 DC FF                  call 0000000180316AB0h
+0x5555F5     48 8B 05 94 D9 4A 03            mov rax,[183A02F90h] ; TypeInfo: ScheduleOne.Property.Property
+0x5555FC     83 B8 E0 00 00 00 00            cmp dword ptr [rax+0E0h],0
+0x555603     75 0F                           jne short 0000000180555614h
+0x555605     48 8B C8                        mov rcx,rax
+0x555608     E8 23 26 DC FF                  call 0000000180317C30h
+0x55560D     48 8B 05 7C D9 4A 03            mov rax,[183A02F90h] ; TypeInfo: ScheduleOne.Property.Property
+0x555614     48 8B 80 B8 00 00 00            mov rax,[rax+0B8h]
+0x55561B     48 8B 08                        mov rcx,[rax]
+0x55561E     48 85 C9                        test rcx,rcx
+0x555621     74 6F                           je short 0000000180555692h
+0x555623     4C 8B 05 56 BE 44 03            mov r8,[1839A1480h] ; MethodRef: System.Boolean System.Collections.Generic.List`1<ScheduleOne.Property.Property>.Remove
+0x55562A     48 8B D7                        mov rdx,rdi
+0x55562D     E8 6E 2D 38 01                  call 00000001818D83A0h
+0x555632     48 8B 05 57 D9 4A 03            mov rax,[183A02F90h] ; TypeInfo: ScheduleOne.Property.Property
+0x555639     48 8B 88 B8 00 00 00            mov rcx,[rax+0B8h]
+0x555640     48 8B 49 08                     mov rcx,[rcx+8]
+0x555644     48 85 C9                        test rcx,rcx
+0x555647     74 49                           je short 0000000180555692h
+0x555649     4C 8B 05 30 BE 44 03            mov r8,[1839A1480h] ; MethodRef: System.Boolean System.Collections.Generic.List`1<ScheduleOne.Property.Property>.Remove
+0x555650     48 8B D7                        mov rdx,rdi
+0x555653     E8 48 2D 38 01                  call 00000001818D83A0h
+0x555658     48 8B 05 31 D9 4A 03            mov rax,[183A02F90h] ; TypeInfo: ScheduleOne.Property.Property
+0x55565F     48 8B 88 B8 00 00 00            mov rcx,[rax+0B8h]
+0x555666     48 8B 49 10                     mov rcx,[rcx+10h]
+0x55566A     48 85 C9                        test rcx,rcx
+0x55566D     74 23                           je short 0000000180555692h
+0x55566F     4C 8B 05 0A BE 44 03            mov r8,[1839A1480h] ; MethodRef: System.Boolean System.Collections.Generic.List`1<ScheduleOne.Property.Property>.Remove
+0x555676     48 8B D7                        mov rdx,rdi
+0x555679     48 8B 74 24 40                  mov rsi,[rsp+40h]
+0x55567E     48 8B 6C 24 38                  mov rbp,[rsp+38h]
+0x555683     48 8B 5C 24 30                  mov rbx,[rsp+30h]
+0x555688     48 83 C4 20                     add rsp,20h
+0x55568C     5F                              pop rdi
+0x55568D     E9 0E 2D 38 01                  jmp near ptr 00000001818D83A0h
+0x555692     E8 E9 24 DC FF                  call 0000000180317B80h
+0x555697     CC                              int 3
+0x555698     48 8B D5                        mov rdx,rbp
+0x55569B     48 8B CE                        mov rcx,rsi
+0x55569E     E8 4D 14 DC FF                  call 0000000180316AF0h
+0x5556A3     CC                              int 3
+0x5556A4     48 8B D5                        mov rdx,rbp
+0x5556A7     E8 44 14 DC FF                  call 0000000180316AF0h
+0x5556AC     CC                              int 3
+0x5556AD     CC                              int 3
+0x5556AE     CC                              int 3
+0x5556AF     CC                              int 3

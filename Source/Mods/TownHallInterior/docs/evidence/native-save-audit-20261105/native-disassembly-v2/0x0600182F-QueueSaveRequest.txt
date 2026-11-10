@@ -1,0 +1,47 @@
+; ScheduleOne.Persistence.SaveManager::QueueSaveRequest/1, token 0x0600182F, RVA 0x5AA510, .pdata primary extent 0xAB bytes
+; Raw native bytes decoded without invoking the game. .pdata primary extent is not a proof of full transitive/exception-path coverage.
+0x5AA510     48 89 5C 24 08                  mov [rsp+8],rbx
+0x5AA515     57                              push rdi
+0x5AA516     48 83 EC 20                     sub rsp,20h
+0x5AA51A     80 3D 33 12 65 03 00            cmp byte ptr [183BFB754h],0
+0x5AA521     48 8B DA                        mov rbx,rdx
+0x5AA524     48 8B F9                        mov rdi,rcx
+0x5AA527     75 13                           jne short 00000001805AA53Ch
+0x5AA529     48 8D 0D 60 4C 40 03            lea rcx,[1839AF190h]
+0x5AA530     E8 6B D3 D6 FF                  call 00000001803178A0h
+0x5AA535     C6 05 18 12 65 03 01            mov byte ptr [183BFB754h],1
+0x5AA53C     48 8B 4F 68                     mov rcx,[rdi+68h]
+0x5AA540     48 85 C9                        test rcx,rcx
+0x5AA543     74 6A                           je short 00000001805AA5AFh
+0x5AA545     4C 8B 0D 44 4C 40 03            mov r9,[1839AF190h]
+0x5AA54C     FF 41 1C                        inc dword ptr [rcx+1Ch]
+0x5AA54F     48 8B 51 10                     mov rdx,[rcx+10h]
+0x5AA553     48 85 D2                        test rdx,rdx
+0x5AA556     74 57                           je short 00000001805AA5AFh
+0x5AA558     4C 63 41 18                     movsxd r8,dword ptr [rcx+18h]
+0x5AA55C     44 3B 42 18                     cmp r8d,[rdx+18h]
+0x5AA560     72 21                           jb short 00000001805AA583h
+0x5AA562     49 8B 41 20                     mov rax,[r9+20h]
+0x5AA566     48 8B D3                        mov rdx,rbx
+0x5AA569     4C 8B 80 C0 00 00 00            mov r8,[rax+0C0h]
+0x5AA570     4D 8B 40 70                     mov r8,[r8+70h]
+0x5AA574     48 8B 5C 24 30                  mov rbx,[rsp+30h]
+0x5AA579     48 83 C4 20                     add rsp,20h
+0x5AA57D     5F                              pop rdi
+0x5AA57E     E9 0D 85 32 01                  jmp near ptr 00000001818D2A90h
+0x5AA583     41 8D 40 01                     lea eax,[r8+1]
+0x5AA587     89 41 18                        mov [rcx+18h],eax
+0x5AA58A     44 3B 42 18                     cmp r8d,[rdx+18h]
+0x5AA58E     73 25                           jae short 00000001805AA5B5h
+0x5AA590     4A 89 5C C2 20                  mov [rdx+r8*8+20h],rbx
+0x5AA595     48 83 C2 20                     add rdx,20h
+0x5AA599     4A 8D 0C C2                     lea rcx,[rdx+r8*8]
+0x5AA59D     48 8B D3                        mov rdx,rbx
+0x5AA5A0     48 8B 5C 24 30                  mov rbx,[rsp+30h]
+0x5AA5A5     48 83 C4 20                     add rsp,20h
+0x5AA5A9     5F                              pop rdi
+0x5AA5AA     E9 01 C5 D6 FF                  jmp near ptr 0000000180316AB0h
+0x5AA5AF     E8 CC D5 D6 FF                  call 0000000180317B80h
+0x5AA5B4     CC                              int 3
+0x5AA5B5     E8 B6 D5 D6 FF                  call 0000000180317B70h
+0x5AA5BA     CC                              int 3

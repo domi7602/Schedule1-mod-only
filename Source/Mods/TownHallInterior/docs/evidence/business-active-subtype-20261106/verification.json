@@ -1,0 +1,263 @@
+{
+  "schema": 1,
+  "checkedUtc": "2026-11-06T09:36:45.033170+00:00",
+  "sourceRevision": "b2c6c7e6c6ecc778da9624cdb68a6578b9db471a",
+  "sourceWorktree": "dirty",
+  "scope": "Offline implementation of isolated active own subtype lifecycle; no installation or game/save actions",
+  "sourceHashes": {
+    "Source/Mods/TownHallInterior/src/BusinessConstruction.cs": "32724b5085d1d6ca6bb34340e6b95198f450c4f67a2c5e5bbb187b68286ad708",
+    "Source/Mods/TownHallInterior/src/TownHallInterior.csproj": "1ea10486e850372e3faeed9fb3491066de1c8ac027a17f46bcfe9a746bfb1dfd",
+    "Source/Mods/TownHallInterior/docs/README.md": "35f0b64f6c223323503eddb8295be432b495f3091db4ab462060effb6d6359af",
+    "Source/Mods/TownHallInterior/docs/CHANGELOG.md": "e605ad86afb3bc8d8e0a64ad440861f9cd6028001c01b7a78bf389fcf8d4ab29",
+    "Source/Mods/TownHallInterior/docs/business-completion-plan.md": "7df37230e9e7d963294975197ebea5324b05b915781b4218a2067b6b3e9edfbe",
+    "docs/compatibility.md": "3bd848f03e2a6d91df77c453c1d31d43fff4cb50eac95daab9dda5fc0898c341",
+    "Source/Tests/TownHallInterior.Tests/BusinessActiveSubtypeTests.cs": "2a9124617fe1494ce08f73361b8bc0b24be89df4c8b69258ad17142876899221",
+    "Source/Mods/TownHallInterior/docs/business-active-subtype-probe.md": "05f2a37eb2f627a66d003388cbedf91f4588160adf6b478ebaac62a4c81b1d69"
+  },
+  "initialTrackedAndNonignoredFiles": 2044,
+  "unrelatedOriginalFilesUnchanged": 2038,
+  "changedOriginalFiles": [
+    "Source/Mods/TownHallInterior/docs/CHANGELOG.md",
+    "Source/Mods/TownHallInterior/docs/README.md",
+    "Source/Mods/TownHallInterior/docs/business-completion-plan.md",
+    "Source/Mods/TownHallInterior/src/BusinessConstruction.cs",
+    "Source/Mods/TownHallInterior/src/TownHallInterior.csproj",
+    "docs/compatibility.md"
+  ],
+  "newSourceOrDocumentationFiles": [
+    "Source/Mods/TownHallInterior/docs/business-active-subtype-probe.md",
+    "Source/Tests/TownHallInterior.Tests/BusinessActiveSubtypeTests.cs"
+  ],
+  "productionProjectFiles": 20,
+  "baselineTests": {
+    "passed": 884,
+    "failed": 0
+  },
+  "newTests": {
+    "passed": 89,
+    "failed": 0
+  },
+  "townHallTests": {
+    "passed": 973,
+    "failed": 0
+  },
+  "testLimit": "Actual pure production trial tested with fake ports; Unity native activation is not demonstrated. Focused run preceded cached-frame-only native reporting correction; pure trial unchanged.",
+  "builds": [
+    {
+      "mode": "Normal",
+      "exitCode": 0,
+      "dllSha256": "b271d0cfefb7da77507d7e2c7a1309be7368f7bf27ac99cac92b179df7d98888",
+      "pdbSha256": "b7499107d97b6a91ec08620b9a6fa1b75f713d7852339d9a89e638cea7d9c681",
+      "noDeploy": true
+    },
+    {
+      "mode": "Subtype",
+      "exitCode": 0,
+      "dllSha256": "ded130e040f779c7f85df756cb2cfec304faf0b01a0c177c7ce920a35bf26823",
+      "pdbSha256": "83d56723ed00c0488e3e4a5d6602628419720ec5821f74b6f4d2462020e6df1e",
+      "noDeploy": true
+    },
+    {
+      "mode": "Interface",
+      "exitCode": 0,
+      "dllSha256": "37f4f1ed7444670373d2597d8c16055f606e02748d2a356e48a605cbcf6dd0c1",
+      "pdbSha256": "439cdb10d60dc40f2483bdaf68046be8a1cb1c1b365c55d26b9f3ae8f05bc260",
+      "noDeploy": true
+    },
+    {
+      "mode": "Manager",
+      "exitCode": 0,
+      "dllSha256": "652999ca806739e14073c5ca071aace3d6cce368ac68c52002896c326d668400",
+      "pdbSha256": "90733795ae969349c68c84c963e8e2503de725a7f50e96a06d117caf6775d7f6",
+      "noDeploy": true
+    },
+    {
+      "mode": "ActiveSubtype",
+      "exitCode": 0,
+      "dllSha256": "c07ada69d74f7491528efff2f4518319a9404ccd3a8e5ba948e876f8eaf38b34",
+      "pdbSha256": "711863c0c5833c69c6680fcb181804b26b0adb8837b16f34ed7f348d43417a5f",
+      "noDeploy": true
+    }
+  ],
+  "allBuildsWarnings": 0,
+  "allBuildsErrors": 0,
+  "expectedRejectedBuilds": [
+    "legacy activation: CS1029",
+    "ActiveSubtype plus Manager: CS1029"
+  ],
+  "scopedWhitespaceCheck": "passed",
+  "independentCodeReview": "accepted; ASR-01 cached report frame corrected and rechecked",
+  "candidateRelativePath": ".backups/townhall-active-subtype-prepared/20261106T093645001519Z",
+  "candidateSha256": "c07ada69d74f7491528efff2f4518319a9404ccd3a8e5ba948e876f8eaf38b34",
+  "candidatePdbSha256": "711863c0c5833c69c6680fcb181804b26b0adb8837b16f34ed7f348d43417a5f",
+  "installedHashesBeforeAndAfter": {
+    "Mods/TownHallInterior.dll": "614b81fd584040d4cebe7a18929bca09eabae478a6487ec6d846ea01d6062003",
+    "UserData/TownHallInterior/TownHallInterior.pdb": "8126ae65f5c12f6e8261af0a1734e622d8c0ab5522a91e6653c7b1ffd7d8c497",
+    "UserData/TownHallInterior/mod.json": "65938002b7273ef77dedbadf9092a186e6742f1e40fe404ef91576d3e4f81660",
+    "UserData/.deploy/receipts/TownHallInterior.json": "f24a2b5017d4411c964adb0586ea8e217c3793d8868cec892e704e6f6326ae7b"
+  },
+  "installationUnchanged": true,
+  "gameLaunched": false,
+  "nativeSaveFilesAccessed": false,
+  "deployed": false,
+  "committed": false,
+  "pushed": false,
+  "limits": [
+    "NativeSaveWriteAllowed remains false.",
+    "No NetworkObject, world list publication, save calls, purchase or laundering.",
+    "No native active lifecycle, business initialization, persistence/reload, or general world-exit/last-use acceptance."
+  ],
+  "isolatedPure": {
+    "checkedUtc": "2026-11-06T09:48:23.100637+00:00",
+    "status": "Failed",
+    "passedSteps": 21,
+    "failedSteps": [
+      "versions"
+    ],
+    "preexistingVersionDrift": [
+      "HitmanPhone",
+      "Minimap",
+      "PoliceTestMode"
+    ],
+    "snapshotFilesCompared": 2069,
+    "sourceAndCheckoutHashAndFileSetsEqualAfterRun": true,
+    "submodulesVerified": [
+      {
+        "path": "ThirdParty/S1API",
+        "commit": "6b6d7bada39054822732224508cf0f4f45ee7c26"
+      },
+      {
+        "path": "ThirdParty/S1MAPI",
+        "commit": "89b8d0173946324bb21b3eb1fa584ee9c5f3e618"
+      }
+    ],
+    "xunitProjects": 18,
+    "xunitPassed": 4904,
+    "xunitFailed": 0,
+    "townHallPassed": 973,
+    "testProjects": [
+      {
+        "file": "AutoPackagingStation.Tests-3b87c405870f.trx",
+        "total": 66,
+        "passed": 66,
+        "failed": 0
+      },
+      {
+        "file": "BankApp.Tests-62d46f4a2efc.trx",
+        "total": 103,
+        "passed": 103,
+        "failed": 0
+      },
+      {
+        "file": "BusinessIncome.ConfigIo.Tests-b4cac3e2305b.trx",
+        "total": 17,
+        "passed": 17,
+        "failed": 0
+      },
+      {
+        "file": "BusinessIncome.Tests-ac6efe00a243.trx",
+        "total": 228,
+        "passed": 228,
+        "failed": 0
+      },
+      {
+        "file": "CalculatorApp.Tests-2e225c0e643c.trx",
+        "total": 18,
+        "passed": 18,
+        "failed": 0
+      },
+      {
+        "file": "GoldenHour.Tests-80168a1a2c76.trx",
+        "total": 104,
+        "passed": 104,
+        "failed": 0
+      },
+      {
+        "file": "HitmanPhone.Tests-f0359341f99e.trx",
+        "total": 148,
+        "passed": 148,
+        "failed": 0
+      },
+      {
+        "file": "MessagesPlus.Tests-08493ffa0720.trx",
+        "total": 25,
+        "passed": 25,
+        "failed": 0
+      },
+      {
+        "file": "Minimap.Tests-6b2019dc37bc.trx",
+        "total": 222,
+        "passed": 222,
+        "failed": 0
+      },
+      {
+        "file": "PocketShop.Tests-4cac1a946954.trx",
+        "total": 64,
+        "passed": 64,
+        "failed": 0
+      },
+      {
+        "file": "PoliceTestMode.Tests-74349053aeb0.trx",
+        "total": 36,
+        "passed": 36,
+        "failed": 0
+      },
+      {
+        "file": "PropertyLEDs.Tests-7df6c084d4c5.trx",
+        "total": 122,
+        "passed": 122,
+        "failed": 0
+      },
+      {
+        "file": "S1MCP.Tests-3ef597e963be.trx",
+        "total": 62,
+        "passed": 62,
+        "failed": 0
+      },
+      {
+        "file": "StorageScanner.Tests-9e06dae83279.trx",
+        "total": 37,
+        "passed": 37,
+        "failed": 0
+      },
+      {
+        "file": "TaxiDriver.Tests-e2a3082ccbc5.trx",
+        "total": 1402,
+        "passed": 1402,
+        "failed": 0
+      },
+      {
+        "file": "TownHallInterior.Tests-2679dd9f17b9.trx",
+        "total": 973,
+        "passed": 973,
+        "failed": 0
+      },
+      {
+        "file": "WaterShader.Tests-4ee0870f4fb0.trx",
+        "total": 1231,
+        "passed": 1231,
+        "failed": 0
+      },
+      {
+        "file": "WorldLook.Tests-c8ab34f08ed8.trx",
+        "total": 46,
+        "passed": 46,
+        "failed": 0
+      }
+    ],
+    "installedNormalPayloadAndReceiptUnchanged": true,
+    "limit": "No repository-wide pass; only versions failed. Final evidence additions after this comparison are not part of the captured snapshot; production, tests and status documents remain unchanged.",
+    "consolePassed": 265,
+    "toolSuitesPassed": 14
+  },
+  "documentationPaths": {
+    "markdownFiles": 327,
+    "sourceTargetPairs": 1631,
+    "status": "passed"
+  },
+  "vaultValidation": {
+    "markdownFiles": 46,
+    "errors": 0,
+    "warnings": 0
+  }
+}

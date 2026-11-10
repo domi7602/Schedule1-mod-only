@@ -1,0 +1,17 @@
+  TownHallInterior.Tests -> C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\bin\Release\net6.0\TownHallInterior.Tests.dll
+Test run for C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\bin\Release\net6.0\TownHallInterior.Tests.dll (.NETCoreApp,Version=v6.0)
+VSTest version 17.11.1 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.60]     TownHallInterior.Tests.BusinessSaveOperationOwnerTests.Failure_after_return_does_not_erase_return_or_prior_confirmed_readback(confirmed: True) [FAIL]
+  Failed TownHallInterior.Tests.BusinessSaveOperationOwnerTests.Failure_after_return_does_not_erase_return_or_prior_confirmed_readback(confirmed: True) [1 ms]
+  Error Message:
+   Assert.True() Failure
+Expected: True
+Actual:   False
+  Stack Trace:
+     at TownHallInterior.Tests.BusinessSaveOperationOwnerTests.Failure_after_return_does_not_erase_return_or_prior_confirmed_readback(Boolean confirmed) in C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\BusinessSaveOperationOwnerTests.cs:line 435
+Results File: C:\Users\pc\Schedule1-mod-only\.scratch\townhall-save-operation-owner-impl-20261105\owner-targeted-v1\results.trx
+
+Failed!  - Failed:     1, Passed:   120, Skipped:     0, Total:   121, Duration: 97 ms - TownHallInterior.Tests.dll (net6.0)

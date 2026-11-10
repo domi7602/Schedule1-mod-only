@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "capturedUtc": "2026-11-06T13:21:58.387581+00:00",
+  "checkpointId": "20261106T132157195259Z-af2660f4",
+  "relativePath": ".backups/townhall-launch-prep/20261106T132157195259Z-af2660f4",
+  "purpose": "Post-trial checkpoint taken after the failed Slot-2 data run and before normal-build rollback; reused as the pre-deployment baseline for native saves and UserData.",
+  "nativeFiles": 39,
+  "userDataFiles": 181,
+  "payloadFiles": 3,
+  "gameClosedBeforeAndAfter": true,
+  "sourceSaveWrites": false,
+  "nativeSlot1Accessed": false,
+  "note": "The checkpoint manifest records gameClosedBeforeAndAfter=true. The save-verification of the failed trial records nativeSlot1Accessed=false and sourceSaveWrites=false."
+}

@@ -1,0 +1,50 @@
+; FishNet.Managing.Server.ServerObjects::.ctor/1, token 0x06000BB7, RVA 0xD06290, .pdata primary extent 0x114 bytes
+; Raw native bytes decoded without invoking the game. .pdata primary extent is not a proof of full transitive/exception-path coverage.
+0xD06290     48 89 5C 24 10                  mov [rsp+10h],rbx
+0xD06295     48 89 74 24 18                  mov [rsp+18h],rsi
+0xD0629A     57                              push rdi
+0xD0629B     48 83 EC 20                     sub rsp,20h
+0xD0629F     80 3D 67 AB EF 02 00            cmp byte ptr [183C00E0Dh],0
+0xD062A6     48 8B F2                        mov rsi,rdx
+0xD062A9     48 8B F9                        mov rdi,rcx
+0xD062AC     0F 85 EB 00 00 00               jne near ptr 0000000180D0639Dh
+0xD062B2     48 8D 0D E7 C6 CF 02            lea rcx,[183A029A0h] ; TypeInfo: System.Action`1<FishNet.Managing.Scened.SceneLoadStartEventArgs>
+0xD062B9     E8 E2 15 61 FF                  call 00000001803178A0h
+0xD062BE     48 8D 0D 73 BA CC 02            lea rcx,[1839D1D38h] ; TypeInfo: System.Action
+0xD062C5     E8 D6 15 61 FF                  call 00000001803178A0h
+0xD062CA     48 8D 0D 17 DD CC 02            lea rcx,[1839D3FE8h]
+0xD062D1     E8 CA 15 61 FF                  call 00000001803178A0h
+0xD062D6     48 8D 0D C3 7D CC 02            lea rcx,[1839CE0A0h]
+0xD062DD     E8 BE 15 61 FF                  call 00000001803178A0h
+0xD062E2     48 8D 0D 2F 0A C9 02            lea rcx,[183996D18h] ; TypeInfo: System.Collections.Generic.Dictionary`2<System.Int32, System.UInt32>
+0xD062E9     E8 B2 15 61 FF                  call 00000001803178A0h
+0xD062EE     48 8D 0D 43 F4 C8 02            lea rcx,[183995738h] ; TypeInfo: System.Collections.Generic.Dictionary`2<System.Int32, FishNet.Object.NetworkObject>
+0xD062F5     E8 A6 15 61 FF                  call 00000001803178A0h
+0xD062FA     48 8D 0D 27 73 C8 02            lea rcx,[18398D628h]
+0xD06301     E8 9A 15 61 FF                  call 00000001803178A0h
+0xD06306     48 8D 0D 03 5E C8 02            lea rcx,[18398C110h]
+0xD0630D     E8 8E 15 61 FF                  call 00000001803178A0h
+0xD06312     48 8D 0D 37 72 C8 02            lea rcx,[18398D550h]
+0xD06319     E8 82 15 61 FF                  call 00000001803178A0h
+0xD0631E     48 8D 0D 8B 35 CA 02            lea rcx,[1839A98B0h]
+0xD06325     E8 76 15 61 FF                  call 00000001803178A0h
+0xD0632A     48 8D 0D E7 BA CF 02            lea rcx,[183A01E18h] ; TypeInfo: System.Collections.Generic.List`1<FishNet.Object.NetworkBehaviour>
+0xD06331     E8 6A 15 61 FF                  call 00000001803178A0h
+0xD06336     48 8D 0D 63 BD CF 02            lea rcx,[183A020A0h] ; TypeInfo: System.Collections.Generic.List`1<FishNet.Object.NetworkObject>
+0xD0633D     E8 5E 15 61 FF                  call 00000001803178A0h
+0xD06342     48 8D 0D 5F 7A CE 02            lea rcx,[1839EDDA8h] ; TypeInfo: System.Collections.Generic.List`1<System.ValueTuple`2<System.Int32, UnityEngine.SceneManagement.Scene>>
+0xD06349     E8 52 15 61 FF                  call 00000001803178A0h
+0xD0634E     48 8D 0D F3 87 CF 02            lea rcx,[1839FEB48h] ; TypeInfo: FishNet.Serializing.PooledWriter
+0xD06355     E8 46 15 61 FF                  call 00000001803178A0h
+0xD0635A     48 8D 0D A7 6A CC 02            lea rcx,[1839CCE08h]
+0xD06361     E8 3A 15 61 FF                  call 00000001803178A0h
+0xD06366     48 8D 0D FB 34 C9 02            lea rcx,[183999868h] ; TypeInfo: System.Collections.Generic.Queue`1<System.Int32>
+0xD0636D     E8 2E 15 61 FF                  call 00000001803178A0h
+0xD06372     48 8D 0D 1F 12 CA 02            lea rcx,[1839A7598h]
+0xD06379     E8 22 15 61 FF                  call 00000001803178A0h
+0xD0637E     48 8D 0D EB 12 CA 02            lea rcx,[1839A7670h]
+0xD06385     E8 16 15 61 FF                  call 00000001803178A0h
+0xD0638A     48 8D 0D B7 13 CA 02            lea rcx,[1839A7748h]
+0xD06391     E8 0A 15 61 FF                  call 00000001803178A0h
+0xD06396     C6 05 70 AA EF 02 01            mov byte ptr [183C00E0Dh],1
+0xD0639D     48 8B 0D 74 09 C9 02            mov rcx,[183996D18h] ; TypeInfo: System.Collections.Generic.Dictionary`2<System.Int32, System.UInt32>

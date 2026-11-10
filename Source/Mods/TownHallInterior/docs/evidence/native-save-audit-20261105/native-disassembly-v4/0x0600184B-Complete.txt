@@ -1,0 +1,88 @@
+; ScheduleOne.Persistence.SaveRequest::Complete/0, token 0x0600184B, RVA 0x5ABA60, metadata-pointer window 0x160 bytes
+; Raw native bytes only. Window ends at next distinct managed-method pointer, includes padding/cold fragments; not proof of full transitive/exception coverage. Shared target names show at most eight aliases; total count is recorded.
+0x5ABA60     48 89 5C 24 10                  mov [rsp+10h],rbx
+0x5ABA65     57                              push rdi
+0x5ABA66     48 83 EC 20                     sub rsp,20h
+0x5ABA6A     80 3D F3 FC 64 03 00            cmp byte ptr [183BFB764h],0
+0x5ABA71     48 8B F9                        mov rdi,rcx
+0x5ABA74     75 1F                           jne short 00000001805ABA95h
+0x5ABA76     48 8D 0D 83 91 40 03            lea rcx,[1839B4C00h] ; TypeInfo: ScheduleOne.Persistence.ISaveable
+0x5ABA7D     E8 1E BE D6 FF                  call 00000001803178A0h
+0x5ABA82     48 8D 0D 37 69 44 03            lea rcx,[1839F23C0h] ; MethodRef: T ScheduleOne.DevUtilities.Singleton`1<ScheduleOne.Persistence.SaveManager>.get_Instance
+0x5ABA89     E8 12 BE D6 FF                  call 00000001803178A0h
+0x5ABA8E     C6 05 CF FC 64 03 01            mov byte ptr [183BFB764h],1
+0x5ABA95     48 8B 05 24 69 44 03            mov rax,[1839F23C0h] ; MethodRef: T ScheduleOne.DevUtilities.Singleton`1<ScheduleOne.Persistence.SaveManager>.get_Instance
+0x5ABA9C     48 8B 40 20                     mov rax,[rax+20h]
+0x5ABAA0     F6 80 35 01 00 00 01            test byte ptr [rax+135h],1
+0x5ABAA7     75 08                           jne short 00000001805ABAB1h
+0x5ABAA9     48 8B C8                        mov rcx,rax
+0x5ABAAC     E8 8F 0D D7 FF                  call 000000018031C840h
+0x5ABAB1     48 8B 80 C0 00 00 00            mov rax,[rax+0C0h]
+0x5ABAB8     48 8B 40 10                     mov rax,[rax+10h]
+0x5ABABC     F6 80 35 01 00 00 01            test byte ptr [rax+135h],1
+0x5ABAC3     75 08                           jne short 00000001805ABACDh
+0x5ABAC5     48 8B C8                        mov rcx,rax
+0x5ABAC8     E8 73 0D D7 FF                  call 000000018031C840h
+0x5ABACD     48 8B 80 B8 00 00 00            mov rax,[rax+0B8h]
+0x5ABAD4     48 8B 18                        mov rbx,[rax]
+0x5ABAD7     48 85 DB                        test rbx,rbx
+0x5ABADA     0F 84 D7 00 00 00               je near ptr 00000001805ABBB7h
+0x5ABAE0     80 3D 6E FC 64 03 00            cmp byte ptr [183BFB755h],0
+0x5ABAE7     75 13                           jne short 00000001805ABAFCh
+0x5ABAE9     48 8D 0D 28 39 40 03            lea rcx,[1839AF418h] ; MethodRef: System.Boolean System.Collections.Generic.List`1<ScheduleOne.Persistence.SaveRequest>.Remove
+0x5ABAF0     E8 AB BD D6 FF                  call 00000001803178A0h
+0x5ABAF5     C6 05 59 FC 64 03 01            mov byte ptr [183BFB755h],1
+0x5ABAFC     48 8B 4B 68                     mov rcx,[rbx+68h]
+0x5ABB00     48 85 C9                        test rcx,rcx
+0x5ABB03     0F 84 AE 00 00 00               je near ptr 00000001805ABBB7h
+0x5ABB09     4C 8B 05 08 39 40 03            mov r8,[1839AF418h] ; MethodRef: System.Boolean System.Collections.Generic.List`1<ScheduleOne.Persistence.SaveRequest>.Remove
+0x5ABB10     48 8B D7                        mov rdx,rdi
+0x5ABB13     E8 88 C8 32 01                  call 00000001818D83A0h
+0x5ABB18     48 8B 5F 10                     mov rbx,[rdi+10h]
+0x5ABB1C     48 85 DB                        test rbx,rbx
+0x5ABB1F     0F 84 92 00 00 00               je near ptr 00000001805ABBB7h
+0x5ABB25     4C 8B 13                        mov r10,[rbx]
+0x5ABB28     33 C0                           xor eax,eax
+0x5ABB2A     4C 8B 0D CF 90 40 03            mov r9,[1839B4C00h] ; TypeInfo: ScheduleOne.Persistence.ISaveable
+0x5ABB31     48 89 74 24 30                  mov [rsp+30h],rsi
+0x5ABB36     48 8B 77 18                     mov rsi,[rdi+18h]
+0x5ABB3A     41 0F B7 92 2E 01 00 00         movzx edx,word ptr [r10+12Eh]
+0x5ABB42     48 8B 7F 20                     mov rdi,[rdi+20h]
+0x5ABB46     66 3B C2                        cmp ax,dx
+0x5ABB49     73 1D                           jae short 00000001805ABB68h
+0x5ABB4B     4D 8B 82 B0 00 00 00            mov r8,[r10+0B0h]
+0x5ABB52     33 C9                           xor ecx,ecx
+0x5ABB54     0F B7 C1                        movzx eax,cx
+0x5ABB57     48 03 C0                        add rax,rax
+0x5ABB5A     4D 39 0C C0                     cmp [r8+rax*8],r9
+0x5ABB5E     74 38                           je short 00000001805ABB98h
+0x5ABB60     66 FF C1                        inc cx
+0x5ABB63     66 3B CA                        cmp cx,dx
+0x5ABB66     72 EC                           jb short 00000001805ABB54h
+0x5ABB68     41 B8 0D 00 00 00               mov r8d,0Dh
+0x5ABB6E     49 8B D1                        mov rdx,r9
+0x5ABB71     48 8B CB                        mov rcx,rbx
+0x5ABB74     E8 E7 05 D7 FF                  call 000000018031C160h
+0x5ABB79     4C 8B 48 08                     mov r9,[rax+8]
+0x5ABB7D     4C 8B C7                        mov r8,rdi
+0x5ABB80     48 8B D6                        mov rdx,rsi
+0x5ABB83     48 8B CB                        mov rcx,rbx
+0x5ABB86     48 8B 74 24 30                  mov rsi,[rsp+30h]
+0x5ABB8B     48 8B 5C 24 38                  mov rbx,[rsp+38h]
+0x5ABB90     48 83 C4 20                     add rsp,20h
+0x5ABB94     5F                              pop rdi
+0x5ABB95     48 FF 20                        jmp qword ptr [rax]
+0x5ABB98     0F B7 C9                        movzx ecx,cx
+0x5ABB9B     48 03 C9                        add rcx,rcx
+0x5ABB9E     41 8B 44 C8 08                  mov eax,[r8+rcx*8+8]
+0x5ABBA3     83 C0 0D                        add eax,0Dh
+0x5ABBA6     48 98                           cdqe
+0x5ABBA8     48 C1 E0 04                     shl rax,4
+0x5ABBAC     48 05 38 01 00 00               add rax,138h
+0x5ABBB2     49 03 C2                        add rax,r10
+0x5ABBB5     EB C2                           jmp short 00000001805ABB79h
+0x5ABBB7     E8 C4 BF D6 FF                  call 0000000180317B80h
+0x5ABBBC     CC                              int 3
+0x5ABBBD     CC                              int 3
+0x5ABBBE     CC                              int 3
+0x5ABBBF     CC                              int 3

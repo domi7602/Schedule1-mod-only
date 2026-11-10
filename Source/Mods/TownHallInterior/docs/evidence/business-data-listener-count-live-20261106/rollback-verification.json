@@ -1,0 +1,32 @@
+{
+  "schema": 1,
+  "checkedUtc": "2026-11-06T14:31:18.282Z",
+  "restoredAtUtc": "2026-11-06T14:31:02.2972705Z",
+  "sourceRevision": "b2c6c7e6c6ecc778da9624cdb68a6578b9db471a",
+  "sourceWorktree": "dirty",
+  "attemptId": "20261106T143102107Z-03b2f4f937bf",
+  "backupId": "20261106T143102145Z-TownHallInterior-a8a6f227",
+  "candidateSha256": "4ae6509a2d8501176ee8b9dca7e3c8b6481382d0f6f30fa73857506c9cf304f6",
+  "candidatePdbSha256": "47592f81d0471844256ae91cd521a715f76a96c9fe27f7ffdc2bfa5567bc0a3d",
+  "installedHashes": {
+    "Mods/TownHallInterior.dll": "614b81fd584040d4cebe7a18929bca09eabae478a6487ec6d846ea01d6062003",
+    "UserData/TownHallInterior/TownHallInterior.pdb": "8126ae65f5c12f6e8261af0a1734e622d8c0ab5522a91e6653c7b1ffd7d8c497",
+    "UserData/TownHallInterior/mod.json": "65938002b7273ef77dedbadf9092a186e6742f1e40fe404ef91576d3e4f81660",
+    "UserData/.deploy/receipts/TownHallInterior.json": "303afa10146cf51a0ba4e32f7536655ad9ceef2defa2aed0e3de6eae3f94f4a7"
+  },
+  "restoredNormalBuild": true,
+  "copied": 2,
+  "unchanged": 1,
+  "stale": [],
+  "gameClosedBeforeAndAfter": true,
+  "nativeFiles": 39,
+  "nativeFilesByteIdentical": true,
+  "nativeSlot1Accessed": false,
+  "nativeSaveWriteAllowed": false,
+  "nextStep": "Prepare a justified listener bound from the observed size 889 and capacity 1024; rebuild offline, then request installation approval for a new Slot-2 trial.",
+  "limits": [
+    "Restoration verifies file delivery only, not native listener capture or data queries.",
+    "The candidate run was quarantined before data preparation; no cleanup was exercised.",
+    "File equality is not proof of no filesystem operations; empty-directory baselines were not recorded."
+  ]
+}

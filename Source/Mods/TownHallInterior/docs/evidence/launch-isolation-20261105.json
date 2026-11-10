@@ -1,0 +1,239 @@
+{
+  "schema": 1,
+  "capturedUtc": "2026-11-05T07:28:33.551029+00:00",
+  "project": "schedule1-mod-only",
+  "sourceRevision": "b2c6c7e6c6ecc778da9624cdb68a6578b9db471a",
+  "sourceWorktree": "dirty",
+  "scope": "Completed isolated Pure verification and final read-only installation/checkpoint/process checks; no launch.",
+  "verification": {
+    "startedUtc": "2026-11-05T07:18:55.7317834Z",
+    "finishedUtc": "2026-11-05T07:23:25.7664670Z",
+    "mode": "Pure",
+    "exitCode": 1,
+    "passed": 21,
+    "failed": 1,
+    "skippedSteps": 0,
+    "failedSteps": [
+      "versions"
+    ],
+    "knownDriftMods": [
+      "HitmanPhone",
+      "Minimap",
+      "PoliceTestMode"
+    ],
+    "tests": {
+      "total": 4612,
+      "passed": 4612,
+      "failed": 0,
+      "notExecuted": 0
+    },
+    "consolePassed": 265,
+    "consoleFailed": 0,
+    "gameRequiredProjectSkipped": "Shared.Tests",
+    "testSuites": [
+      {
+        "suite": "AutoPackagingStation.Tests",
+        "total": 66,
+        "passed": 66,
+        "failed": 0,
+        "notExecuted": 0
+      },
+      {
+        "suite": "BankApp.Tests",
+        "total": 103,
+        "passed": 103,
+        "failed": 0,
+        "notExecuted": 0
+      },
+      {
+        "suite": "BusinessIncome.ConfigIo.Tests",
+        "total": 17,
+        "passed": 17,
+        "failed": 0,
+        "notExecuted": 0
+      },
+      {
+        "suite": "BusinessIncome.Tests",
+        "total": 228,
+        "passed": 228,
+        "failed": 0,
+        "notExecuted": 0
+      },
+      {
+        "suite": "CalculatorApp.Tests",
+        "total": 18,
+        "passed": 18,
+        "failed": 0,
+        "notExecuted": 0
+      },
+      {
+        "suite": "GoldenHour.Tests",
+        "total": 104,
+        "passed": 104,
+        "failed": 0,
+        "notExecuted": 0
+      },
+      {
+        "suite": "HitmanPhone.Tests",
+        "total": 148,
+        "passed": 148,
+        "failed": 0,
+        "notExecuted": 0
+      },
+      {
+        "suite": "MessagesPlus.Tests",
+        "total": 25,
+        "passed": 25,
+        "failed": 0,
+        "notExecuted": 0
+      },
+      {
+        "suite": "Minimap.Tests",
+        "total": 222,
+        "passed": 222,
+        "failed": 0,
+        "notExecuted": 0
+      },
+      {
+        "suite": "PocketShop.Tests",
+        "total": 64,
+        "passed": 64,
+        "failed": 0,
+        "notExecuted": 0
+      },
+      {
+        "suite": "PoliceTestMode.Tests",
+        "total": 36,
+        "passed": 36,
+        "failed": 0,
+        "notExecuted": 0
+      },
+      {
+        "suite": "PropertyLEDs.Tests",
+        "total": 122,
+        "passed": 122,
+        "failed": 0,
+        "notExecuted": 0
+      },
+      {
+        "suite": "S1MCP.Tests",
+        "total": 62,
+        "passed": 62,
+        "failed": 0,
+        "notExecuted": 0
+      },
+      {
+        "suite": "StorageScanner.Tests",
+        "total": 37,
+        "passed": 37,
+        "failed": 0,
+        "notExecuted": 0
+      },
+      {
+        "suite": "TaxiDriver.Tests",
+        "total": 1402,
+        "passed": 1402,
+        "failed": 0,
+        "notExecuted": 0
+      },
+      {
+        "suite": "TownHallInterior.Tests",
+        "total": 681,
+        "passed": 681,
+        "failed": 0,
+        "notExecuted": 0
+      },
+      {
+        "suite": "WaterShader.Tests",
+        "total": 1231,
+        "passed": 1231,
+        "failed": 0,
+        "notExecuted": 0
+      },
+      {
+        "suite": "WorldLook.Tests",
+        "total": 46,
+        "passed": 46,
+        "failed": 0,
+        "notExecuted": 0
+      }
+    ]
+  },
+  "snapshotComparison": {
+    "inputFilesComparedInCurrentAndIsolatedTrees": 1655,
+    "allListedInputsUnchanged": true,
+    "cleanPinnedSubmodulesChecked": [
+      {
+        "path": "ThirdParty/S1API",
+        "commit": "6b6d7bada39054822732224508cf0f4f45ee7c26"
+      },
+      {
+        "path": "ThirdParty/S1MAPI",
+        "commit": "89b8d0173946324bb21b3eb1fa584ee9c5f3e618"
+      }
+    ],
+    "onlyEvidenceExportsAddedByThisFinalizerAfterComparison": true
+  },
+  "finalReadback": {
+    "processCheckedBeforeUtc": "2026-11-05T07:28:32.202153+00:00",
+    "processCheckedAfterUtc": "2026-11-05T07:28:33.541819+00:00",
+    "gameProcessesBeforeAndAfter": 0,
+    "checkpointVerified": true,
+    "nativeTestSaveFilesUnchanged": 39,
+    "modsFilesCompared": 38,
+    "userDataFilesComparedExcludingDeployHistory": 162,
+    "onlyChangesVersusPreinstall": [
+      "TownHallInterior.dll",
+      "TownHallInterior/TownHallInterior.pdb"
+    ],
+    "installedNormalDllSha256": "614b81fd584040d4cebe7a18929bca09eabae478a6487ec6d846ea01d6062003",
+    "installedPdbSha256": "8126ae65f5c12f6e8261af0a1734e622d8c0ab5522a91e6653c7b1ffd7d8c497",
+    "dependenciesUnchanged": 7,
+    "helperBackupFilesMatched": 2,
+    "steamCloudLocallyEnabled": false,
+    "cloudCheckedUtc": "2026-11-05T07:28:33.297037+00:00"
+  },
+  "actualGameLaunchedByAgent": false,
+  "nativeSaveInvoked": false,
+  "nativeSlot1Accessed": false,
+  "nativeSaveProbeAllowed": false,
+  "gameplayOrSaveAcceptance": false,
+  "commitOrPush": false,
+  "artifacts": [
+    {
+      "path": "Source/Mods/TownHallInterior/docs/evidence/launch-isolated-report-20261105.json",
+      "sha256": "906b0ce5e8ad646430d9d1765a289891bf45c0bc90b24151244541daa61d2215"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/docs/evidence/launch-isolated-snapshot-20261105.json",
+      "sha256": "83e4e0fd26b7258560894ba17ada5e6f5d33589cc5293f6410d1e004ad795f7b"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/docs/evidence/launch-isolated-tests-20261105.txt",
+      "sha256": "1908c8857f8e21865ddba6a9b44369322d2b63cc59e92444efc8ff2807cf4468"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/docs/evidence/launch-isolated-versions-20261105.txt",
+      "sha256": "9a0ab34fd86a534eec7ee6413f158a008b9ae05c4d09ced60842201a549dddaf"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/docs/evidence/launch-isolated-townhall-20261105.trx",
+      "sha256": "f8feb7a0da528d58256bf1e61477c72f8a6cca05e692c090a876e2171009b2d2"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/docs/evidence/launch-checkpoint-final-20261105.json",
+      "sha256": "c33a52d4012de13916eb68a132d03dbdeacccadde2afab5aaddeeeef56c491f4"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/docs/evidence/launch-cloud-final-20261105.json",
+      "sha256": "c7b743b2795826c640a526fd72ad833971064b960513a999e74213c2fd7041f9"
+    }
+  ],
+  "limits": [
+    "Overall repository gate remains Failed due to the named existing version drift.",
+    "No live load/phone/gameplay or native business Save/Load observation.",
+    "Tool-suite deployments and cache deletions were synthetic fixtures, not the live installation.",
+    "Normal game autosaves are not disabled; native completion/release contract remains unproven.",
+    "Readback does not create another backup or deploy again; original preparation evidence is retained unchanged."
+  ]
+}

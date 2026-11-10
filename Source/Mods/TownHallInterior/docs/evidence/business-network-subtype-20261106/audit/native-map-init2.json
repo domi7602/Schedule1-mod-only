@@ -1,0 +1,6717 @@
+{
+  "CapturedUtc": "2026-11-06T11:14:26.3784401Z",
+  "NativeSha256": "61829050e56ca180d67be592e4bfe61ec97d2e9573f720d90a54e318a7e4381d",
+  "MetadataVersion": 31.1,
+  "GlobalMethodCount": 149349,
+  "Method": "Fresh LibCpp2IL mapping + Iced native-byte decode, target assemblies never loaded/invoked",
+  "FieldMap": [
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "DefaultCycleDuration",
+      "Static": true,
+      "Offset": "0x0"
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "TickDuration",
+      "Static": true,
+      "Offset": "0x0"
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "EndOfDay",
+      "Static": true,
+      "Offset": "0x0"
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "CycleDuration",
+      "Static": true,
+      "Offset": "0x0"
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "<DefaultTime>k__BackingField",
+      "Static": false,
+      "Offset": "0x120"
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "_defaultDay",
+      "Static": false,
+      "Offset": "0x124"
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "<CurrentTime>k__BackingField",
+      "Static": false,
+      "Offset": "0x128"
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "<ElapsedDays>k__BackingField",
+      "Static": false,
+      "Offset": "0x12C"
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "<Playtime>k__BackingField",
+      "Static": false,
+      "Offset": "0x130"
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "<TimeSpeedMultiplier>k__BackingField",
+      "Static": false,
+      "Offset": "0x134"
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "<DailyMinSum>k__BackingField",
+      "Static": false,
+      "Offset": "0x138"
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "_lastMinWaitExcess",
+      "Static": false,
+      "Offset": "0x13C"
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "_stopMinPassWait",
+      "Static": false,
+      "Offset": "0x140"
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "_secondsOnCurrentMinute",
+      "Static": false,
+      "Offset": "0x144"
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "_tickLoop",
+      "Static": false,
+      "Offset": "0x148"
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "_timeLoop",
+      "Static": false,
+      "Offset": "0x150"
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "onMinutePass",
+      "Static": false,
+      "Offset": "0x158"
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "onUncappedMinutePass",
+      "Static": false,
+      "Offset": "0x160"
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "onTick",
+      "Static": false,
+      "Offset": "0x168"
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "onTimeChanged",
+      "Static": false,
+      "Offset": "0x170"
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "onTimeSkip",
+      "Static": false,
+      "Offset": "0x178"
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "onTimeSet",
+      "Static": false,
+      "Offset": "0x180"
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "onHourPass",
+      "Static": false,
+      "Offset": "0x188"
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "onDayPass",
+      "Static": false,
+      "Offset": "0x190"
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "onWeekPass",
+      "Static": false,
+      "Offset": "0x198"
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "onUpdate",
+      "Static": false,
+      "Offset": "0x1A0"
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "onFixedUpdate",
+      "Static": false,
+      "Offset": "0x1A8"
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "loader",
+      "Static": false,
+      "Offset": "0x1B0"
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "<LocalExtraFiles>k__BackingField",
+      "Static": false,
+      "Offset": "0x1B8"
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "<LocalExtraFolders>k__BackingField",
+      "Static": false,
+      "Offset": "0x1C0"
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "<HasChanged>k__BackingField",
+      "Static": false,
+      "Offset": "0x1C8"
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "<LoadOrder>k__BackingField",
+      "Static": false,
+      "Offset": "0x1CC"
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "NetworkInitialize___EarlyScheduleOne.GameTime.TimeManagerAssembly-CSharp.dll_Excuted",
+      "Static": false,
+      "Offset": "0x1D0"
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "NetworkInitialize__LateScheduleOne.GameTime.TimeManagerAssembly-CSharp.dll_Excuted",
+      "Static": false,
+      "Offset": "0x1D1"
+    },
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": "Businesses",
+      "Static": true,
+      "Offset": "0x0"
+    },
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": "UnownedBusinesses",
+      "Static": true,
+      "Offset": "0x8"
+    },
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": "OwnedBusinesses",
+      "Static": true,
+      "Offset": "0x10"
+    },
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": "LaunderCapacity",
+      "Static": false,
+      "Offset": "0x268"
+    },
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": "LaunderingOperations",
+      "Static": false,
+      "Offset": "0x270"
+    },
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": "onOperationStarted",
+      "Static": true,
+      "Offset": "0x18"
+    },
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": "onOperationFinished",
+      "Static": true,
+      "Offset": "0x20"
+    },
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": "loader",
+      "Static": false,
+      "Offset": "0x278"
+    },
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": "NetworkInitialize___EarlyScheduleOne.Property.BusinessAssembly-CSharp.dll_Excuted",
+      "Static": false,
+      "Offset": "0x280"
+    },
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": "NetworkInitialize__LateScheduleOne.Property.BusinessAssembly-CSharp.dll_Excuted",
+      "Static": false,
+      "Offset": "0x281"
+    },
+    {
+      "Type": "ScheduleOne.Property.BusinessManager",
+      "Name": "loader",
+      "Static": false,
+      "Offset": "0x28"
+    },
+    {
+      "Type": "ScheduleOne.Property.BusinessManager",
+      "Name": "<LocalExtraFiles>k__BackingField",
+      "Static": false,
+      "Offset": "0x30"
+    },
+    {
+      "Type": "ScheduleOne.Property.BusinessManager",
+      "Name": "<LocalExtraFolders>k__BackingField",
+      "Static": false,
+      "Offset": "0x38"
+    },
+    {
+      "Type": "ScheduleOne.Property.BusinessManager",
+      "Name": "<HasChanged>k__BackingField",
+      "Static": false,
+      "Offset": "0x40"
+    },
+    {
+      "Type": "ScheduleOne.Property.BusinessManager",
+      "Name": "<LoadOrder>k__BackingField",
+      "Static": false,
+      "Offset": "0x44"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "IdealCullsPerSecond",
+      "Static": true,
+      "Offset": "0x0"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "MaxCullDuration",
+      "Static": true,
+      "Offset": "0x0"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "CullingDistanceBuffer",
+      "Static": true,
+      "Offset": "0x0"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "DecullHardThreshold",
+      "Static": true,
+      "Offset": "0x0"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "Properties",
+      "Static": true,
+      "Offset": "0x0"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "UnownedProperties",
+      "Static": true,
+      "Offset": "0x8"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "OwnedProperties",
+      "Static": true,
+      "Offset": "0x10"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "onPropertyAcquired",
+      "Static": true,
+      "Offset": "0x18"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "onThisPropertyAcquired",
+      "Static": false,
+      "Offset": "0x118"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "<IsOwned>k__BackingField",
+      "Static": false,
+      "Offset": "0x120"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "<Employees>k__BackingField",
+      "Static": false,
+      "Offset": "0x128"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "<WorldspaceUIContainer>k__BackingField",
+      "Static": false,
+      "Offset": "0x130"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "<IsContentCulled>k__BackingField",
+      "Static": false,
+      "Offset": "0x138"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "propertyName",
+      "Static": false,
+      "Offset": "0x140"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "AvailableInDemo",
+      "Static": false,
+      "Offset": "0x148"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "propertyCode",
+      "Static": false,
+      "Offset": "0x150"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "Price",
+      "Static": false,
+      "Offset": "0x158"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "DefaultRotation",
+      "Static": false,
+      "Offset": "0x15C"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "EmployeeCapacity",
+      "Static": false,
+      "Offset": "0x160"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "OwnedByDefault",
+      "Static": false,
+      "Offset": "0x164"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "IsOwnedVariable",
+      "Static": false,
+      "Offset": "0x168"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "<AmbientTemperature>k__BackingField",
+      "Static": false,
+      "Offset": "0x170"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "ContentCullingEnabled",
+      "Static": false,
+      "Offset": "0x174"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "MinimumCullingDistance",
+      "Static": false,
+      "Offset": "0x178"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "ObjectsToCull",
+      "Static": false,
+      "Offset": "0x180"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "SpawnPoint",
+      "Static": false,
+      "Offset": "0x188"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "InteriorSpawnPoint",
+      "Static": false,
+      "Offset": "0x190"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "ForSaleSign",
+      "Static": false,
+      "Offset": "0x198"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "BoundingBox",
+      "Static": false,
+      "Offset": "0x1A0"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "PoI",
+      "Static": false,
+      "Offset": "0x1A8"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "ListingPoster",
+      "Static": false,
+      "Offset": "0x1B0"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "NPCSpawnPoint",
+      "Static": false,
+      "Offset": "0x1B8"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "EmployeeIdlePoints",
+      "Static": false,
+      "Offset": "0x1C0"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "Switches",
+      "Static": false,
+      "Offset": "0x1C8"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "Toggleables",
+      "Static": false,
+      "Offset": "0x1D0"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "DisposalArea",
+      "Static": false,
+      "Offset": "0x1D8"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "LoadingDocks",
+      "Static": false,
+      "Offset": "0x1E0"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "<Container>k__BackingField",
+      "Static": false,
+      "Offset": "0x1E8"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "BuildableItems",
+      "Static": false,
+      "Offset": "0x1F0"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "onBuildableItemAdded",
+      "Static": false,
+      "Offset": "0x1F8"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "onBuildableItemRemoved",
+      "Static": false,
+      "Offset": "0x200"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "Configurables",
+      "Static": false,
+      "Offset": "0x208"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "Grids",
+      "Static": false,
+      "Offset": "0x210"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "propertyBoundsColliders",
+      "Static": false,
+      "Offset": "0x218"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "cullingRoutine",
+      "Static": false,
+      "Offset": "0x220"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "_hasBeenLoaded",
+      "Static": false,
+      "Offset": "0x228"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "loader",
+      "Static": false,
+      "Offset": "0x230"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "<LocalExtraFiles>k__BackingField",
+      "Static": false,
+      "Offset": "0x238"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "<LocalExtraFolders>k__BackingField",
+      "Static": false,
+      "Offset": "0x240"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "<HasChanged>k__BackingField",
+      "Static": false,
+      "Offset": "0x248"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "savedObjectPaths",
+      "Static": false,
+      "Offset": "0x250"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "savedEmployeePaths",
+      "Static": false,
+      "Offset": "0x258"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "NetworkInitialize___EarlyScheduleOne.Property.PropertyAssembly-CSharp.dll_Excuted",
+      "Static": false,
+      "Offset": "0x260"
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "NetworkInitialize__LateScheduleOne.Property.PropertyAssembly-CSharp.dll_Excuted",
+      "Static": false,
+      "Offset": "0x261"
+    },
+    {
+      "Type": "ScheduleOne.Property.PropertyContentsContainer",
+      "Name": "<Property>k__BackingField",
+      "Static": false,
+      "Offset": "0x20"
+    },
+    {
+      "Type": "ScheduleOne.Property.PropertyManager",
+      "Name": "loader",
+      "Static": false,
+      "Offset": "0x28"
+    },
+    {
+      "Type": "ScheduleOne.Property.PropertyManager",
+      "Name": "<LocalExtraFiles>k__BackingField",
+      "Static": false,
+      "Offset": "0x30"
+    },
+    {
+      "Type": "ScheduleOne.Property.PropertyManager",
+      "Name": "<LocalExtraFolders>k__BackingField",
+      "Static": false,
+      "Offset": "0x38"
+    },
+    {
+      "Type": "ScheduleOne.Property.PropertyManager",
+      "Name": "<HasChanged>k__BackingField",
+      "Static": false,
+      "Offset": "0x40"
+    },
+    {
+      "Type": "ScheduleOne.Property.PropertyManager",
+      "Name": "<LoadOrder>k__BackingField",
+      "Static": false,
+      "Offset": "0x44"
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": "MONEY_TEXT_COLOR",
+      "Static": true,
+      "Offset": "0x0"
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": "MONEY_TEXT_COLOR_DARKER",
+      "Static": true,
+      "Offset": "0x0"
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": "ONLINE_BALANCE_COLOR",
+      "Static": true,
+      "Offset": "0x0"
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": "cultureInfo",
+      "Static": true,
+      "Offset": "0x0"
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": "ledger",
+      "Static": false,
+      "Offset": "0x120"
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": "onlineBalance",
+      "Static": false,
+      "Offset": "0x128"
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": "lifetimeEarnings",
+      "Static": false,
+      "Offset": "0x12C"
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": "<LastCalculatedNetworth>k__BackingField",
+      "Static": false,
+      "Offset": "0x130"
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": "CashSound",
+      "Static": false,
+      "Offset": "0x138"
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": "moneyChangePrefab",
+      "Static": false,
+      "Offset": "0x140"
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": "cashChangePrefab",
+      "Static": false,
+      "Offset": "0x148"
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": "LaunderingNotificationIcon",
+      "Static": false,
+      "Offset": "0x150"
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": "onNetworthCalculation",
+      "Static": false,
+      "Offset": "0x158"
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": "loader",
+      "Static": false,
+      "Offset": "0x160"
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": "<LocalExtraFiles>k__BackingField",
+      "Static": false,
+      "Offset": "0x168"
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": "<LocalExtraFolders>k__BackingField",
+      "Static": false,
+      "Offset": "0x170"
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": "<HasChanged>k__BackingField",
+      "Static": false,
+      "Offset": "0x178"
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": "<LoadOrder>k__BackingField",
+      "Static": false,
+      "Offset": "0x17C"
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": "syncVar___onlineBalance",
+      "Static": false,
+      "Offset": "0x180"
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": "syncVar___lifetimeEarnings",
+      "Static": false,
+      "Offset": "0x188"
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": "NetworkInitialize___EarlyScheduleOne.Money.MoneyManagerAssembly-CSharp.dll_Excuted",
+      "Static": false,
+      "Offset": "0x190"
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": "NetworkInitialize__LateScheduleOne.Money.MoneyManagerAssembly-CSharp.dll_Excuted",
+      "Static": false,
+      "Offset": "0x191"
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "<OnStartServerCalled>k__BackingField",
+      "Static": false,
+      "Offset": "0x20"
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "<OnStartClientCalled>k__BackingField",
+      "Static": false,
+      "Offset": "0x21"
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "_onStartNetworkCalled",
+      "Static": false,
+      "Offset": "0x22"
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "_onStopNetworkCalled",
+      "Static": false,
+      "Offset": "0x23"
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "_componentIndexCache",
+      "Static": false,
+      "Offset": "0x24"
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "_transportManagerCache",
+      "Static": false,
+      "Offset": "0x28"
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "_networkObjectCache",
+      "Static": false,
+      "Offset": "0x30"
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "_initializedOnceServer",
+      "Static": false,
+      "Offset": "0x38"
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "_initializedOnceClient",
+      "Static": false,
+      "Offset": "0x39"
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "ClientHasReconcileData",
+      "Static": false,
+      "Offset": "0x3A"
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "_lastReplicateTick",
+      "Static": false,
+      "Offset": "0x3C"
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "<IsReconciling>k__BackingField",
+      "Static": false,
+      "Offset": "0x40"
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "_replicateRpcDelegates",
+      "Static": false,
+      "Offset": "0x48"
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "_reconcileRpcDelegates",
+      "Static": false,
+      "Offset": "0x50"
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "_predictionInitialized",
+      "Static": false,
+      "Offset": "0x58"
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "_predictionRigidbody",
+      "Static": false,
+      "Offset": "0x60"
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "_predictionRigidbody2d",
+      "Static": false,
+      "Offset": "0x68"
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "_lastMayChangePosition",
+      "Static": false,
+      "Offset": "0x70"
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "_lastMayChangeRotation",
+      "Static": false,
+      "Offset": "0x7C"
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "_lastMayChangeScale",
+      "Static": false,
+      "Offset": "0x8C"
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "_remainingResends",
+      "Static": false,
+      "Offset": "0x98"
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "_lastSentReplicateTick",
+      "Static": false,
+      "Offset": "0x9C"
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "_lastReceivedReplicateTick",
+      "Static": false,
+      "Offset": "0xA0"
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "_lastReceivedReconcileTick",
+      "Static": false,
+      "Offset": "0xA4"
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "_lastReconcileTick",
+      "Static": false,
+      "Offset": "0xA8"
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "_rpcLinks",
+      "Static": false,
+      "Offset": "0xB0"
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "_serverRpcDelegates",
+      "Static": false,
+      "Offset": "0xB8"
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "_observersRpcDelegates",
+      "Static": false,
+      "Offset": "0xC0"
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "_targetRpcDelegates",
+      "Static": false,
+      "Offset": "0xC8"
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "_rpcMethodCount",
+      "Static": false,
+      "Offset": "0xD0"
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "_rpcHashSize",
+      "Static": false,
+      "Offset": "0xD4"
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "_bufferedRpcs",
+      "Static": false,
+      "Offset": "0xD8"
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "_networkConnectionCache",
+      "Static": false,
+      "Offset": "0xE0"
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "MAXIMUM_RPC_HEADER_SIZE",
+      "Static": true,
+      "Offset": "0x0"
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "_syncTypeWriters",
+      "Static": false,
+      "Offset": "0xE8"
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "_syncVars",
+      "Static": false,
+      "Offset": "0xF0"
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "SyncVarDirty",
+      "Static": false,
+      "Offset": "0xF8"
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "_syncObjects",
+      "Static": false,
+      "Offset": "0x100"
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "SyncObjectDirty",
+      "Static": false,
+      "Offset": "0x108"
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "_readPermissions",
+      "Static": true,
+      "Offset": "0x0"
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "_syncVarReadDelegates",
+      "Static": false,
+      "Offset": "0x110"
+    }
+  ],
+  "MethodMap": [
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "get_MinuteDuration",
+      "Token": "0x06000BB9",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1809CC040",
+      "Rva": "0x9CC040",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "get_DefaultTime",
+      "Token": "0x06000BBA",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1804ED680",
+      "Rva": "0x4ED680",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "set_DefaultTime",
+      "Token": "0x06000BBB",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1806103E0",
+      "Rva": "0x6103E0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "get_CurrentTime",
+      "Token": "0x06000BBC",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1804E7E70",
+      "Rva": "0x4E7E70",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "set_CurrentTime",
+      "Token": "0x06000BBD",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1806103F0",
+      "Rva": "0x6103F0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "get_CurrentDay",
+      "Token": "0x06000BBE",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1809CBFC0",
+      "Rva": "0x9CBFC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "get_ElapsedDays",
+      "Token": "0x06000BBF",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805FE3A0",
+      "Rva": "0x5FE3A0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "set_ElapsedDays",
+      "Token": "0x06000BC0",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805FE460",
+      "Rva": "0x5FE460",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "get_IsEndOfDay",
+      "Token": "0x06000BC1",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1809CC000",
+      "Rva": "0x9CC000",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "get_IsNight",
+      "Token": "0x06000BC2",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1809CC010",
+      "Rva": "0x9CC010",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "get_NormalizedTimeOfDay",
+      "Token": "0x06000BC3",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1809CC0A0",
+      "Rva": "0x9CC0A0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "get_DayIndex",
+      "Token": "0x06000BC4",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1809CBFC0",
+      "Rva": "0x9CBFC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "get_Playtime",
+      "Token": "0x06000BC5",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805E73A0",
+      "Rva": "0x5E73A0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "set_Playtime",
+      "Token": "0x06000BC6",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805E74F0",
+      "Rva": "0x5E74F0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "get_TimeSpeedMultiplier",
+      "Token": "0x06000BC7",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18065A4A0",
+      "Rva": "0x65A4A0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "set_TimeSpeedMultiplier",
+      "Token": "0x06000BC8",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1809CC2B0",
+      "Rva": "0x9CC2B0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "get_DailyMinSum",
+      "Token": "0x06000BC9",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1809CBFF0",
+      "Rva": "0x9CBFF0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "set_DailyMinSum",
+      "Token": "0x06000BCA",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1809CC2A0",
+      "Rva": "0x9CC2A0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "get__minuteStaggerTime",
+      "Token": "0x06000BCB",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1809CC1E0",
+      "Rva": "0x9CC1E0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "get__tickStaggerTime",
+      "Token": "0x06000BCC",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1809CC290",
+      "Rva": "0x9CC290",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "get_SaveFolderName",
+      "Token": "0x06000BCD",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 26,
+      "Va": "0x1809CC1B0",
+      "Rva": "0x9CC1B0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "get_SaveFileName",
+      "Token": "0x06000BCE",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 27,
+      "Va": "0x1809CC180",
+      "Rva": "0x9CC180",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "get_Loader",
+      "Token": "0x06000BCF",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 28,
+      "Va": "0x1808DAD60",
+      "Rva": "0x8DAD60",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "get_ShouldSaveUnderFolder",
+      "Token": "0x06000BD0",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 29,
+      "Va": "0x18045FA60",
+      "Rva": "0x45FA60",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "get_LocalExtraFiles",
+      "Token": "0x06000BD1",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 30,
+      "Va": "0x1806A60C0",
+      "Rva": "0x6A60C0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "set_LocalExtraFiles",
+      "Token": "0x06000BD2",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 31,
+      "Va": "0x1806A6200",
+      "Rva": "0x6A6200",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "get_LocalExtraFolders",
+      "Token": "0x06000BD3",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 32,
+      "Va": "0x1806A60D0",
+      "Rva": "0x6A60D0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "set_LocalExtraFolders",
+      "Token": "0x06000BD4",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 33,
+      "Va": "0x1806A6220",
+      "Rva": "0x6A6220",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "get_HasChanged",
+      "Token": "0x06000BD5",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 34,
+      "Va": "0x1806A6090",
+      "Rva": "0x6A6090",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "set_HasChanged",
+      "Token": "0x06000BD6",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 35,
+      "Va": "0x1806A61D0",
+      "Rva": "0x6A61D0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "get_LoadOrder",
+      "Token": "0x06000BD7",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 25,
+      "Va": "0x1809CC030",
+      "Rva": "0x9CC030",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "Awake",
+      "Token": "0x06000BD8",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 20,
+      "Va": "0x1809C8CE0",
+      "Rva": "0x9C8CE0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "Start",
+      "Token": "0x06000BD9",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 19,
+      "Va": "0x1809CBB30",
+      "Rva": "0x9CBB30",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "InitializeSaveable",
+      "Token": "0x06000BDA",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 49,
+      "Va": "0x1809C93C0",
+      "Rva": "0x9C93C0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "OnSpawnServer",
+      "Token": "0x06000BDB",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 9,
+      "Va": "0x1809C9950",
+      "Rva": "0x9C9950",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "OnStartServer",
+      "Token": "0x06000BDC",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 6,
+      "Va": "0x1809C9A60",
+      "Rva": "0x9C9A60",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "OnStartClient",
+      "Token": "0x06000BDD",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 11,
+      "Va": "0x1809C99D0",
+      "Rva": "0x9C99D0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "Clean",
+      "Token": "0x06000BDE",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1809C8E10",
+      "Rva": "0x9C8E10",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "SetTimeData_Client",
+      "Token": "0x06000BDF",
+      "ParameterCount": 4,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1809CB210",
+      "Rva": "0x9CB210",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "Update",
+      "Token": "0x06000BE0",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 50,
+      "Va": "0x1809CBD40",
+      "Rva": "0x9CBD40",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "FixedUpdate",
+      "Token": "0x06000BE1",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 51,
+      "Va": "0x1809C8FE0",
+      "Rva": "0x9C8FE0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "TickLoop",
+      "Token": "0x06000BE2",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1809CBC40",
+      "Rva": "0x9CBC40",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "TimeLoop",
+      "Token": "0x06000BE3",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1809CBCB0",
+      "Rva": "0x9CBCB0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "ShouldMinutePass",
+      "Token": "0x06000BE4",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1809CB890",
+      "Rva": "0x9CB890",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "PassMinute",
+      "Token": "0x06000BE5",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1809C9DC0",
+      "Rva": "0x9C9DC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "PassMinute_Client",
+      "Token": "0x06000BE6",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1809C9C70",
+      "Rva": "0x9C9C70",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "SetTime_Server",
+      "Token": "0x06000BE7",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1809CB5F0",
+      "Rva": "0x9CB5F0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "SkipToTimeAndSync",
+      "Token": "0x06000BE8",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1809CB910",
+      "Rva": "0x9CB910",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "OnTimeSkip_Client",
+      "Token": "0x06000BE9",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1809C9AF0",
+      "Rva": "0x9C9AF0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "SetTime",
+      "Token": "0x06000BEA",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1809CB6C0",
+      "Rva": "0x9CB6C0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "IsCurrentTimeWithinRange",
+      "Token": "0x06000BEB",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1809C9560",
+      "Rva": "0x9C9560",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "IsCurrentDateWithinRange",
+      "Token": "0x06000BEC",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1809C9450",
+      "Rva": "0x9C9450",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "GetDateTime",
+      "Token": "0x06000BED",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1809C9210",
+      "Rva": "0x9C9210",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "GetTotalMinSum",
+      "Token": "0x06000BEE",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1809C93A0",
+      "Rva": "0x9C93A0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "SetTimeSpeedMultiplier",
+      "Token": "0x06000BEF",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1809CB560",
+      "Rva": "0x9CB560",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "SetCycleDuration",
+      "Token": "0x06000BF0",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1809CB0B0",
+      "Rva": "0x9CB0B0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "Normalized24HourTime",
+      "Token": "0x06000BF1",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1809C98E0",
+      "Rva": "0x9C98E0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "IsGivenTimeWithinRange",
+      "Token": "0x06000BF2",
+      "ParameterCount": 3,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1809C9600",
+      "Rva": "0x9C9600",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "IsValid24HourTime",
+      "Token": "0x06000BF3",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1809C9660",
+      "Rva": "0x9C9660",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "IsValid24HourTime",
+      "Token": "0x06000BF4",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1809C9620",
+      "Rva": "0x9C9620",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "Get12HourTime",
+      "Token": "0x06000BF5",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1809C9000",
+      "Rva": "0x9C9000",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "Get24HourTimeFromMinSum",
+      "Token": "0x06000BF6",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1809C91C0",
+      "Rva": "0x9C91C0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "GetMinSumFrom24HourTime",
+      "Token": "0x06000BF7",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1809C9230",
+      "Rva": "0x9C9230",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "GetMinutesToDisplayTime",
+      "Token": "0x06000BF8",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1809C9250",
+      "Rva": "0x9C9250",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "AddMinutesTo24HourTime",
+      "Token": "0x06000BF9",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1809C8AF0",
+      "Rva": "0x9C8AF0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "GetSaveString",
+      "Token": "0x06000BFA",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 52,
+      "Va": "0x1809C9300",
+      "Rva": "0x9C9300",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "Load",
+      "Token": "0x06000BFB",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1809C96D0",
+      "Rva": "0x9C96D0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": ".ctor",
+      "Token": "0x06000BFC",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1809CBE00",
+      "Rva": "0x9CBE00",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": ".cctor",
+      "Token": "0x06000BFD",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1809CBDC0",
+      "Rva": "0x9CBDC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "<TimeLoop>b__96_1",
+      "Token": "0x06000BFE",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1809CBD20",
+      "Rva": "0x9CBD20",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "NetworkInitialize___Early",
+      "Token": "0x06000BFF",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 22,
+      "Va": "0x1809C9770",
+      "Rva": "0x9C9770",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "NetworkInitialize__Late",
+      "Token": "0x06000C00",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 23,
+      "Va": "0x1809C9720",
+      "Rva": "0x9C9720",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "NetworkInitializeIfDisabled",
+      "Token": "0x06000C01",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 14,
+      "Va": "0x18051FE10",
+      "Rva": "0x51FE10",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "RpcWriter___Observers_SetTimeData_Client_1794730778",
+      "Token": "0x06000C02",
+      "ParameterCount": 4,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1809CAD40",
+      "Rva": "0x9CAD40",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "RpcLogic___SetTimeData_Client_1794730778",
+      "Token": "0x06000C03",
+      "ParameterCount": 4,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1809CA530",
+      "Rva": "0x9CA530",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "RpcReader___Observers_SetTimeData_Client_1794730778",
+      "Token": "0x06000C04",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1809CA8F0",
+      "Rva": "0x9CA8F0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "RpcWriter___Target_SetTimeData_Client_1794730778",
+      "Token": "0x06000C05",
+      "ParameterCount": 4,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1809CAF00",
+      "Rva": "0x9CAF00",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "RpcReader___Target_SetTimeData_Client_1794730778",
+      "Token": "0x06000C06",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1809CA9B0",
+      "Rva": "0x9CA9B0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "RpcWriter___Observers_PassMinute_Client_3316948804",
+      "Token": "0x06000C07",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1809CABF0",
+      "Rva": "0x9CABF0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "RpcLogic___PassMinute_Client_3316948804",
+      "Token": "0x06000C08",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1809CA2D0",
+      "Rva": "0x9CA2D0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "RpcReader___Observers_PassMinute_Client_3316948804",
+      "Token": "0x06000C09",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1809CA880",
+      "Rva": "0x9CA880",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "RpcWriter___Observers_OnTimeSkip_Client_1692629761",
+      "Token": "0x06000C0A",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1809CAA70",
+      "Rva": "0x9CAA70",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "RpcLogic___OnTimeSkip_Client_1692629761",
+      "Token": "0x06000C0B",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1809C9F10",
+      "Rva": "0x9C9F10",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "RpcReader___Observers_OnTimeSkip_Client_1692629761",
+      "Token": "0x06000C0C",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1809CA7E0",
+      "Rva": "0x9CA7E0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.GameTime.TimeManager",
+      "Name": "Awake_UserLogic_ScheduleOne.GameTime.TimeManager_Assembly-CSharp.dll",
+      "Token": "0x06000C0D",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 53,
+      "Va": "0x1809C8BD0",
+      "Rva": "0x9C8BD0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": "get_currentLaunderTotal",
+      "Token": "0x06001398",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18054DE30",
+      "Rva": "0x54DE30",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": "get_appliedLaunderLimit",
+      "Token": "0x06001399",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18054DE00",
+      "Rva": "0x54DE00",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": "get_Loader",
+      "Token": "0x0600139A",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 21,
+      "Va": "0x18054DDF0",
+      "Rva": "0x54DDF0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": "Awake",
+      "Token": "0x0600139B",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 42,
+      "Va": "0x18054BFE0",
+      "Rva": "0x54BFE0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": "Start",
+      "Token": "0x0600139C",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 44,
+      "Va": "0x18054D9A0",
+      "Rva": "0x54D9A0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": "OnDestroy",
+      "Token": "0x0600139D",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 46,
+      "Va": "0x18054CCA0",
+      "Rva": "0x54CCA0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": "GetNetworth",
+      "Token": "0x0600139E",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 47,
+      "Va": "0x18054C460",
+      "Rva": "0x54C460",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": "OnSpawnServer",
+      "Token": "0x0600139F",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 9,
+      "Va": "0x18054CD70",
+      "Rva": "0x54CD70",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": "MinPass",
+      "Token": "0x060013A0",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 61,
+      "Va": "0x18054C9F0",
+      "Rva": "0x54C9F0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": "MinsPass",
+      "Token": "0x060013A1",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 62,
+      "Va": "0x18054CA10",
+      "Rva": "0x54CA10",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": "TimeSkipped",
+      "Token": "0x060013A2",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18054DBC0",
+      "Rva": "0x54DBC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": "GetSaveString",
+      "Token": "0x060013A3",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 52,
+      "Va": "0x18054C4D0",
+      "Rva": "0x54C4D0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": "Load",
+      "Token": "0x060013A4",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 55,
+      "Va": "0x18054C8E0",
+      "Rva": "0x54C8E0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": "CanDeliverToProperty",
+      "Token": "0x060013A5",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 56,
+      "Va": "0x18045FA60",
+      "Rva": "0x45FA60",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": "RecieveOwned",
+      "Token": "0x060013A6",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 48,
+      "Va": "0x18054D0E0",
+      "Rva": "0x54D0E0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": "StartLaunderingOperation",
+      "Token": "0x060013A7",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18054D6C0",
+      "Rva": "0x54D6C0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": "ReceiveLaunderingOperation",
+      "Token": "0x060013A8",
+      "ParameterCount": 3,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18054CE90",
+      "Rva": "0x54CE90",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": "CompleteOperation",
+      "Token": "0x060013A9",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18054C020",
+      "Rva": "0x54C020",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": ".ctor",
+      "Token": "0x060013AA",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18054DD00",
+      "Rva": "0x54DD00",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": ".cctor",
+      "Token": "0x060013AB",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18054DBE0",
+      "Rva": "0x54DBE0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": "NetworkInitialize___Early",
+      "Token": "0x060013AC",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 58,
+      "Va": "0x18054CB70",
+      "Rva": "0x54CB70",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": "NetworkInitialize__Late",
+      "Token": "0x060013AD",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 59,
+      "Va": "0x18054CB40",
+      "Rva": "0x54CB40",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": "NetworkInitializeIfDisabled",
+      "Token": "0x060013AE",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 14,
+      "Va": "0x18054ACE0",
+      "Rva": "0x54ACE0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": "RpcWriter___Server_StartLaunderingOperation_1481775633",
+      "Token": "0x060013AF",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18054D6C0",
+      "Rva": "0x54D6C0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": "RpcLogic___StartLaunderingOperation_1481775633",
+      "Token": "0x060013B0",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18054D370",
+      "Rva": "0x54D370",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": "RpcReader___Server_StartLaunderingOperation_1481775633",
+      "Token": "0x060013B1",
+      "ParameterCount": 3,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18054D420",
+      "Rva": "0x54D420",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": "RpcWriter___Target_ReceiveLaunderingOperation_1001022388",
+      "Token": "0x060013B2",
+      "ParameterCount": 3,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18054D830",
+      "Rva": "0x54D830",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": "RpcLogic___ReceiveLaunderingOperation_1001022388",
+      "Token": "0x060013B3",
+      "ParameterCount": 3,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18054D1F0",
+      "Rva": "0x54D1F0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": "RpcReader___Target_ReceiveLaunderingOperation_1001022388",
+      "Token": "0x060013B4",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18054D4B0",
+      "Rva": "0x54D4B0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": "RpcWriter___Observers_ReceiveLaunderingOperation_1001022388",
+      "Token": "0x060013B5",
+      "ParameterCount": 3,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18054D540",
+      "Rva": "0x54D540",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": "RpcReader___Observers_ReceiveLaunderingOperation_1001022388",
+      "Token": "0x060013B6",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18054D390",
+      "Rva": "0x54D390",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Business",
+      "Name": "Awake_UserLogic_ScheduleOne.Property.Business_Assembly-CSharp.dll",
+      "Token": "0x060013B7",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 63,
+      "Va": "0x18054BE30",
+      "Rva": "0x54BE30",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.BusinessManager",
+      "Name": "get_SaveFolderName",
+      "Token": "0x060013BB",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 8,
+      "Va": "0x18054BE00",
+      "Rva": "0x54BE00",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.BusinessManager",
+      "Name": "get_SaveFileName",
+      "Token": "0x060013BC",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 9,
+      "Va": "0x18054BDD0",
+      "Rva": "0x54BDD0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.BusinessManager",
+      "Name": "get_Loader",
+      "Token": "0x060013BD",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 10,
+      "Va": "0x180421DF0",
+      "Rva": "0x421DF0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.BusinessManager",
+      "Name": "get_ShouldSaveUnderFolder",
+      "Token": "0x060013BE",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 11,
+      "Va": "0x1804574D0",
+      "Rva": "0x4574D0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.BusinessManager",
+      "Name": "get_LocalExtraFiles",
+      "Token": "0x060013BF",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 12,
+      "Va": "0x180421DD0",
+      "Rva": "0x421DD0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.BusinessManager",
+      "Name": "set_LocalExtraFiles",
+      "Token": "0x060013C0",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 13,
+      "Va": "0x180421E10",
+      "Rva": "0x421E10",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.BusinessManager",
+      "Name": "get_LocalExtraFolders",
+      "Token": "0x060013C1",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 14,
+      "Va": "0x180421DE0",
+      "Rva": "0x421DE0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.BusinessManager",
+      "Name": "set_LocalExtraFolders",
+      "Token": "0x060013C2",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 15,
+      "Va": "0x180421E20",
+      "Rva": "0x421E20",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.BusinessManager",
+      "Name": "get_HasChanged",
+      "Token": "0x060013C3",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 16,
+      "Va": "0x180465110",
+      "Rva": "0x465110",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.BusinessManager",
+      "Name": "set_HasChanged",
+      "Token": "0x060013C4",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 17,
+      "Va": "0x180465190",
+      "Rva": "0x465190",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.BusinessManager",
+      "Name": "get_LoadOrder",
+      "Token": "0x060013C5",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 7,
+      "Va": "0x18054BDC0",
+      "Rva": "0x54BDC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.BusinessManager",
+      "Name": "Awake",
+      "Token": "0x060013C6",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 5,
+      "Va": "0x18054B560",
+      "Rva": "0x54B560",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.BusinessManager",
+      "Name": "InitializeSaveable",
+      "Token": "0x060013C7",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 31,
+      "Va": "0x18054B6D0",
+      "Rva": "0x54B6D0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.BusinessManager",
+      "Name": "GetSaveString",
+      "Token": "0x060013C8",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 32,
+      "Va": "0x18054B690",
+      "Rva": "0x54B690",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.BusinessManager",
+      "Name": "WriteData",
+      "Token": "0x060013C9",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 33,
+      "Va": "0x18054B970",
+      "Rva": "0x54B970",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.BusinessManager",
+      "Name": "DeleteUnapprovedFiles",
+      "Token": "0x060013CA",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 34,
+      "Va": "0x18054B5B0",
+      "Rva": "0x54B5B0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.BusinessManager",
+      "Name": "LoadBusiness",
+      "Token": "0x060013CB",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18054B760",
+      "Rva": "0x54B760",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.BusinessManager",
+      "Name": ".ctor",
+      "Token": "0x060013CC",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18054BCD0",
+      "Rva": "0x54BCD0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "get_IsOwned",
+      "Token": "0x06001402",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1804DD930",
+      "Rva": "0x4DD930",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "set_IsOwned",
+      "Token": "0x06001403",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180557F10",
+      "Rva": "0x557F10",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "get_Employees",
+      "Token": "0x06001404",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1804ED770",
+      "Rva": "0x4ED770",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "set_Employees",
+      "Token": "0x06001405",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180557ED0",
+      "Rva": "0x557ED0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "get_WorldspaceUIContainer",
+      "Token": "0x06001406",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18054E840",
+      "Rva": "0x54E840",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "set_WorldspaceUIContainer",
+      "Token": "0x06001407",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18054E850",
+      "Rva": "0x54E850",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "get_IsContentCulled",
+      "Token": "0x06001408",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1804DD470",
+      "Rva": "0x4DD470",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "set_IsContentCulled",
+      "Token": "0x06001409",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180557F00",
+      "Rva": "0x557F00",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "get_PropertyName",
+      "Token": "0x0600140A",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180557D20",
+      "Rva": "0x557D20",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "get_PropertyCode",
+      "Token": "0x0600140B",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180557D10",
+      "Rva": "0x557D10",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "get_AmbientTemperature",
+      "Token": "0x0600140C",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180557C90",
+      "Rva": "0x557C90",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "set_AmbientTemperature",
+      "Token": "0x0600140D",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180557EA0",
+      "Rva": "0x557EA0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "get_LoadingDockCount",
+      "Token": "0x0600140E",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180557CD0",
+      "Rva": "0x557CD0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "get_Container",
+      "Token": "0x0600140F",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180557CA0",
+      "Rva": "0x557CA0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "set_Container",
+      "Token": "0x06001410",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180557EB0",
+      "Rva": "0x557EB0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "add_onBuildableItemAdded",
+      "Token": "0x06001411",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180557B30",
+      "Rva": "0x557B30",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "remove_onBuildableItemAdded",
+      "Token": "0x06001412",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180557D40",
+      "Rva": "0x557D40",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "add_onBuildableItemRemoved",
+      "Token": "0x06001413",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180557BE0",
+      "Rva": "0x557BE0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "remove_onBuildableItemRemoved",
+      "Token": "0x06001414",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180557DF0",
+      "Rva": "0x557DF0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "get_SaveFolderName",
+      "Token": "0x06001415",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 19,
+      "Va": "0x180557D20",
+      "Rva": "0x557D20",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "get_SaveFileName",
+      "Token": "0x06001416",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 20,
+      "Va": "0x180557D30",
+      "Rva": "0x557D30",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "get_Loader",
+      "Token": "0x06001417",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 21,
+      "Va": "0x180557CC0",
+      "Rva": "0x557CC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "get_ShouldSaveUnderFolder",
+      "Token": "0x06001418",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 22,
+      "Va": "0x18045FA60",
+      "Rva": "0x45FA60",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "get_LocalExtraFiles",
+      "Token": "0x06001419",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 23,
+      "Va": "0x180557CF0",
+      "Rva": "0x557CF0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "set_LocalExtraFiles",
+      "Token": "0x0600141A",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 24,
+      "Va": "0x180557F20",
+      "Rva": "0x557F20",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "get_LocalExtraFolders",
+      "Token": "0x0600141B",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 25,
+      "Va": "0x180557D00",
+      "Rva": "0x557D00",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "set_LocalExtraFolders",
+      "Token": "0x0600141C",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 26,
+      "Va": "0x180557F40",
+      "Rva": "0x557F40",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "get_HasChanged",
+      "Token": "0x0600141D",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 27,
+      "Va": "0x180557CB0",
+      "Rva": "0x557CB0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "set_HasChanged",
+      "Token": "0x0600141E",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 28,
+      "Va": "0x180557EF0",
+      "Rva": "0x557EF0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "Awake",
+      "Token": "0x0600141F",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 42,
+      "Va": "0x1805545B0",
+      "Rva": "0x5545B0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "InitializeSaveable",
+      "Token": "0x06001420",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 43,
+      "Va": "0x180554F10",
+      "Rva": "0x554F10",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "Start",
+      "Token": "0x06001421",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 44,
+      "Va": "0x180556FE0",
+      "Rva": "0x556FE0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "FixedUpdate",
+      "Token": "0x06001422",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 45,
+      "Va": "0x180554740",
+      "Rva": "0x554740",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "AddConfigurable",
+      "Token": "0x06001423",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805537C0",
+      "Rva": "0x5537C0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "RemoveConfigurable",
+      "Token": "0x06001424",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180555F20",
+      "Rva": "0x555F20",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "UpdateCulling",
+      "Token": "0x06001425",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180557380",
+      "Rva": "0x557380",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "OnSpawnServer",
+      "Token": "0x06001426",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 9,
+      "Va": "0x1805556B0",
+      "Rva": "0x5556B0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "OnDestroy",
+      "Token": "0x06001427",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 46,
+      "Va": "0x180555490",
+      "Rva": "0x555490",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "GetNetworth",
+      "Token": "0x06001428",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 47,
+      "Va": "0x1805548C0",
+      "Rva": "0x5548C0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "OnStartServer",
+      "Token": "0x06001429",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 6,
+      "Va": "0x1805557C0",
+      "Rva": "0x5557C0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "SetOwned_Server",
+      "Token": "0x0600142A",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180556C80",
+      "Rva": "0x556C80",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "ReceiveOwned_Networked",
+      "Token": "0x0600142B",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180555880",
+      "Rva": "0x555880",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "RecieveOwned",
+      "Token": "0x0600142C",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 48,
+      "Va": "0x1805559A0",
+      "Rva": "0x5559A0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "ShouldSave",
+      "Token": "0x0600142D",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 49,
+      "Va": "0x1804574D0",
+      "Rva": "0x4574D0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "SetOwned",
+      "Token": "0x0600142E",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180556D90",
+      "Rva": "0x556D90",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "CanBePurchased",
+      "Token": "0x0600142F",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 50,
+      "Va": "0x1804574D0",
+      "Rva": "0x4574D0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "SetContentCulled",
+      "Token": "0x06001430",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 51,
+      "Va": "0x180556990",
+      "Rva": "0x556990",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "RegisterEmployee",
+      "Token": "0x06001431",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180555DA0",
+      "Rva": "0x555DA0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "DeregisterEmployee",
+      "Token": "0x06001432",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805545F0",
+      "Rva": "0x5545F0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "ToggleableActioned",
+      "Token": "0x06001433",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180557140",
+      "Rva": "0x557140",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "SendToggleableState",
+      "Token": "0x06001434",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805565A0",
+      "Rva": "0x5565A0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "SetToggleableState",
+      "Token": "0x06001435",
+      "ParameterCount": 3,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180556DA0",
+      "Rva": "0x556DA0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "AddBuildableItem",
+      "Token": "0x06001436",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180553660",
+      "Rva": "0x553660",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "RemoveBuildableItem",
+      "Token": "0x06001437",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180555E70",
+      "Rva": "0x555E70",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "GetSaveString",
+      "Token": "0x06001438",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 52,
+      "Va": "0x180554A70",
+      "Rva": "0x554A70",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "GetEmployeeSaveDatas",
+      "Token": "0x06001439",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180554750",
+      "Rva": "0x554750",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "GetObjectSaveDatas",
+      "Token": "0x0600143A",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180554900",
+      "Rva": "0x554900",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "WriteData",
+      "Token": "0x0600143B",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 53,
+      "Va": "0x1805575F0",
+      "Rva": "0x5575F0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "DeleteUnapprovedFiles",
+      "Token": "0x0600143C",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 54,
+      "Va": "0x18043FEC0",
+      "Rva": "0x43FEC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "Load",
+      "Token": "0x0600143D",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 55,
+      "Va": "0x180555150",
+      "Rva": "0x555150",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "DoBoundsContainPoint",
+      "Token": "0x0600143E",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180554650",
+      "Rva": "0x554650",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "IsPointInsideBox",
+      "Token": "0x0600143F",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180554FA0",
+      "Rva": "0x554FA0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "GetUnassignedBeds",
+      "Token": "0x06001440",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180554DB0",
+      "Rva": "0x554DB0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "GetBuildablesOfType",
+      "Token": "0x06001441",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180EB03D0",
+      "Rva": "0xEB03D0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "CanDeliverToProperty",
+      "Token": "0x06001442",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 56,
+      "Va": "0x1804574D0",
+      "Rva": "0x4574D0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "CanRespawnInsideProperty",
+      "Token": "0x06001443",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 57,
+      "Va": "0x1804574D0",
+      "Rva": "0x4574D0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": ".ctor",
+      "Token": "0x06001444",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805577E0",
+      "Rva": "0x5577E0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": ".cctor",
+      "Token": "0x06001445",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805576C0",
+      "Rva": "0x5576C0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "<Awake>b__98_0",
+      "Token": "0x06001446",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805572E0",
+      "Rva": "0x5572E0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "<RecieveOwned>g__Wait|111_0",
+      "Token": "0x06001447",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180557310",
+      "Rva": "0x557310",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "<RecieveOwned>b__111_1",
+      "Token": "0x06001448",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805572F0",
+      "Rva": "0x5572F0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "NetworkInitialize___Early",
+      "Token": "0x06001449",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 58,
+      "Va": "0x1805552E0",
+      "Rva": "0x5552E0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "NetworkInitialize__Late",
+      "Token": "0x0600144A",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 59,
+      "Va": "0x1805552C0",
+      "Rva": "0x5552C0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "NetworkInitializeIfDisabled",
+      "Token": "0x0600144B",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 14,
+      "Va": "0x18054ACE0",
+      "Rva": "0x54ACE0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "RpcWriter___Server_SetOwned_Server_2166136261",
+      "Token": "0x0600144C",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180556710",
+      "Rva": "0x556710",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "RpcLogic___SetOwned_Server_2166136261",
+      "Token": "0x0600144D",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180555880",
+      "Rva": "0x555880",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "RpcReader___Server_SetOwned_Server_2166136261",
+      "Token": "0x0600144E",
+      "ParameterCount": 3,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180556200",
+      "Rva": "0x556200",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "RpcWriter___Observers_ReceiveOwned_Networked_2166136261",
+      "Token": "0x0600144F",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180556300",
+      "Rva": "0x556300",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "RpcLogic___ReceiveOwned_Networked_2166136261",
+      "Token": "0x06001450",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180555FB0",
+      "Rva": "0x555FB0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "RpcReader___Observers_ReceiveOwned_Networked_2166136261",
+      "Token": "0x06001451",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180556070",
+      "Rva": "0x556070",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "RpcWriter___Server_SendToggleableState_3658436649",
+      "Token": "0x06001452",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805565A0",
+      "Rva": "0x5565A0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "RpcLogic___SendToggleableState_3658436649",
+      "Token": "0x06001453",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180555FD0",
+      "Rva": "0x555FD0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "RpcReader___Server_SendToggleableState_3658436649",
+      "Token": "0x06001454",
+      "ParameterCount": 3,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180556160",
+      "Rva": "0x556160",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "RpcWriter___Observers_SetToggleableState_338960014",
+      "Token": "0x06001455",
+      "ParameterCount": 3,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180556420",
+      "Rva": "0x556420",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "RpcLogic___SetToggleableState_338960014",
+      "Token": "0x06001456",
+      "ParameterCount": 3,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180555FF0",
+      "Rva": "0x555FF0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "RpcReader___Observers_SetToggleableState_338960014",
+      "Token": "0x06001457",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805560C0",
+      "Rva": "0x5560C0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "RpcWriter___Target_SetToggleableState_338960014",
+      "Token": "0x06001458",
+      "ParameterCount": 3,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180556820",
+      "Rva": "0x556820",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "RpcReader___Target_SetToggleableState_338960014",
+      "Token": "0x06001459",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180556250",
+      "Rva": "0x556250",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.Property",
+      "Name": "Awake_UserLogic_ScheduleOne.Property.Property_Assembly-CSharp.dll",
+      "Token": "0x0600145A",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 60,
+      "Va": "0x1805538A0",
+      "Rva": "0x5538A0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.PropertyContentsContainer",
+      "Name": "get_Property",
+      "Token": "0x06001473",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180421DC0",
+      "Rva": "0x421DC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.PropertyContentsContainer",
+      "Name": "set_Property",
+      "Token": "0x06001474",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180421E00",
+      "Rva": "0x421E00",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.PropertyContentsContainer",
+      "Name": "SetProperty",
+      "Token": "0x06001475",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805520E0",
+      "Rva": "0x5520E0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.PropertyContentsContainer",
+      "Name": ".ctor",
+      "Token": "0x06001476",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18041D490",
+      "Rva": "0x41D490",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.PropertyManager",
+      "Name": "get_SaveFolderName",
+      "Token": "0x06001478",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 8,
+      "Va": "0x180553630",
+      "Rva": "0x553630",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.PropertyManager",
+      "Name": "get_SaveFileName",
+      "Token": "0x06001479",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 9,
+      "Va": "0x180553600",
+      "Rva": "0x553600",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.PropertyManager",
+      "Name": "get_Loader",
+      "Token": "0x0600147A",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 10,
+      "Va": "0x180421DF0",
+      "Rva": "0x421DF0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.PropertyManager",
+      "Name": "get_ShouldSaveUnderFolder",
+      "Token": "0x0600147B",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 11,
+      "Va": "0x1804574D0",
+      "Rva": "0x4574D0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.PropertyManager",
+      "Name": "get_LocalExtraFiles",
+      "Token": "0x0600147C",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 12,
+      "Va": "0x180421DD0",
+      "Rva": "0x421DD0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.PropertyManager",
+      "Name": "set_LocalExtraFiles",
+      "Token": "0x0600147D",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 13,
+      "Va": "0x180421E10",
+      "Rva": "0x421E10",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.PropertyManager",
+      "Name": "get_LocalExtraFolders",
+      "Token": "0x0600147E",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 14,
+      "Va": "0x180421DE0",
+      "Rva": "0x421DE0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.PropertyManager",
+      "Name": "set_LocalExtraFolders",
+      "Token": "0x0600147F",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 15,
+      "Va": "0x180421E20",
+      "Rva": "0x421E20",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.PropertyManager",
+      "Name": "get_HasChanged",
+      "Token": "0x06001480",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 16,
+      "Va": "0x180465110",
+      "Rva": "0x465110",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.PropertyManager",
+      "Name": "set_HasChanged",
+      "Token": "0x06001481",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 17,
+      "Va": "0x180465190",
+      "Rva": "0x465190",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.PropertyManager",
+      "Name": "get_LoadOrder",
+      "Token": "0x06001482",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 7,
+      "Va": "0x18054BDC0",
+      "Rva": "0x54BDC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.PropertyManager",
+      "Name": "Awake",
+      "Token": "0x06001483",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 5,
+      "Va": "0x1805521A0",
+      "Rva": "0x5521A0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.PropertyManager",
+      "Name": "InitializeSaveable",
+      "Token": "0x06001484",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 31,
+      "Va": "0x1805529A0",
+      "Rva": "0x5529A0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.PropertyManager",
+      "Name": "GetSaveString",
+      "Token": "0x06001485",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 32,
+      "Va": "0x180552960",
+      "Rva": "0x552960",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.PropertyManager",
+      "Name": "WriteData",
+      "Token": "0x06001486",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 33,
+      "Va": "0x180552DB0",
+      "Rva": "0x552DB0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.PropertyManager",
+      "Name": "DeleteUnapprovedFiles",
+      "Token": "0x06001487",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 34,
+      "Va": "0x1805521F0",
+      "Rva": "0x5521F0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.PropertyManager",
+      "Name": "LoadProperty",
+      "Token": "0x06001488",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180552A30",
+      "Rva": "0x552A30",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.PropertyManager",
+      "Name": "GetProperty",
+      "Token": "0x06001489",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805527B0",
+      "Rva": "0x5527B0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.PropertyManager",
+      "Name": "GetNearestProperty",
+      "Token": "0x0600148A",
+      "ParameterCount": 4,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805522D0",
+      "Rva": "0x5522D0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.PropertyManager",
+      "Name": ".ctor",
+      "Token": "0x0600148B",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180553510",
+      "Rva": "0x553510",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Property.PropertyManager",
+      "Name": "<GetNearestProperty>g__GetClosest|31_0",
+      "Token": "0x0600148C",
+      "ParameterCount": 5,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180552D00",
+      "Rva": "0x552D00",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.Loaders.BusinessesLoader",
+      "Name": ".ctor",
+      "Token": "0x06001860",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18041D580",
+      "Rva": "0x41D580",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.Loaders.BusinessesLoader",
+      "Name": "Load",
+      "Token": "0x06001861",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 4,
+      "Va": "0x18059C850",
+      "Rva": "0x59C850",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.Loaders.BusinessLoader",
+      "Name": ".ctor",
+      "Token": "0x06001862",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18041D580",
+      "Rva": "0x41D580",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.Loaders.BusinessLoader",
+      "Name": "Load",
+      "Token": "0x06001863",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 4,
+      "Va": "0x18059C640",
+      "Rva": "0x59C640",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": "ApplyMoneyTextColor",
+      "Token": "0x06001C9A",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805E4210",
+      "Rva": "0x5E4210",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": "ApplyMoneyTextColorDarker",
+      "Token": "0x06001C9B",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805E41C0",
+      "Rva": "0x5E41C0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": "ApplyOnlineBalanceColor",
+      "Token": "0x06001C9C",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805E4260",
+      "Rva": "0x5E4260",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": "ApplyCurrencyColorRichText",
+      "Token": "0x06001C9D",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805E40B0",
+      "Rva": "0x5E40B0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": "get_LifetimeEarnings",
+      "Token": "0x06001C9E",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1804DD840",
+      "Rva": "0x4DD840",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": "get_LastCalculatedNetworth",
+      "Token": "0x06001C9F",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805E73A0",
+      "Rva": "0x5E73A0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": "set_LastCalculatedNetworth",
+      "Token": "0x06001CA0",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805E74F0",
+      "Rva": "0x5E74F0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": "get_cashBalance",
+      "Token": "0x06001CA1",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805E7440",
+      "Rva": "0x5E7440",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": "get_cashInstance",
+      "Token": "0x06001CA2",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805E7460",
+      "Rva": "0x5E7460",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": "get_SaveFolderName",
+      "Token": "0x06001CA3",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 26,
+      "Va": "0x1805E7410",
+      "Rva": "0x5E7410",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": "get_SaveFileName",
+      "Token": "0x06001CA4",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 27,
+      "Va": "0x1805E73E0",
+      "Rva": "0x5E73E0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": "get_Loader",
+      "Token": "0x06001CA5",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 28,
+      "Va": "0x1805E73C0",
+      "Rva": "0x5E73C0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": "get_ShouldSaveUnderFolder",
+      "Token": "0x06001CA6",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 29,
+      "Va": "0x18045FA60",
+      "Rva": "0x45FA60",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": "get_LocalExtraFiles",
+      "Token": "0x06001CA7",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 30,
+      "Va": "0x1805E73D0",
+      "Rva": "0x5E73D0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": "set_LocalExtraFiles",
+      "Token": "0x06001CA8",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 31,
+      "Va": "0x1805E7500",
+      "Rva": "0x5E7500",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": "get_LocalExtraFolders",
+      "Token": "0x06001CA9",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 32,
+      "Va": "0x180561770",
+      "Rva": "0x561770",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": "set_LocalExtraFolders",
+      "Token": "0x06001CAA",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 33,
+      "Va": "0x1805E7520",
+      "Rva": "0x5E7520",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": "get_HasChanged",
+      "Token": "0x06001CAB",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 34,
+      "Va": "0x1805E7390",
+      "Rva": "0x5E7390",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": "set_HasChanged",
+      "Token": "0x06001CAC",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 35,
+      "Va": "0x1805E74E0",
+      "Rva": "0x5E74E0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": "get_LoadOrder",
+      "Token": "0x06001CAD",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 25,
+      "Va": "0x1805E73B0",
+      "Rva": "0x5E73B0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": "Awake",
+      "Token": "0x06001CAE",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 20,
+      "Va": "0x1805E4300",
+      "Rva": "0x5E4300",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": "InitializeSaveable",
+      "Token": "0x06001CAF",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 49,
+      "Va": "0x1805E50A0",
+      "Rva": "0x5E50A0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": "Start",
+      "Token": "0x06001CB0",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 19,
+      "Va": "0x1805E6E60",
+      "Rva": "0x5E6E60",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": "OnStartServer",
+      "Token": "0x06001CB1",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 6,
+      "Va": "0x1805E5D20",
+      "Rva": "0x5E5D20",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": "OnStartClient",
+      "Token": "0x06001CB2",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 11,
+      "Va": "0x1805E5C80",
+      "Rva": "0x5E5C80",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": "OnDestroy",
+      "Token": "0x06001CB3",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 21,
+      "Va": "0x1805E5970",
+      "Rva": "0x5E5970",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": "Loaded",
+      "Token": "0x06001CB4",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805E5360",
+      "Rva": "0x5E5360",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": "Update",
+      "Token": "0x06001CB5",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805E71A0",
+      "Rva": "0x5E71A0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": "MinPass",
+      "Token": "0x06001CB6",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805E5400",
+      "Rva": "0x5E5400",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": "GetCashInstance",
+      "Token": "0x06001CB7",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805E4D80",
+      "Rva": "0x5E4D80",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": "CreateOnlineTransaction",
+      "Token": "0x06001CB8",
+      "ParameterCount": 4,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805E4950",
+      "Rva": "0x5E4950",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": "ReceiveOnlineTransaction",
+      "Token": "0x06001CB9",
+      "ParameterCount": 4,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805E6030",
+      "Rva": "0x5E6030",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": "ShowOnlineBalanceChange",
+      "Token": "0x06001CBA",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805E6DF0",
+      "Rva": "0x5E6DF0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": "ChangeLifetimeEarnings",
+      "Token": "0x06001CBB",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805E4750",
+      "Rva": "0x5E4750",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": "PlayCashSound",
+      "Token": "0x06001CBC",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805E5E00",
+      "Rva": "0x5E5E00",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": "ChangeCashBalance",
+      "Token": "0x06001CBD",
+      "ParameterCount": 3,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805E4370",
+      "Rva": "0x5E4370",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": "ShowCashChange",
+      "Token": "0x06001CBE",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805E6D80",
+      "Rva": "0x5E6D80",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": "FormatAmount",
+      "Token": "0x06001CBF",
+      "ParameterCount": 3,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805E4B00",
+      "Rva": "0x5E4B00",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": "GetSaveString",
+      "Token": "0x06001CC0",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 50,
+      "Va": "0x1805E4F10",
+      "Rva": "0x5E4F10",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": "Load",
+      "Token": "0x06001CC1",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805E5130",
+      "Rva": "0x5E5130",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": "CheckNetworthAchievements",
+      "Token": "0x06001CC2",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805E4890",
+      "Rva": "0x5E4890",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": "GetNetWorth",
+      "Token": "0x06001CC3",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805E4E60",
+      "Rva": "0x5E4E60",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": ".ctor",
+      "Token": "0x06001CC4",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805E7240",
+      "Rva": "0x5E7240",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": ".cctor",
+      "Token": "0x06001CC5",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805E71B0",
+      "Rva": "0x5E71B0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": "NetworkInitialize___Early",
+      "Token": "0x06001CC6",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 22,
+      "Va": "0x1805E5670",
+      "Rva": "0x5E5670",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": "NetworkInitialize__Late",
+      "Token": "0x06001CC7",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 23,
+      "Va": "0x1805E55E0",
+      "Rva": "0x5E55E0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": "NetworkInitializeIfDisabled",
+      "Token": "0x06001CC8",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 14,
+      "Va": "0x18051FE10",
+      "Rva": "0x51FE10",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": "RpcWriter___Server_CreateOnlineTransaction_1419830531",
+      "Token": "0x06001CC9",
+      "ParameterCount": 4,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805E6C10",
+      "Rva": "0x5E6C10",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": "RpcLogic___CreateOnlineTransaction_1419830531",
+      "Token": "0x06001CCA",
+      "ParameterCount": 4,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805E6030",
+      "Rva": "0x5E6030",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": "RpcReader___Server_CreateOnlineTransaction_1419830531",
+      "Token": "0x06001CCB",
+      "ParameterCount": 3,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805E6B60",
+      "Rva": "0x5E6B60",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": "RpcWriter___Observers_ReceiveOnlineTransaction_1419830531",
+      "Token": "0x06001CCC",
+      "ParameterCount": 4,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805E6030",
+      "Rva": "0x5E6030",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": "RpcLogic___ReceiveOnlineTransaction_1419830531",
+      "Token": "0x06001CCD",
+      "ParameterCount": 4,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805E6320",
+      "Rva": "0x5E6320",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": "RpcReader___Observers_ReceiveOnlineTransaction_1419830531",
+      "Token": "0x06001CCE",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805E6910",
+      "Rva": "0x5E6910",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": "RpcWriter___Server_ChangeLifetimeEarnings_431000436",
+      "Token": "0x06001CCF",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805E4750",
+      "Rva": "0x5E4750",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": "RpcLogic___ChangeLifetimeEarnings_431000436",
+      "Token": "0x06001CD0",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805E61C0",
+      "Rva": "0x5E61C0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": "RpcReader___Server_ChangeLifetimeEarnings_431000436",
+      "Token": "0x06001CD1",
+      "ParameterCount": 3,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805E69D0",
+      "Rva": "0x5E69D0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": "sync___get_value_onlineBalance",
+      "Token": "0x06001CD2",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1804DD3F0",
+      "Rva": "0x4DD3F0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": "sync___set_value_onlineBalance",
+      "Token": "0x06001CD3",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805E7600",
+      "Rva": "0x5E7600",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": "ReadSyncVar___ScheduleOne.Money.MoneyManager",
+      "Token": "0x06001CD4",
+      "ParameterCount": 3,
+      "InterfaceOrVirtualSlot": 51,
+      "Va": "0x1805E5EA0",
+      "Rva": "0x5E5EA0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": "sync___get_value_lifetimeEarnings",
+      "Token": "0x06001CD5",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1804DD840",
+      "Rva": "0x4DD840",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": "sync___set_value_lifetimeEarnings",
+      "Token": "0x06001CD6",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805E7540",
+      "Rva": "0x5E7540",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Money.MoneyManager",
+      "Name": "Awake_UserLogic_ScheduleOne.Money.MoneyManager_Assembly-CSharp.dll",
+      "Token": "0x06001CD7",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 52,
+      "Va": "0x1805E42B0",
+      "Rva": "0x5E42B0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "get_OnStartServerCalled",
+      "Token": "0x06000628",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1804610B0",
+      "Rva": "0x4610B0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "set_OnStartServerCalled",
+      "Token": "0x06000629",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1804610D0",
+      "Rva": "0x4610D0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "get_OnStartClientCalled",
+      "Token": "0x0600062A",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805DF7B0",
+      "Rva": "0x5DF7B0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "set_OnStartClientCalled",
+      "Token": "0x0600062B",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805DF880",
+      "Rva": "0x5DF880",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "InvokeSyncTypeOnStartCallbacks",
+      "Token": "0x0600062C",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CC6040",
+      "Rva": "0xCC6040",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "InvokeSyncTypeOnStopCallbacks",
+      "Token": "0x0600062D",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CC6290",
+      "Rva": "0xCC6290",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "InvokeOnNetwork",
+      "Token": "0x0600062E",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CC6000",
+      "Rva": "0xCC6000",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "OnStartNetwork_Internal",
+      "Token": "0x0600062F",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CC7220",
+      "Rva": "0xCC7220",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "OnStartNetwork",
+      "Token": "0x06000630",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 4,
+      "Va": "0x18043FEC0",
+      "Rva": "0x43FEC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "OnStopNetwork_Internal",
+      "Token": "0x06000631",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CC7280",
+      "Rva": "0xCC7280",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "OnStopNetwork",
+      "Token": "0x06000632",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 5,
+      "Va": "0x18043FEC0",
+      "Rva": "0x43FEC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "OnStartServer_Internal",
+      "Token": "0x06000633",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CC7240",
+      "Rva": "0xCC7240",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "OnStartServer",
+      "Token": "0x06000634",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 6,
+      "Va": "0x18043FEC0",
+      "Rva": "0x43FEC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "OnStopServer_Internal",
+      "Token": "0x06000635",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CC72A0",
+      "Rva": "0xCC72A0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "OnStopServer",
+      "Token": "0x06000636",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 7,
+      "Va": "0x18043FEC0",
+      "Rva": "0x43FEC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "OnOwnershipServer_Internal",
+      "Token": "0x06000637",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CC6990",
+      "Rva": "0xCC6990",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "OnOwnershipServer",
+      "Token": "0x06000638",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 8,
+      "Va": "0x18043FEC0",
+      "Rva": "0x43FEC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "OnSpawnServer",
+      "Token": "0x06000639",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 9,
+      "Va": "0x18043FEC0",
+      "Rva": "0x43FEC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "OnDespawnServer",
+      "Token": "0x0600063A",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 10,
+      "Va": "0x18043FEC0",
+      "Rva": "0x43FEC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "OnStartClient_Internal",
+      "Token": "0x0600063B",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CC7200",
+      "Rva": "0xCC7200",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "OnStartClient",
+      "Token": "0x0600063C",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 11,
+      "Va": "0x18043FEC0",
+      "Rva": "0x43FEC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "OnStopClient_Internal",
+      "Token": "0x0600063D",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CC7260",
+      "Rva": "0xCC7260",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "OnStopClient",
+      "Token": "0x0600063E",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 12,
+      "Va": "0x18043FEC0",
+      "Rva": "0x43FEC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "OnOwnershipClient_Internal",
+      "Token": "0x0600063F",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CC68E0",
+      "Rva": "0xCC68E0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "OnOwnershipClient",
+      "Token": "0x06000640",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 13,
+      "Va": "0x18043FEC0",
+      "Rva": "0x43FEC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "get_IsSpawned",
+      "Token": "0x06000641",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CCB1D0",
+      "Rva": "0xCCB1D0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "get_ComponentIndex",
+      "Token": "0x06000642",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18053C0D0",
+      "Rva": "0x53C0D0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "set_ComponentIndex",
+      "Token": "0x06000643",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18053C0E0",
+      "Rva": "0x53C0E0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "get_NetworkObject",
+      "Token": "0x06000644",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180421DD0",
+      "Rva": "0x421DD0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "ToString",
+      "Token": "0x06000645",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 3,
+      "Va": "0x180CC97E0",
+      "Rva": "0xCC97E0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "Preinitialize_Internal",
+      "Token": "0x06000646",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CC7E40",
+      "Rva": "0xCC7E40",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "Deinitialize",
+      "Token": "0x06000647",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18043FEC0",
+      "Rva": "0x43FEC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "SerializeComponents",
+      "Token": "0x06000648",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CC9290",
+      "Rva": "0xCC9290",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "InitializeIfDisabled",
+      "Token": "0x06000649",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CC51E0",
+      "Rva": "0xCC51E0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "NetworkInitializeIfDisabled",
+      "Token": "0x0600064A",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 14,
+      "Va": "0x18043FEC0",
+      "Rva": "0x43FEC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "Reset",
+      "Token": "0x0600064B",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 15,
+      "Va": "0x18043FEC0",
+      "Rva": "0x43FEC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "OnValidate",
+      "Token": "0x0600064C",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 16,
+      "Va": "0x18043FEC0",
+      "Rva": "0x43FEC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "ResetState",
+      "Token": "0x0600064D",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CC8960",
+      "Rva": "0xCC8960",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "TryAddNetworkObject",
+      "Token": "0x0600064E",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18045F1F0",
+      "Rva": "0x45F1F0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "CanLog",
+      "Token": "0x0600064F",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CC4910",
+      "Rva": "0xCC4910",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "GetLastReconcileTick",
+      "Token": "0x06000650",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180BE7870",
+      "Rva": "0xBE7870",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "SetLastReconcileTick",
+      "Token": "0x06000651",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CC92C0",
+      "Rva": "0xCC92C0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "GetLastReplicateTick",
+      "Token": "0x06000652",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180C7BC50",
+      "Rva": "0xC7BC50",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "SetLastReplicateTick",
+      "Token": "0x06000653",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CC9300",
+      "Rva": "0xCC9300",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "get_IsReconciling",
+      "Token": "0x06000654",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180465110",
+      "Rva": "0x465110",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "set_IsReconciling",
+      "Token": "0x06000655",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180465190",
+      "Rva": "0x465190",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "RegisterReplicateRpc",
+      "Token": "0x06000656",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CC8240",
+      "Rva": "0xCC8240",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "RegisterReconcileRpc",
+      "Token": "0x06000657",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CC81D0",
+      "Rva": "0xCC81D0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "OnReplicateRpc",
+      "Token": "0x06000658",
+      "ParameterCount": 4,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CC6BF0",
+      "Rva": "0xCC6BF0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "OnReconcileRpc",
+      "Token": "0x06000659",
+      "ParameterCount": 3,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CC69F0",
+      "Rva": "0xCC69F0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "ClearReplicateCache",
+      "Token": "0x0600065A",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CC4B80",
+      "Rva": "0xCC4B80",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "ClearReplicateCache",
+      "Token": "0x0600065B",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CC4B30",
+      "Rva": "0xCC4B30",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "ClearReplicateCache_Virtual",
+      "Token": "0x0600065C",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 17,
+      "Va": "0x18043FEC0",
+      "Rva": "0x43FEC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "ResetLastPredictionTicks",
+      "Token": "0x0600065D",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CC8940",
+      "Rva": "0xCC8940",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "Owner_SendReplicateRpc",
+      "Token": "0x0600065E",
+      "ParameterCount": 3,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180E9C1B0",
+      "Rva": "0xE9C1B0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "Server_SendReconcileRpc",
+      "Token": "0x0600065F",
+      "ParameterCount": 3,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180E9E2E0",
+      "Rva": "0xE9E2E0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "PredictedTransformMayChange",
+      "Token": "0x06000660",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CC7830",
+      "Rva": "0xCC7830",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "Replicate_ExitEarly_A",
+      "Token": "0x06000661",
+      "ParameterCount": 3,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CC87F0",
+      "Rva": "0xCC87F0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "Replicate_NonOwner",
+      "Token": "0x06000662",
+      "ParameterCount": 5,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180E9D6E0",
+      "Rva": "0xE9D6E0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "Replicate_Owner",
+      "Token": "0x06000663",
+      "ParameterCount": 5,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180E9DB50",
+      "Rva": "0xE9DB50",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "Replicate_Reader",
+      "Token": "0x06000664",
+      "ParameterCount": 5,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180E9E170",
+      "Rva": "0xE9E170",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "Replicate_HandleReceivedReplicate",
+      "Token": "0x06000665",
+      "ParameterCount": 4,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180E9D320",
+      "Rva": "0xE9D320",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "Reconcile_ExitEarly_A",
+      "Token": "0x06000666",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CC7F40",
+      "Rva": "0xCC7F40",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "Reconcile_Server",
+      "Token": "0x06000667",
+      "ParameterCount": 3,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180E9D010",
+      "Rva": "0xE9D010",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "Reconcile_Client",
+      "Token": "0x06000668",
+      "ParameterCount": 5,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180E9C5A0",
+      "Rva": "0xE9C5A0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "Reconcile_Reader",
+      "Token": "0x06000669",
+      "ParameterCount": 3,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180E9CE00",
+      "Rva": "0xE9CE00",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "get_IsDeinitializing",
+      "Token": "0x0600066A",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CCB050",
+      "Rva": "0xCCB050",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "get_NetworkManager",
+      "Token": "0x0600066B",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CCB2C0",
+      "Rva": "0xCCB2C0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "get_ServerManager",
+      "Token": "0x0600066C",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CCB510",
+      "Rva": "0xCCB510",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "get_ClientManager",
+      "Token": "0x0600066D",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CCAFB0",
+      "Rva": "0xCCAFB0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "get_ObserverManager",
+      "Token": "0x0600066E",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CCB320",
+      "Rva": "0xCCB320",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "get_TransportManager",
+      "Token": "0x0600066F",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CCB550",
+      "Rva": "0xCCB550",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "get_TimeManager",
+      "Token": "0x06000670",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CCB530",
+      "Rva": "0xCCB530",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "get_SceneManager",
+      "Token": "0x06000671",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CCB4F0",
+      "Rva": "0xCCB4F0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "get_PredictionManager",
+      "Token": "0x06000672",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CCB4B0",
+      "Rva": "0xCCB4B0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "get_RollbackManager",
+      "Token": "0x06000673",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CCB4D0",
+      "Rva": "0xCCB4D0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "get_NetworkObserver",
+      "Token": "0x06000674",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CCB2E0",
+      "Rva": "0xCCB2E0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "get_IsClientInitialized",
+      "Token": "0x06000675",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CCAFD0",
+      "Rva": "0xCCAFD0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "get_IsClient",
+      "Token": "0x06000676",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CCB030",
+      "Rva": "0xCCB030",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "get_IsClientOnly",
+      "Token": "0x06000677",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CCAFF0",
+      "Rva": "0xCCAFF0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "get_IsServerInitialized",
+      "Token": "0x06000678",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CCB150",
+      "Rva": "0xCCB150",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "get_IsServer",
+      "Token": "0x06000679",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CCB1B0",
+      "Rva": "0xCCB1B0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "get_IsServerOnly",
+      "Token": "0x0600067A",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CCB170",
+      "Rva": "0xCCB170",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "get_IsHost",
+      "Token": "0x0600067B",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CCB070",
+      "Rva": "0xCCB070",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "get_IsOffline",
+      "Token": "0x0600067C",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CCB0D0",
+      "Rva": "0xCCB0D0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "get_IsNetworked",
+      "Token": "0x0600067D",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CCB0B0",
+      "Rva": "0xCCB0B0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "get_Observers",
+      "Token": "0x0600067E",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CCB340",
+      "Rva": "0xCCB340",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "get_IsOwner",
+      "Token": "0x0600067F",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CCB110",
+      "Rva": "0xCCB110",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "get_Owner",
+      "Token": "0x06000680",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CCB3C0",
+      "Rva": "0xCCB3C0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "get_OwnerId",
+      "Token": "0x06000681",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CCB360",
+      "Rva": "0xCCB360",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "get_ObjectId",
+      "Token": "0x06000682",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CCB300",
+      "Rva": "0xCCB300",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "get_LocalConnection",
+      "Token": "0x06000683",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CCB200",
+      "Rva": "0xCCB200",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "OwnerMatches",
+      "Token": "0x06000684",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CC77F0",
+      "Rva": "0xCC77F0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "Despawn",
+      "Token": "0x06000685",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CC4F00",
+      "Rva": "0xCC4F00",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "Despawn",
+      "Token": "0x06000686",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CC5020",
+      "Rva": "0xCC5020",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "Despawn",
+      "Token": "0x06000687",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CC4EA0",
+      "Rva": "0xCC4EA0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "Spawn",
+      "Token": "0x06000688",
+      "ParameterCount": 3,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CC9490",
+      "Rva": "0xCC9490",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "Spawn",
+      "Token": "0x06000689",
+      "ParameterCount": 3,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CC95A0",
+      "Rva": "0xCC95A0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "IsNetworkObjectNull",
+      "Token": "0x0600068A",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CC64E0",
+      "Rva": "0xCC64E0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "RemoveOwnership",
+      "Token": "0x0600068B",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CC87C0",
+      "Rva": "0xCC87C0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "GiveOwnership",
+      "Token": "0x0600068C",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CC5190",
+      "Rva": "0xCC5190",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "RegisterInvokeOnInstance",
+      "Token": "0x0600068D",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180E9D2C0",
+      "Rva": "0xE9D2C0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "UnregisterInvokeOnInstance",
+      "Token": "0x0600068E",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180E9EA90",
+      "Rva": "0xE9EA90",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "GetInstance",
+      "Token": "0x0600068F",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180E9C0A0",
+      "Rva": "0xE9C0A0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "RegisterInstance",
+      "Token": "0x06000690",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180E9D240",
+      "Rva": "0xE9D240",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "TryRegisterInstance",
+      "Token": "0x06000691",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180E9E700",
+      "Rva": "0xE9E700",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "UnregisterInstance",
+      "Token": "0x06000692",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180E9E9E0",
+      "Rva": "0xE9E9E0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "InitializeRpcLinks",
+      "Token": "0x06000693",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CC5AA0",
+      "Rva": "0xCC5AA0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "GetEstimatedRpcHeaderLength",
+      "Token": "0x06000694",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180AC74D0",
+      "Rva": "0xAC74D0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "CreateLinkedRpc",
+      "Token": "0x06000695",
+      "ParameterCount": 3,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CC4BB0",
+      "Rva": "0xCC4BB0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "ReturnRpcLinks",
+      "Token": "0x06000696",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CC89C0",
+      "Rva": "0xCC89C0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "WriteRpcLinks",
+      "Token": "0x06000697",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CCA6B0",
+      "Rva": "0xCCA6B0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "SendBufferedRpcs",
+      "Token": "0x06000698",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CC8A60",
+      "Rva": "0xCC8A60",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "RegisterServerRpc",
+      "Token": "0x06000699",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CC82B0",
+      "Rva": "0xCC82B0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "RegisterObserversRpc",
+      "Token": "0x0600069A",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CC7FE0",
+      "Rva": "0xCC7FE0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "RegisterTargetRpc",
+      "Token": "0x0600069B",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CC85D0",
+      "Rva": "0xCC85D0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "IncreaseRpcMethodCount",
+      "Token": "0x0600069C",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CC51C0",
+      "Rva": "0xCC51C0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "ClearBuffedRpcs",
+      "Token": "0x0600069D",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CC49C0",
+      "Rva": "0xCC49C0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "ReadRpcHash",
+      "Token": "0x0600069E",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CC7EB0",
+      "Rva": "0xCC7EB0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "OnServerRpc",
+      "Token": "0x0600069F",
+      "ParameterCount": 3,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CC6F30",
+      "Rva": "0xCC6F30",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "OnObserversRpc",
+      "Token": "0x060006A0",
+      "ParameterCount": 3,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CC6680",
+      "Rva": "0xCC6680",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "OnTargetRpc",
+      "Token": "0x060006A1",
+      "ParameterCount": 3,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CC7590",
+      "Rva": "0xCC7590",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "SendServerRpc",
+      "Token": "0x060006A2",
+      "ParameterCount": 4,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x1805475B0",
+      "Rva": "0x5475B0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "SendObserversRpc",
+      "Token": "0x060006A3",
+      "ParameterCount": 7,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CC8D00",
+      "Rva": "0xCC8D00",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "SendTargetRpc",
+      "Token": "0x060006A4",
+      "ParameterCount": 7,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CC8FA0",
+      "Rva": "0xCC8FA0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "SetNetworkConnectionCache",
+      "Token": "0x060006A5",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CC9380",
+      "Rva": "0xCC9380",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "IsSpawnedWithWarning",
+      "Token": "0x060006A6",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CC6590",
+      "Rva": "0xCC6590",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "CreateRpc",
+      "Token": "0x060006A7",
+      "ParameterCount": 4,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CC4D00",
+      "Rva": "0xCC4D00",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "WriteRpcHash",
+      "Token": "0x060006A8",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CCA670",
+      "Rva": "0xCCA670",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "RegisterSyncVarRead",
+      "Token": "0x060006A9",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CC8520",
+      "Rva": "0xCC8520",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "RegisterSyncType",
+      "Token": "0x060006AA",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CC84A0",
+      "Rva": "0xCC84A0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "DirtySyncType",
+      "Token": "0x060006AB",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CC5090",
+      "Rva": "0xCC5090",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "InitializeOnceSyncTypes",
+      "Token": "0x060006AC",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CC5230",
+      "Rva": "0xCC5230",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "OnSyncType",
+      "Token": "0x060006AD",
+      "ParameterCount": 4,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CC72D0",
+      "Rva": "0xCC72D0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "WriteDirtySyncTypes",
+      "Token": "0x060006AE",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CC9D80",
+      "Rva": "0xCC9D80",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "SyncTypes_ResetState",
+      "Token": "0x060006AF",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CC9610",
+      "Rva": "0xCC9610",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "ResetSyncVarFields",
+      "Token": "0x060006B0",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 18,
+      "Va": "0x18043FEC0",
+      "Rva": "0x43FEC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "WriteSyncTypesForSpawn",
+      "Token": "0x060006B1",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CCABD0",
+      "Rva": "0xCCABD0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "DirtySyncType",
+      "Token": "0x060006B2",
+      "ParameterCount": 1,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x18043FEC0",
+      "Rva": "0x43FEC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": ".ctor",
+      "Token": "0x060006B3",
+      "ParameterCount": 0,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CCAC60",
+      "Rva": "0xCCAC60",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "<Replicate_NonOwner>g__ReplicateData|89_0",
+      "Token": "0x060006B4",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180E9E800",
+      "Rva": "0xE9E800",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "<InitializeRpcLinks>g__MakeLink|165_0",
+      "Token": "0x060006B5",
+      "ParameterCount": 3,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CC9A10",
+      "Rva": "0xCC9A10",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "FishNet.Object.NetworkBehaviour",
+      "Name": "<WriteSyncTypesForSpawn>g__WriteSyncType|212_0",
+      "Token": "0x060006B6",
+      "ParameterCount": 2,
+      "InterfaceOrVirtualSlot": 65535,
+      "Va": "0x180CC9AB0",
+      "Rva": "0xCC9AB0",
+      "NativePointerPresent": true
+    }
+  ],
+  "RawReferenceOwnerCandidates": [],
+  "Disassembled": [
+    {
+      "Method": {
+        "Type": "ScheduleOne.GameTime.TimeManager",
+        "Name": "Awake",
+        "Token": "0x06000BD8",
+        "ParameterCount": 0,
+        "InterfaceOrVirtualSlot": 20,
+        "Va": "0x1809C8CE0",
+        "Rva": "0x9C8CE0",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 304,
+      "BytesSha256": "b69315d4ed99d2e56afe791353c6a330806cd5e5bdfc3016854e1b09f0aa1a3a",
+      "File": "0x06000BD8-TimeManager-Awake",
+      "Instructions": 67,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.GameTime.TimeManager",
+        "Name": "Start",
+        "Token": "0x06000BD9",
+        "ParameterCount": 0,
+        "InterfaceOrVirtualSlot": 19,
+        "Va": "0x1809CBB30",
+        "Rva": "0x9CBB30",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 272,
+      "BytesSha256": "53467ff0fb59fbd5f6a7d8145e3c9b643fbc71c1e521673eace246f11bb7ae50",
+      "File": "0x06000BD9-TimeManager-Start",
+      "Instructions": 78,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.GameTime.TimeManager",
+        "Name": "InitializeSaveable",
+        "Token": "0x06000BDA",
+        "ParameterCount": 0,
+        "InterfaceOrVirtualSlot": 49,
+        "Va": "0x1809C93C0",
+        "Rva": "0x9C93C0",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 144,
+      "BytesSha256": "f48b0c0ec6bee94601d9cb5579ead5bd263d2d923b8402b0372a95c50df09bc4",
+      "File": "0x06000BDA-TimeManager-InitializeSaveable",
+      "Instructions": 45,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.GameTime.TimeManager",
+        "Name": "GetSaveString",
+        "Token": "0x06000BFA",
+        "ParameterCount": 0,
+        "InterfaceOrVirtualSlot": 52,
+        "Va": "0x1809C9300",
+        "Rva": "0x9C9300",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 160,
+      "BytesSha256": "8bb2058f598d6bd27be89c63579f07720ca323458e61a2a606cb641269597f8a",
+      "File": "0x06000BFA-TimeManager-GetSaveString",
+      "Instructions": 48,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.GameTime.TimeManager",
+        "Name": "Load",
+        "Token": "0x06000BFB",
+        "ParameterCount": 1,
+        "InterfaceOrVirtualSlot": 65535,
+        "Va": "0x1809C96D0",
+        "Rva": "0x9C96D0",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 80,
+      "BytesSha256": "587ee68298b2c7e02010bb55f27f3d97f588dfbb93e9f23b9bac9a96a0348060",
+      "File": "0x06000BFB-TimeManager-Load",
+      "Instructions": 31,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.GameTime.TimeManager",
+        "Name": ".ctor",
+        "Token": "0x06000BFC",
+        "ParameterCount": 0,
+        "InterfaceOrVirtualSlot": 65535,
+        "Va": "0x1809CBE00",
+        "Rva": "0x9CBE00",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 448,
+      "BytesSha256": "8b9be326ee966466ce9db47922798756d977d15c17864eb2b39aa48614a57a32",
+      "File": "0x06000BFC-TimeManager-_ctor",
+      "Instructions": 101,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.GameTime.TimeManager",
+        "Name": "NetworkInitialize___Early",
+        "Token": "0x06000BFF",
+        "ParameterCount": 0,
+        "InterfaceOrVirtualSlot": 22,
+        "Va": "0x1809C9770",
+        "Rva": "0x9C9770",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 368,
+      "BytesSha256": "9c7c3cce6c138405e50dcb3fcf989a7a09abdba35f4f0e70956b2b13bc5e1401",
+      "File": "0x06000BFF-TimeManager-NetworkInitialize___Early",
+      "Instructions": 84,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.GameTime.TimeManager",
+        "Name": "NetworkInitialize__Late",
+        "Token": "0x06000C00",
+        "ParameterCount": 0,
+        "InterfaceOrVirtualSlot": 23,
+        "Va": "0x1809C9720",
+        "Rva": "0x9C9720",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 80,
+      "BytesSha256": "154f2130112315516e3d492c694136d93ea6524b02ef0b2c6aac7def5052687e",
+      "File": "0x06000C00-TimeManager-NetworkInitialize__Late",
+      "Instructions": 20,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.GameTime.TimeManager",
+        "Name": "NetworkInitializeIfDisabled",
+        "Token": "0x06000C01",
+        "ParameterCount": 0,
+        "InterfaceOrVirtualSlot": 14,
+        "Va": "0x18051FE10",
+        "Rva": "0x51FE10",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 64,
+      "BytesSha256": "7071094670f4057e064a7f361e4dae13405f28c37b1fde52b9423b11ad0eeea8",
+      "File": "0x06000C01-TimeManager-NetworkInitializeIfDisabled",
+      "Instructions": 26,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.GameTime.TimeManager",
+        "Name": "Awake_UserLogic_ScheduleOne.GameTime.TimeManager_Assembly-CSharp.dll",
+        "Token": "0x06000C0D",
+        "ParameterCount": 0,
+        "InterfaceOrVirtualSlot": 53,
+        "Va": "0x1809C8BD0",
+        "Rva": "0x9C8BD0",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 272,
+      "BytesSha256": "d8a8b18bcec94eb2bac9cd19b7dc14ab5c42ab1c72e3d2eabfa4854ab86921f1",
+      "File": "0x06000C0D-TimeManager-Awake_UserLogic_ScheduleOne_GameTime_TimeM",
+      "Instructions": 64,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Property.Business",
+        "Name": "get_currentLaunderTotal",
+        "Token": "0x06001398",
+        "ParameterCount": 0,
+        "InterfaceOrVirtualSlot": 65535,
+        "Va": "0x18054DE30",
+        "Rva": "0x54DE30",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 288,
+      "BytesSha256": "e07d9d57011ac4def177ac8db3811e5c7cc983233ee91fe4ab6760d69b86020e",
+      "File": "0x06001398-Business-get_currentLaunderTotal",
+      "Instructions": 68,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Property.Business",
+        "Name": "get_appliedLaunderLimit",
+        "Token": "0x06001399",
+        "ParameterCount": 0,
+        "InterfaceOrVirtualSlot": 65535,
+        "Va": "0x18054DE00",
+        "Rva": "0x54DE00",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 48,
+      "BytesSha256": "f840ecf3c75c8ac7f3b8df50bd72787acdcb7d05cff3bbfe13a154424eed3ddd",
+      "File": "0x06001399-Business-get_appliedLaunderLimit",
+      "Instructions": 17,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Property.Business",
+        "Name": "Awake",
+        "Token": "0x0600139B",
+        "ParameterCount": 0,
+        "InterfaceOrVirtualSlot": 42,
+        "Va": "0x18054BFE0",
+        "Rva": "0x54BFE0",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 64,
+      "BytesSha256": "657241ecf31d9ad145b9fff67c99b851e7f89354da4e5c9bd471a1be097fb9e6",
+      "File": "0x0600139B-Business-Awake",
+      "Instructions": 19,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Property.Business",
+        "Name": "Start",
+        "Token": "0x0600139C",
+        "ParameterCount": 0,
+        "InterfaceOrVirtualSlot": 44,
+        "Va": "0x18054D9A0",
+        "Rva": "0x54D9A0",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 544,
+      "BytesSha256": "8835c33063599b3eb9b80a361d912ed93b7826176e616beae179f4432ee65222",
+      "File": "0x0600139C-Business-Start",
+      "Instructions": 135,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Property.Business",
+        "Name": "OnDestroy",
+        "Token": "0x0600139D",
+        "ParameterCount": 0,
+        "InterfaceOrVirtualSlot": 46,
+        "Va": "0x18054CCA0",
+        "Rva": "0x54CCA0",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 208,
+      "BytesSha256": "14455c90ee042d369bb132e70c2e7c74e81782fdd004b1e1d2a5807f4941b556",
+      "File": "0x0600139D-Business-OnDestroy",
+      "Instructions": 47,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Property.Business",
+        "Name": "GetSaveString",
+        "Token": "0x060013A3",
+        "ParameterCount": 0,
+        "InterfaceOrVirtualSlot": 52,
+        "Va": "0x18054C4D0",
+        "Rva": "0x54C4D0",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 1040,
+      "BytesSha256": "86d79160bd1bff1384fa77bcecd79ba24d372984a96c68bfb70d790b079773d9",
+      "File": "0x060013A3-Business-GetSaveString",
+      "Instructions": 232,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Property.Business",
+        "Name": "Load",
+        "Token": "0x060013A4",
+        "ParameterCount": 2,
+        "InterfaceOrVirtualSlot": 55,
+        "Va": "0x18054C8E0",
+        "Rva": "0x54C8E0",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 272,
+      "BytesSha256": "5ae821ea284efc2ad9c09885689b507d26aee912f612201680223714edff3059",
+      "File": "0x060013A4-Business-Load",
+      "Instructions": 76,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Property.Business",
+        "Name": ".ctor",
+        "Token": "0x060013AA",
+        "ParameterCount": 0,
+        "InterfaceOrVirtualSlot": 65535,
+        "Va": "0x18054DD00",
+        "Rva": "0x54DD00",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 240,
+      "BytesSha256": "299aa202f8e81432aeed7a87113f4d778a0b53d77b1aff21e5aade3d3a02415c",
+      "File": "0x060013AA-Business-_ctor",
+      "Instructions": 59,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Property.Business",
+        "Name": "NetworkInitialize___Early",
+        "Token": "0x060013AC",
+        "ParameterCount": 0,
+        "InterfaceOrVirtualSlot": 58,
+        "Va": "0x18054CB70",
+        "Rva": "0x54CB70",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 304,
+      "BytesSha256": "85552089719b26c1be6e63726d3316aec9603fa6a32fa09b8e4253f6efb2a606",
+      "File": "0x060013AC-Business-NetworkInitialize___Early",
+      "Instructions": 74,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Property.Business",
+        "Name": "NetworkInitialize__Late",
+        "Token": "0x060013AD",
+        "ParameterCount": 0,
+        "InterfaceOrVirtualSlot": 59,
+        "Va": "0x18054CB40",
+        "Rva": "0x54CB40",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 48,
+      "BytesSha256": "c6d56588cb9fb6f1c75cc3708e90ec24c67d53e820ad99c44c4b363cd9bf0ca9",
+      "File": "0x060013AD-Business-NetworkInitialize__Late",
+      "Instructions": 22,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Property.Business",
+        "Name": "NetworkInitializeIfDisabled",
+        "Token": "0x060013AE",
+        "ParameterCount": 0,
+        "InterfaceOrVirtualSlot": 14,
+        "Va": "0x18054ACE0",
+        "Rva": "0x54ACE0",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 64,
+      "BytesSha256": "14174cfbcb67d78b9410034cf9f725f98c0adbe3b51bd5b5b50340eec69a7fea",
+      "File": "0x060013AE-Business-NetworkInitializeIfDisabled",
+      "Instructions": 26,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Property.Business",
+        "Name": "Awake_UserLogic_ScheduleOne.Property.Business_Assembly-CSharp.dll",
+        "Token": "0x060013B7",
+        "ParameterCount": 0,
+        "InterfaceOrVirtualSlot": 63,
+        "Va": "0x18054BE30",
+        "Rva": "0x54BE30",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 432,
+      "BytesSha256": "b49e584a922942c96b92b3204fe6cf918e594fbafccd551bf85ef1c4f4c770e7",
+      "File": "0x060013B7-Business-Awake_UserLogic_ScheduleOne_Property_Busin",
+      "Instructions": 102,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Property.BusinessManager",
+        "Name": "Awake",
+        "Token": "0x060013C6",
+        "ParameterCount": 0,
+        "InterfaceOrVirtualSlot": 5,
+        "Va": "0x18054B560",
+        "Rva": "0x54B560",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 80,
+      "BytesSha256": "0fad0b39f96f543081c64a10e2c242a3c6924449c1d5b3c131eff21181d4623a",
+      "File": "0x060013C6-BusinessManager-Awake",
+      "Instructions": 20,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Property.BusinessManager",
+        "Name": "InitializeSaveable",
+        "Token": "0x060013C7",
+        "ParameterCount": 0,
+        "InterfaceOrVirtualSlot": 31,
+        "Va": "0x18054B6D0",
+        "Rva": "0x54B6D0",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 144,
+      "BytesSha256": "067aecf1e3bc28bcc1b3e05de8b433a515885739ce32e68c2a0ec3f0797af54d",
+      "File": "0x060013C7-BusinessManager-InitializeSaveable",
+      "Instructions": 45,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Property.BusinessManager",
+        "Name": "GetSaveString",
+        "Token": "0x060013C8",
+        "ParameterCount": 0,
+        "InterfaceOrVirtualSlot": 32,
+        "Va": "0x18054B690",
+        "Rva": "0x54B690",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 64,
+      "BytesSha256": "12403876d5c481eedb633ec08606117c779f5e0d6994150700c38023046873ed",
+      "File": "0x060013C8-BusinessManager-GetSaveString",
+      "Instructions": 21,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Property.BusinessManager",
+        "Name": "LoadBusiness",
+        "Token": "0x060013CB",
+        "ParameterCount": 2,
+        "InterfaceOrVirtualSlot": 65535,
+        "Va": "0x18054B760",
+        "Rva": "0x54B760",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 528,
+      "BytesSha256": "685193475776ed2661946fed73f35c8ccbd23c6e15454cdba3d2b49678a680d3",
+      "File": "0x060013CB-BusinessManager-LoadBusiness",
+      "Instructions": 124,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Property.BusinessManager",
+        "Name": ".ctor",
+        "Token": "0x060013CC",
+        "ParameterCount": 0,
+        "InterfaceOrVirtualSlot": 65535,
+        "Va": "0x18054BCD0",
+        "Rva": "0x54BCD0",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 240,
+      "BytesSha256": "5a824191041a6470942acd810550f16d844c0a1dc60c2043d2172b83b4f5b8a9",
+      "File": "0x060013CC-BusinessManager-_ctor",
+      "Instructions": 53,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Property.Property",
+        "Name": "Awake",
+        "Token": "0x0600141F",
+        "ParameterCount": 0,
+        "InterfaceOrVirtualSlot": 42,
+        "Va": "0x1805545B0",
+        "Rva": "0x5545B0",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 64,
+      "BytesSha256": "056e88f96cefb8f503a94320171207ca3d19a7f656af0b8c6759ff48d0ab34aa",
+      "File": "0x0600141F-Property-Awake",
+      "Instructions": 19,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Property.Property",
+        "Name": "InitializeSaveable",
+        "Token": "0x06001420",
+        "ParameterCount": 0,
+        "InterfaceOrVirtualSlot": 43,
+        "Va": "0x180554F10",
+        "Rva": "0x554F10",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 144,
+      "BytesSha256": "2b9ad5ec87859e07cd443d4f6c2bff88c40cc62c1f4640932e00eb5daac3b329",
+      "File": "0x06001420-Property-InitializeSaveable",
+      "Instructions": 45,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Property.Property",
+        "Name": "Start",
+        "Token": "0x06001421",
+        "ParameterCount": 0,
+        "InterfaceOrVirtualSlot": 44,
+        "Va": "0x180556FE0",
+        "Rva": "0x556FE0",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 352,
+      "BytesSha256": "024058548a223b0855d995d3e82c0098bb17ca759f787cc0f2bf6c3ece4d5470",
+      "File": "0x06001421-Property-Start",
+      "Instructions": 93,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Property.Property",
+        "Name": "OnDestroy",
+        "Token": "0x06001427",
+        "ParameterCount": 0,
+        "InterfaceOrVirtualSlot": 46,
+        "Va": "0x180555490",
+        "Rva": "0x555490",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 544,
+      "BytesSha256": "18d6cc57255a0d7e6d8645abaf8438934a2ca40d89291fcc536be35d4b3cc359",
+      "File": "0x06001427-Property-OnDestroy",
+      "Instructions": 122,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Property.Property",
+        "Name": "GetSaveString",
+        "Token": "0x06001438",
+        "ParameterCount": 0,
+        "InterfaceOrVirtualSlot": 52,
+        "Va": "0x180554A70",
+        "Rva": "0x554A70",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 832,
+      "BytesSha256": "8132a1dcdab1a9134c29576741fd6c9950faccd56aef7aa93aae767e8f17a91b",
+      "File": "0x06001438-Property-GetSaveString",
+      "Instructions": 185,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Property.Property",
+        "Name": "Load",
+        "Token": "0x0600143D",
+        "ParameterCount": 2,
+        "InterfaceOrVirtualSlot": 55,
+        "Va": "0x180555150",
+        "Rva": "0x555150",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 368,
+      "BytesSha256": "673891c00e98cedd3bda7a614a1d4ae07a66f82bc83a83fa667e196692c74437",
+      "File": "0x0600143D-Property-Load",
+      "Instructions": 99,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Property.Property",
+        "Name": "DoBoundsContainPoint",
+        "Token": "0x0600143E",
+        "ParameterCount": 1,
+        "InterfaceOrVirtualSlot": 65535,
+        "Va": "0x180554650",
+        "Rva": "0x554650",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 240,
+      "BytesSha256": "f51cb5cd974c236e843506c16009414a46275f2121feebd78e97b51b2eb9c2ec",
+      "File": "0x0600143E-Property-DoBoundsContainPoint",
+      "Instructions": 65,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Property.Property",
+        "Name": "IsPointInsideBox",
+        "Token": "0x0600143F",
+        "ParameterCount": 2,
+        "InterfaceOrVirtualSlot": 65535,
+        "Va": "0x180554FA0",
+        "Rva": "0x554FA0",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 432,
+      "BytesSha256": "7ca51a17974f10317d40f433f7410aa6f27dcd0bbcd1458e8fe9b2eb6e832b99",
+      "File": "0x0600143F-Property-IsPointInsideBox",
+      "Instructions": 113,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Property.Property",
+        "Name": ".ctor",
+        "Token": "0x06001444",
+        "ParameterCount": 0,
+        "InterfaceOrVirtualSlot": 65535,
+        "Va": "0x1805577E0",
+        "Rva": "0x5577E0",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 848,
+      "BytesSha256": "bab9f1f1686727d66d082632fe12335bae9da936d0b6f00ff49cc9b098a2619e",
+      "File": "0x06001444-Property-_ctor",
+      "Instructions": 155,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Property.Property",
+        "Name": "<Awake>b__98_0",
+        "Token": "0x06001446",
+        "ParameterCount": 1,
+        "InterfaceOrVirtualSlot": 65535,
+        "Va": "0x1805572E0",
+        "Rva": "0x5572E0",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 16,
+      "BytesSha256": "57788d143af864c7836a3d9295a6c82efdca964d04997e6a1217a5b1770b9f50",
+      "File": "0x06001446-Property-_Awake_b__98_0",
+      "Instructions": 10,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Property.Property",
+        "Name": "NetworkInitialize___Early",
+        "Token": "0x06001449",
+        "ParameterCount": 0,
+        "InterfaceOrVirtualSlot": 58,
+        "Va": "0x1805552E0",
+        "Rva": "0x5552E0",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 432,
+      "BytesSha256": "2f28d98c9213d34d608829f4f4d1113d71962f4998e39c6ab04cda55ac3797cb",
+      "File": "0x06001449-Property-NetworkInitialize___Early",
+      "Instructions": 108,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Property.Property",
+        "Name": "NetworkInitialize__Late",
+        "Token": "0x0600144A",
+        "ParameterCount": 0,
+        "InterfaceOrVirtualSlot": 59,
+        "Va": "0x1805552C0",
+        "Rva": "0x5552C0",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 32,
+      "BytesSha256": "28f28e42830520288543a78f9ece301863c8b168bdf8f29f931e6f1811fd08a3",
+      "File": "0x0600144A-Property-NetworkInitialize__Late",
+      "Instructions": 19,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Property.Property",
+        "Name": "NetworkInitializeIfDisabled",
+        "Token": "0x0600144B",
+        "ParameterCount": 0,
+        "InterfaceOrVirtualSlot": 14,
+        "Va": "0x18054ACE0",
+        "Rva": "0x54ACE0",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 64,
+      "BytesSha256": "14174cfbcb67d78b9410034cf9f725f98c0adbe3b51bd5b5b50340eec69a7fea",
+      "File": "0x0600144B-Property-NetworkInitializeIfDisabled",
+      "Instructions": 26,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Property.Property",
+        "Name": "Awake_UserLogic_ScheduleOne.Property.Property_Assembly-CSharp.dll",
+        "Token": "0x0600145A",
+        "ParameterCount": 0,
+        "InterfaceOrVirtualSlot": 60,
+        "Va": "0x1805538A0",
+        "Rva": "0x5538A0",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 3344,
+      "BytesSha256": "f78715eec950e453e1b02ba7c15706908a96a314d57a0fe6a3180c69b06d5681",
+      "File": "0x0600145A-Property-Awake_UserLogic_ScheduleOne_Property_Prope",
+      "Instructions": 717,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Property.PropertyContentsContainer",
+        "Name": "SetProperty",
+        "Token": "0x06001475",
+        "ParameterCount": 1,
+        "InterfaceOrVirtualSlot": 65535,
+        "Va": "0x1805520E0",
+        "Rva": "0x5520E0",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 192,
+      "BytesSha256": "3a4242e226e4567a7f9aec6ef8ac2e39cc0f3d855f1452e374e40992f0ee6d79",
+      "File": "0x06001475-PropertyContentsContainer-SetProperty",
+      "Instructions": 56,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Property.PropertyContentsContainer",
+        "Name": ".ctor",
+        "Token": "0x06001476",
+        "ParameterCount": 0,
+        "InterfaceOrVirtualSlot": 65535,
+        "Va": "0x18041D490",
+        "Rva": "0x41D490",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 16,
+      "BytesSha256": "e1b484ff69482293a0c7bd2fbfabc49ef3eaf21179c5ade8a6025c66f305bc5e",
+      "File": "0x06001476-PropertyContentsContainer-_ctor",
+      "Instructions": 11,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Property.PropertyManager",
+        "Name": "Awake",
+        "Token": "0x06001483",
+        "ParameterCount": 0,
+        "InterfaceOrVirtualSlot": 5,
+        "Va": "0x1805521A0",
+        "Rva": "0x5521A0",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 80,
+      "BytesSha256": "9bc68250e26eed8ceff24c99f1b654299d76fb72bae352c1ba554477e790a0ca",
+      "File": "0x06001483-PropertyManager-Awake",
+      "Instructions": 20,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Property.PropertyManager",
+        "Name": "InitializeSaveable",
+        "Token": "0x06001484",
+        "ParameterCount": 0,
+        "InterfaceOrVirtualSlot": 31,
+        "Va": "0x1805529A0",
+        "Rva": "0x5529A0",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 144,
+      "BytesSha256": "df6f9fb9ff36db374602216f3084602b364120f538721a6b8ca74b5da7686047",
+      "File": "0x06001484-PropertyManager-InitializeSaveable",
+      "Instructions": 45,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Property.PropertyManager",
+        "Name": "GetSaveString",
+        "Token": "0x06001485",
+        "ParameterCount": 0,
+        "InterfaceOrVirtualSlot": 32,
+        "Va": "0x180552960",
+        "Rva": "0x552960",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 64,
+      "BytesSha256": "b6ecdb5cda35ecd70c349d47206e5345a3935595f9cd5c8fd7cc487362aefdd1",
+      "File": "0x06001485-PropertyManager-GetSaveString",
+      "Instructions": 21,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Property.PropertyManager",
+        "Name": ".ctor",
+        "Token": "0x0600148B",
+        "ParameterCount": 0,
+        "InterfaceOrVirtualSlot": 65535,
+        "Va": "0x180553510",
+        "Rva": "0x553510",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 240,
+      "BytesSha256": "a18aac9162667e58de7a66edf93a4396686e7e1fe0f4121c4bf61707ed87fdb1",
+      "File": "0x0600148B-PropertyManager-_ctor",
+      "Instructions": 53,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Persistence.Loaders.BusinessesLoader",
+        "Name": ".ctor",
+        "Token": "0x06001860",
+        "ParameterCount": 0,
+        "InterfaceOrVirtualSlot": 65535,
+        "Va": "0x18041D580",
+        "Rva": "0x41D580",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 16,
+      "BytesSha256": "fdb8a65fbd563428552c98b3b2214f65ee6116a13f1be137e8c990c66426ad07",
+      "File": "0x06001860-BusinessesLoader-_ctor",
+      "Instructions": 11,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Persistence.Loaders.BusinessesLoader",
+        "Name": "Load",
+        "Token": "0x06001861",
+        "ParameterCount": 1,
+        "InterfaceOrVirtualSlot": 4,
+        "Va": "0x18059C850",
+        "Rva": "0x59C850",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 1632,
+      "BytesSha256": "25d52cf3b387365e2a0ab6e44c419fb1d31180cc19a98519234852a3ccd37161",
+      "File": "0x06001861-BusinessesLoader-Load",
+      "Instructions": 354,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Persistence.Loaders.BusinessLoader",
+        "Name": ".ctor",
+        "Token": "0x06001862",
+        "ParameterCount": 0,
+        "InterfaceOrVirtualSlot": 65535,
+        "Va": "0x18041D580",
+        "Rva": "0x41D580",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 16,
+      "BytesSha256": "fdb8a65fbd563428552c98b3b2214f65ee6116a13f1be137e8c990c66426ad07",
+      "File": "0x06001862-BusinessLoader-_ctor",
+      "Instructions": 11,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Persistence.Loaders.BusinessLoader",
+        "Name": "Load",
+        "Token": "0x06001863",
+        "ParameterCount": 1,
+        "InterfaceOrVirtualSlot": 4,
+        "Va": "0x18059C640",
+        "Rva": "0x59C640",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 528,
+      "BytesSha256": "4c8e20462bcad26631f09daa249954d1e89c6eeef31b15c3bef1161c3277661c",
+      "File": "0x06001863-BusinessLoader-Load",
+      "Instructions": 134,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Money.MoneyManager",
+        "Name": "Awake",
+        "Token": "0x06001CAE",
+        "ParameterCount": 0,
+        "InterfaceOrVirtualSlot": 20,
+        "Va": "0x1805E4300",
+        "Rva": "0x5E4300",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 112,
+      "BytesSha256": "a847d12ff51abcb9a6dbb8c7b6d69873ae65a30ec54dd2248f2dc64b8cef5e90",
+      "File": "0x06001CAE-MoneyManager-Awake",
+      "Instructions": 24,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Money.MoneyManager",
+        "Name": "InitializeSaveable",
+        "Token": "0x06001CAF",
+        "ParameterCount": 0,
+        "InterfaceOrVirtualSlot": 49,
+        "Va": "0x1805E50A0",
+        "Rva": "0x5E50A0",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 144,
+      "BytesSha256": "5f79165fd90d17035ae6563d2d3bb4199637039a7e27c9eee2cef1cf4210ae22",
+      "File": "0x06001CAF-MoneyManager-InitializeSaveable",
+      "Instructions": 45,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Money.MoneyManager",
+        "Name": "Start",
+        "Token": "0x06001CB0",
+        "ParameterCount": 0,
+        "InterfaceOrVirtualSlot": 19,
+        "Va": "0x1805E6E60",
+        "Rva": "0x5E6E60",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 832,
+      "BytesSha256": "a1d2da2295a846413f60b1d9f1e4e0db0c274ca8a624abf537e7f93315099b54",
+      "File": "0x06001CB0-MoneyManager-Start",
+      "Instructions": 188,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Money.MoneyManager",
+        "Name": "OnDestroy",
+        "Token": "0x06001CB3",
+        "ParameterCount": 0,
+        "InterfaceOrVirtualSlot": 21,
+        "Va": "0x1805E5970",
+        "Rva": "0x5E5970",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 784,
+      "BytesSha256": "86e936dc762ffbeb85ea24ff13b6d0f3a58a1a6111e5dc1a77f5f7bb9eeff6cd",
+      "File": "0x06001CB3-MoneyManager-OnDestroy",
+      "Instructions": 183,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Money.MoneyManager",
+        "Name": "GetSaveString",
+        "Token": "0x06001CC0",
+        "ParameterCount": 0,
+        "InterfaceOrVirtualSlot": 50,
+        "Va": "0x1805E4F10",
+        "Rva": "0x5E4F10",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 400,
+      "BytesSha256": "78452378b24403fd9d7c268c8e5f5d38e773819d5156e1468fc1afd1d464b740",
+      "File": "0x06001CC0-MoneyManager-GetSaveString",
+      "Instructions": 92,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Money.MoneyManager",
+        "Name": "Load",
+        "Token": "0x06001CC1",
+        "ParameterCount": 1,
+        "InterfaceOrVirtualSlot": 65535,
+        "Va": "0x1805E5130",
+        "Rva": "0x5E5130",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 560,
+      "BytesSha256": "dc2d564c8a0e88802ecb489488a7ee78433b333228f2a3301306bd3ae82ef8f6",
+      "File": "0x06001CC1-MoneyManager-Load",
+      "Instructions": 133,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Money.MoneyManager",
+        "Name": ".ctor",
+        "Token": "0x06001CC4",
+        "ParameterCount": 0,
+        "InterfaceOrVirtualSlot": 65535,
+        "Va": "0x1805E7240",
+        "Rva": "0x5E7240",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 336,
+      "BytesSha256": "d7ed49b833965580191bfb0d41246ef210997d85e9ec6e8c13496b6bc1731914",
+      "File": "0x06001CC4-MoneyManager-_ctor",
+      "Instructions": 72,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Money.MoneyManager",
+        "Name": "NetworkInitialize___Early",
+        "Token": "0x06001CC6",
+        "ParameterCount": 0,
+        "InterfaceOrVirtualSlot": 22,
+        "Va": "0x1805E5670",
+        "Rva": "0x5E5670",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 768,
+      "BytesSha256": "a727173a426341ca5989dc05ee2131e8f61d5dfad1ee09a9bfbea92dcfc01638",
+      "File": "0x06001CC6-MoneyManager-NetworkInitialize___Early",
+      "Instructions": 170,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Money.MoneyManager",
+        "Name": "NetworkInitialize__Late",
+        "Token": "0x06001CC7",
+        "ParameterCount": 0,
+        "InterfaceOrVirtualSlot": 23,
+        "Va": "0x1805E55E0",
+        "Rva": "0x5E55E0",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 144,
+      "BytesSha256": "0cd2058563eb834d1ae8fa22b82477be04917d3517847d3e566081fe6ee2be9d",
+      "File": "0x06001CC7-MoneyManager-NetworkInitialize__Late",
+      "Instructions": 35,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Money.MoneyManager",
+        "Name": "NetworkInitializeIfDisabled",
+        "Token": "0x06001CC8",
+        "ParameterCount": 0,
+        "InterfaceOrVirtualSlot": 14,
+        "Va": "0x18051FE10",
+        "Rva": "0x51FE10",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 64,
+      "BytesSha256": "7071094670f4057e064a7f361e4dae13405f28c37b1fde52b9423b11ad0eeea8",
+      "File": "0x06001CC8-MoneyManager-NetworkInitializeIfDisabled",
+      "Instructions": 26,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Money.MoneyManager",
+        "Name": "Awake_UserLogic_ScheduleOne.Money.MoneyManager_Assembly-CSharp.dll",
+        "Token": "0x06001CD7",
+        "ParameterCount": 0,
+        "InterfaceOrVirtualSlot": 52,
+        "Va": "0x1805E42B0",
+        "Rva": "0x5E42B0",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 80,
+      "BytesSha256": "ee0a6c8f5756a5d26ac2d96bdce5f2e0480da4832f79c74afbfae78dd792a063",
+      "File": "0x06001CD7-MoneyManager-Awake_UserLogic_ScheduleOne_Money_MoneyMan",
+      "Instructions": 20,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "FishNet.Object.NetworkBehaviour",
+        "Name": "NetworkInitializeIfDisabled",
+        "Token": "0x0600064A",
+        "ParameterCount": 0,
+        "InterfaceOrVirtualSlot": 14,
+        "Va": "0x18043FEC0",
+        "Rva": "0x43FEC0",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 16,
+      "BytesSha256": "28f844b5972c241e804231b0e41b93e13696e59b98dde74f19029386db5da0c5",
+      "File": "0x0600064A-NetworkBehaviour-NetworkInitializeIfDisabled",
+      "Instructions": 14,
+      "HasUndecodedTail": false
+    },
+    {
+      "Method": {
+        "Type": "FishNet.Object.NetworkBehaviour",
+        "Name": ".ctor",
+        "Token": "0x060006B3",
+        "ParameterCount": 0,
+        "InterfaceOrVirtualSlot": 65535,
+        "Va": "0x180CCAC60",
+        "Rva": "0xCCAC60",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 848,
+      "BytesSha256": "6ede71c0898afa6fc2356fa93383a6815fe4db7748bfebe566ee88b44093693d",
+      "File": "0x060006B3-NetworkBehaviour-_ctor",
+      "Instructions": 169,
+      "HasUndecodedTail": false
+    }
+  ],
+  "NativeSaveWriteAllowed": false,
+  "GameInvoked": false,
+  "NativeSaveFilesRead": false
+}

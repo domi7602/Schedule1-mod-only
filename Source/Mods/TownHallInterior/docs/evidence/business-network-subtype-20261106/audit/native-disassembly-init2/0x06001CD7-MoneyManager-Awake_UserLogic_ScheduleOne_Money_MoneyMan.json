@@ -1,0 +1,273 @@
+{
+  "Method": {
+    "Type": "ScheduleOne.Money.MoneyManager",
+    "Name": "Awake_UserLogic_ScheduleOne.Money.MoneyManager_Assembly-CSharp.dll",
+    "Token": "0x06001CD7",
+    "ParameterCount": 0,
+    "InterfaceOrVirtualSlot": 52,
+    "Va": "0x1805E42B0",
+    "Rva": "0x5E42B0",
+    "NativePointerPresent": true
+  },
+  "PrimaryPdataBounds": {
+    "BeginRva": 6177456,
+    "EndRva": 6177533,
+    "UnwindRva": 57295328
+  },
+  "WindowEndVa": "0x1805E4300",
+  "WindowKind": "Next distinct parser method pointer, not an exact/full function extent",
+  "RawOffset": "0x5E34B0",
+  "ByteLength": 80,
+  "BytesSha256": "ee0a6c8f5756a5d26ac2d96bdce5f2e0480da4832f79c74afbfae78dd792a063",
+  "Instructions": [
+    {
+      "Va": "0x1805E42B0",
+      "Rva": "0x5E42B0",
+      "Bytes": "40 53",
+      "Text": "push rbx",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805E42B2",
+      "Rva": "0x5E42B2",
+      "Bytes": "48 83 EC 20",
+      "Text": "sub rsp,20h",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805E42B6",
+      "Rva": "0x5E42B6",
+      "Bytes": "80 3D B6 76 61 03 00",
+      "Text": "cmp byte ptr [183BFB973h],0",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": "0x183BFB973",
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805E42BD",
+      "Rva": "0x5E42BD",
+      "Bytes": "48 8B D9",
+      "Text": "mov rbx,rcx",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805E42C0",
+      "Rva": "0x5E42C0",
+      "Bytes": "75 13",
+      "Text": "jne short 00000001805E42D5h",
+      "FlowControl": "ConditionalBranch",
+      "DirectTarget": "0x1805E42D5",
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805E42C2",
+      "Rva": "0x5E42C2",
+      "Bytes": "48 8D 0D 3F F1 3B 03",
+      "Text": "lea rcx,[1839A3408h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": "0x1839A3408",
+      "MetadataGlobal": {
+        "Kind": "MethodRef",
+        "Value": "System.Void ScheduleOne.DevUtilities.NetworkSingleton`1<ScheduleOne.Money.MoneyManager>.Awake"
+      }
+    },
+    {
+      "Va": "0x1805E42C9",
+      "Rva": "0x5E42C9",
+      "Bytes": "E8 D2 35 D3 FF",
+      "Text": "call 00000001803178A0h",
+      "FlowControl": "Call",
+      "DirectTarget": "0x1803178A0",
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805E42CE",
+      "Rva": "0x5E42CE",
+      "Bytes": "C6 05 9E 76 61 03 01",
+      "Text": "mov byte ptr [183BFB973h],1",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": "0x183BFB973",
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805E42D5",
+      "Rva": "0x5E42D5",
+      "Bytes": "48 8B 15 2C F1 3B 03",
+      "Text": "mov rdx,[1839A3408h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": "0x1839A3408",
+      "MetadataGlobal": {
+        "Kind": "MethodRef",
+        "Value": "System.Void ScheduleOne.DevUtilities.NetworkSingleton`1<ScheduleOne.Money.MoneyManager>.Awake"
+      }
+    },
+    {
+      "Va": "0x1805E42DC",
+      "Rva": "0x5E42DC",
+      "Bytes": "48 8B CB",
+      "Text": "mov rcx,rbx",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805E42DF",
+      "Rva": "0x5E42DF",
+      "Bytes": "E8 9C 3A A3 00",
+      "Text": "call 0000000181017D80h",
+      "FlowControl": "Call",
+      "DirectTarget": "0x181017D80",
+      "TargetMethodCount": 1,
+      "TargetMethods": [
+        "ScheduleOne.DevUtilities.NetworkSingleton`1::Awake/0"
+      ],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805E42E4",
+      "Rva": "0x5E42E4",
+      "Bytes": "48 8B 03",
+      "Text": "mov rax,[rbx]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805E42E7",
+      "Rva": "0x5E42E7",
+      "Bytes": "48 8B CB",
+      "Text": "mov rcx,rbx",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805E42EA",
+      "Rva": "0x5E42EA",
+      "Bytes": "48 8B 90 50 04 00 00",
+      "Text": "mov rdx,[rax+450h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805E42F1",
+      "Rva": "0x5E42F1",
+      "Bytes": "48 83 C4 20",
+      "Text": "add rsp,20h",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805E42F5",
+      "Rva": "0x5E42F5",
+      "Bytes": "5B",
+      "Text": "pop rbx",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805E42F6",
+      "Rva": "0x5E42F6",
+      "Bytes": "48 FF A0 48 04 00 00",
+      "Text": "jmp qword ptr [rax+448h]",
+      "FlowControl": "IndirectBranch",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805E42FD",
+      "Rva": "0x5E42FD",
+      "Bytes": "CC",
+      "Text": "int 3",
+      "FlowControl": "Interrupt",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805E42FE",
+      "Rva": "0x5E42FE",
+      "Bytes": "CC",
+      "Text": "int 3",
+      "FlowControl": "Interrupt",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805E42FF",
+      "Rva": "0x5E42FF",
+      "Bytes": "CC",
+      "Text": "int 3",
+      "FlowControl": "Interrupt",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    }
+  ],
+  "UndecodedTail": null
+}

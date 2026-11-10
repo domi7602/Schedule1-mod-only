@@ -1,0 +1,162 @@
+{
+  "Method": {
+    "Type": "ScheduleOne.Persistence.Loaders.BusinessesLoader",
+    "Name": ".ctor",
+    "Token": "0x06001860",
+    "ParameterCount": 0,
+    "InterfaceOrVirtualSlot": 65535,
+    "Va": "0x18041D580",
+    "Rva": "0x41D580",
+    "NativePointerPresent": true
+  },
+  "PrimaryPdataBounds": null,
+  "WindowEndVa": "0x18041D590",
+  "WindowKind": "Next distinct parser method pointer, not an exact/full function extent",
+  "RawOffset": "0x41C780",
+  "ByteLength": 16,
+  "BytesSha256": "fdb8a65fbd563428552c98b3b2214f65ee6116a13f1be137e8c990c66426ad07",
+  "Instructions": [
+    {
+      "Va": "0x18041D580",
+      "Rva": "0x41D580",
+      "Bytes": "33 D2",
+      "Text": "xor edx,edx",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x18041D582",
+      "Rva": "0x41D582",
+      "Bytes": "E9 39 29 02 00",
+      "Text": "jmp near ptr 000000018043FEC0h",
+      "FlowControl": "UnconditionalBranch",
+      "DirectTarget": "0x18043FEC0",
+      "TargetMethodCount": 1731,
+      "TargetMethods": [
+        "VFXRainPass::Dispose/0",
+        "LightningLightController+<DoStrikeRoutine>d__7::System.IDisposable.Dispose/0",
+        "ActionList+<<InvokeAllStaggered>g__StaggeredInvoke|6_0>d::System.IDisposable.Dispose/0",
+        "CameraCaptureToPNG+<CaptureCameraView>d__5::System.IDisposable.Dispose/0",
+        "DeveloperManager+<DoDeveloperRoutine>d__9::System.IDisposable.Dispose/0",
+        "UnityServicesManager::Start/0",
+        "UnityServicesManager::Update/0",
+        "EntityConfigurationData::Start/0"
+      ],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x18041D587",
+      "Rva": "0x41D587",
+      "Bytes": "CC",
+      "Text": "int 3",
+      "FlowControl": "Interrupt",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x18041D588",
+      "Rva": "0x41D588",
+      "Bytes": "CC",
+      "Text": "int 3",
+      "FlowControl": "Interrupt",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x18041D589",
+      "Rva": "0x41D589",
+      "Bytes": "CC",
+      "Text": "int 3",
+      "FlowControl": "Interrupt",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x18041D58A",
+      "Rva": "0x41D58A",
+      "Bytes": "CC",
+      "Text": "int 3",
+      "FlowControl": "Interrupt",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x18041D58B",
+      "Rva": "0x41D58B",
+      "Bytes": "CC",
+      "Text": "int 3",
+      "FlowControl": "Interrupt",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x18041D58C",
+      "Rva": "0x41D58C",
+      "Bytes": "CC",
+      "Text": "int 3",
+      "FlowControl": "Interrupt",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x18041D58D",
+      "Rva": "0x41D58D",
+      "Bytes": "CC",
+      "Text": "int 3",
+      "FlowControl": "Interrupt",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x18041D58E",
+      "Rva": "0x41D58E",
+      "Bytes": "CC",
+      "Text": "int 3",
+      "FlowControl": "Interrupt",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x18041D58F",
+      "Rva": "0x41D58F",
+      "Bytes": "CC",
+      "Text": "int 3",
+      "FlowControl": "Interrupt",
+      "DirectTarget": null,
+      "TargetMethodCount": 0,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    }
+  ],
+  "UndecodedTail": null
+}

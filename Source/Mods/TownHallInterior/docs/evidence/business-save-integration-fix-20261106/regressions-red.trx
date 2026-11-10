@@ -1,0 +1,397 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="f61c7675-df90-4d24-9f44-99dff87ad723" name="pc@WINDOWS 2026-11-06 08:55:23" runUser="windows\pc" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2026-11-06T08:55:23.6731813+01:00" queuing="2026-11-06T08:55:23.6731820+01:00" start="2026-11-06T08:55:22.9683266+01:00" finish="2026-11-06T08:55:23.6996451+01:00" />
+  <TestSettings name="default" id="880456ee-b670-4c48-9e9b-cf3473344354">
+    <Deployment runDeploymentRoot="pc_WINDOWS_2026-11-06_08_55_23" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="c921f22d-b435-4b15-b97d-ab858506941c" testId="6918f17b-0d97-76c8-c795-6fcd2377b234" testName="TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Possible_manager_effect_retains_participant_until_removal_is_confirmed(failure: &quot;completion-missing&quot;, saves: 1, removals: 0)" computerName="WINDOWS" duration="00:00:00.0002392" startTime="2026-11-06T08:55:23.6503318+01:00" endTime="2026-11-06T08:55:23.6503601+01:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="c921f22d-b435-4b15-b97d-ab858506941c">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.False() Failure&#xD;
+Expected: False&#xD;
+Actual:   True</Message>
+          <StackTrace>   at TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Possible_manager_effect_retains_participant_until_removal_is_confirmed(String failure, Int32 saves, Int32 removals) in C:\Users\pc\Schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\BusinessSaveIntegrationRegressionTests.cs:line 65</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="23273d37-ddb3-424e-9b6d-fe3b500dcdf6" testId="9aae24ec-8c20-c02c-b43a-d7dca21db8cb" testName="TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Context_change_after_confirmed_removal_still_prevents_native_cleanup" computerName="WINDOWS" duration="00:00:00.0019407" startTime="2026-11-06T08:55:23.6513653+01:00" endTime="2026-11-06T08:55:23.6513952+01:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="23273d37-ddb3-424e-9b6d-fe3b500dcdf6">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.Equal() Failure: Strings differ&#xD;
+           ↓ (pos 0)&#xD;
+Expected: "failed"&#xD;
+Actual:   "observed"&#xD;
+           ↑ (pos 0)</Message>
+          <StackTrace>   at TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Context_change_after_confirmed_removal_still_prevents_native_cleanup() in C:\Users\pc\Schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\BusinessSaveIntegrationRegressionTests.cs:line 129</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="a57881c4-ff55-46fd-8728-67d80a6c4ad6" testId="6bae88a5-cc17-bfa1-1865-ff9bb2777eb1" testName="TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Uncertain_preflight_retains_object_without_registration_or_save(failure: &quot;own-reference&quot;)" computerName="WINDOWS" duration="00:00:00.0002341" startTime="2026-11-06T08:55:23.6263864+01:00" endTime="2026-11-06T08:55:23.6264144+01:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="a57881c4-ff55-46fd-8728-67d80a6c4ad6">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.False() Failure&#xD;
+Expected: False&#xD;
+Actual:   True</Message>
+          <StackTrace>   at TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Uncertain_preflight_retains_object_without_registration_or_save(String failure) in C:\Users\pc\Schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\BusinessSaveIntegrationRegressionTests.cs:line 113</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="2cc6f97a-a4aa-4c20-82ea-b8953113a7dc" testId="99f8906d-f855-0aa3-144c-c0fe156b194c" testName="TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Possible_manager_effect_retains_participant_until_removal_is_confirmed(failure: &quot;registration-throws&quot;, saves: 0, removals: 0)" computerName="WINDOWS" duration="00:00:00.0002455" startTime="2026-11-06T08:55:23.6496977+01:00" endTime="2026-11-06T08:55:23.6497276+01:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="2cc6f97a-a4aa-4c20-82ea-b8953113a7dc">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.False() Failure&#xD;
+Expected: False&#xD;
+Actual:   True</Message>
+          <StackTrace>   at TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Possible_manager_effect_retains_participant_until_removal_is_confirmed(String failure, Int32 saves, Int32 removals) in C:\Users\pc\Schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\BusinessSaveIntegrationRegressionTests.cs:line 65</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="406ccc54-4888-4641-a0d5-e890ad42cf03" testId="db29e2e5-e35c-7649-85dd-eb853a80cca7" testName="TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Uncertain_preflight_retains_object_without_registration_or_save(failure: &quot;started-before-probe&quot;)" computerName="WINDOWS" duration="00:00:00.0002258" startTime="2026-11-06T08:55:23.6257602+01:00" endTime="2026-11-06T08:55:23.6257910+01:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="406ccc54-4888-4641-a0d5-e890ad42cf03">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.False() Failure&#xD;
+Expected: False&#xD;
+Actual:   True</Message>
+          <StackTrace>   at TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Uncertain_preflight_retains_object_without_registration_or_save(String failure) in C:\Users\pc\Schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\BusinessSaveIntegrationRegressionTests.cs:line 113</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="31c6495b-aea8-466e-8e79-3b770bd43c5e" testId="779316dd-73d7-168c-a4c1-7feb3044c38e" testName="TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Uncertain_preflight_retains_object_without_registration_or_save(failure: &quot;pending-request&quot;)" computerName="WINDOWS" duration="00:00:00.0002250" startTime="2026-11-06T08:55:23.6259662+01:00" endTime="2026-11-06T08:55:23.6259979+01:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="31c6495b-aea8-466e-8e79-3b770bd43c5e">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.False() Failure&#xD;
+Expected: False&#xD;
+Actual:   True</Message>
+          <StackTrace>   at TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Uncertain_preflight_retains_object_without_registration_or_save(String failure) in C:\Users\pc\Schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\BusinessSaveIntegrationRegressionTests.cs:line 113</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="b064da5b-d669-4cf6-b125-5de477813190" testId="07c2005e-7a49-0e5f-9e04-bf62860b0da9" testName="TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Save_probe_rejects_main_slot_without_any_port_access" computerName="WINDOWS" duration="00:00:00.0025025" startTime="2026-11-06T08:55:23.6505888+01:00" endTime="2026-11-06T08:55:23.6507929+01:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="b064da5b-d669-4cf6-b125-5de477813190" />
+    <UnitTestResult executionId="e2f187b6-7117-4c8e-9395-642231a6fcf3" testId="e3b9ea1f-65f3-8a61-f096-5caf34953343" testName="TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Possible_manager_effect_retains_participant_until_removal_is_confirmed(failure: &quot;context-loss&quot;, saves: 1, removals: 0)" computerName="WINDOWS" duration="00:00:00.0002670" startTime="2026-11-06T08:55:23.6493695+01:00" endTime="2026-11-06T08:55:23.6494135+01:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="e2f187b6-7117-4c8e-9395-642231a6fcf3">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.False() Failure&#xD;
+Expected: False&#xD;
+Actual:   True</Message>
+          <StackTrace>   at TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Possible_manager_effect_retains_participant_until_removal_is_confirmed(String failure, Int32 saves, Int32 removals) in C:\Users\pc\Schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\BusinessSaveIntegrationRegressionTests.cs:line 65</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="518b71ed-4cdf-49d8-844d-174ab0ff7836" testId="78019c17-2212-e38c-cc28-9b636e82c144" testName="TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Uncertain_preflight_retains_object_without_registration_or_save(failure: &quot;busy&quot;)" computerName="WINDOWS" duration="00:00:00.0003128" startTime="2026-11-06T08:55:23.6253438+01:00" endTime="2026-11-06T08:55:23.6253737+01:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="518b71ed-4cdf-49d8-844d-174ab0ff7836">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.False() Failure&#xD;
+Expected: False&#xD;
+Actual:   True</Message>
+          <StackTrace>   at TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Uncertain_preflight_retains_object_without_registration_or_save(String failure) in C:\Users\pc\Schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\BusinessSaveIntegrationRegressionTests.cs:line 113</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="c6bc54d2-ef6b-449e-8870-32b7e83da8d3" testId="d0984ca8-1355-bb80-9597-67ee6c7f3234" testName="TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Unverified_contract_can_clean_a_readable_unregistered_object" computerName="WINDOWS" duration="00:00:00.0022385" startTime="2026-11-06T08:55:23.6516389+01:00" endTime="2026-11-06T08:55:23.6516768+01:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="c6bc54d2-ef6b-449e-8870-32b7e83da8d3" />
+    <UnitTestResult executionId="85ae9239-d8f5-4d85-99bc-1de90b36b9a0" testId="2b553ce6-b702-71f9-6c0e-f34e93fbedce" testName="TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Confirmed_save_is_removed_before_cleanup_and_cannot_be_repeated" computerName="WINDOWS" duration="00:00:00.0020540" startTime="2026-11-06T08:55:23.6517511+01:00" endTime="2026-11-06T08:55:23.6517789+01:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="85ae9239-d8f5-4d85-99bc-1de90b36b9a0" />
+    <UnitTestResult executionId="f2998702-b2bc-460e-85d9-84b1eac4da53" testId="92d7dda7-af0d-db05-4122-99e0bdfcd583" testName="TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Possible_manager_effect_retains_participant_until_removal_is_confirmed(failure: &quot;save-throws&quot;, saves: 1, removals: 0)" computerName="WINDOWS" duration="00:00:00.0012798" startTime="2026-11-06T08:55:23.6270258+01:00" endTime="2026-11-06T08:55:23.6270568+01:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="f2998702-b2bc-460e-85d9-84b1eac4da53">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.False() Failure&#xD;
+Expected: False&#xD;
+Actual:   True</Message>
+          <StackTrace>   at TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Possible_manager_effect_retains_participant_until_removal_is_confirmed(String failure, Int32 saves, Int32 removals) in C:\Users\pc\Schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\BusinessSaveIntegrationRegressionTests.cs:line 65</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="8f198bc1-6beb-4ba4-be92-6e4c0ef40207" testId="9e28c631-407c-c9b5-45bd-34a458bf1376" testName="TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Uncertain_preflight_retains_object_without_registration_or_save(failure: &quot;active-callback&quot;)" computerName="WINDOWS" duration="00:00:00.0002702" startTime="2026-11-06T08:55:23.6255584+01:00" endTime="2026-11-06T08:55:23.6255871+01:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="8f198bc1-6beb-4ba4-be92-6e4c0ef40207">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.False() Failure&#xD;
+Expected: False&#xD;
+Actual:   True</Message>
+          <StackTrace>   at TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Uncertain_preflight_retains_object_without_registration_or_save(String failure) in C:\Users\pc\Schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\BusinessSaveIntegrationRegressionTests.cs:line 113</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="ed3b59f9-c32c-48ae-bd4a-e24fa926eec6" testId="fd6acb24-e268-491b-7a00-0d02842affe4" testName="TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Uncertain_preflight_retains_object_without_registration_or_save(failure: &quot;second-read-throws&quot;)" computerName="WINDOWS" duration="00:00:00.0012172" startTime="2026-11-06T08:55:23.6249160+01:00" endTime="2026-11-06T08:55:23.6249757+01:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="ed3b59f9-c32c-48ae-bd4a-e24fa926eec6">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.False() Failure&#xD;
+Expected: False&#xD;
+Actual:   True</Message>
+          <StackTrace>   at TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Uncertain_preflight_retains_object_without_registration_or_save(String failure) in C:\Users\pc\Schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\BusinessSaveIntegrationRegressionTests.cs:line 113</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="6a11f5f7-e39f-44af-ac2b-c05923462a8e" testId="4261e9e5-96b0-726f-bba2-e3cdf64bfdda" testName="TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Uncertain_preflight_retains_object_without_registration_or_save(failure: &quot;completed-before-probe&quot;)" computerName="WINDOWS" duration="00:00:00.0002245" startTime="2026-11-06T08:55:23.6261767+01:00" endTime="2026-11-06T08:55:23.6262050+01:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="6a11f5f7-e39f-44af-ac2b-c05923462a8e">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.False() Failure&#xD;
+Expected: False&#xD;
+Actual:   True</Message>
+          <StackTrace>   at TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Uncertain_preflight_retains_object_without_registration_or_save(String failure) in C:\Users\pc\Schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\BusinessSaveIntegrationRegressionTests.cs:line 113</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="450919a8-4432-478a-acf8-487aa0008af1" testId="52e8d418-6eea-da48-9574-7f68b25e6220" testName="TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Uncertain_preflight_retains_object_without_registration_or_save(failure: &quot;first-read-throws&quot;)" computerName="WINDOWS" duration="00:00:00.0157644" startTime="2026-11-06T08:55:23.5740826+01:00" endTime="2026-11-06T08:55:23.6084598+01:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="450919a8-4432-478a-acf8-487aa0008af1">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.False() Failure&#xD;
+Expected: False&#xD;
+Actual:   True</Message>
+          <StackTrace>   at TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Uncertain_preflight_retains_object_without_registration_or_save(String failure) in C:\Users\pc\Schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\BusinessSaveIntegrationRegressionTests.cs:line 113</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="4c00925e-cf1d-4118-81c7-8de5df6196a5" testId="90fa4fa8-943b-4c07-8b36-8699bc094ff0" testName="TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Possible_manager_effect_retains_participant_until_removal_is_confirmed(failure: &quot;removal-throws&quot;, saves: 1, removals: 1)" computerName="WINDOWS" duration="00:00:00.0002560" startTime="2026-11-06T08:55:23.6501221+01:00" endTime="2026-11-06T08:55:23.6501506+01:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="4c00925e-cf1d-4118-81c7-8de5df6196a5">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.False() Failure&#xD;
+Expected: False&#xD;
+Actual:   True</Message>
+          <StackTrace>   at TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Possible_manager_effect_retains_participant_until_removal_is_confirmed(String failure, Int32 saves, Int32 removals) in C:\Users\pc\Schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\BusinessSaveIntegrationRegressionTests.cs:line 65</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="4196d230-ffe4-4be9-9be9-92c5bd0a19a0" testId="abd8374b-bbcf-5ed0-75e1-d2384f82a022" testName="TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Possible_manager_effect_retains_participant_until_removal_is_confirmed(failure: &quot;removal-readback&quot;, saves: 1, removals: 1)" computerName="WINDOWS" duration="00:00:00.0006577" startTime="2026-11-06T08:55:23.6499171+01:00" endTime="2026-11-06T08:55:23.6499458+01:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="4196d230-ffe4-4be9-9be9-92c5bd0a19a0">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.False() Failure&#xD;
+Expected: False&#xD;
+Actual:   True</Message>
+          <StackTrace>   at TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Possible_manager_effect_retains_participant_until_removal_is_confirmed(String failure, Int32 saves, Int32 removals) in C:\Users\pc\Schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\BusinessSaveIntegrationRegressionTests.cs:line 65</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Unverified_contract_can_clean_a_readable_unregistered_object" storage="c:\users\pc\schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\bin\release\net6.0\townhallsavered.tests.dll" id="d0984ca8-1355-bb80-9597-67ee6c7f3234">
+      <Execution id="c6bc54d2-ef6b-449e-8870-32b7e83da8d3" />
+      <TestMethod codeBase="C:\Users\pc\Schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\bin\Release\net6.0\TownHallSaveRed.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests" name="Unverified_contract_can_clean_a_readable_unregistered_object" />
+    </UnitTest>
+    <UnitTest name="TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Possible_manager_effect_retains_participant_until_removal_is_confirmed(failure: &quot;registration-throws&quot;, saves: 0, removals: 0)" storage="c:\users\pc\schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\bin\release\net6.0\townhallsavered.tests.dll" id="99f8906d-f855-0aa3-144c-c0fe156b194c">
+      <Execution id="2cc6f97a-a4aa-4c20-82ea-b8953113a7dc" />
+      <TestMethod codeBase="C:\Users\pc\Schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\bin\Release\net6.0\TownHallSaveRed.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests" name="Possible_manager_effect_retains_participant_until_removal_is_confirmed" />
+    </UnitTest>
+    <UnitTest name="TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Uncertain_preflight_retains_object_without_registration_or_save(failure: &quot;own-reference&quot;)" storage="c:\users\pc\schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\bin\release\net6.0\townhallsavered.tests.dll" id="6bae88a5-cc17-bfa1-1865-ff9bb2777eb1">
+      <Execution id="a57881c4-ff55-46fd-8728-67d80a6c4ad6" />
+      <TestMethod codeBase="C:\Users\pc\Schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\bin\Release\net6.0\TownHallSaveRed.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests" name="Uncertain_preflight_retains_object_without_registration_or_save" />
+    </UnitTest>
+    <UnitTest name="TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Uncertain_preflight_retains_object_without_registration_or_save(failure: &quot;busy&quot;)" storage="c:\users\pc\schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\bin\release\net6.0\townhallsavered.tests.dll" id="78019c17-2212-e38c-cc28-9b636e82c144">
+      <Execution id="518b71ed-4cdf-49d8-844d-174ab0ff7836" />
+      <TestMethod codeBase="C:\Users\pc\Schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\bin\Release\net6.0\TownHallSaveRed.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests" name="Uncertain_preflight_retains_object_without_registration_or_save" />
+    </UnitTest>
+    <UnitTest name="TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Uncertain_preflight_retains_object_without_registration_or_save(failure: &quot;first-read-throws&quot;)" storage="c:\users\pc\schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\bin\release\net6.0\townhallsavered.tests.dll" id="52e8d418-6eea-da48-9574-7f68b25e6220">
+      <Execution id="450919a8-4432-478a-acf8-487aa0008af1" />
+      <TestMethod codeBase="C:\Users\pc\Schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\bin\Release\net6.0\TownHallSaveRed.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests" name="Uncertain_preflight_retains_object_without_registration_or_save" />
+    </UnitTest>
+    <UnitTest name="TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Possible_manager_effect_retains_participant_until_removal_is_confirmed(failure: &quot;removal-readback&quot;, saves: 1, removals: 1)" storage="c:\users\pc\schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\bin\release\net6.0\townhallsavered.tests.dll" id="abd8374b-bbcf-5ed0-75e1-d2384f82a022">
+      <Execution id="4196d230-ffe4-4be9-9be9-92c5bd0a19a0" />
+      <TestMethod codeBase="C:\Users\pc\Schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\bin\Release\net6.0\TownHallSaveRed.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests" name="Possible_manager_effect_retains_participant_until_removal_is_confirmed" />
+    </UnitTest>
+    <UnitTest name="TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Uncertain_preflight_retains_object_without_registration_or_save(failure: &quot;completed-before-probe&quot;)" storage="c:\users\pc\schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\bin\release\net6.0\townhallsavered.tests.dll" id="4261e9e5-96b0-726f-bba2-e3cdf64bfdda">
+      <Execution id="6a11f5f7-e39f-44af-ac2b-c05923462a8e" />
+      <TestMethod codeBase="C:\Users\pc\Schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\bin\Release\net6.0\TownHallSaveRed.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests" name="Uncertain_preflight_retains_object_without_registration_or_save" />
+    </UnitTest>
+    <UnitTest name="TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Save_probe_rejects_main_slot_without_any_port_access" storage="c:\users\pc\schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\bin\release\net6.0\townhallsavered.tests.dll" id="07c2005e-7a49-0e5f-9e04-bf62860b0da9">
+      <Execution id="b064da5b-d669-4cf6-b125-5de477813190" />
+      <TestMethod codeBase="C:\Users\pc\Schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\bin\Release\net6.0\TownHallSaveRed.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests" name="Save_probe_rejects_main_slot_without_any_port_access" />
+    </UnitTest>
+    <UnitTest name="TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Possible_manager_effect_retains_participant_until_removal_is_confirmed(failure: &quot;completion-missing&quot;, saves: 1, removals: 0)" storage="c:\users\pc\schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\bin\release\net6.0\townhallsavered.tests.dll" id="6918f17b-0d97-76c8-c795-6fcd2377b234">
+      <Execution id="c921f22d-b435-4b15-b97d-ab858506941c" />
+      <TestMethod codeBase="C:\Users\pc\Schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\bin\Release\net6.0\TownHallSaveRed.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests" name="Possible_manager_effect_retains_participant_until_removal_is_confirmed" />
+    </UnitTest>
+    <UnitTest name="TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Possible_manager_effect_retains_participant_until_removal_is_confirmed(failure: &quot;save-throws&quot;, saves: 1, removals: 0)" storage="c:\users\pc\schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\bin\release\net6.0\townhallsavered.tests.dll" id="92d7dda7-af0d-db05-4122-99e0bdfcd583">
+      <Execution id="f2998702-b2bc-460e-85d9-84b1eac4da53" />
+      <TestMethod codeBase="C:\Users\pc\Schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\bin\Release\net6.0\TownHallSaveRed.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests" name="Possible_manager_effect_retains_participant_until_removal_is_confirmed" />
+    </UnitTest>
+    <UnitTest name="TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Uncertain_preflight_retains_object_without_registration_or_save(failure: &quot;second-read-throws&quot;)" storage="c:\users\pc\schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\bin\release\net6.0\townhallsavered.tests.dll" id="fd6acb24-e268-491b-7a00-0d02842affe4">
+      <Execution id="ed3b59f9-c32c-48ae-bd4a-e24fa926eec6" />
+      <TestMethod codeBase="C:\Users\pc\Schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\bin\Release\net6.0\TownHallSaveRed.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests" name="Uncertain_preflight_retains_object_without_registration_or_save" />
+    </UnitTest>
+    <UnitTest name="TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Uncertain_preflight_retains_object_without_registration_or_save(failure: &quot;active-callback&quot;)" storage="c:\users\pc\schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\bin\release\net6.0\townhallsavered.tests.dll" id="9e28c631-407c-c9b5-45bd-34a458bf1376">
+      <Execution id="8f198bc1-6beb-4ba4-be92-6e4c0ef40207" />
+      <TestMethod codeBase="C:\Users\pc\Schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\bin\Release\net6.0\TownHallSaveRed.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests" name="Uncertain_preflight_retains_object_without_registration_or_save" />
+    </UnitTest>
+    <UnitTest name="TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Context_change_after_confirmed_removal_still_prevents_native_cleanup" storage="c:\users\pc\schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\bin\release\net6.0\townhallsavered.tests.dll" id="9aae24ec-8c20-c02c-b43a-d7dca21db8cb">
+      <Execution id="23273d37-ddb3-424e-9b6d-fe3b500dcdf6" />
+      <TestMethod codeBase="C:\Users\pc\Schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\bin\Release\net6.0\TownHallSaveRed.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests" name="Context_change_after_confirmed_removal_still_prevents_native_cleanup" />
+    </UnitTest>
+    <UnitTest name="TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Possible_manager_effect_retains_participant_until_removal_is_confirmed(failure: &quot;removal-throws&quot;, saves: 1, removals: 1)" storage="c:\users\pc\schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\bin\release\net6.0\townhallsavered.tests.dll" id="90fa4fa8-943b-4c07-8b36-8699bc094ff0">
+      <Execution id="4c00925e-cf1d-4118-81c7-8de5df6196a5" />
+      <TestMethod codeBase="C:\Users\pc\Schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\bin\Release\net6.0\TownHallSaveRed.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests" name="Possible_manager_effect_retains_participant_until_removal_is_confirmed" />
+    </UnitTest>
+    <UnitTest name="TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Confirmed_save_is_removed_before_cleanup_and_cannot_be_repeated" storage="c:\users\pc\schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\bin\release\net6.0\townhallsavered.tests.dll" id="2b553ce6-b702-71f9-6c0e-f34e93fbedce">
+      <Execution id="85ae9239-d8f5-4d85-99bc-1de90b36b9a0" />
+      <TestMethod codeBase="C:\Users\pc\Schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\bin\Release\net6.0\TownHallSaveRed.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests" name="Confirmed_save_is_removed_before_cleanup_and_cannot_be_repeated" />
+    </UnitTest>
+    <UnitTest name="TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Uncertain_preflight_retains_object_without_registration_or_save(failure: &quot;started-before-probe&quot;)" storage="c:\users\pc\schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\bin\release\net6.0\townhallsavered.tests.dll" id="db29e2e5-e35c-7649-85dd-eb853a80cca7">
+      <Execution id="406ccc54-4888-4641-a0d5-e890ad42cf03" />
+      <TestMethod codeBase="C:\Users\pc\Schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\bin\Release\net6.0\TownHallSaveRed.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests" name="Uncertain_preflight_retains_object_without_registration_or_save" />
+    </UnitTest>
+    <UnitTest name="TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Uncertain_preflight_retains_object_without_registration_or_save(failure: &quot;pending-request&quot;)" storage="c:\users\pc\schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\bin\release\net6.0\townhallsavered.tests.dll" id="779316dd-73d7-168c-a4c1-7feb3044c38e">
+      <Execution id="31c6495b-aea8-466e-8e79-3b770bd43c5e" />
+      <TestMethod codeBase="C:\Users\pc\Schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\bin\Release\net6.0\TownHallSaveRed.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests" name="Uncertain_preflight_retains_object_without_registration_or_save" />
+    </UnitTest>
+    <UnitTest name="TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Possible_manager_effect_retains_participant_until_removal_is_confirmed(failure: &quot;context-loss&quot;, saves: 1, removals: 0)" storage="c:\users\pc\schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\bin\release\net6.0\townhallsavered.tests.dll" id="e3b9ea1f-65f3-8a61-f096-5caf34953343">
+      <Execution id="e2f187b6-7117-4c8e-9395-642231a6fcf3" />
+      <TestMethod codeBase="C:\Users\pc\Schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\bin\Release\net6.0\TownHallSaveRed.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests" name="Possible_manager_effect_retains_participant_until_removal_is_confirmed" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="6918f17b-0d97-76c8-c795-6fcd2377b234" executionId="c921f22d-b435-4b15-b97d-ab858506941c" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="9aae24ec-8c20-c02c-b43a-d7dca21db8cb" executionId="23273d37-ddb3-424e-9b6d-fe3b500dcdf6" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="6bae88a5-cc17-bfa1-1865-ff9bb2777eb1" executionId="a57881c4-ff55-46fd-8728-67d80a6c4ad6" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="99f8906d-f855-0aa3-144c-c0fe156b194c" executionId="2cc6f97a-a4aa-4c20-82ea-b8953113a7dc" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="db29e2e5-e35c-7649-85dd-eb853a80cca7" executionId="406ccc54-4888-4641-a0d5-e890ad42cf03" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="779316dd-73d7-168c-a4c1-7feb3044c38e" executionId="31c6495b-aea8-466e-8e79-3b770bd43c5e" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="07c2005e-7a49-0e5f-9e04-bf62860b0da9" executionId="b064da5b-d669-4cf6-b125-5de477813190" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="e3b9ea1f-65f3-8a61-f096-5caf34953343" executionId="e2f187b6-7117-4c8e-9395-642231a6fcf3" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="78019c17-2212-e38c-cc28-9b636e82c144" executionId="518b71ed-4cdf-49d8-844d-174ab0ff7836" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="d0984ca8-1355-bb80-9597-67ee6c7f3234" executionId="c6bc54d2-ef6b-449e-8870-32b7e83da8d3" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="2b553ce6-b702-71f9-6c0e-f34e93fbedce" executionId="85ae9239-d8f5-4d85-99bc-1de90b36b9a0" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="92d7dda7-af0d-db05-4122-99e0bdfcd583" executionId="f2998702-b2bc-460e-85d9-84b1eac4da53" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="9e28c631-407c-c9b5-45bd-34a458bf1376" executionId="8f198bc1-6beb-4ba4-be92-6e4c0ef40207" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="fd6acb24-e268-491b-7a00-0d02842affe4" executionId="ed3b59f9-c32c-48ae-bd4a-e24fa926eec6" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="4261e9e5-96b0-726f-bba2-e3cdf64bfdda" executionId="6a11f5f7-e39f-44af-ac2b-c05923462a8e" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="52e8d418-6eea-da48-9574-7f68b25e6220" executionId="450919a8-4432-478a-acf8-487aa0008af1" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="90fa4fa8-943b-4c07-8b36-8699bc094ff0" executionId="4c00925e-cf1d-4118-81c7-8de5df6196a5" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="abd8374b-bbcf-5ed0-75e1-d2384f82a022" executionId="4196d230-ffe4-4be9-9be9-92c5bd0a19a0" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="Results Not in a List" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="All Loaded Results" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Failed">
+    <Counters total="18" executed="18" passed="3" failed="15" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.0.2+dd36e86129 (64-bit .NET 6.0.36)&#xD;
+[xUnit.net 00:00:00.12]   Discovering: TownHallSaveRed.Tests&#xD;
+[xUnit.net 00:00:00.17]   Discovered:  TownHallSaveRed.Tests&#xD;
+[xUnit.net 00:00:00.19]   Starting:    TownHallSaveRed.Tests&#xD;
+[xUnit.net 00:00:00.25]       Assert.False() Failure&#xD;
+[xUnit.net 00:00:00.25]       Expected: False&#xD;
+[xUnit.net 00:00:00.25]       Actual:   True&#xD;
+[xUnit.net 00:00:00.26]       Stack Trace:&#xD;
+[xUnit.net 00:00:00.26]         C:\Users\pc\Schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\BusinessSaveIntegrationRegressionTests.cs(113,0): at TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Uncertain_preflight_retains_object_without_registration_or_save(String failure)&#xD;
+[xUnit.net 00:00:00.27]       Assert.False() Failure&#xD;
+[xUnit.net 00:00:00.27]       Expected: False&#xD;
+[xUnit.net 00:00:00.27]       Actual:   True&#xD;
+[xUnit.net 00:00:00.27]       Stack Trace:&#xD;
+[xUnit.net 00:00:00.27]         C:\Users\pc\Schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\BusinessSaveIntegrationRegressionTests.cs(113,0): at TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Uncertain_preflight_retains_object_without_registration_or_save(String failure)&#xD;
+[xUnit.net 00:00:00.27]       Assert.False() Failure&#xD;
+[xUnit.net 00:00:00.27]       Expected: False&#xD;
+[xUnit.net 00:00:00.27]       Actual:   True&#xD;
+[xUnit.net 00:00:00.27]       Stack Trace:&#xD;
+[xUnit.net 00:00:00.27]         C:\Users\pc\Schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\BusinessSaveIntegrationRegressionTests.cs(113,0): at TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Uncertain_preflight_retains_object_without_registration_or_save(String failure)&#xD;
+[xUnit.net 00:00:00.27]       Assert.False() Failure&#xD;
+[xUnit.net 00:00:00.27]       Expected: False&#xD;
+[xUnit.net 00:00:00.27]       Actual:   True&#xD;
+[xUnit.net 00:00:00.27]       Stack Trace:&#xD;
+[xUnit.net 00:00:00.27]         C:\Users\pc\Schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\BusinessSaveIntegrationRegressionTests.cs(113,0): at TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Uncertain_preflight_retains_object_without_registration_or_save(String failure)&#xD;
+[xUnit.net 00:00:00.27]       Assert.False() Failure&#xD;
+[xUnit.net 00:00:00.27]       Expected: False&#xD;
+[xUnit.net 00:00:00.27]       Actual:   True&#xD;
+[xUnit.net 00:00:00.27]       Stack Trace:&#xD;
+[xUnit.net 00:00:00.27]         C:\Users\pc\Schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\BusinessSaveIntegrationRegressionTests.cs(113,0): at TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Uncertain_preflight_retains_object_without_registration_or_save(String failure)&#xD;
+[xUnit.net 00:00:00.27]       Assert.False() Failure&#xD;
+[xUnit.net 00:00:00.27]       Expected: False&#xD;
+[xUnit.net 00:00:00.27]       Actual:   True&#xD;
+[xUnit.net 00:00:00.27]       Stack Trace:&#xD;
+[xUnit.net 00:00:00.27]         C:\Users\pc\Schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\BusinessSaveIntegrationRegressionTests.cs(113,0): at TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Uncertain_preflight_retains_object_without_registration_or_save(String failure)&#xD;
+[xUnit.net 00:00:00.27]       Assert.False() Failure&#xD;
+[xUnit.net 00:00:00.27]       Expected: False&#xD;
+[xUnit.net 00:00:00.27]       Actual:   True&#xD;
+[xUnit.net 00:00:00.27]       Stack Trace:&#xD;
+[xUnit.net 00:00:00.27]         C:\Users\pc\Schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\BusinessSaveIntegrationRegressionTests.cs(113,0): at TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Uncertain_preflight_retains_object_without_registration_or_save(String failure)&#xD;
+[xUnit.net 00:00:00.27]       Assert.False() Failure&#xD;
+[xUnit.net 00:00:00.27]       Expected: False&#xD;
+[xUnit.net 00:00:00.27]       Actual:   True&#xD;
+[xUnit.net 00:00:00.27]       Stack Trace:&#xD;
+[xUnit.net 00:00:00.27]         C:\Users\pc\Schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\BusinessSaveIntegrationRegressionTests.cs(113,0): at TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Uncertain_preflight_retains_object_without_registration_or_save(String failure)&#xD;
+[xUnit.net 00:00:00.27]       Assert.False() Failure&#xD;
+[xUnit.net 00:00:00.27]       Expected: False&#xD;
+[xUnit.net 00:00:00.27]       Actual:   True&#xD;
+[xUnit.net 00:00:00.27]       Stack Trace:&#xD;
+[xUnit.net 00:00:00.27]         C:\Users\pc\Schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\BusinessSaveIntegrationRegressionTests.cs(65,0): at TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Possible_manager_effect_retains_participant_until_removal_is_confirmed(String failure, Int32 saves, Int32 removals)&#xD;
+[xUnit.net 00:00:00.29]       Assert.False() Failure&#xD;
+[xUnit.net 00:00:00.29]       Expected: False&#xD;
+[xUnit.net 00:00:00.29]       Actual:   True&#xD;
+[xUnit.net 00:00:00.29]       Stack Trace:&#xD;
+[xUnit.net 00:00:00.29]         C:\Users\pc\Schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\BusinessSaveIntegrationRegressionTests.cs(65,0): at TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Possible_manager_effect_retains_participant_until_removal_is_confirmed(String failure, Int32 saves, Int32 removals)&#xD;
+[xUnit.net 00:00:00.29]       Assert.False() Failure&#xD;
+[xUnit.net 00:00:00.29]       Expected: False&#xD;
+[xUnit.net 00:00:00.29]       Actual:   True&#xD;
+[xUnit.net 00:00:00.29]       Stack Trace:&#xD;
+[xUnit.net 00:00:00.29]         C:\Users\pc\Schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\BusinessSaveIntegrationRegressionTests.cs(65,0): at TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Possible_manager_effect_retains_participant_until_removal_is_confirmed(String failure, Int32 saves, Int32 removals)&#xD;
+[xUnit.net 00:00:00.29]       Assert.False() Failure&#xD;
+[xUnit.net 00:00:00.29]       Expected: False&#xD;
+[xUnit.net 00:00:00.29]       Actual:   True&#xD;
+[xUnit.net 00:00:00.29]       Stack Trace:&#xD;
+[xUnit.net 00:00:00.29]         C:\Users\pc\Schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\BusinessSaveIntegrationRegressionTests.cs(65,0): at TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Possible_manager_effect_retains_participant_until_removal_is_confirmed(String failure, Int32 saves, Int32 removals)&#xD;
+[xUnit.net 00:00:00.29]       Assert.False() Failure&#xD;
+[xUnit.net 00:00:00.29]       Expected: False&#xD;
+[xUnit.net 00:00:00.29]       Actual:   True&#xD;
+[xUnit.net 00:00:00.29]       Stack Trace:&#xD;
+[xUnit.net 00:00:00.29]         C:\Users\pc\Schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\BusinessSaveIntegrationRegressionTests.cs(65,0): at TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Possible_manager_effect_retains_participant_until_removal_is_confirmed(String failure, Int32 saves, Int32 removals)&#xD;
+[xUnit.net 00:00:00.29]       Assert.False() Failure&#xD;
+[xUnit.net 00:00:00.29]       Expected: False&#xD;
+[xUnit.net 00:00:00.29]       Actual:   True&#xD;
+[xUnit.net 00:00:00.29]       Stack Trace:&#xD;
+[xUnit.net 00:00:00.29]         C:\Users\pc\Schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\BusinessSaveIntegrationRegressionTests.cs(65,0): at TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Possible_manager_effect_retains_participant_until_removal_is_confirmed(String failure, Int32 saves, Int32 removals)&#xD;
+[xUnit.net 00:00:00.29]       Assert.Equal() Failure: Strings differ&#xD;
+[xUnit.net 00:00:00.29]                  ↓ (pos 0)&#xD;
+[xUnit.net 00:00:00.29]       Expected: "failed"&#xD;
+[xUnit.net 00:00:00.29]       Actual:   "observed"&#xD;
+[xUnit.net 00:00:00.29]                  ↑ (pos 0)&#xD;
+[xUnit.net 00:00:00.29]       Stack Trace:&#xD;
+[xUnit.net 00:00:00.29]         C:\Users\pc\Schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\BusinessSaveIntegrationRegressionTests.cs(129,0): at TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Context_change_after_confirmed_removal_still_prevents_native_cleanup()&#xD;
+[xUnit.net 00:00:00.30]   Finished:    TownHallSaveRed.Tests&#xD;
+</StdOut>
+    </Output>
+    <RunInfos>
+      <RunInfo computerName="WINDOWS" outcome="Error" timestamp="2026-11-06T08:55:23.6124024+01:00">
+        <Text>[xUnit.net 00:00:00.25]     TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Uncertain_preflight_retains_object_without_registration_or_save(failure: "first-read-throws") [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="WINDOWS" outcome="Error" timestamp="2026-11-06T08:55:23.6251390+01:00">
+        <Text>[xUnit.net 00:00:00.27]     TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Uncertain_preflight_retains_object_without_registration_or_save(failure: "second-read-throws") [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="WINDOWS" outcome="Error" timestamp="2026-11-06T08:55:23.6254461+01:00">
+        <Text>[xUnit.net 00:00:00.27]     TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Uncertain_preflight_retains_object_without_registration_or_save(failure: "busy") [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="WINDOWS" outcome="Error" timestamp="2026-11-06T08:55:23.6256513+01:00">
+        <Text>[xUnit.net 00:00:00.27]     TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Uncertain_preflight_retains_object_without_registration_or_save(failure: "active-callback") [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="WINDOWS" outcome="Error" timestamp="2026-11-06T08:55:23.6258584+01:00">
+        <Text>[xUnit.net 00:00:00.27]     TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Uncertain_preflight_retains_object_without_registration_or_save(failure: "started-before-probe") [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="WINDOWS" outcome="Error" timestamp="2026-11-06T08:55:23.6260625+01:00">
+        <Text>[xUnit.net 00:00:00.27]     TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Uncertain_preflight_retains_object_without_registration_or_save(failure: "pending-request") [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="WINDOWS" outcome="Error" timestamp="2026-11-06T08:55:23.6262688+01:00">
+        <Text>[xUnit.net 00:00:00.27]     TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Uncertain_preflight_retains_object_without_registration_or_save(failure: "completed-before-probe") [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="WINDOWS" outcome="Error" timestamp="2026-11-06T08:55:23.6264807+01:00">
+        <Text>[xUnit.net 00:00:00.27]     TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Uncertain_preflight_retains_object_without_registration_or_save(failure: "own-reference") [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="WINDOWS" outcome="Error" timestamp="2026-11-06T08:55:23.6271309+01:00">
+        <Text>[xUnit.net 00:00:00.27]     TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Possible_manager_effect_retains_participant_until_removal_is_confirmed(failure: "save-throws", saves: 1, removals: 0) [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="WINDOWS" outcome="Error" timestamp="2026-11-06T08:55:23.6774380+01:00">
+        <Text>[xUnit.net 00:00:00.29]     TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Possible_manager_effect_retains_participant_until_removal_is_confirmed(failure: "context-loss", saves: 1, removals: 0) [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="WINDOWS" outcome="Error" timestamp="2026-11-06T08:55:23.6774658+01:00">
+        <Text>[xUnit.net 00:00:00.29]     TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Possible_manager_effect_retains_participant_until_removal_is_confirmed(failure: "registration-throws", saves: 0, removals: 0) [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="WINDOWS" outcome="Error" timestamp="2026-11-06T08:55:23.6775035+01:00">
+        <Text>[xUnit.net 00:00:00.29]     TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Possible_manager_effect_retains_participant_until_removal_is_confirmed(failure: "removal-readback", saves: 1, removals: 1) [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="WINDOWS" outcome="Error" timestamp="2026-11-06T08:55:23.6775301+01:00">
+        <Text>[xUnit.net 00:00:00.29]     TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Possible_manager_effect_retains_participant_until_removal_is_confirmed(failure: "removal-throws", saves: 1, removals: 1) [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="WINDOWS" outcome="Error" timestamp="2026-11-06T08:55:23.6775554+01:00">
+        <Text>[xUnit.net 00:00:00.29]     TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Possible_manager_effect_retains_participant_until_removal_is_confirmed(failure: "completion-missing", saves: 1, removals: 0) [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="WINDOWS" outcome="Error" timestamp="2026-11-06T08:55:23.6775805+01:00">
+        <Text>[xUnit.net 00:00:00.29]     TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Context_change_after_confirmed_removal_still_prevents_native_cleanup [FAIL]</Text>
+      </RunInfo>
+    </RunInfos>
+  </ResultSummary>
+</TestRun>

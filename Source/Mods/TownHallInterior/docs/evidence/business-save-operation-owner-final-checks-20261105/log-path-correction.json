@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "recordedUtc": "2026-11-05T18:44:55.347051+00:00",
+  "scope": "Post-check evidence filename normalization only; code, tests, canonical docs and original report bytes unchanged",
+  "reason": "Repository ignores *.log. Store the same original output bytes as *.log.txt for a future ordinary checkout.",
+  "originalManifestSha256": "ee956eda8deb795737b6b6c63160fd6c5707981788640a8a3dbb74a17b553a93",
+  "preservedManifest": "manifest-before-log-paths.json",
+  "archivePathBindings": {
+    "docs.log": "docs.log.txt",
+    "runner.log": "runner.log.txt",
+    "versions.log": "versions.log.txt"
+  },
+  "allArtifactBytesUnchanged": true,
+  "nativeSaveWriteAllowed": false
+}

@@ -1,0 +1,2492 @@
+{
+  "schema": 1,
+  "checkedUtc": "2026-11-05T18:21:52.238367+00:00",
+  "reviewer": "GPT-6.1 Sol, independent code/test verifier",
+  "sourceRevision": "b2c6c7e6c6ecc778da9624cdb68a6578b9db471a",
+  "sourceWorktree": "dirty",
+  "checkedFrozenFiles": {
+    "candidate-v1": {
+      "schema": 1,
+      "frozenUtc": "2026-11-05T18:14:19.873413+00:00",
+      "sourceRevision": "b2c6c7e6c6ecc778da9624cdb68a6578b9db471a",
+      "sourceWorktree": "dirty",
+      "scope": "Pure synthetic ownership model and new tests; no runtime wiring or native proof",
+      "sourcePath": "Source/Mods/TownHallInterior/src/BusinessConstruction.cs",
+      "testPath": "Source/Tests/TownHallInterior.Tests/BusinessSaveOperationOwnerTests.cs",
+      "sourceSha256": "fe0d3e77178974d108d5c589fda44ac82353635c8fa5b8d69e474fb6b7553b76",
+      "testSha256": "5aa0105918d2b4dd2578309ae5891fdbf581f6dee4fa2971aa710eeebd15b044",
+      "blockSha256": "cbffbbca870f0befcb1aa4a2af3758e5ae89d0180c69b5b4f10d7855309082df",
+      "sourceBeforeSha256": "8964512eeb94ae63acadbe5cd47caa7c36a325e10cd75af73cc5c1091c4db5d2",
+      "oldSourceBytesPreservedByRemovingBlock": true,
+      "otherProtectedSourcesUnchanged": 40,
+      "priorArtifactsUnchangedExcludingManifests": 237,
+      "priorManifestsUnchanged": 3,
+      "productionFiles": 20,
+      "nativeSaveWriteAllowed": false,
+      "files": [
+        {
+          "path": "source.txt",
+          "sha256": "fe0d3e77178974d108d5c589fda44ac82353635c8fa5b8d69e474fb6b7553b76",
+          "bytes": 176777
+        },
+        {
+          "path": "tests.txt",
+          "sha256": "5aa0105918d2b4dd2578309ae5891fdbf581f6dee4fa2971aa710eeebd15b044",
+          "bytes": 42185
+        },
+        {
+          "path": "ownership-block.txt",
+          "sha256": "cbffbbca870f0befcb1aa4a2af3758e5ae89d0180c69b5b4f10d7855309082df",
+          "bytes": 19742
+        },
+        {
+          "path": "implementation-contract.txt",
+          "sha256": "03cb9ad799c42475236caecb7ad1795ad4ecb00776b1b0ae0b3fa68bcda8cd53",
+          "bytes": 8188
+        }
+      ]
+    },
+    "candidate-v2": {
+      "schema": 1,
+      "frozenUtc": "2026-11-05T18:17:04.861519+00:00",
+      "sourceRevision": "b2c6c7e6c6ecc778da9624cdb68a6578b9db471a",
+      "sourceWorktree": "dirty",
+      "scope": "Pure synthetic ownership model and new tests; no runtime wiring or native proof",
+      "sourcePath": "Source/Mods/TownHallInterior/src/BusinessConstruction.cs",
+      "testPath": "Source/Tests/TownHallInterior.Tests/BusinessSaveOperationOwnerTests.cs",
+      "sourceSha256": "e4bb1d13324a3d61419d26ba172e88ba2ea53e30b15d3c6b6f43fb3e72212f50",
+      "testSha256": "c92e90af755b8feadbd77282ccf0a852b0e1cedaf25ec63eea8a354f3d9ce198",
+      "blockSha256": "7683e61d725f8a89e766de4e1d92dcdb0f3295c8ed301bf8815042a2d6efb102",
+      "sourceBeforeSha256": "8964512eeb94ae63acadbe5cd47caa7c36a325e10cd75af73cc5c1091c4db5d2",
+      "oldSourceBytesPreservedByRemovingBlock": true,
+      "otherProtectedSourcesUnchanged": 40,
+      "priorArtifactsUnchangedExcludingManifests": 237,
+      "priorManifestsUnchanged": 3,
+      "productionFiles": 20,
+      "nativeSaveWriteAllowed": false,
+      "files": [
+        {
+          "path": "source.txt",
+          "sha256": "e4bb1d13324a3d61419d26ba172e88ba2ea53e30b15d3c6b6f43fb3e72212f50",
+          "bytes": 177015
+        },
+        {
+          "path": "tests.txt",
+          "sha256": "c92e90af755b8feadbd77282ccf0a852b0e1cedaf25ec63eea8a354f3d9ce198",
+          "bytes": 44277
+        },
+        {
+          "path": "ownership-block.txt",
+          "sha256": "7683e61d725f8a89e766de4e1d92dcdb0f3295c8ed301bf8815042a2d6efb102",
+          "bytes": 19980
+        },
+        {
+          "path": "implementation-contract.txt",
+          "sha256": "03cb9ad799c42475236caecb7ad1795ad4ecb00776b1b0ae0b3fa68bcda8cd53",
+          "bytes": 8188
+        }
+      ]
+    }
+  },
+  "sourceBeforeSha256": "8964512eeb94ae63acadbe5cd47caa7c36a325e10cd75af73cc5c1091c4db5d2",
+  "checkedRange": {
+    "firstLine": 250,
+    "lastLine": 667
+  },
+  "protectedSources": [
+    {
+      "path": "Source/Mods/TownHallInterior/src/BusinessBindingProbe.cs",
+      "sha256": "fb82cfafbee2f92b7c52d76edc9a3fe417cb905ad7f20a90a082ce681efa7fa1"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/BusinessProbeEvidence.cs",
+      "sha256": "37ce332858d00368ebde93c3f13af3b20482d0de15f07b559e34078597603458"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/CleanupJournal.cs",
+      "sha256": "310955ae9d1f5115941ef5bf7920ed49f6ff47086d8187fe050f444f63f09b76"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/DoorAdapter.cs",
+      "sha256": "6d5e638b3217b24d3d4a86ea768912e26bdf73449cef98196502586f036a6341"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/DoorChoice.cs",
+      "sha256": "42093f9e71f5c4fe832dac0eff888654163389b86dac1d6be494f7f715943201"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/DoorHook.cs",
+      "sha256": "10bfdd035b414e0727c01aef12a08b1fb0a33abbd897a6c3efc79e7da006934c"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/FacadePortal.cs",
+      "sha256": "4b2cc05e14353fddccc2ddb404fed35b1859d950f5e80e6a6735a8d196cf2270"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/FurniturePlan.cs",
+      "sha256": "17e8402738ff124a54f1e61a076618894a6ca5b3d3e6733242f71217a5a18e6b"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/HallFittings.cs",
+      "sha256": "210301b0663b1a0b3fdbedbcb2231a007d62f2d0bb19828250c4ffd6fddc7492"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/Mod.cs",
+      "sha256": "82323dd725b033b124c0f5edd6252730676f3f1910bdd402441945f0fe4e9385"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/NativeFacadeSwap.cs",
+      "sha256": "58542a588017f540a7b546845b038174d96ef761acfacd7101c0004a5ceae5e3"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/NativeSceneSwap.cs",
+      "sha256": "a526e26ffb62fbf08ad8e3725779c83dbc85558fcb22a1b34cb12dc061bed6aa"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/PublicEntrance.cs",
+      "sha256": "4fdb304a13cd24a496e9368c211bf09f8aaf1da9041a8912fdb364f46ec9dd5f"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/PublicHallHost.cs",
+      "sha256": "d85708f66705a1ac87aec2d1def1f4daff0cebabd78b459b93a589418be65bcc"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/RoomBuilder.cs",
+      "sha256": "44b555668aecbb0055b902d204716861399ee59e439971f842d5f0b4a3a48f68"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/RoomPlan.cs",
+      "sha256": "ebe89aa2620044c170f08c33382aa420bb1aa22e78d56ed74b97a4561f864233"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/TownHallInterior.csproj",
+      "sha256": "c730506d8c85e9d9fb88def2c397920f408b7771576a59aacc2c4b183bcde9df"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/UnityRoomSink.cs",
+      "sha256": "646b693e349e61126bc548c59e9bdf8e4f978787eeab1173a8535323f9588d17"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/VanillaFurnishings.cs",
+      "sha256": "c434ab9c4b0055c531250b5a45b672703e266fbe962e3934ffa58f951cce98aa"
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/BusinessActivationTests.cs",
+      "sha256": "c43b5aa08c51a151d042f4a8e4a0c56cd79892ed98723e4fb883bba57b1b8a7f"
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/BusinessConstructionTests.cs",
+      "sha256": "43ac3184d66a64bfc6ae9b6ba6587df6a3eb333575d93cc187c291e45e7630b8"
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/BusinessInterfaceTests.cs",
+      "sha256": "d1b13f70314555a2702d732b078bafb9cef7e9b71eaea8249b74ae8736bd2abf"
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/BusinessManagerAuditTests.cs",
+      "sha256": "164eaeb014c1d63b776c47d0dd105f4f12bec79d4ffb02a135d3da5f5f82323d"
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/BusinessManagerSafetyTests.cs",
+      "sha256": "ead2dbe76be2679c8be006b114075c55d58b1cddfe08e292f8551c225f70a035"
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/BusinessManagerSaveTests.cs",
+      "sha256": "0d9fe4fe204e20a6850945b4a7c32c3285cc060942140b9837ac3aafc34aa963"
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/BusinessManagerTests.cs",
+      "sha256": "d62a8ad7a82e9cedd7554e7e489cba55fee62409dd3de347130575fb69524b1e"
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/BusinessProbeEvidenceTests.cs",
+      "sha256": "71797f12c5f96f633d44127a08cbdaf93dba26dc75a521c648d130f6b5b3d9de"
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/BusinessSubtypeTests.cs",
+      "sha256": "d58b1b960098861782725d71811fa17f27b0bf195d8e25ef37a5c586674f380a"
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/BusinessTypeResolutionTests.cs",
+      "sha256": "58325e28dc822ffe2cc493c1f426d1c3acf3147efa457edc32f93e317aa82c46"
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/CleanupJournalTests.cs",
+      "sha256": "1fc594bb24f1ac542d5ee8878ce88b54b7d295b132cce3112dc0d40c4708f1cb"
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/DoorAdapterTests.cs",
+      "sha256": "97e44aee74c74d5ba2f5672deec7319876eb3b1b2b8c71a12ca516f839ed907e"
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/DoorChoiceTests.cs",
+      "sha256": "6f9f493e814b8a6db340d916f3932d5b68b77a48b608c86e6bdaa6bb85d01946"
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/EnclosureTests.cs",
+      "sha256": "cc381927c62e5bdbb2f412bab72abd88a66ccd6780f5f260d26003caaa3814db"
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/FacadePortalTests.cs",
+      "sha256": "876eff42444821a38103b7b97173b30b4d2bb3c94aa8856b48510ff81f7bbced"
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/FurniturePlanTests.cs",
+      "sha256": "99f99db70533724fe939aa73b6b2bafac295d361d9280f92a42f6001eb4594aa"
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/HallFittingsTests.cs",
+      "sha256": "8d18df41130233be9543c38d419ef36273f2ae2d09bba520e6abfc57799a7209"
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/NativeSceneSwapTests.cs",
+      "sha256": "d77efe579cd909c42dc48245b427d30c59874955c1b0dcdb6652a110f441d37c"
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/PublicEntranceTests.cs",
+      "sha256": "1ab9d7d8825911ea4777ea56fd109bf2f7a4ef679f258108c98a42580e80d6c3"
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/RoomPlanTests.cs",
+      "sha256": "fdeb4a9c49d2e83b71e0edeb50ed3f0f5e68ce6508801198bedca997638a71a3"
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/TownHallInterior.Tests.csproj",
+      "sha256": "dc582cf6a85f3c98417c83cd67a65f28b8f8739bb1a1507fe665eaa52ceec26c"
+    }
+  ],
+  "checkedInputs": [
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/TownHallInterior.Tests.csproj",
+      "sha256": "dc582cf6a85f3c98417c83cd67a65f28b8f8739bb1a1507fe665eaa52ceec26c"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/Mod.cs",
+      "sha256": "82323dd725b033b124c0f5edd6252730676f3f1910bdd402441945f0fe4e9385"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/docs/business-save-operation-owner.md",
+      "sha256": "985642354836f8a8eb6b4109277261e42b196c4ab2f3f7641407b2347b954549"
+    },
+    {
+      "path": "Source/Mods/Directory.Build.props",
+      "sha256": "b3fac99660ee6ca956deaacfa1114d84b80b7f2931be856987dd0ca2d28103cc"
+    },
+    {
+      "path": "Source/Mods/Directory.Build.targets",
+      "sha256": "87f3281d1f7c3556fd2f4bc1f5710390f809fafa14ae6d60b7928789c4f8891f"
+    }
+  ],
+  "priorManifests": [
+    {
+      "path": "Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/manifest.json",
+      "sha256": "9283c0f0089391acdec90318164a56e6b9ee5c29fc7c63c88569f882d58ef795"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/manifest.json",
+      "sha256": "6176543cd25dd937e5c4475775d2f18bb24c01a77430c95b196fc7dcd6363ffa"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/docs/evidence/business-save-operation-owner-design-20261105/manifest.json",
+      "sha256": "a3119a2d62e3f77c5d93d5bd9325810db67588c15d2c718134f022d94baf3007"
+    }
+  ],
+  "priorArtifactsChecked": 237,
+  "productionFiles": [
+    "BusinessBindingProbe.cs",
+    "BusinessConstruction.cs",
+    "BusinessProbeEvidence.cs",
+    "CleanupJournal.cs",
+    "DoorAdapter.cs",
+    "DoorChoice.cs",
+    "DoorHook.cs",
+    "FacadePortal.cs",
+    "FurniturePlan.cs",
+    "HallFittings.cs",
+    "Mod.cs",
+    "NativeFacadeSwap.cs",
+    "NativeSceneSwap.cs",
+    "PublicEntrance.cs",
+    "PublicHallHost.cs",
+    "RoomBuilder.cs",
+    "RoomPlan.cs",
+    "TownHallInterior.csproj",
+    "UnityRoomSink.cs",
+    "VanillaFurnishings.cs"
+  ],
+  "inheritedTestRuns": [
+    {
+      "folder": "owner-targeted-v1",
+      "attribution": "parent-authored run; not independently executed",
+      "exitCode": 1,
+      "counters": {
+        "total": "121",
+        "executed": "121",
+        "passed": "120",
+        "failed": "1",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      },
+      "artifacts": [
+        {
+          "path": "owner-targeted-v1/report.json",
+          "sha256": "bb6adac68249bb7503d76628d9d608ee5b9a96e648274c04b033c4c26eedaed6"
+        },
+        {
+          "path": "owner-targeted-v1/results.trx",
+          "sha256": "d05b1ddceed20bf60724012f0ebe71264980892aac68e03c77a3af8ae9d9c14e"
+        },
+        {
+          "path": "owner-targeted-v1/output.log",
+          "sha256": "44083f7f87058ad27616951b3e5287fc3223d28e35a52ec18e738a3bf137bc31"
+        }
+      ]
+    },
+    {
+      "folder": "owner-targeted-v2",
+      "attribution": "parent-authored run; not independently executed",
+      "exitCode": 0,
+      "counters": {
+        "total": "128",
+        "executed": "128",
+        "passed": "128",
+        "failed": "0",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      },
+      "artifacts": [
+        {
+          "path": "owner-targeted-v2/report.json",
+          "sha256": "2675d62f286dd306afdf4a07a1d4e03e78f25f1fd86000aa4d8d0ab073306d82"
+        },
+        {
+          "path": "owner-targeted-v2/results.trx",
+          "sha256": "f8fa41ca5294af9c6b59dd8b552ee303d02ed74e1f2d8619bb19d6e85e8431cd"
+        },
+        {
+          "path": "owner-targeted-v2/output.log",
+          "sha256": "915afdc3e6aaa3ee374fd5b81453584e8c0274048fce417c8fca20d1773e28da"
+        }
+      ]
+    },
+    {
+      "folder": "townhall-regression-v2",
+      "attribution": "parent-authored run; not independently executed",
+      "exitCode": 0,
+      "counters": {
+        "total": "809",
+        "executed": "809",
+        "passed": "809",
+        "failed": "0",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      },
+      "artifacts": [
+        {
+          "path": "townhall-regression-v2/report.json",
+          "sha256": "8e71e22cb8a6f4180080c5ad584e8d44e0ebd30ab92c5bb993a5f20502aad59c"
+        },
+        {
+          "path": "townhall-regression-v2/results.trx",
+          "sha256": "9c099bda2ad02ea03ce8606db0b39fb0314994ff7ebc01c88c1cd0cf9cf41287"
+        },
+        {
+          "path": "townhall-regression-v2/output.log",
+          "sha256": "4171984213f7a552f066a45e1394dd60eb67f7802e6cbb95b8590d7561ec65a2"
+        }
+      ]
+    }
+  ],
+  "sourceV1V2Delta": [
+    "--- candidate-v1/source.txt",
+    "+++ candidate-v2/source.txt",
+    "@@ -285,7 +285,7 @@",
+    "     private readonly object _sync = new();",
+    "     private readonly int _thread = Environment.CurrentManagedThreadId;",
+    "     private readonly BusinessSaveModelEffectState[] _effects = new BusinessSaveModelEffectState[EffectCount];",
+    "-    private readonly bool[] _outcomes = new bool[EffectCount], _readbacks = new bool[EffectCount];",
+    "+    private readonly bool[] _failedOutcomes = new bool[EffectCount], _readbacks = new bool[EffectCount];",
+    "     private readonly HashSet<long> _callbacks = new();",
+    "     private readonly Queue<BusinessSaveModelDiagnostic> _diagnostics = new(DiagnosticCapacity);",
+    "     private BusinessSaveModelBinding? _binding;",
+    "@@ -378,12 +378,16 @@",
+    "                 return Reject(\"outcome-undefined\");",
+    "             int index = (int)effect;",
+    "             if (!_effects[index].Intent) return Reject(\"outcome-without-intent\");",
+    "-            if (_outcomes[index]) return Reject(\"duplicate-outcome\");",
+    "-            _outcomes[index] = true;",
+    "             if (outcome == BusinessSaveModelOutcome.Returned)",
+    "+            {",
+    "+                if (_effects[index].Returned) return Reject(\"duplicate-outcome\");",
+    "                 _effects[index] = _effects[index] with { Returned = true };",
+    "+            }",
+    "             else",
+    "             {",
+    "+                // Failure also covers readback errors; outcome failure needs its own once-only mark.",
+    "+                if (_failedOutcomes[index]) return Reject(\"duplicate-outcome\");",
+    "+                _failedOutcomes[index] = true;",
+    "                 _effects[index] = _effects[index] with { Failure = true };",
+    "                 RevokeCore(\"effect-outcome-failed\");",
+    "             }"
+  ],
+  "testsV1V2Delta": [
+    "--- candidate-v1/tests.txt",
+    "+++ candidate-v2/tests.txt",
+    "@@ -741,6 +741,41 @@",
+    "     }",
+    " ",
+    "     [Theory]",
+    "+    [InlineData(BusinessSaveModelEffect.TypeRegistration)]",
+    "+    [InlineData(BusinessSaveModelEffect.Construction)]",
+    "+    [InlineData(BusinessSaveModelEffect.Registration)]",
+    "+    [InlineData(BusinessSaveModelEffect.Save)]",
+    "+    [InlineData(BusinessSaveModelEffect.Removal)]",
+    "+    [InlineData(BusinessSaveModelEffect.Destroy)]",
+    "+    public void Late_return_after_failed_outcome_preserves_both_and_duplicate_failure_cannot_retry(BusinessSaveModelEffect effect)",
+    "+    {",
+    "+        var scenario = new Scenario();",
+    "+        scenario.Before(effect);",
+    "+        Assert.True(scenario.Owner.TryRecordIntent(effect, scenario.Stamp()));",
+    "+        Assert.True(scenario.Owner.RecordOutcome(effect, BusinessSaveModelOutcome.Failed, scenario.Stamp()));",
+    "+        Assert.True(scenario.Owner.RecordOutcome(effect, BusinessSaveModelOutcome.Returned, scenario.Stamp()));",
+    "+        Assert.True(scenario.Owner.RecordReadback(effect, true, scenario.Stamp()));",
+    "+        Assert.Equal(new(true, true, true, true), scenario.Owner.Snapshot.Effects[effect]);",
+    "+        Assert.False(scenario.Owner.RecordOutcome(effect, BusinessSaveModelOutcome.Failed, scenario.Stamp()));",
+    "+        Assert.Equal(new(true, true, true, true), scenario.Owner.Snapshot.Effects[effect]);",
+    "+        Assert.True(scenario.Owner.Snapshot.Revoked);",
+    "+        AssertNoNativeAuthority(scenario.Owner.Snapshot);",
+    "+    }",
+    "+",
+    "+    [Fact]",
+    "+    public void Failed_readback_and_failed_outcome_are_separately_recordable_observations()",
+    "+    {",
+    "+        var scenario = new Scenario();",
+    "+        var effect = BusinessSaveModelEffect.TypeRegistration;",
+    "+        Assert.True(scenario.Owner.TryRecordIntent(effect, scenario.Stamp()));",
+    "+        Assert.True(scenario.Owner.RecordOutcome(effect, BusinessSaveModelOutcome.Returned, scenario.Stamp()));",
+    "+        Assert.True(scenario.Owner.RecordReadback(effect, false, scenario.Stamp()));",
+    "+        Assert.True(scenario.Owner.RecordOutcome(effect, BusinessSaveModelOutcome.Failed, scenario.Stamp()));",
+    "+        Assert.Equal(new(true, true, false, true), scenario.Owner.Snapshot.Effects[effect]);",
+    "+        AssertNoNativeAuthority(scenario.Owner.Snapshot);",
+    "+    }",
+    "+",
+    "+    [Theory]",
+    "     [InlineData(false)]",
+    "     [InlineData(true)]",
+    "     public void Invalid_callback_stamp_preserves_live_tickets_and_marks_uncertainty(bool exit)"
+  ],
+  "checks": [
+    {
+      "check": "candidate-v1/source.txt SHA256",
+      "accepted": true,
+      "actual": "fe0d3e77178974d108d5c589fda44ac82353635c8fa5b8d69e474fb6b7553b76",
+      "expected": "fe0d3e77178974d108d5c589fda44ac82353635c8fa5b8d69e474fb6b7553b76"
+    },
+    {
+      "check": "candidate-v1/source.txt bytes",
+      "accepted": true,
+      "actual": 176777,
+      "expected": 176777
+    },
+    {
+      "check": "candidate-v1/tests.txt SHA256",
+      "accepted": true,
+      "actual": "5aa0105918d2b4dd2578309ae5891fdbf581f6dee4fa2971aa710eeebd15b044",
+      "expected": "5aa0105918d2b4dd2578309ae5891fdbf581f6dee4fa2971aa710eeebd15b044"
+    },
+    {
+      "check": "candidate-v1/tests.txt bytes",
+      "accepted": true,
+      "actual": 42185,
+      "expected": 42185
+    },
+    {
+      "check": "candidate-v1/ownership-block.txt SHA256",
+      "accepted": true,
+      "actual": "cbffbbca870f0befcb1aa4a2af3758e5ae89d0180c69b5b4f10d7855309082df",
+      "expected": "cbffbbca870f0befcb1aa4a2af3758e5ae89d0180c69b5b4f10d7855309082df"
+    },
+    {
+      "check": "candidate-v1/ownership-block.txt bytes",
+      "accepted": true,
+      "actual": 19742,
+      "expected": 19742
+    },
+    {
+      "check": "candidate-v1/implementation-contract.txt SHA256",
+      "accepted": true,
+      "actual": "03cb9ad799c42475236caecb7ad1795ad4ecb00776b1b0ae0b3fa68bcda8cd53",
+      "expected": "03cb9ad799c42475236caecb7ad1795ad4ecb00776b1b0ae0b3fa68bcda8cd53"
+    },
+    {
+      "check": "candidate-v1/implementation-contract.txt bytes",
+      "accepted": true,
+      "actual": 8188,
+      "expected": 8188
+    },
+    {
+      "check": "candidate-v2/source.txt SHA256",
+      "accepted": true,
+      "actual": "e4bb1d13324a3d61419d26ba172e88ba2ea53e30b15d3c6b6f43fb3e72212f50",
+      "expected": "e4bb1d13324a3d61419d26ba172e88ba2ea53e30b15d3c6b6f43fb3e72212f50"
+    },
+    {
+      "check": "candidate-v2/source.txt bytes",
+      "accepted": true,
+      "actual": 177015,
+      "expected": 177015
+    },
+    {
+      "check": "candidate-v2/tests.txt SHA256",
+      "accepted": true,
+      "actual": "c92e90af755b8feadbd77282ccf0a852b0e1cedaf25ec63eea8a354f3d9ce198",
+      "expected": "c92e90af755b8feadbd77282ccf0a852b0e1cedaf25ec63eea8a354f3d9ce198"
+    },
+    {
+      "check": "candidate-v2/tests.txt bytes",
+      "accepted": true,
+      "actual": 44277,
+      "expected": 44277
+    },
+    {
+      "check": "candidate-v2/ownership-block.txt SHA256",
+      "accepted": true,
+      "actual": "7683e61d725f8a89e766de4e1d92dcdb0f3295c8ed301bf8815042a2d6efb102",
+      "expected": "7683e61d725f8a89e766de4e1d92dcdb0f3295c8ed301bf8815042a2d6efb102"
+    },
+    {
+      "check": "candidate-v2/ownership-block.txt bytes",
+      "accepted": true,
+      "actual": 19980,
+      "expected": 19980
+    },
+    {
+      "check": "candidate-v2/implementation-contract.txt SHA256",
+      "accepted": true,
+      "actual": "03cb9ad799c42475236caecb7ad1795ad4ecb00776b1b0ae0b3fa68bcda8cd53",
+      "expected": "03cb9ad799c42475236caecb7ad1795ad4ecb00776b1b0ae0b3fa68bcda8cd53"
+    },
+    {
+      "check": "candidate-v2/implementation-contract.txt bytes",
+      "accepted": true,
+      "actual": 8188,
+      "expected": 8188
+    },
+    {
+      "check": "live source SHA256",
+      "accepted": true,
+      "actual": "e4bb1d13324a3d61419d26ba172e88ba2ea53e30b15d3c6b6f43fb3e72212f50",
+      "expected": "e4bb1d13324a3d61419d26ba172e88ba2ea53e30b15d3c6b6f43fb3e72212f50"
+    },
+    {
+      "check": "live tests SHA256",
+      "accepted": true,
+      "actual": "c92e90af755b8feadbd77282ccf0a852b0e1cedaf25ec63eea8a354f3d9ce198",
+      "expected": "c92e90af755b8feadbd77282ccf0a852b0e1cedaf25ec63eea8a354f3d9ce198"
+    },
+    {
+      "check": "before SHA256",
+      "accepted": true,
+      "actual": "8964512eeb94ae63acadbe5cd47caa7c36a325e10cd75af73cc5c1091c4db5d2",
+      "expected": "8964512eeb94ae63acadbe5cd47caa7c36a325e10cd75af73cc5c1091c4db5d2"
+    },
+    {
+      "check": "contract SHA256",
+      "accepted": true,
+      "actual": "03cb9ad799c42475236caecb7ad1795ad4ecb00776b1b0ae0b3fa68bcda8cd53",
+      "expected": "03cb9ad799c42475236caecb7ad1795ad4ecb00776b1b0ae0b3fa68bcda8cd53"
+    },
+    {
+      "check": "single marked ownership region",
+      "accepted": true,
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "check": "one empty separator after region",
+      "accepted": true,
+      "actual": "",
+      "expected": ""
+    },
+    {
+      "check": "removing region reproduces old bytes",
+      "accepted": true,
+      "actual": "8964512eeb94ae63acadbe5cd47caa7c36a325e10cd75af73cc5c1091c4db5d2",
+      "expected": "8964512eeb94ae63acadbe5cd47caa7c36a325e10cd75af73cc5c1091c4db5d2"
+    },
+    {
+      "check": "insert precedes SubtypeResult",
+      "accepted": true,
+      "actual": true,
+      "expected": true
+    },
+    {
+      "check": "region hash",
+      "accepted": true,
+      "actual": "7683e61d725f8a89e766de4e1d92dcdb0f3295c8ed301bf8815042a2d6efb102",
+      "expected": "7683e61d725f8a89e766de4e1d92dcdb0f3295c8ed301bf8815042a2d6efb102"
+    },
+    {
+      "check": "protected Source/Mods/TownHallInterior/src/BusinessBindingProbe.cs",
+      "accepted": true,
+      "actual": "fb82cfafbee2f92b7c52d76edc9a3fe417cb905ad7f20a90a082ce681efa7fa1",
+      "expected": "fb82cfafbee2f92b7c52d76edc9a3fe417cb905ad7f20a90a082ce681efa7fa1"
+    },
+    {
+      "check": "protected Source/Mods/TownHallInterior/src/BusinessProbeEvidence.cs",
+      "accepted": true,
+      "actual": "37ce332858d00368ebde93c3f13af3b20482d0de15f07b559e34078597603458",
+      "expected": "37ce332858d00368ebde93c3f13af3b20482d0de15f07b559e34078597603458"
+    },
+    {
+      "check": "protected Source/Mods/TownHallInterior/src/CleanupJournal.cs",
+      "accepted": true,
+      "actual": "310955ae9d1f5115941ef5bf7920ed49f6ff47086d8187fe050f444f63f09b76",
+      "expected": "310955ae9d1f5115941ef5bf7920ed49f6ff47086d8187fe050f444f63f09b76"
+    },
+    {
+      "check": "protected Source/Mods/TownHallInterior/src/DoorAdapter.cs",
+      "accepted": true,
+      "actual": "6d5e638b3217b24d3d4a86ea768912e26bdf73449cef98196502586f036a6341",
+      "expected": "6d5e638b3217b24d3d4a86ea768912e26bdf73449cef98196502586f036a6341"
+    },
+    {
+      "check": "protected Source/Mods/TownHallInterior/src/DoorChoice.cs",
+      "accepted": true,
+      "actual": "42093f9e71f5c4fe832dac0eff888654163389b86dac1d6be494f7f715943201",
+      "expected": "42093f9e71f5c4fe832dac0eff888654163389b86dac1d6be494f7f715943201"
+    },
+    {
+      "check": "protected Source/Mods/TownHallInterior/src/DoorHook.cs",
+      "accepted": true,
+      "actual": "10bfdd035b414e0727c01aef12a08b1fb0a33abbd897a6c3efc79e7da006934c",
+      "expected": "10bfdd035b414e0727c01aef12a08b1fb0a33abbd897a6c3efc79e7da006934c"
+    },
+    {
+      "check": "protected Source/Mods/TownHallInterior/src/FacadePortal.cs",
+      "accepted": true,
+      "actual": "4b2cc05e14353fddccc2ddb404fed35b1859d950f5e80e6a6735a8d196cf2270",
+      "expected": "4b2cc05e14353fddccc2ddb404fed35b1859d950f5e80e6a6735a8d196cf2270"
+    },
+    {
+      "check": "protected Source/Mods/TownHallInterior/src/FurniturePlan.cs",
+      "accepted": true,
+      "actual": "17e8402738ff124a54f1e61a076618894a6ca5b3d3e6733242f71217a5a18e6b",
+      "expected": "17e8402738ff124a54f1e61a076618894a6ca5b3d3e6733242f71217a5a18e6b"
+    },
+    {
+      "check": "protected Source/Mods/TownHallInterior/src/HallFittings.cs",
+      "accepted": true,
+      "actual": "210301b0663b1a0b3fdbedbcb2231a007d62f2d0bb19828250c4ffd6fddc7492",
+      "expected": "210301b0663b1a0b3fdbedbcb2231a007d62f2d0bb19828250c4ffd6fddc7492"
+    },
+    {
+      "check": "protected Source/Mods/TownHallInterior/src/Mod.cs",
+      "accepted": true,
+      "actual": "82323dd725b033b124c0f5edd6252730676f3f1910bdd402441945f0fe4e9385",
+      "expected": "82323dd725b033b124c0f5edd6252730676f3f1910bdd402441945f0fe4e9385"
+    },
+    {
+      "check": "protected Source/Mods/TownHallInterior/src/NativeFacadeSwap.cs",
+      "accepted": true,
+      "actual": "58542a588017f540a7b546845b038174d96ef761acfacd7101c0004a5ceae5e3",
+      "expected": "58542a588017f540a7b546845b038174d96ef761acfacd7101c0004a5ceae5e3"
+    },
+    {
+      "check": "protected Source/Mods/TownHallInterior/src/NativeSceneSwap.cs",
+      "accepted": true,
+      "actual": "a526e26ffb62fbf08ad8e3725779c83dbc85558fcb22a1b34cb12dc061bed6aa",
+      "expected": "a526e26ffb62fbf08ad8e3725779c83dbc85558fcb22a1b34cb12dc061bed6aa"
+    },
+    {
+      "check": "protected Source/Mods/TownHallInterior/src/PublicEntrance.cs",
+      "accepted": true,
+      "actual": "4fdb304a13cd24a496e9368c211bf09f8aaf1da9041a8912fdb364f46ec9dd5f",
+      "expected": "4fdb304a13cd24a496e9368c211bf09f8aaf1da9041a8912fdb364f46ec9dd5f"
+    },
+    {
+      "check": "protected Source/Mods/TownHallInterior/src/PublicHallHost.cs",
+      "accepted": true,
+      "actual": "d85708f66705a1ac87aec2d1def1f4daff0cebabd78b459b93a589418be65bcc",
+      "expected": "d85708f66705a1ac87aec2d1def1f4daff0cebabd78b459b93a589418be65bcc"
+    },
+    {
+      "check": "protected Source/Mods/TownHallInterior/src/RoomBuilder.cs",
+      "accepted": true,
+      "actual": "44b555668aecbb0055b902d204716861399ee59e439971f842d5f0b4a3a48f68",
+      "expected": "44b555668aecbb0055b902d204716861399ee59e439971f842d5f0b4a3a48f68"
+    },
+    {
+      "check": "protected Source/Mods/TownHallInterior/src/RoomPlan.cs",
+      "accepted": true,
+      "actual": "ebe89aa2620044c170f08c33382aa420bb1aa22e78d56ed74b97a4561f864233",
+      "expected": "ebe89aa2620044c170f08c33382aa420bb1aa22e78d56ed74b97a4561f864233"
+    },
+    {
+      "check": "protected Source/Mods/TownHallInterior/src/TownHallInterior.csproj",
+      "accepted": true,
+      "actual": "c730506d8c85e9d9fb88def2c397920f408b7771576a59aacc2c4b183bcde9df",
+      "expected": "c730506d8c85e9d9fb88def2c397920f408b7771576a59aacc2c4b183bcde9df"
+    },
+    {
+      "check": "protected Source/Mods/TownHallInterior/src/UnityRoomSink.cs",
+      "accepted": true,
+      "actual": "646b693e349e61126bc548c59e9bdf8e4f978787eeab1173a8535323f9588d17",
+      "expected": "646b693e349e61126bc548c59e9bdf8e4f978787eeab1173a8535323f9588d17"
+    },
+    {
+      "check": "protected Source/Mods/TownHallInterior/src/VanillaFurnishings.cs",
+      "accepted": true,
+      "actual": "c434ab9c4b0055c531250b5a45b672703e266fbe962e3934ffa58f951cce98aa",
+      "expected": "c434ab9c4b0055c531250b5a45b672703e266fbe962e3934ffa58f951cce98aa"
+    },
+    {
+      "check": "protected Source/Tests/TownHallInterior.Tests/BusinessActivationTests.cs",
+      "accepted": true,
+      "actual": "c43b5aa08c51a151d042f4a8e4a0c56cd79892ed98723e4fb883bba57b1b8a7f",
+      "expected": "c43b5aa08c51a151d042f4a8e4a0c56cd79892ed98723e4fb883bba57b1b8a7f"
+    },
+    {
+      "check": "protected Source/Tests/TownHallInterior.Tests/BusinessConstructionTests.cs",
+      "accepted": true,
+      "actual": "43ac3184d66a64bfc6ae9b6ba6587df6a3eb333575d93cc187c291e45e7630b8",
+      "expected": "43ac3184d66a64bfc6ae9b6ba6587df6a3eb333575d93cc187c291e45e7630b8"
+    },
+    {
+      "check": "protected Source/Tests/TownHallInterior.Tests/BusinessInterfaceTests.cs",
+      "accepted": true,
+      "actual": "d1b13f70314555a2702d732b078bafb9cef7e9b71eaea8249b74ae8736bd2abf",
+      "expected": "d1b13f70314555a2702d732b078bafb9cef7e9b71eaea8249b74ae8736bd2abf"
+    },
+    {
+      "check": "protected Source/Tests/TownHallInterior.Tests/BusinessManagerAuditTests.cs",
+      "accepted": true,
+      "actual": "164eaeb014c1d63b776c47d0dd105f4f12bec79d4ffb02a135d3da5f5f82323d",
+      "expected": "164eaeb014c1d63b776c47d0dd105f4f12bec79d4ffb02a135d3da5f5f82323d"
+    },
+    {
+      "check": "protected Source/Tests/TownHallInterior.Tests/BusinessManagerSafetyTests.cs",
+      "accepted": true,
+      "actual": "ead2dbe76be2679c8be006b114075c55d58b1cddfe08e292f8551c225f70a035",
+      "expected": "ead2dbe76be2679c8be006b114075c55d58b1cddfe08e292f8551c225f70a035"
+    },
+    {
+      "check": "protected Source/Tests/TownHallInterior.Tests/BusinessManagerSaveTests.cs",
+      "accepted": true,
+      "actual": "0d9fe4fe204e20a6850945b4a7c32c3285cc060942140b9837ac3aafc34aa963",
+      "expected": "0d9fe4fe204e20a6850945b4a7c32c3285cc060942140b9837ac3aafc34aa963"
+    },
+    {
+      "check": "protected Source/Tests/TownHallInterior.Tests/BusinessManagerTests.cs",
+      "accepted": true,
+      "actual": "d62a8ad7a82e9cedd7554e7e489cba55fee62409dd3de347130575fb69524b1e",
+      "expected": "d62a8ad7a82e9cedd7554e7e489cba55fee62409dd3de347130575fb69524b1e"
+    },
+    {
+      "check": "protected Source/Tests/TownHallInterior.Tests/BusinessProbeEvidenceTests.cs",
+      "accepted": true,
+      "actual": "71797f12c5f96f633d44127a08cbdaf93dba26dc75a521c648d130f6b5b3d9de",
+      "expected": "71797f12c5f96f633d44127a08cbdaf93dba26dc75a521c648d130f6b5b3d9de"
+    },
+    {
+      "check": "protected Source/Tests/TownHallInterior.Tests/BusinessSubtypeTests.cs",
+      "accepted": true,
+      "actual": "d58b1b960098861782725d71811fa17f27b0bf195d8e25ef37a5c586674f380a",
+      "expected": "d58b1b960098861782725d71811fa17f27b0bf195d8e25ef37a5c586674f380a"
+    },
+    {
+      "check": "protected Source/Tests/TownHallInterior.Tests/BusinessTypeResolutionTests.cs",
+      "accepted": true,
+      "actual": "58325e28dc822ffe2cc493c1f426d1c3acf3147efa457edc32f93e317aa82c46",
+      "expected": "58325e28dc822ffe2cc493c1f426d1c3acf3147efa457edc32f93e317aa82c46"
+    },
+    {
+      "check": "protected Source/Tests/TownHallInterior.Tests/CleanupJournalTests.cs",
+      "accepted": true,
+      "actual": "1fc594bb24f1ac542d5ee8878ce88b54b7d295b132cce3112dc0d40c4708f1cb",
+      "expected": "1fc594bb24f1ac542d5ee8878ce88b54b7d295b132cce3112dc0d40c4708f1cb"
+    },
+    {
+      "check": "protected Source/Tests/TownHallInterior.Tests/DoorAdapterTests.cs",
+      "accepted": true,
+      "actual": "97e44aee74c74d5ba2f5672deec7319876eb3b1b2b8c71a12ca516f839ed907e",
+      "expected": "97e44aee74c74d5ba2f5672deec7319876eb3b1b2b8c71a12ca516f839ed907e"
+    },
+    {
+      "check": "protected Source/Tests/TownHallInterior.Tests/DoorChoiceTests.cs",
+      "accepted": true,
+      "actual": "6f9f493e814b8a6db340d916f3932d5b68b77a48b608c86e6bdaa6bb85d01946",
+      "expected": "6f9f493e814b8a6db340d916f3932d5b68b77a48b608c86e6bdaa6bb85d01946"
+    },
+    {
+      "check": "protected Source/Tests/TownHallInterior.Tests/EnclosureTests.cs",
+      "accepted": true,
+      "actual": "cc381927c62e5bdbb2f412bab72abd88a66ccd6780f5f260d26003caaa3814db",
+      "expected": "cc381927c62e5bdbb2f412bab72abd88a66ccd6780f5f260d26003caaa3814db"
+    },
+    {
+      "check": "protected Source/Tests/TownHallInterior.Tests/FacadePortalTests.cs",
+      "accepted": true,
+      "actual": "876eff42444821a38103b7b97173b30b4d2bb3c94aa8856b48510ff81f7bbced",
+      "expected": "876eff42444821a38103b7b97173b30b4d2bb3c94aa8856b48510ff81f7bbced"
+    },
+    {
+      "check": "protected Source/Tests/TownHallInterior.Tests/FurniturePlanTests.cs",
+      "accepted": true,
+      "actual": "99f99db70533724fe939aa73b6b2bafac295d361d9280f92a42f6001eb4594aa",
+      "expected": "99f99db70533724fe939aa73b6b2bafac295d361d9280f92a42f6001eb4594aa"
+    },
+    {
+      "check": "protected Source/Tests/TownHallInterior.Tests/HallFittingsTests.cs",
+      "accepted": true,
+      "actual": "8d18df41130233be9543c38d419ef36273f2ae2d09bba520e6abfc57799a7209",
+      "expected": "8d18df41130233be9543c38d419ef36273f2ae2d09bba520e6abfc57799a7209"
+    },
+    {
+      "check": "protected Source/Tests/TownHallInterior.Tests/NativeSceneSwapTests.cs",
+      "accepted": true,
+      "actual": "d77efe579cd909c42dc48245b427d30c59874955c1b0dcdb6652a110f441d37c",
+      "expected": "d77efe579cd909c42dc48245b427d30c59874955c1b0dcdb6652a110f441d37c"
+    },
+    {
+      "check": "protected Source/Tests/TownHallInterior.Tests/PublicEntranceTests.cs",
+      "accepted": true,
+      "actual": "1ab9d7d8825911ea4777ea56fd109bf2f7a4ef679f258108c98a42580e80d6c3",
+      "expected": "1ab9d7d8825911ea4777ea56fd109bf2f7a4ef679f258108c98a42580e80d6c3"
+    },
+    {
+      "check": "protected Source/Tests/TownHallInterior.Tests/RoomPlanTests.cs",
+      "accepted": true,
+      "actual": "fdeb4a9c49d2e83b71e0edeb50ed3f0f5e68ce6508801198bedca997638a71a3",
+      "expected": "fdeb4a9c49d2e83b71e0edeb50ed3f0f5e68ce6508801198bedca997638a71a3"
+    },
+    {
+      "check": "protected Source/Tests/TownHallInterior.Tests/TownHallInterior.Tests.csproj",
+      "accepted": true,
+      "actual": "dc582cf6a85f3c98417c83cd67a65f28b8f8739bb1a1507fe665eaa52ceec26c",
+      "expected": "dc582cf6a85f3c98417c83cd67a65f28b8f8739bb1a1507fe665eaa52ceec26c"
+    },
+    {
+      "check": "input Source/Tests/TownHallInterior.Tests/TownHallInterior.Tests.csproj",
+      "accepted": true,
+      "actual": "dc582cf6a85f3c98417c83cd67a65f28b8f8739bb1a1507fe665eaa52ceec26c",
+      "expected": "dc582cf6a85f3c98417c83cd67a65f28b8f8739bb1a1507fe665eaa52ceec26c"
+    },
+    {
+      "check": "input Source/Mods/TownHallInterior/src/Mod.cs",
+      "accepted": true,
+      "actual": "82323dd725b033b124c0f5edd6252730676f3f1910bdd402441945f0fe4e9385",
+      "expected": "82323dd725b033b124c0f5edd6252730676f3f1910bdd402441945f0fe4e9385"
+    },
+    {
+      "check": "input Source/Mods/TownHallInterior/docs/business-save-operation-owner.md",
+      "accepted": true,
+      "actual": "985642354836f8a8eb6b4109277261e42b196c4ab2f3f7641407b2347b954549",
+      "expected": "985642354836f8a8eb6b4109277261e42b196c4ab2f3f7641407b2347b954549"
+    },
+    {
+      "check": "input Source/Mods/Directory.Build.props",
+      "accepted": true,
+      "actual": "b3fac99660ee6ca956deaacfa1114d84b80b7f2931be856987dd0ca2d28103cc",
+      "expected": "b3fac99660ee6ca956deaacfa1114d84b80b7f2931be856987dd0ca2d28103cc"
+    },
+    {
+      "check": "input Source/Mods/Directory.Build.targets",
+      "accepted": true,
+      "actual": "87f3281d1f7c3556fd2f4bc1f5710390f809fafa14ae6d60b7928789c4f8891f",
+      "expected": "87f3281d1f7c3556fd2f4bc1f5710390f809fafa14ae6d60b7928789c4f8891f"
+    },
+    {
+      "check": "prior manifest Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105",
+      "accepted": true,
+      "actual": "9283c0f0089391acdec90318164a56e6b9ee5c29fc7c63c88569f882d58ef795",
+      "expected": "9283c0f0089391acdec90318164a56e6b9ee5c29fc7c63c88569f882d58ef795"
+    },
+    {
+      "check": "prior artifact count Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105",
+      "accepted": true,
+      "actual": 135,
+      "expected": 135
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/input-manifest.json",
+      "accepted": true,
+      "actual": "c70e14bfcaac80f0d74edf2260a5a4966f197eab1c55382d686513ed648ac3a3",
+      "expected": "c70e14bfcaac80f0d74edf2260a5a4966f197eab1c55382d686513ed648ac3a3"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/managed-boundary-review.json",
+      "accepted": true,
+      "actual": "3d48257c04fcc5d93de23f03db2432f4be87207b3fde5c533f1f0a5ba9b9ef19",
+      "expected": "3d48257c04fcc5d93de23f03db2432f4be87207b3fde5c533f1f0a5ba9b9ef19"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/managed-review/final-input-verification.json",
+      "accepted": true,
+      "actual": "3bd2bab0aa042ce005a1c20bda5c84fe50267925c1092d3222cd8e834eec9569",
+      "expected": "3bd2bab0aa042ce005a1c20bda5c84fe50267925c1092d3222cd8e834eec9569"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/managed-review/GameLifecycle.decompiled.cs",
+      "accepted": true,
+      "actual": "710e72c436bc1a65bc8cbad0534b80292cae2bef5247159686132ea43d53d9f6",
+      "expected": "710e72c436bc1a65bc8cbad0534b80292cae2bef5247159686132ea43d53d9f6"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/managed-review/GameLifecycle.reading.cs",
+      "accepted": true,
+      "actual": "77f0840dcef0853ca93a5ee288c465fe8dc7f9b23b41fe7dd56dd9fc1fdb8cf2",
+      "expected": "77f0840dcef0853ca93a5ee288c465fe8dc7f9b23b41fe7dd56dd9fc1fdb8cf2"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/managed-review/GameLifecycle.stderr.txt",
+      "accepted": true,
+      "actual": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "expected": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/managed-review/GenericSaveablesPatches.decompiled.cs",
+      "accepted": true,
+      "actual": "555d208b26f56693a3d95663642cc01a25d50eff23ccd5f5fe79453b0fe137dc",
+      "expected": "555d208b26f56693a3d95663642cc01a25d50eff23ccd5f5fe79453b0fe137dc"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/managed-review/GenericSaveablesPatches.reading.cs",
+      "accepted": true,
+      "actual": "9a7b0c7a9415a728afebca826f78fd5811214b50567cd86a58817b711ea54cd2",
+      "expected": "9a7b0c7a9415a728afebca826f78fd5811214b50567cd86a58817b711ea54cd2"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/managed-review/GenericSaveablesPatches.stderr.txt",
+      "accepted": true,
+      "actual": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "expected": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/managed-review/ilspy-help.stderr.txt",
+      "accepted": true,
+      "actual": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "expected": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/managed-review/input-snapshot.json",
+      "accepted": true,
+      "actual": "6f85b052df3d491cd12d4d492cd15fd34d1b7979cdd3e9135fc76d210d91dda0",
+      "expected": "6f85b052df3d491cd12d4d492cd15fd34d1b7979cdd3e9135fc76d210d91dda0"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/managed-review/native-check/byte-and-input-check.json",
+      "accepted": true,
+      "actual": "b3daba3cfb911162c9520070487af8e224cf106d46bc93873c9574d9583be6d8",
+      "expected": "b3daba3cfb911162c9520070487af8e224cf106d46bc93873c9574d9583be6d8"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/managed-review/native-check/report-validation.json",
+      "accepted": true,
+      "actual": "b045a050728f00cce354aa1599b7599aa26a5c7ce8356761f6e68cb3a78abb0c",
+      "expected": "b045a050728f00cce354aa1599b7599aa26a5c7ce8356761f6e68cb3a78abb0c"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/managed-review/native-check-v4/report-validation.json",
+      "accepted": true,
+      "actual": "1da188a607919d503378d0ffa87fbb0d7c798a32a3f7e73adafdca330ecde804",
+      "expected": "1da188a607919d503378d0ffa87fbb0d7c798a32a3f7e73adafdca330ecde804"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/managed-review/native-check-v4/targeted-byte-check.json",
+      "accepted": true,
+      "actual": "77af57dba22a68a2a5055306dd53641e949ae62b948c66921b807e3751d14bbd",
+      "expected": "77af57dba22a68a2a5055306dd53641e949ae62b948c66921b807e3751d14bbd"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/managed-review/report-validation.json",
+      "accepted": true,
+      "actual": "23a35c8a4e100043d300fb6ddafa264d804fcf784e549c027d870943d28f98a5",
+      "expected": "23a35c8a4e100043d300fb6ddafa264d804fcf784e549c027d870943d28f98a5"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/managed-review/S1API.decompiled.cs",
+      "accepted": true,
+      "actual": "3e96f2c8ab82f38e0c1a9377b8444ccbc63a170dc28fbc38a860f96ddcb807cc",
+      "expected": "3e96f2c8ab82f38e0c1a9377b8444ccbc63a170dc28fbc38a860f96ddcb807cc"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/managed-review/S1API.reading.cs",
+      "accepted": true,
+      "actual": "382784a607e08cfa582803b94a9ef400c253548bdfdb174d62a86a7c020b1485",
+      "expected": "382784a607e08cfa582803b94a9ef400c253548bdfdb174d62a86a7c020b1485"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/managed-review/S1API.stderr.txt",
+      "accepted": true,
+      "actual": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "expected": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/managed-review/Saveable.decompiled.cs",
+      "accepted": true,
+      "actual": "fd22a4a62c4e1490ad3577649e74cc66afeeda6b2d51abc15dfa5b54248bc984",
+      "expected": "fd22a4a62c4e1490ad3577649e74cc66afeeda6b2d51abc15dfa5b54248bc984"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/managed-review/Saveable.reading.cs",
+      "accepted": true,
+      "actual": "f6cb10619dcaa867a629649a89ff9121782cdfa3c01ae0af7032531c3703397c",
+      "expected": "f6cb10619dcaa867a629649a89ff9121782cdfa3c01ae0af7032531c3703397c"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/managed-review/Saveable.stderr.txt",
+      "accepted": true,
+      "actual": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "expected": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/managed-review/tool-output-hashes.json",
+      "accepted": true,
+      "actual": "9675abc18e887d050aa7203c58f9cd66328c01082f5703104c74564c17c15cbb",
+      "expected": "9675abc18e887d050aa7203c58f9cd66328c01082f5703104c74564c17c15cbb"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/map-native-v2.ps1",
+      "accepted": true,
+      "actual": "46916a8589a771f720a2d52146f17f39d8cf322ab83b7c4f059af8a189edafad",
+      "expected": "46916a8589a771f720a2d52146f17f39d8cf322ab83b7c4f059af8a189edafad"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/map-native.ps1",
+      "accepted": true,
+      "actual": "e00ff7ef52bb7ce354d909bbed609cc3d2f49df1f98b44fcee2da287f2dd5a61",
+      "expected": "e00ff7ef52bb7ce354d909bbed609cc3d2f49df1f98b44fcee2da287f2dd5a61"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-claims-review.json",
+      "accepted": true,
+      "actual": "12baccbcf1942927b1d6db57558ab0575f17e87f3f43dced7d8fcc402a6430bb",
+      "expected": "12baccbcf1942927b1d6db57558ab0575f17e87f3f43dced7d8fcc402a6430bb"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v2/0x06001784-Save.json",
+      "accepted": true,
+      "actual": "27fec4915c581ecfe6036712081d5737eba9ac59bed1dda2cdb1f9a26deaf604",
+      "expected": "27fec4915c581ecfe6036712081d5737eba9ac59bed1dda2cdb1f9a26deaf604"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v2/0x06001784-Save.txt",
+      "accepted": true,
+      "actual": "2ff93ab86a5d0180d26ada15bd2981767b499b1f8b0d4695f20733b936404b6b",
+      "expected": "2ff93ab86a5d0180d26ada15bd2981767b499b1f8b0d4695f20733b936404b6b"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v2/0x06001785-WriteBaseData.json",
+      "accepted": true,
+      "actual": "ec8311d00d84e6e7733eb8d5d16d6fdd2625626adb5e4f44dda3824946a7d66e",
+      "expected": "ec8311d00d84e6e7733eb8d5d16d6fdd2625626adb5e4f44dda3824946a7d66e"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v2/0x06001785-WriteBaseData.txt",
+      "accepted": true,
+      "actual": "b715720fb7661daea2c507f6334eae1080e4995943321e4e07ea40c0a0066d84",
+      "expected": "b715720fb7661daea2c507f6334eae1080e4995943321e4e07ea40c0a0066d84"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v2/0x06001787-CompleteSave.json",
+      "accepted": true,
+      "actual": "675de3dad3a41aeb0435debbecda0923ef74e0f8a46e61b067d9d8bee47e6316",
+      "expected": "675de3dad3a41aeb0435debbecda0923ef74e0f8a46e61b067d9d8bee47e6316"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v2/0x06001787-CompleteSave.txt",
+      "accepted": true,
+      "actual": "5b3e0da46170905c4a407545223ddd2d1e6eab13f5a2f5aa88fb4ea9036b9a7c",
+      "expected": "5b3e0da46170905c4a407545223ddd2d1e6eab13f5a2f5aa88fb4ea9036b9a7c"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v2/0x06001788-WriteData.json",
+      "accepted": true,
+      "actual": "792eff1e236e87d96e7ba856faac1267449fd9e9b570a901a7be6fac687b8684",
+      "expected": "792eff1e236e87d96e7ba856faac1267449fd9e9b570a901a7be6fac687b8684"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v2/0x06001788-WriteData.txt",
+      "accepted": true,
+      "actual": "21bad73a89315926c794e2c17183dda1882a4fbeabeecbd58fae1676c5cbc5c7",
+      "expected": "21bad73a89315926c794e2c17183dda1882a4fbeabeecbd58fae1676c5cbc5c7"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v2/0x0600178B-WriteSubfile.json",
+      "accepted": true,
+      "actual": "dfac9c4e65d279c59c9434cabe974f1b9edb6edfe267837992ea213542ff2699",
+      "expected": "dfac9c4e65d279c59c9434cabe974f1b9edb6edfe267837992ea213542ff2699"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v2/0x0600178B-WriteSubfile.txt",
+      "accepted": true,
+      "actual": "0ce0bd2161ac1fc00813e6814d84d697ce359ad64b507fa4162447a554cbf433",
+      "expected": "0ce0bd2161ac1fc00813e6814d84d697ce359ad64b507fa4162447a554cbf433"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v2/0x0600178C-WriteFolder.json",
+      "accepted": true,
+      "actual": "533353bb3a4e74f6f4684d7980c6311bd40215c8e75318c65b02fbc3e119ef17",
+      "expected": "533353bb3a4e74f6f4684d7980c6311bd40215c8e75318c65b02fbc3e119ef17"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v2/0x0600178C-WriteFolder.txt",
+      "accepted": true,
+      "actual": "797d5b57d86f8884e045d2bb9146a9b72bd97568b1e609949acdc6eaff1b8e45",
+      "expected": "797d5b57d86f8884e045d2bb9146a9b72bd97568b1e609949acdc6eaff1b8e45"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v2/0x06001815-ReportSaveError.json",
+      "accepted": true,
+      "actual": "9a7d46b6f6c3a6b892592b59b1f323acf6b62f33384ad7eab5545884c3f175fe",
+      "expected": "9a7d46b6f6c3a6b892592b59b1f323acf6b62f33384ad7eab5545884c3f175fe"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v2/0x06001815-ReportSaveError.txt",
+      "accepted": true,
+      "actual": "035162886eae6d0d944840421b38a69f5eac5b8ec1362aa19c3ded2c8618902b",
+      "expected": "035162886eae6d0d944840421b38a69f5eac5b8ec1362aa19c3ded2c8618902b"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v2/0x06001823-Awake.json",
+      "accepted": true,
+      "actual": "1845e6cbdb626ce24e138bbadd35936ec626e2ef6ed3a8d6baa7348eb4f15223",
+      "expected": "1845e6cbdb626ce24e138bbadd35936ec626e2ef6ed3a8d6baa7348eb4f15223"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v2/0x06001823-Awake.txt",
+      "accepted": true,
+      "actual": "c04dcc25266f1d6a342dd23cdb1dda6001760ebb1a53939362ff7ba848644ccd",
+      "expected": "c04dcc25266f1d6a342dd23cdb1dda6001760ebb1a53939362ff7ba848644ccd"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v2/0x06001824-Start.json",
+      "accepted": true,
+      "actual": "606959c72d5066ee4be5e3d104105b1bc6556ef5f35256eeb62ee6091cec1430",
+      "expected": "606959c72d5066ee4be5e3d104105b1bc6556ef5f35256eeb62ee6091cec1430"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v2/0x06001824-Start.txt",
+      "accepted": true,
+      "actual": "142261a40b337367f9a19cf8de23c99fc092b9c0c271411ae15ae398e230694a",
+      "expected": "142261a40b337367f9a19cf8de23c99fc092b9c0c271411ae15ae398e230694a"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v2/0x06001827-Update.json",
+      "accepted": true,
+      "actual": "adf7f2f74fc923faa509d8c4fe9f773c7ab5ccb28fb696eb0192f50baa73a74a",
+      "expected": "adf7f2f74fc923faa509d8c4fe9f773c7ab5ccb28fb696eb0192f50baa73a74a"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v2/0x06001827-Update.txt",
+      "accepted": true,
+      "actual": "1874f08c72665b2a2d4ea76cc3be612879ed4a7b8e42b80db1a8d8821627aeee",
+      "expected": "1874f08c72665b2a2d4ea76cc3be612879ed4a7b8e42b80db1a8d8821627aeee"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v2/0x06001828-Save.json",
+      "accepted": true,
+      "actual": "0e1fdb1a89fbf0a8c26214e5dfc860fd1a04eb824dfbe1609afde0a040bcb366",
+      "expected": "0e1fdb1a89fbf0a8c26214e5dfc860fd1a04eb824dfbe1609afde0a040bcb366"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v2/0x06001828-Save.txt",
+      "accepted": true,
+      "actual": "0ca6a29a6dcbb10bda3d387a1cfebc5af466ed86c425635587dedf08a5e8518e",
+      "expected": "0ca6a29a6dcbb10bda3d387a1cfebc5af466ed86c425635587dedf08a5e8518e"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v2/0x06001829-Save.json",
+      "accepted": true,
+      "actual": "4db1d463191433b0a2ef96d08913660f07ad8e8b1442b695c894370c10af7704",
+      "expected": "4db1d463191433b0a2ef96d08913660f07ad8e8b1442b695c894370c10af7704"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v2/0x06001829-Save.txt",
+      "accepted": true,
+      "actual": "98f3603e98a7a7c27cb3a71a0b6cce23d9a4c479c57f1778324ecb214e6a9259",
+      "expected": "98f3603e98a7a7c27cb3a71a0b6cce23d9a4c479c57f1778324ecb214e6a9259"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v2/0x0600182B-CompleteSaveable.json",
+      "accepted": true,
+      "actual": "439afb75a5ba5e17111f954ff6e2a9b4a3c71fac4a62970abf34424292872cb0",
+      "expected": "439afb75a5ba5e17111f954ff6e2a9b4a3c71fac4a62970abf34424292872cb0"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v2/0x0600182B-CompleteSaveable.txt",
+      "accepted": true,
+      "actual": "7cc9064e70fb287dcf68e97f13f22b3a89b8204a50346c9c1318185080545289",
+      "expected": "7cc9064e70fb287dcf68e97f13f22b3a89b8204a50346c9c1318185080545289"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v2/0x0600182C-ClearCompletedSaveable.json",
+      "accepted": true,
+      "actual": "a190d42d78fd86825ee27b7df2ab2813bdc8dca631afa1163990eee4909e26f4",
+      "expected": "a190d42d78fd86825ee27b7df2ab2813bdc8dca631afa1163990eee4909e26f4"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v2/0x0600182C-ClearCompletedSaveable.txt",
+      "accepted": true,
+      "actual": "488669e2dc439a6d41b93facaa384a7f3feddb5c8380a81b5283c4297917318e",
+      "expected": "488669e2dc439a6d41b93facaa384a7f3feddb5c8380a81b5283c4297917318e"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v2/0x0600182E-RegisterSaveable.json",
+      "accepted": true,
+      "actual": "9db16be7a44c46e8be2d69d1a5c72ef949a42b107c1aa2c539e7939037d5270f",
+      "expected": "9db16be7a44c46e8be2d69d1a5c72ef949a42b107c1aa2c539e7939037d5270f"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v2/0x0600182E-RegisterSaveable.txt",
+      "accepted": true,
+      "actual": "0725aa0d1d5d47e2aa2430c10bb26088b31e5513051a8c6010e6c79a2363c635",
+      "expected": "0725aa0d1d5d47e2aa2430c10bb26088b31e5513051a8c6010e6c79a2363c635"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v2/0x0600182F-QueueSaveRequest.json",
+      "accepted": true,
+      "actual": "9dc526647e52ce998f2e0bc36d03a1c0cef7a2c00e711dc8d2be384b43518291",
+      "expected": "9dc526647e52ce998f2e0bc36d03a1c0cef7a2c00e711dc8d2be384b43518291"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v2/0x0600182F-QueueSaveRequest.txt",
+      "accepted": true,
+      "actual": "11d94aed0487ad3c152f93b1643eaec395e7fa27a49e4157844aced3320ff132",
+      "expected": "11d94aed0487ad3c152f93b1643eaec395e7fa27a49e4157844aced3320ff132"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v2/0x06001830-DequeueSaveRequest.json",
+      "accepted": true,
+      "actual": "e1563864ccec5f37b7159ec6607caefdc99d86d874cb547b49146ec1f1ab4d6e",
+      "expected": "e1563864ccec5f37b7159ec6607caefdc99d86d874cb547b49146ec1f1ab4d6e"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v2/0x06001830-DequeueSaveRequest.txt",
+      "accepted": true,
+      "actual": "865d90de9a5be724ea231e13809d036cf8a8d4dbc3ee03404609964ef364d976",
+      "expected": "865d90de9a5be724ea231e13809d036cf8a8d4dbc3ee03404609964ef364d976"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v2/0x06001834-Clean.json",
+      "accepted": true,
+      "actual": "0fb5d4622eae1498a917b008c3461769b0d4ab93055bb96eddf0ea6db13c8ed4",
+      "expected": "0fb5d4622eae1498a917b008c3461769b0d4ab93055bb96eddf0ea6db13c8ed4"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v2/0x06001834-Clean.txt",
+      "accepted": true,
+      "actual": "2c48c8b26517a0373c1f06e211c9845eccc36b779e2145c11c6175290172511d",
+      "expected": "2c48c8b26517a0373c1f06e211c9845eccc36b779e2145c11c6175290172511d"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v2/0x06001837-_ctor.json",
+      "accepted": true,
+      "actual": "c78d41878040055d306ed820f7021376b35bcbd39b6892f7df9b08d70ac3995d",
+      "expected": "c78d41878040055d306ed820f7021376b35bcbd39b6892f7df9b08d70ac3995d"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v2/0x06001837-_ctor.txt",
+      "accepted": true,
+      "actual": "2e3c8bc8a776b2dcaa554eddec77d48c4a0d6944016a0b3d0e21e21bad11e985",
+      "expected": "2e3c8bc8a776b2dcaa554eddec77d48c4a0d6944016a0b3d0e21e21bad11e985"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v2/0x0600183A-_ctor.json",
+      "accepted": true,
+      "actual": "9fd65559044c8e781ee034d5417f71bdc6135b53d7a842abc1b3d7292df9e929",
+      "expected": "9fd65559044c8e781ee034d5417f71bdc6135b53d7a842abc1b3d7292df9e929"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v2/0x0600183A-_ctor.txt",
+      "accepted": true,
+      "actual": "36ab803c5d942e0a371d4c0573f14ed25eba30402b9f041cfa4baebef15561d0",
+      "expected": "36ab803c5d942e0a371d4c0573f14ed25eba30402b9f041cfa4baebef15561d0"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v2/0x0600183C-MoveNext.json",
+      "accepted": true,
+      "actual": "f1e1c9aea06346a10ca4a193c1cab267391b6f78a8a92f7f71884c0731a6d0a0",
+      "expected": "f1e1c9aea06346a10ca4a193c1cab267391b6f78a8a92f7f71884c0731a6d0a0"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v2/0x0600183C-MoveNext.txt",
+      "accepted": true,
+      "actual": "68b816b3be023048377fae7b7c7ce6cc239d7f9bb8679b9eac6f2efddb40979c",
+      "expected": "68b816b3be023048377fae7b7c7ce6cc239d7f9bb8679b9eac6f2efddb40979c"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v2/0x0600184A-_ctor.json",
+      "accepted": true,
+      "actual": "1d269c44d33825cfa25113afdefebc82fc09c0ae6dc54f0026cace76790b3061",
+      "expected": "1d269c44d33825cfa25113afdefebc82fc09c0ae6dc54f0026cace76790b3061"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v2/0x0600184A-_ctor.txt",
+      "accepted": true,
+      "actual": "8a868a1def57571dd0b3e51e671cb6cf3ca1666177a6678b316e6727a5874ccb",
+      "expected": "8a868a1def57571dd0b3e51e671cb6cf3ca1666177a6678b316e6727a5874ccb"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v2/0x0600184B-Complete.json",
+      "accepted": true,
+      "actual": "d54d1dc1cda4a956b0b2bc04fc4edf663708fb512cb91544190f7eb09440013d",
+      "expected": "d54d1dc1cda4a956b0b2bc04fc4edf663708fb512cb91544190f7eb09440013d"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v2/0x0600184B-Complete.txt",
+      "accepted": true,
+      "actual": "6757d5e1061d560a71f94c1fe356405ec37e18090facfba1692bce59e360544d",
+      "expected": "6757d5e1061d560a71f94c1fe356405ec37e18090facfba1692bce59e360544d"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v4/0x06001784-Save.json",
+      "accepted": true,
+      "actual": "7849aa6a7f71bae6e80c820ad8be3f353fe553b697399941aa44ae41e1d61d8b",
+      "expected": "7849aa6a7f71bae6e80c820ad8be3f353fe553b697399941aa44ae41e1d61d8b"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v4/0x06001784-Save.txt",
+      "accepted": true,
+      "actual": "833707ed4218834a696c0e62ca020987676705f32a79e417a8a0ec64a1080c37",
+      "expected": "833707ed4218834a696c0e62ca020987676705f32a79e417a8a0ec64a1080c37"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v4/0x06001785-WriteBaseData.json",
+      "accepted": true,
+      "actual": "3fc1fce080eb5be151edd1be028d56d8cf702331fe12ee14e4f51f3f8835bc83",
+      "expected": "3fc1fce080eb5be151edd1be028d56d8cf702331fe12ee14e4f51f3f8835bc83"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v4/0x06001785-WriteBaseData.txt",
+      "accepted": true,
+      "actual": "6f999668af96df9b70372f685ec3c65548eb796cdf585d5a5cf427f9111a9b72",
+      "expected": "6f999668af96df9b70372f685ec3c65548eb796cdf585d5a5cf427f9111a9b72"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v4/0x06001787-CompleteSave.json",
+      "accepted": true,
+      "actual": "50d21b73e016a30b90498164d733a3859593ce24c00896dbc08f3c4369bab938",
+      "expected": "50d21b73e016a30b90498164d733a3859593ce24c00896dbc08f3c4369bab938"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v4/0x06001787-CompleteSave.txt",
+      "accepted": true,
+      "actual": "7bd5cfe2e71fa9d2afe67b041f409427df04c7177293dce9ca01d760e7a0c289",
+      "expected": "7bd5cfe2e71fa9d2afe67b041f409427df04c7177293dce9ca01d760e7a0c289"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v4/0x06001788-WriteData.json",
+      "accepted": true,
+      "actual": "b565324b1fe4777fe6b38a1b86be99a5224187ddfbd2327d899dfe36f4c6f161",
+      "expected": "b565324b1fe4777fe6b38a1b86be99a5224187ddfbd2327d899dfe36f4c6f161"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v4/0x06001788-WriteData.txt",
+      "accepted": true,
+      "actual": "87133080ccc3f38d24c82e1127df6ffbe8640186af9cfdc04463e233dd22ebd4",
+      "expected": "87133080ccc3f38d24c82e1127df6ffbe8640186af9cfdc04463e233dd22ebd4"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v4/0x0600178B-WriteSubfile.json",
+      "accepted": true,
+      "actual": "3173bcb90499fd52c9ffcb1a42a5e2b796bb33e935ce9c42097fa30da9645650",
+      "expected": "3173bcb90499fd52c9ffcb1a42a5e2b796bb33e935ce9c42097fa30da9645650"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v4/0x0600178B-WriteSubfile.txt",
+      "accepted": true,
+      "actual": "974f785caf2dc258dbf2bad7d8994f7a1cd47af2782f8ce6d78acf54b5210540",
+      "expected": "974f785caf2dc258dbf2bad7d8994f7a1cd47af2782f8ce6d78acf54b5210540"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v4/0x0600178C-WriteFolder.json",
+      "accepted": true,
+      "actual": "76b94c936eeeb47a669473d155539fe559a2e6e59b53108abce590b6e6b22cd5",
+      "expected": "76b94c936eeeb47a669473d155539fe559a2e6e59b53108abce590b6e6b22cd5"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v4/0x0600178C-WriteFolder.txt",
+      "accepted": true,
+      "actual": "26798c127dea24a165559bc4ae3684e5d55fcb77a983346b4f4a793a95d1c7a3",
+      "expected": "26798c127dea24a165559bc4ae3684e5d55fcb77a983346b4f4a793a95d1c7a3"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v4/0x06001815-ReportSaveError.json",
+      "accepted": true,
+      "actual": "f9e8a79c9920e7eb3ec5179ec2166732ff37e3328769be83026cb25c81fded98",
+      "expected": "f9e8a79c9920e7eb3ec5179ec2166732ff37e3328769be83026cb25c81fded98"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v4/0x06001815-ReportSaveError.txt",
+      "accepted": true,
+      "actual": "45606e47cc816bacab8c472d7ffd213c393baea65e8c03a001024ae4430309d5",
+      "expected": "45606e47cc816bacab8c472d7ffd213c393baea65e8c03a001024ae4430309d5"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v4/0x06001823-Awake.json",
+      "accepted": true,
+      "actual": "40c4af91d45249316483d2f2ed37c5fd67fdcecc50fcd1630ac346a2c10ec7d7",
+      "expected": "40c4af91d45249316483d2f2ed37c5fd67fdcecc50fcd1630ac346a2c10ec7d7"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v4/0x06001823-Awake.txt",
+      "accepted": true,
+      "actual": "812a720440f83955f083ae22bc9acde48f2bda34e1198446aa760dbe2442b6d9",
+      "expected": "812a720440f83955f083ae22bc9acde48f2bda34e1198446aa760dbe2442b6d9"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v4/0x06001824-Start.json",
+      "accepted": true,
+      "actual": "d3688761007d06ab4dc25d0cf060d71811349d23eea08828fceae4526e9d1f2d",
+      "expected": "d3688761007d06ab4dc25d0cf060d71811349d23eea08828fceae4526e9d1f2d"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v4/0x06001824-Start.txt",
+      "accepted": true,
+      "actual": "27f06fe1a49baf8c01273a7784092c3c7c0e3c0c3eb76e2032a222d2114a673d",
+      "expected": "27f06fe1a49baf8c01273a7784092c3c7c0e3c0c3eb76e2032a222d2114a673d"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v4/0x06001827-Update.json",
+      "accepted": true,
+      "actual": "adc2e02cc3c068c49d88e2fcad0abc150a070ed187461516d9e1f068920256b8",
+      "expected": "adc2e02cc3c068c49d88e2fcad0abc150a070ed187461516d9e1f068920256b8"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v4/0x06001827-Update.txt",
+      "accepted": true,
+      "actual": "2cc596d4c7d33a4460376eaa7f6c4f6c2d0f8425b7ba43e2b73d61434b051fb1",
+      "expected": "2cc596d4c7d33a4460376eaa7f6c4f6c2d0f8425b7ba43e2b73d61434b051fb1"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v4/0x06001828-Save.json",
+      "accepted": true,
+      "actual": "480193c5661b1c5a0346ba172ff5123f84e08e74585df5d1926fc73fe80bc86e",
+      "expected": "480193c5661b1c5a0346ba172ff5123f84e08e74585df5d1926fc73fe80bc86e"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v4/0x06001828-Save.txt",
+      "accepted": true,
+      "actual": "8a773067c7cf1012fd72eee0fc0a69ec9ea5a2d1e81a9d10bd16264628dc7fad",
+      "expected": "8a773067c7cf1012fd72eee0fc0a69ec9ea5a2d1e81a9d10bd16264628dc7fad"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v4/0x06001829-Save.json",
+      "accepted": true,
+      "actual": "46c419fa3417e5eb75ce60b915442b84a401ba5f21df0db537bb59ab066bca1f",
+      "expected": "46c419fa3417e5eb75ce60b915442b84a401ba5f21df0db537bb59ab066bca1f"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v4/0x06001829-Save.txt",
+      "accepted": true,
+      "actual": "d7c4e663f6e4e28a2418b61b6662a6a563d45d768dabaed38cf74e7e47a4f3de",
+      "expected": "d7c4e663f6e4e28a2418b61b6662a6a563d45d768dabaed38cf74e7e47a4f3de"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v4/0x0600182B-CompleteSaveable.json",
+      "accepted": true,
+      "actual": "b2054c906897b255d7797cce8dcf04afcd48fe8da7a64bb4c18605c71b32313d",
+      "expected": "b2054c906897b255d7797cce8dcf04afcd48fe8da7a64bb4c18605c71b32313d"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v4/0x0600182B-CompleteSaveable.txt",
+      "accepted": true,
+      "actual": "0eb2d0e68e883cdc8d94b7f72a387a0fa5604c664f1bd84c1c67201b976533ff",
+      "expected": "0eb2d0e68e883cdc8d94b7f72a387a0fa5604c664f1bd84c1c67201b976533ff"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v4/0x0600182C-ClearCompletedSaveable.json",
+      "accepted": true,
+      "actual": "823c8b347107f45d54b8330b1000414008830f2976a49e53f504c9c7793f5345",
+      "expected": "823c8b347107f45d54b8330b1000414008830f2976a49e53f504c9c7793f5345"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v4/0x0600182C-ClearCompletedSaveable.txt",
+      "accepted": true,
+      "actual": "51ecb56289f65a68bd4b533c6f7282882584e4ce3029fd778a0760fe7e3aae48",
+      "expected": "51ecb56289f65a68bd4b533c6f7282882584e4ce3029fd778a0760fe7e3aae48"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v4/0x0600182E-RegisterSaveable.json",
+      "accepted": true,
+      "actual": "a6997b23b6f623ceb695e55c6dad2407f3d70cfd6af6071e9c662df36ddb1197",
+      "expected": "a6997b23b6f623ceb695e55c6dad2407f3d70cfd6af6071e9c662df36ddb1197"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v4/0x0600182E-RegisterSaveable.txt",
+      "accepted": true,
+      "actual": "34c6f2535397ebc2bf6c585c6d5f3fc05e51b83c4cc935a5efb11ec48786f11e",
+      "expected": "34c6f2535397ebc2bf6c585c6d5f3fc05e51b83c4cc935a5efb11ec48786f11e"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v4/0x0600182F-QueueSaveRequest.json",
+      "accepted": true,
+      "actual": "4f98dbdce26429d8bfb6137502b8f6e74598214e6e145d8f2cece1f99748a280",
+      "expected": "4f98dbdce26429d8bfb6137502b8f6e74598214e6e145d8f2cece1f99748a280"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v4/0x0600182F-QueueSaveRequest.txt",
+      "accepted": true,
+      "actual": "1759d65ac40544c30edff87d322f67d899308810d51152f96bfeaf2c76e8632a",
+      "expected": "1759d65ac40544c30edff87d322f67d899308810d51152f96bfeaf2c76e8632a"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v4/0x06001830-DequeueSaveRequest.json",
+      "accepted": true,
+      "actual": "032b5da17ecc80db5bb5720505c238c6ac461c17877c10e39cb46c0d11e2d938",
+      "expected": "032b5da17ecc80db5bb5720505c238c6ac461c17877c10e39cb46c0d11e2d938"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v4/0x06001830-DequeueSaveRequest.txt",
+      "accepted": true,
+      "actual": "9b42a5b7b73b67c0611dcd359441c69adef5c1346a93361dde96335c4e8ce6e6",
+      "expected": "9b42a5b7b73b67c0611dcd359441c69adef5c1346a93361dde96335c4e8ce6e6"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v4/0x06001834-Clean.json",
+      "accepted": true,
+      "actual": "14c23548d098c3d9a271a11321627262ebe3edabc0b06e7d83d0f3cac2a71a40",
+      "expected": "14c23548d098c3d9a271a11321627262ebe3edabc0b06e7d83d0f3cac2a71a40"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v4/0x06001834-Clean.txt",
+      "accepted": true,
+      "actual": "6fa992a3a962db9e571086aee512486bcd163cf67591c7e5c5920ab829baf86f",
+      "expected": "6fa992a3a962db9e571086aee512486bcd163cf67591c7e5c5920ab829baf86f"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v4/0x06001837-_ctor.json",
+      "accepted": true,
+      "actual": "3e2a7dbf76ba0aa749cb5a16f5f93edfe20fe1340609783af78a5c4d8c4379a4",
+      "expected": "3e2a7dbf76ba0aa749cb5a16f5f93edfe20fe1340609783af78a5c4d8c4379a4"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v4/0x06001837-_ctor.txt",
+      "accepted": true,
+      "actual": "08b719311c1dc23630b18927f03d587010e2502a90359200e108abd2e5b44249",
+      "expected": "08b719311c1dc23630b18927f03d587010e2502a90359200e108abd2e5b44249"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v4/0x0600183A-_ctor.json",
+      "accepted": true,
+      "actual": "31387a17e2453817eb3a85c8d177d95c921b41b07150675e1083490b95180301",
+      "expected": "31387a17e2453817eb3a85c8d177d95c921b41b07150675e1083490b95180301"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v4/0x0600183A-_ctor.txt",
+      "accepted": true,
+      "actual": "0571afdf5c028284b144f93492a77807d4ed0a7de45fa58fe393ba4eb5831379",
+      "expected": "0571afdf5c028284b144f93492a77807d4ed0a7de45fa58fe393ba4eb5831379"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v4/0x0600183C-MoveNext.json",
+      "accepted": true,
+      "actual": "6db1954ac59e5e043669c7fcecd288b599fca9a4385e9d20f7b483145beedcb2",
+      "expected": "6db1954ac59e5e043669c7fcecd288b599fca9a4385e9d20f7b483145beedcb2"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v4/0x0600183C-MoveNext.txt",
+      "accepted": true,
+      "actual": "50a9a591b9884de623dfe51cfe95cd2739f359e3f8619ab97a47f562402aa167",
+      "expected": "50a9a591b9884de623dfe51cfe95cd2739f359e3f8619ab97a47f562402aa167"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v4/0x0600184A-_ctor.json",
+      "accepted": true,
+      "actual": "cca2cbabde424a49e283fb1d4e6472f22f28f3577440dd396e48d4c42b735e29",
+      "expected": "cca2cbabde424a49e283fb1d4e6472f22f28f3577440dd396e48d4c42b735e29"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v4/0x0600184A-_ctor.txt",
+      "accepted": true,
+      "actual": "385bfe6aed59e39749a0c8d6934566408f9fd85454dcfdff60eb09427e311d29",
+      "expected": "385bfe6aed59e39749a0c8d6934566408f9fd85454dcfdff60eb09427e311d29"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v4/0x0600184B-Complete.json",
+      "accepted": true,
+      "actual": "d7ede109a461a651ade7c7dad2b7240a14c3ad8e87e23e6d5353f1e80861a9f2",
+      "expected": "d7ede109a461a651ade7c7dad2b7240a14c3ad8e87e23e6d5353f1e80861a9f2"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-disassembly-v4/0x0600184B-Complete.txt",
+      "accepted": true,
+      "actual": "9dd2577c46b6dc089a8a09c002eefa780ccccfcd3e36ab029d1f5bfc21910139",
+      "expected": "9dd2577c46b6dc089a8a09c002eefa780ccccfcd3e36ab029d1f5bfc21910139"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-integrity-before-docs-20261105.json",
+      "accepted": true,
+      "actual": "f14a4505af27b650d122590ed02ea5d629b1dee48a024382d7d25e0abb63890f",
+      "expected": "f14a4505af27b650d122590ed02ea5d629b1dee48a024382d7d25e0abb63890f"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-integrity-final-20261105.json",
+      "accepted": true,
+      "actual": "1f5b6d85bc446bc71972cb16d712e2c3bb4f8d3f7e1df57eb58f65e8aa309895",
+      "expected": "1f5b6d85bc446bc71972cb16d712e2c3bb4f8d3f7e1df57eb58f65e8aa309895"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-map-run2.stderr.txt",
+      "accepted": true,
+      "actual": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "expected": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-map-run2.stdout.txt",
+      "accepted": true,
+      "actual": "4faab7520bca002a19cf6b520888f2a3ec13e53baeb080012059e47fccecb7b6",
+      "expected": "4faab7520bca002a19cf6b520888f2a3ec13e53baeb080012059e47fccecb7b6"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-map-run4.stderr.txt",
+      "accepted": true,
+      "actual": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "expected": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-map-run4.stdout.txt",
+      "accepted": true,
+      "actual": "9cd2f04f72ea1f28094ed3b8156638c22a784d95f3cc6f7da6a1dc075cbcbd32",
+      "expected": "9cd2f04f72ea1f28094ed3b8156638c22a784d95f3cc6f7da6a1dc075cbcbd32"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-map-v4.json",
+      "accepted": true,
+      "actual": "b0325caba7394ceb3b2f2d6cd1a3d99830d982b285b6c81420a941892ff8e2a5",
+      "expected": "b0325caba7394ceb3b2f2d6cd1a3d99830d982b285b6c81420a941892ff8e2a5"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-map.json",
+      "accepted": true,
+      "actual": "8261fa7322224c2e99175c3fd366ab4ad2e7c4c45615f8f7fccd13be5b52ff51",
+      "expected": "8261fa7322224c2e99175c3fd366ab4ad2e7c4c45615f8f7fccd13be5b52ff51"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-metadata/ISaveable.stderr.txt",
+      "accepted": true,
+      "actual": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "expected": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-metadata/ISaveable.stub.cs",
+      "accepted": true,
+      "actual": "2fabe8c7a3c82d7ad09156acbfa299696feed25adcc4ce12b90793e2acb03337",
+      "expected": "2fabe8c7a3c82d7ad09156acbfa299696feed25adcc4ce12b90793e2acb03337"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-metadata/SaveManager.stderr.txt",
+      "accepted": true,
+      "actual": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "expected": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-metadata/SaveManager.stub.cs",
+      "accepted": true,
+      "actual": "fe976524a657fbcebf713f8838e301e06ce80e559121b7ef60f581a653ea4d19",
+      "expected": "fe976524a657fbcebf713f8838e301e06ce80e559121b7ef60f581a653ea4d19"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-metadata/SaveRequest.stderr.txt",
+      "accepted": true,
+      "actual": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "expected": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-metadata/SaveRequest.stub.cs",
+      "accepted": true,
+      "actual": "4af107b5a4df7b5d3d9197d10ce8b93bb10b1e7f14f8f2aa11f4ca4458fcfabc",
+      "expected": "4af107b5a4df7b5d3d9197d10ce8b93bb10b1e7f14f8f2aa11f4ca4458fcfabc"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/native-v4-review.json",
+      "accepted": true,
+      "actual": "143e30f4dd558e9b0d3f293ce225279dae62d88ba0cf59ab9163f1800b466180",
+      "expected": "143e30f4dd558e9b0d3f293ce225279dae62d88ba0cf59ab9163f1800b466180"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/source-documents.json",
+      "accepted": true,
+      "actual": "717c083efff951e7bd753717a4973cf0039bfebffc52d818d1f3bf195517f6c0",
+      "expected": "717c083efff951e7bd753717a4973cf0039bfebffc52d818d1f3bf195517f6c0"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-save-audit-20261105/validate-native-evidence.py",
+      "accepted": true,
+      "actual": "21aca9ebd3e37719b9d7b80351dc00a8c78e1e139a3463d2606dda2032790ed2",
+      "expected": "21aca9ebd3e37719b9d7b80351dc00a8c78e1e139a3463d2606dda2032790ed2"
+    },
+    {
+      "check": "prior manifest Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105",
+      "accepted": true,
+      "actual": "6176543cd25dd937e5c4475775d2f18bb24c01a77430c95b196fc7dcd6363ffa",
+      "expected": "6176543cd25dd937e5c4475775d2f18bb24c01a77430c95b196fc7dcd6363ffa"
+    },
+    {
+      "check": "prior artifact count Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105",
+      "accepted": true,
+      "actual": 91,
+      "expected": 91
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/archive-world-exit-evidence.py",
+      "accepted": true,
+      "actual": "06a46cf756bbf854e68e93f0e59c4d0062918c6d8694f4df7200a725fd807547",
+      "expected": "06a46cf756bbf854e68e93f0e59c4d0062918c6d8694f4df7200a725fd807547"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/direct-reference-candidates.json",
+      "accepted": true,
+      "actual": "3b65cfca73f159426757e645cdafa219336f484ca9af5e00e1a47ec212745a53",
+      "expected": "3b65cfca73f159426757e645cdafa219336f484ca9af5e00e1a47ec212745a53"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/input-manifest.json",
+      "accepted": true,
+      "actual": "f7d3b2a163daba9b96be7d078caf3fd0f7723b718f9468ff61b3262f2f88c498",
+      "expected": "f7d3b2a163daba9b96be7d078caf3fd0f7723b718f9468ff61b3262f2f88c498"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/inspect-inputs.py",
+      "accepted": true,
+      "actual": "cf15a082b13fbccf039899f4dfe5fad8009e0945daf068042f12877cca482f77",
+      "expected": "cf15a082b13fbccf039899f4dfe5fad8009e0945daf068042f12877cca482f77"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/inventory.stderr.txt",
+      "accepted": true,
+      "actual": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "expected": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/inventory.stdout.txt",
+      "accepted": true,
+      "actual": "d53f2e1cddffe31bda1efbf0c28bacd6c015d42dcd13d55ebfe780068c8356cc",
+      "expected": "d53f2e1cddffe31bda1efbf0c28bacd6c015d42dcd13d55ebfe780068c8356cc"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/inventory2.stderr.txt",
+      "accepted": true,
+      "actual": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "expected": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/inventory2.stdout.txt",
+      "accepted": true,
+      "actual": "e44dce50332f79cb9ecc055a7f99a473380a747c0c5ea9730bb6073fc0275f11",
+      "expected": "e44dce50332f79cb9ecc055a7f99a473380a747c0c5ea9730bb6073fc0275f11"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/map-world-exit-pass1.ps1",
+      "accepted": true,
+      "actual": "91bea085b89a75952be1aaaf4feeb8e0bd637cb2ad1fc9072bbaefa5e37ee023",
+      "expected": "91bea085b89a75952be1aaaf4feeb8e0bd637cb2ad1fc9072bbaefa5e37ee023"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/map-world-exit-pass2.ps1",
+      "accepted": true,
+      "actual": "34196c7c45f6cf8d4d8272f248988a42adb6bba9bae80c937dfe3c40f9753213",
+      "expected": "34196c7c45f6cf8d4d8272f248988a42adb6bba9bae80c937dfe3c40f9753213"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/map-world-exit.ps1",
+      "accepted": true,
+      "actual": "1ac2c8d2c9dc52702241b944e1ced063ece1aadbb2e9410f9db0caabafbd4854",
+      "expected": "1ac2c8d2c9dc52702241b944e1ced063ece1aadbb2e9410f9db0caabafbd4854"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/native-byte-integrity.json",
+      "accepted": true,
+      "actual": "db33286d473193c80a6e88bc8e6ca9cc792ea5c56a95b6b706839f573684a1c9",
+      "expected": "db33286d473193c80a6e88bc8e6ca9cc792ea5c56a95b6b706839f573684a1c9"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/native-disassembly-pass2/0x06000A53-MonoBehaviour-StopAllCoroutines.json",
+      "accepted": true,
+      "actual": "745280eb5b41267fba38ec378858ab41948fc02934aa9608c0259ff000af80b8",
+      "expected": "745280eb5b41267fba38ec378858ab41948fc02934aa9608c0259ff000af80b8"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/native-disassembly-pass2/0x06000A53-MonoBehaviour-StopAllCoroutines.txt",
+      "accepted": true,
+      "actual": "0e202b886ca77279062450c57fe430086b1bc039fd4b3356a55786239837b581",
+      "expected": "0e202b886ca77279062450c57fe430086b1bc039fd4b3356a55786239837b581"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/native-disassembly-pass2/0x060017A8-LoadManager-Start.json",
+      "accepted": true,
+      "actual": "8bd68d4dd4647ab9782e30a31d8e2b647511ffa52839cffa3eda3aa0315d6ace",
+      "expected": "8bd68d4dd4647ab9782e30a31d8e2b647511ffa52839cffa3eda3aa0315d6ace"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/native-disassembly-pass2/0x060017A8-LoadManager-Start.txt",
+      "accepted": true,
+      "actual": "0e9d75eaa50a29935fb0dfd8ab40209e77a91616e783aa800e5d08cfe0a35a7e",
+      "expected": "0e9d75eaa50a29935fb0dfd8ab40209e77a91616e783aa800e5d08cfe0a35a7e"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/native-disassembly-pass2/0x060017B5-LoadManager-StartGame.json",
+      "accepted": true,
+      "actual": "e72b1266ed82677c49ee9a598812f30f47b457c7811097d64fb910948566e991",
+      "expected": "e72b1266ed82677c49ee9a598812f30f47b457c7811097d64fb910948566e991"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/native-disassembly-pass2/0x060017B5-LoadManager-StartGame.txt",
+      "accepted": true,
+      "actual": "01ee1472dc3d25e20ec20c8b63d6f3338e5a0e88029b5c2f945a9a67369dcdf1",
+      "expected": "01ee1472dc3d25e20ec20c8b63d6f3338e5a0e88029b5c2f945a9a67369dcdf1"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/native-disassembly-pass2/0x060017BA-LoadManager-LoadLastSave.json",
+      "accepted": true,
+      "actual": "a01946c0c75793505b6d145af56e93905018a01f4fe9cc852771c3c151b03c64",
+      "expected": "a01946c0c75793505b6d145af56e93905018a01f4fe9cc852771c3c151b03c64"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/native-disassembly-pass2/0x060017BA-LoadManager-LoadLastSave.txt",
+      "accepted": true,
+      "actual": "f75bbb0b5fe948fd0d34e5567e51c88a9bc80412d229d174f25c2a5ac2b7e14f",
+      "expected": "f75bbb0b5fe948fd0d34e5567e51c88a9bc80412d229d174f25c2a5ac2b7e14f"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/native-disassembly-pass2/0x060017BB-LoadManager-CleanUp.json",
+      "accepted": true,
+      "actual": "b15283db8a1def886f4dae98b95cc9a10b2bf3c0cc685c2c273ddc59ddbdfc88",
+      "expected": "b15283db8a1def886f4dae98b95cc9a10b2bf3c0cc685c2c273ddc59ddbdfc88"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/native-disassembly-pass2/0x060017BB-LoadManager-CleanUp.txt",
+      "accepted": true,
+      "actual": "878f48d0c6ff938e811a99403ca5851b9a143a75a79001346af32f2b54ba4df6",
+      "expected": "878f48d0c6ff938e811a99403ca5851b9a143a75a79001346af32f2b54ba4df6"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/native-disassembly-pass2/0x060017BC-LoadManager-ExitToMenu.json",
+      "accepted": true,
+      "actual": "8f1cf388b58ba12a787168b90db0374bfb0b1904a76be9f64a3525eb89e359ed",
+      "expected": "8f1cf388b58ba12a787168b90db0374bfb0b1904a76be9f64a3525eb89e359ed"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/native-disassembly-pass2/0x060017BC-LoadManager-ExitToMenu.txt",
+      "accepted": true,
+      "actual": "e042fc7b7c4fe6593a891cfacd752327b54498f9e4eb391ba516c0a5ccd711ce",
+      "expected": "e042fc7b7c4fe6593a891cfacd752327b54498f9e4eb391ba516c0a5ccd711ce"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/native-disassembly-pass2/0x060017E4-__StartGame_g__LoadRoutine_0_d-MoveNext.json",
+      "accepted": true,
+      "actual": "161c0e94d9abf101a8fcfa6ae7dff8cba096288951e25ea42317014b3913ba11",
+      "expected": "161c0e94d9abf101a8fcfa6ae7dff8cba096288951e25ea42317014b3913ba11"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/native-disassembly-pass2/0x060017E4-__StartGame_g__LoadRoutine_0_d-MoveNext.txt",
+      "accepted": true,
+      "actual": "0c3a51650f590e3d4df516cae1387b2ef18cc942d0bf8eeb86b258d4a0c6c7f6",
+      "expected": "0c3a51650f590e3d4df516cae1387b2ef18cc942d0bf8eeb86b258d4a0c6c7f6"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/native-disassembly-pass2/0x06001806-__ExitToMenu_g__Load_0_d-MoveNext.json",
+      "accepted": true,
+      "actual": "052a515699e8a2882433bd80b7b109c86489c19b5cbcbc50c2ea0c443e3dfb2a",
+      "expected": "052a515699e8a2882433bd80b7b109c86489c19b5cbcbc50c2ea0c443e3dfb2a"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/native-disassembly-pass2/0x06001806-__ExitToMenu_g__Load_0_d-MoveNext.txt",
+      "accepted": true,
+      "actual": "f050f0cb715f9d122eecd67deb39f1f89e71bcb1747fd742e43f88cd1bf5a8b8",
+      "expected": "f050f0cb715f9d122eecd67deb39f1f89e71bcb1747fd742e43f88cd1bf5a8b8"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/native-disassembly-pass2/0x06001824-SaveManager-Start.json",
+      "accepted": true,
+      "actual": "239f26c40c39e505ffdefaa94ec1858e7835ea817ab0c60704dffdaa697f8166",
+      "expected": "239f26c40c39e505ffdefaa94ec1858e7835ea817ab0c60704dffdaa697f8166"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/native-disassembly-pass2/0x06001824-SaveManager-Start.txt",
+      "accepted": true,
+      "actual": "45688e751b7aa6fd34ca18ddc8ab92325b8129c91ef95cced3eddc2c2e5abcce",
+      "expected": "45688e751b7aa6fd34ca18ddc8ab92325b8129c91ef95cced3eddc2c2e5abcce"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/native-disassembly-pass2/0x06001834-SaveManager-Clean.json",
+      "accepted": true,
+      "actual": "41d4227179620545562740af61f6191dab344124c8a31d9ffdf374cd7380c2b7",
+      "expected": "41d4227179620545562740af61f6191dab344124c8a31d9ffdf374cd7380c2b7"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/native-disassembly-pass2/0x06001834-SaveManager-Clean.txt",
+      "accepted": true,
+      "actual": "b1368a4f23a8a5e5a8d9bcf2ecaa6a9aca494b55660ebcfc96496d08c49a2900",
+      "expected": "b1368a4f23a8a5e5a8d9bcf2ecaa6a9aca494b55660ebcfc96496d08c49a2900"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/native-disassembly-pass2/0x0600183B-__Save_g__SaveRoutine_0_d-System_IDisposable_Dispose.json",
+      "accepted": true,
+      "actual": "72fddcc46b080d6e6832874cb20414da958bb49fd311d05c087e5c4dcb8657ba",
+      "expected": "72fddcc46b080d6e6832874cb20414da958bb49fd311d05c087e5c4dcb8657ba"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/native-disassembly-pass2/0x0600183B-__Save_g__SaveRoutine_0_d-System_IDisposable_Dispose.txt",
+      "accepted": true,
+      "actual": "6fad993845c69514f744a39dc9938cbf507e6ab56d9835215a26b64bae23344d",
+      "expected": "6fad993845c69514f744a39dc9938cbf507e6ab56d9835215a26b64bae23344d"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/native-disassembly-pass2/0x06001AD2-Lobby-LeaveLobby.json",
+      "accepted": true,
+      "actual": "c109438b499bfcedd78bca798f8521e4a96e94cdb558e84e4f922a9e520adcd7",
+      "expected": "c109438b499bfcedd78bca798f8521e4a96e94cdb558e84e4f922a9e520adcd7"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/native-disassembly-pass2/0x06001AD2-Lobby-LeaveLobby.txt",
+      "accepted": true,
+      "actual": "3f299d75bfed7e37bea9439af604ea97b3dccacb9a4a88256356a9cf030340b8",
+      "expected": "3f299d75bfed7e37bea9439af604ea97b3dccacb9a4a88256356a9cf030340b8"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/native-disassembly-pass2/0x06002516-PlayerManager-SavePlayer.json",
+      "accepted": true,
+      "actual": "941e84e6a7db100465db49548cf965a96cfde6e35d90f7ff3b480d59cd347334",
+      "expected": "941e84e6a7db100465db49548cf965a96cfde6e35d90f7ff3b480d59cd347334"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/native-disassembly-pass2/0x06002516-PlayerManager-SavePlayer.txt",
+      "accepted": true,
+      "actual": "f630e78fd7229d247b7bd234d614d665bcaaa8ae9f0f562134a02ab0a779c047",
+      "expected": "f630e78fd7229d247b7bd234d614d665bcaaa8ae9f0f562134a02ab0a779c047"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/native-disassembly-pass2/0x0600628F-PauseMenu-Exit.json",
+      "accepted": true,
+      "actual": "a52cfafdb219856d8a03d0549d140f253a0d54e11145cb36160a181d29d3e959",
+      "expected": "a52cfafdb219856d8a03d0549d140f253a0d54e11145cb36160a181d29d3e959"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/native-disassembly-pass2/0x0600628F-PauseMenu-Exit.txt",
+      "accepted": true,
+      "actual": "cc8e6378c135224989647ff1bc69d8540b5250589274ceb41d4f35d77bbce6fa",
+      "expected": "cc8e6378c135224989647ff1bc69d8540b5250589274ceb41d4f35d77bbce6fa"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/native-disassembly-pass3/0x0600180B-__c__DisplayClass81_1-_ExitToMenu_b__1.json",
+      "accepted": true,
+      "actual": "712157e425552c62525604fe58da9cf48a9e8b23a7dcf5c05ee443f3e1532a25",
+      "expected": "712157e425552c62525604fe58da9cf48a9e8b23a7dcf5c05ee443f3e1532a25"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/native-disassembly-pass3/0x0600180B-__c__DisplayClass81_1-_ExitToMenu_b__1.txt",
+      "accepted": true,
+      "actual": "fedf2a609abb14fa669c43121820b5ead028d0ab0841c88425720321106e2c00",
+      "expected": "fedf2a609abb14fa669c43121820b5ead028d0ab0841c88425720321106e2c00"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/native-disassembly-pass3/0x060030C9-PersistentSingleton_1-Awake.json",
+      "accepted": true,
+      "actual": "35ffffc59f7fbabe1ce0eb5bac28f283f5f247d248a646cb37b6b629e0c69031",
+      "expected": "35ffffc59f7fbabe1ce0eb5bac28f283f5f247d248a646cb37b6b629e0c69031"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/native-disassembly-pass3/0x060030C9-PersistentSingleton_1-Awake.txt",
+      "accepted": true,
+      "actual": "d4f0ee293d27a0046703ab45a4ab42f8a584428eb26b627d29830317d71b7b00",
+      "expected": "d4f0ee293d27a0046703ab45a4ab42f8a584428eb26b627d29830317d71b7b00"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/native-disassembly-pass3/0x060030FF-Singleton_1-Awake.json",
+      "accepted": true,
+      "actual": "d09d830c3f7d49638d76ab4405c02be96620e5de9ac9b3eb499da39cebb630a7",
+      "expected": "d09d830c3f7d49638d76ab4405c02be96620e5de9ac9b3eb499da39cebb630a7"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/native-disassembly-pass3/0x060030FF-Singleton_1-Awake.txt",
+      "accepted": true,
+      "actual": "8db06b32e8ba17957e0b34cba252375dddf8c48fc564fe7324ffe49f8654f131",
+      "expected": "8db06b32e8ba17957e0b34cba252375dddf8c48fc564fe7324ffe49f8654f131"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/native-disassembly-pass3/0x06003100-Singleton_1-OnDestroy.json",
+      "accepted": true,
+      "actual": "a175f3b8fb6573a6f4fc3c9569b0789acac7a20e449c83f7c6dbafcd206f394e",
+      "expected": "a175f3b8fb6573a6f4fc3c9569b0789acac7a20e449c83f7c6dbafcd206f394e"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/native-disassembly-pass3/0x06003100-Singleton_1-OnDestroy.txt",
+      "accepted": true,
+      "actual": "155f2a44b0997b6fbea2c388d810b544a6599222e3fa292e0b3944ef189783be",
+      "expected": "155f2a44b0997b6fbea2c388d810b544a6599222e3fa292e0b3944ef189783be"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/native-disassembly-pass3/0x06003CFE-ExitToMenu-Exit.json",
+      "accepted": true,
+      "actual": "d46838eada68f77c9d9c2568e3733c9fd5d17a175c4909c6bfb4f1282a7e3293",
+      "expected": "d46838eada68f77c9d9c2568e3733c9fd5d17a175c4909c6bfb4f1282a7e3293"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/native-disassembly-pass3/0x06003CFE-ExitToMenu-Exit.txt",
+      "accepted": true,
+      "actual": "b7498fb66575d1774eb5eeb8f31617cb212b7e03c11a256f9f324867aa6d4914",
+      "expected": "b7498fb66575d1774eb5eeb8f31617cb212b7e03c11a256f9f324867aa6d4914"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/native-disassembly-pass3/0x06006A54-ConfirmExitScreen-ConfirmExit.json",
+      "accepted": true,
+      "actual": "a85060a0021b251c765343b8a74013c8707dad7042afbc5d341cc8dc6ded7e1d",
+      "expected": "a85060a0021b251c765343b8a74013c8707dad7042afbc5d341cc8dc6ded7e1d"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/native-disassembly-pass3/0x06006A54-ConfirmExitScreen-ConfirmExit.txt",
+      "accepted": true,
+      "actual": "ffc2b15e009c2b73249e0cf686fd3c471a92802675eec636958cfda97221f202",
+      "expected": "ffc2b15e009c2b73249e0cf686fd3c471a92802675eec636958cfda97221f202"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/native-disassembly-pass4/0x060017B6-LoadManager-LoadTutorialAsClient.json",
+      "accepted": true,
+      "actual": "6ff1bd0fd4850cf397c3059f62a4c82310aa4850494982e071510a01cee2f223",
+      "expected": "6ff1bd0fd4850cf397c3059f62a4c82310aa4850494982e071510a01cee2f223"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/native-disassembly-pass4/0x060017B6-LoadManager-LoadTutorialAsClient.txt",
+      "accepted": true,
+      "actual": "b3791c508d2af882b3482f998f3f10ec97db8982b769e869d5844db4fb10e613",
+      "expected": "b3791c508d2af882b3482f998f3f10ec97db8982b769e869d5844db4fb10e613"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/native-disassembly-pass4/0x060017B7-LoadManager-LoadAsClient.json",
+      "accepted": true,
+      "actual": "9d0aa18128cfd3ec5570984abd42eb53c8db42204c4e1733ad33485cb4724dae",
+      "expected": "9d0aa18128cfd3ec5570984abd42eb53c8db42204c4e1733ad33485cb4724dae"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/native-disassembly-pass4/0x060017B7-LoadManager-LoadAsClient.txt",
+      "accepted": true,
+      "actual": "7a08cedc9330643e12bd757626fe3307a52fa73f4a26d902635ae26c2d390c50",
+      "expected": "7a08cedc9330643e12bd757626fe3307a52fa73f4a26d902635ae26c2d390c50"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/native-disassembly-pass4/0x06001823-SaveManager-Awake.json",
+      "accepted": true,
+      "actual": "488911ffc39861c6e3977c76a18db3cdde3b3dcc2fb6cde343696d0e28c5d734",
+      "expected": "488911ffc39861c6e3977c76a18db3cdde3b3dcc2fb6cde343696d0e28c5d734"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/native-disassembly-pass4/0x06001823-SaveManager-Awake.txt",
+      "accepted": true,
+      "actual": "f44b70fbc4c73a5cf39032e8824b4f4627ee51785871442ca74849c86d7cdb7b",
+      "expected": "f44b70fbc4c73a5cf39032e8824b4f4627ee51785871442ca74849c86d7cdb7b"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/native-disassembly-pass4/0x06006A53-ConfirmExitScreen-Update.json",
+      "accepted": true,
+      "actual": "91de6e42edfeb6319f457a482ccd7df48aeb07279777807f4d0de7672b99a365",
+      "expected": "91de6e42edfeb6319f457a482ccd7df48aeb07279777807f4d0de7672b99a365"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/native-disassembly-pass4/0x06006A53-ConfirmExitScreen-Update.txt",
+      "accepted": true,
+      "actual": "216fd703ffe777e43c4b93ec419a1e877ff5ead65c9923b53a6939dae29fcb3b",
+      "expected": "216fd703ffe777e43c4b93ec419a1e877ff5ead65c9923b53a6939dae29fcb3b"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/native-integrity-closeout.json",
+      "accepted": true,
+      "actual": "44b2168ec07fc00beb7054df641bbe61488374ab61352414bd06b1c44243e4c1",
+      "expected": "44b2168ec07fc00beb7054df641bbe61488374ab61352414bd06b1c44243e4c1"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/native-integrity-final.json",
+      "accepted": true,
+      "actual": "d7d3b297e0a0b50a10fd5200bf0a73903790fd2c35d68493b40b32ba02e1610b",
+      "expected": "d7d3b297e0a0b50a10fd5200bf0a73903790fd2c35d68493b40b32ba02e1610b"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/native-map-inventory.json",
+      "accepted": true,
+      "actual": "bd0f5ac38cc3c532dec13c2f2db3d2f50d5493531f47c1f36c52c46c0c9ec4e9",
+      "expected": "bd0f5ac38cc3c532dec13c2f2db3d2f50d5493531f47c1f36c52c46c0c9ec4e9"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/native-map-inventory2.json",
+      "accepted": true,
+      "actual": "b1e92151cb069c4a9067d9dbb2c463c3a8234b83e09827ced5a87664abe12d2b",
+      "expected": "b1e92151cb069c4a9067d9dbb2c463c3a8234b83e09827ced5a87664abe12d2b"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/native-map-pass2.json",
+      "accepted": true,
+      "actual": "39428cef78a72a2149714f01c15be470cb8d4253168ed051a7d92d73b283062f",
+      "expected": "39428cef78a72a2149714f01c15be470cb8d4253168ed051a7d92d73b283062f"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/native-map-pass3.json",
+      "accepted": true,
+      "actual": "50f6f6c543ddc2cadbfdd43428b40051a845cb1e24f3b8226f222ce2912efaab",
+      "expected": "50f6f6c543ddc2cadbfdd43428b40051a845cb1e24f3b8226f222ce2912efaab"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/native-map-pass4.json",
+      "accepted": true,
+      "actual": "99429e78a7085342ba69aea0b3f05d96bb088a3475bf440b0c0dc14225d48f77",
+      "expected": "99429e78a7085342ba69aea0b3f05d96bb088a3475bf440b0c0dc14225d48f77"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/native-review/final-integrity-check.json",
+      "accepted": true,
+      "actual": "4e4674d87f4e6e6538049aa0017f1045112138478bec99b436a4420d30b11bcf",
+      "expected": "4e4674d87f4e6e6538049aa0017f1045112138478bec99b436a4420d30b11bcf"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/native-review/independent-byte-check.json",
+      "accepted": true,
+      "actual": "7dcb8f63ec9a9d920b69b0ba983890f50f791a5af29af40ab5194f3a43f04f91",
+      "expected": "7dcb8f63ec9a9d920b69b0ba983890f50f791a5af29af40ab5194f3a43f04f91"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/native-review/review-byte-check.py",
+      "accepted": true,
+      "actual": "3c28190396039637298a0edb5141caf6415dd103983c07bb8ba3dae0fbc8322c",
+      "expected": "3c28190396039637298a0edb5141caf6415dd103983c07bb8ba3dae0fbc8322c"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/native-world-exit-review.json",
+      "accepted": true,
+      "actual": "a0370f7a02b2687fde0ef53b25113ed53ef12eb1c9f49c938931c0bdd5dc7ec9",
+      "expected": "a0370f7a02b2687fde0ef53b25113ed53ef12eb1c9f49c938931c0bdd5dc7ec9"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/own-lifecycle-review.json",
+      "accepted": true,
+      "actual": "3895fb846b141ab29f4a2af3c183d47c062762d04556121385795e6a0097aedd",
+      "expected": "3895fb846b141ab29f4a2af3c183d47c062762d04556121385795e6a0097aedd"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/own-review/final-input-verification.json",
+      "accepted": true,
+      "actual": "6000423327cbcff4852389f692e0360be2592e816fa3d458cd5d21d84740598c",
+      "expected": "6000423327cbcff4852389f692e0360be2592e816fa3d458cd5d21d84740598c"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/own-review/input-snapshot.json",
+      "accepted": true,
+      "actual": "07e6872d1d9acb44470d7ad841dd9b459e7527368597776455eb97f2aea419fd",
+      "expected": "07e6872d1d9acb44470d7ad841dd9b459e7527368597776455eb97f2aea419fd"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/pass1.stderr.txt",
+      "accepted": true,
+      "actual": "625b77f5a28f9ed406e68a446c2cc5b7a558d03ddb0f46efa616e31153b03abc",
+      "expected": "625b77f5a28f9ed406e68a446c2cc5b7a558d03ddb0f46efa616e31153b03abc"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/pass1.stdout.txt",
+      "accepted": true,
+      "actual": "4c6f48876b5ba9611072009a8731369d780baf4fb7028dc3631baf99eaef1e1c",
+      "expected": "4c6f48876b5ba9611072009a8731369d780baf4fb7028dc3631baf99eaef1e1c"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/pass2.stderr.txt",
+      "accepted": true,
+      "actual": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "expected": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/pass2.stdout.txt",
+      "accepted": true,
+      "actual": "2a2d9be199a16d9938b83c15c7087089665d2b795fc9a10a27d7c4e547c57e42",
+      "expected": "2a2d9be199a16d9938b83c15c7087089665d2b795fc9a10a27d7c4e547c57e42"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/pass3.stderr.txt",
+      "accepted": true,
+      "actual": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "expected": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/pass3.stdout.txt",
+      "accepted": true,
+      "actual": "7bb8d19d4ee3daacec394bc6d799685f78b5db3aa5aa4559f5ac04a00b0116bb",
+      "expected": "7bb8d19d4ee3daacec394bc6d799685f78b5db3aa5aa4559f5ac04a00b0116bb"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/pass4.stderr.txt",
+      "accepted": true,
+      "actual": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "expected": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/pass4.stdout.txt",
+      "accepted": true,
+      "actual": "4f4fc88850ac8eb2a7b68b37d5654af7a22f95f0716263c946096d2a3d2331b5",
+      "expected": "4f4fc88850ac8eb2a7b68b37d5654af7a22f95f0716263c946096d2a3d2331b5"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/scan-direct-references.py",
+      "accepted": true,
+      "actual": "4a094eabd72f5f1f7b4db74805f80be33c6ac5fe7dcfa03195e7de771306c0f9",
+      "expected": "4a094eabd72f5f1f7b4db74805f80be33c6ac5fe7dcfa03195e7de771306c0f9"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/selection-pass1.json",
+      "accepted": true,
+      "actual": "22ea0d2aad008c0ed1ddb2a7942af51b73b03fa24253096c12132ba418e508c0",
+      "expected": "22ea0d2aad008c0ed1ddb2a7942af51b73b03fa24253096c12132ba418e508c0"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/selection-pass3.json",
+      "accepted": true,
+      "actual": "0931275b39ecc119b8b333c52e3474d6ee700560765861ae125978e4940d8b63",
+      "expected": "0931275b39ecc119b8b333c52e3474d6ee700560765861ae125978e4940d8b63"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/selection-pass4.json",
+      "accepted": true,
+      "actual": "663cc954f38f9d7af2c1a0d7a9b35b92834fa45f99dc37da9837a9d33f615381",
+      "expected": "663cc954f38f9d7af2c1a0d7a9b35b92834fa45f99dc37da9837a9d33f615381"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/source-documents.json",
+      "accepted": true,
+      "actual": "bc9e35ac24191f35b71ab8a04fffff4384438fd636edbcbe734cfd7c839ceaac",
+      "expected": "bc9e35ac24191f35b71ab8a04fffff4384438fd636edbcbe734cfd7c839ceaac"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/validate-world-exit-evidence.py",
+      "accepted": true,
+      "actual": "a2612c2b135c99638b8ce97e3917cae2ff2eef711dba0b3fc93740b028383eb7",
+      "expected": "a2612c2b135c99638b8ce97e3917cae2ff2eef711dba0b3fc93740b028383eb7"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/world-exit-claim-corrections.json",
+      "accepted": true,
+      "actual": "f428daef70f984ce6866412b4215ad50e665a27b6578e2bdef339f7cdd996734",
+      "expected": "f428daef70f984ce6866412b4215ad50e665a27b6578e2bdef339f7cdd996734"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/world-exit-claims.json",
+      "accepted": true,
+      "actual": "91615648a1dbea3a90c3628bcd840e26a8c784b60670c78deb2311630a1752cb",
+      "expected": "91615648a1dbea3a90c3628bcd840e26a8c784b60670c78deb2311630a1752cb"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/native-world-exit-audit-20261105/world-exit-reference-candidates.json",
+      "accepted": true,
+      "actual": "c7878d62ef57a8264fcb3ec228e0f8ee42a526ec12379667dd92144a4e4b1188",
+      "expected": "c7878d62ef57a8264fcb3ec228e0f8ee42a526ec12379667dd92144a4e4b1188"
+    },
+    {
+      "check": "prior manifest Source/Mods/TownHallInterior/docs/evidence/business-save-operation-owner-design-20261105",
+      "accepted": true,
+      "actual": "a3119a2d62e3f77c5d93d5bd9325810db67588c15d2c718134f022d94baf3007",
+      "expected": "a3119a2d62e3f77c5d93d5bd9325810db67588c15d2c718134f022d94baf3007"
+    },
+    {
+      "check": "prior artifact count Source/Mods/TownHallInterior/docs/evidence/business-save-operation-owner-design-20261105",
+      "accepted": true,
+      "actual": 11,
+      "expected": 11
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/business-save-operation-owner-design-20261105/archive-design-evidence.py",
+      "accepted": true,
+      "actual": "f87aae3454cc4ab37eff3e7bf0f8cb6f61e264519d9dfc2a45b77e5fce271392",
+      "expected": "f87aae3454cc4ab37eff3e7bf0f8cb6f61e264519d9dfc2a45b77e5fce271392"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/business-save-operation-owner-design-20261105/business-save-operation-owner-final.txt",
+      "accepted": true,
+      "actual": "985642354836f8a8eb6b4109277261e42b196c4ab2f3f7641407b2347b954549",
+      "expected": "985642354836f8a8eb6b4109277261e42b196c4ab2f3f7641407b2347b954549"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/business-save-operation-owner-design-20261105/business-save-operation-owner-v1.txt",
+      "accepted": true,
+      "actual": "cd9517772af6c65a21968f812bed7d371420a1f13b674196663f4503287a58cb",
+      "expected": "cd9517772af6c65a21968f812bed7d371420a1f13b674196663f4503287a58cb"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/business-save-operation-owner-design-20261105/capture-inputs.py",
+      "accepted": true,
+      "actual": "3f6642f601e384ac7f25a2f72a80eec2f0cfa8185e32ee96fcefac44614b0e58",
+      "expected": "3f6642f601e384ac7f25a2f72a80eec2f0cfa8185e32ee96fcefac44614b0e58"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/business-save-operation-owner-design-20261105/design-freeze.json",
+      "accepted": true,
+      "actual": "b905b06fbf7ca584948002203b583f365a50c7732a4a9df7f8281fba9b579c9f",
+      "expected": "b905b06fbf7ca584948002203b583f365a50c7732a4a9df7f8281fba9b579c9f"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/business-save-operation-owner-design-20261105/design-review/final-input-verification.json",
+      "accepted": true,
+      "actual": "58d5286d46360cb2b2abe6ba4e776cf2ae12527a68e715f2fe1fe242b1019568",
+      "expected": "58d5286d46360cb2b2abe6ba4e776cf2ae12527a68e715f2fe1fe242b1019568"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/business-save-operation-owner-design-20261105/input-manifest.json",
+      "accepted": true,
+      "actual": "8a027724ef0ae3c502dda56b80decf86d7827a64f36fe89849111b970be737c7",
+      "expected": "8a027724ef0ae3c502dda56b80decf86d7827a64f36fe89849111b970be737c7"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/business-save-operation-owner-design-20261105/integrity-closeout.json",
+      "accepted": true,
+      "actual": "3ddd51654960bae71395f9580efde662cc65a325143f0779caa6fe73163d0942",
+      "expected": "3ddd51654960bae71395f9580efde662cc65a325143f0779caa6fe73163d0942"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/business-save-operation-owner-design-20261105/owner-design-disposition.json",
+      "accepted": true,
+      "actual": "f8b1ea6aa6f718b1cd96fe1f3f0ce1f815c38082b262c65e40acee1803e0ab5f",
+      "expected": "f8b1ea6aa6f718b1cd96fe1f3f0ce1f815c38082b262c65e40acee1803e0ab5f"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/business-save-operation-owner-design-20261105/owner-design-review.json",
+      "accepted": true,
+      "actual": "a4f6292cac3a03c8f066fba5e7c1b36bdcc1e13a40ec93a3902df33371652f5e",
+      "expected": "a4f6292cac3a03c8f066fba5e7c1b36bdcc1e13a40ec93a3902df33371652f5e"
+    },
+    {
+      "check": "prior artifact Source/Mods/TownHallInterior/docs/evidence/business-save-operation-owner-design-20261105/source-documents.json",
+      "accepted": true,
+      "actual": "ee9791692b3ad9bfa168ba510953a82b8a66566c58cfdb33bc4df045c1c1d353",
+      "expected": "ee9791692b3ad9bfa168ba510953a82b8a66566c58cfdb33bc4df045c1c1d353"
+    },
+    {
+      "check": "production files",
+      "accepted": true,
+      "actual": 20,
+      "expected": 20
+    },
+    {
+      "check": "repository HEAD",
+      "accepted": true,
+      "actual": "b2c6c7e6c6ecc778da9624cdb68a6578b9db471a",
+      "expected": "b2c6c7e6c6ecc778da9624cdb68a6578b9db471a"
+    },
+    {
+      "check": "V1 test lines removed or weakened",
+      "accepted": true,
+      "actual": 0,
+      "expected": 0
+    },
+    {
+      "check": "owner-targeted-v1 total TRX/report",
+      "accepted": true,
+      "actual": 121,
+      "expected": 121
+    },
+    {
+      "check": "owner-targeted-v1 executed TRX/report",
+      "accepted": true,
+      "actual": 121,
+      "expected": 121
+    },
+    {
+      "check": "owner-targeted-v1 passed TRX/report",
+      "accepted": true,
+      "actual": 120,
+      "expected": 120
+    },
+    {
+      "check": "owner-targeted-v1 failed TRX/report",
+      "accepted": true,
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "check": "owner-targeted-v2 total TRX/report",
+      "accepted": true,
+      "actual": 128,
+      "expected": 128
+    },
+    {
+      "check": "owner-targeted-v2 executed TRX/report",
+      "accepted": true,
+      "actual": 128,
+      "expected": 128
+    },
+    {
+      "check": "owner-targeted-v2 passed TRX/report",
+      "accepted": true,
+      "actual": 128,
+      "expected": 128
+    },
+    {
+      "check": "owner-targeted-v2 failed TRX/report",
+      "accepted": true,
+      "actual": 0,
+      "expected": 0
+    },
+    {
+      "check": "townhall-regression-v2 total TRX/report",
+      "accepted": true,
+      "actual": 809,
+      "expected": 809
+    },
+    {
+      "check": "townhall-regression-v2 executed TRX/report",
+      "accepted": true,
+      "actual": 809,
+      "expected": 809
+    },
+    {
+      "check": "townhall-regression-v2 passed TRX/report",
+      "accepted": true,
+      "actual": 809,
+      "expected": 809
+    },
+    {
+      "check": "townhall-regression-v2 failed TRX/report",
+      "accepted": true,
+      "actual": 0,
+      "expected": 0
+    },
+    {
+      "check": "forbidden dependency identifiers in new region",
+      "accepted": true,
+      "actual": [],
+      "expected": []
+    }
+  ],
+  "counts": {
+    "total": 329,
+    "passed": 329,
+    "failed": 0
+  },
+  "installedBytesRead": false,
+  "nativeBytesDecoded": false,
+  "savesUserDataSidecarsRead": false
+}

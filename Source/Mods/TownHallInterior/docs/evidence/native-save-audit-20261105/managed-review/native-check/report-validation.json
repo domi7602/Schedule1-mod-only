@@ -1,0 +1,33 @@
+{
+  "checkedUtc": "2026-11-05T08:51:00.581784+00:00",
+  "jsonParse": "PASS",
+  "report": ".scratch/townhall-native-save-audit-20261105/native-claims-review.json",
+  "reportSha256": "12baccbcf1942927b1d6db57558ab0575f17e87f3f43dced7d8fcc402a6430bb",
+  "verdicts": {
+    "agree": 5,
+    "limited": 3,
+    "reject": 3
+  },
+  "semanticHazards": 7,
+  "fieldAssociationGroups": 6,
+  "immutableInputsRechecked": 52,
+  "immutableInputMismatches": [],
+  "protectedSourceHashChecks": 41,
+  "protectedSourceMismatches": [],
+  "managedSourceHashChecks": 8,
+  "managedSourceMismatches": [],
+  "previousManagedReportSha256": "3d48257c04fcc5d93de23f03db2432f4be87207b3fde5c533f1f0a5ba9b9ef19",
+  "previousManagedReportUnchanged": true,
+  "methodEvidenceRecordsChecked": 11,
+  "allReportedNativeByteHashesMatchVerifiedActualPe": true,
+  "gameAssemblySha256": "61829050e56ca180d67be592e4bfe61ec97d2e9573f720d90a54e318a7e4381d",
+  "globalMetadataSha256": "e775c97da277da8eb1a90265478f3b65c9c3d6464aff4f7255d45280a1d1181f",
+  "sourceRevision": "b2c6c7e6c6ecc778da9624cdb68a6578b9db471a",
+  "dotnetRoot": null,
+  "v3Accessed": false,
+  "targetGameLibrariesLoadedOrInvoked": false,
+  "nativeSaveFilesRead": false,
+  "buildsOrTestsRun": false,
+  "saveApproval": false,
+  "nativeDestroyOrUnregisterCertificate": false
+}

@@ -1,0 +1,160 @@
+{
+  "capturedUtc": "2026-11-06T11:19:26.122197+00:00",
+  "scope": "Read-only aktuelle FishNet-Proxy- und native Byteanalyse fuer eigenen, nicht veroeffentlichten NetworkObject/Business-Graphen. Keine Builds, Spiel-, Save- oder Deploymentaktionen.",
+  "decision": "Kleinster vertretbarer Schritt: eigene NetworkObject-Unterklasse mit eigenen Unity-Callbacks ohne Aufruf der originalen FishNet-Methoden; exakte eigene Business-Verknuepfung und begrenzte bekannte Halterpruefung. Keine Aussage ueber originale FishNet-Initialisierung oder Produktions-Business.",
+  "inputs": [
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Schedule I\\MelonLoader\\Il2CppAssemblies\\Il2CppFishNet.Runtime.dll",
+      "bytes": 1996800,
+      "sha256": "0acb5c70078f5be6e88574be17b675657fc50898eb3dd264a3b98a54545e24ec"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Schedule I\\MelonLoader\\Il2CppAssemblies\\Assembly-CSharp.dll",
+      "bytes": 14168576,
+      "sha256": "346205306273805a78b01a917f14b94518498af1361595c4c417baa0b32b4bd8"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Schedule I\\GameAssembly.dll",
+      "bytes": 66477568,
+      "sha256": "61829050e56ca180d67be592e4bfe61ec97d2e9573f720d90a54e318a7e4381d"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Schedule I\\Schedule I_Data\\il2cpp_data\\Metadata\\global-metadata.dat",
+      "bytes": 18689168,
+      "sha256": "e775c97da277da8eb1a90265478f3b65c9c3d6464aff4f7255d45280a1d1181f"
+    }
+  ],
+  "facts": [
+    {
+      "claim": "NetworkObject ist nicht versiegelt; Awake/Start sind virtual void(), OnDisable/OnDestroy native private nichtvirtuelle Wrapper. Eigene benannte Methoden brauchen eigene native Deklarations-/Pointerpruefung; explizite Basismethodenaufrufe werden dadurch nicht abgefangen.",
+      "sources": [
+        "NetworkObject.fresh.cs.txt:30",
+        "NetworkObject.fresh.cs.txt:2747",
+        "NetworkObject.fresh.cs.txt:2758",
+        "NetworkObject.fresh.cs.txt:2780",
+        "NetworkObject.fresh.cs.txt:2791",
+        "NetworkObject.fresh.cs.txt:3625"
+      ]
+    },
+    {
+      "claim": "NetworkBehaviour.SerializeComponents schreibt exakt NetworkObject-Pointer und byte-Index. Direkte eigene Verknuepfung vermeidet diesen nativen Aufruf.",
+      "sources": [
+        "native-disassembly/0x06000648-SerializeComponents.txt",
+        "native-map.json"
+      ],
+      "rva": "0xCC9290"
+    },
+    {
+      "claim": "Originales NetworkObject.Awake liest Unity-Zustand, beschafft eine gepoolte NetworkObject-Liste und bearbeitet Kinder; originale Konstruktion initialisiert Felder und hat statische Abhaengigkeiten. Kein Beleg fuer sicheres Invoke im neuen Kontext.",
+      "sources": [
+        "native-disassembly/0x060006E8-Awake.txt",
+        "native-disassembly/0x06000757-_ctor.txt"
+      ],
+      "rvas": [
+        "0xCCB640",
+        "0xCCFCF0"
+      ]
+    },
+    {
+      "claim": "Originales OnDisable kann bei serverseitigen Voraussetzungen Despawn aufrufen. Native Start-/OnDestroy-/InitializeNetworkBehavioursIfDisabled-Fenster sind unvollstaendige primaere .pdata-Bloecke; kein vollstaendiger Kontrollflussbeweis.",
+      "sources": [
+        "native-disassembly/0x060006EB-OnDisable.txt",
+        "native-disassembly/0x060006E9-Start.txt",
+        "native-disassembly/0x060006EC-OnDestroy.txt",
+        "native-disassembly/0x060006ED-InitializeNetworkBehavioursIfDisabled.txt"
+      ]
+    },
+    {
+      "claim": "ClientObjectCache enthaelt drei direkte Objekt-Pointer-Halter: IteratedSpawningObjects, _iteratedSpawns und _cachedObjects[].NetworkObject. Weitere Sets enthalten IDs. Kein direktes NetworkBehaviour-Feld im Cacheeintrag. Lesbare leere Cachecontainer sind eine konservative, begrenzte Vorbedingung.",
+      "sources": [
+        "ClientObjectCache.fresh.cs.txt:99",
+        "ClientObjectCache.fresh.cs.txt:114",
+        "ClientObjectCache.fresh.cs.txt:129",
+        "ClientObjectCache.fresh.cs.txt:144",
+        "ClientObjectCache.fresh.cs.txt:159",
+        "CachedNetworkObject.fresh.cs.txt:341"
+      ]
+    },
+    {
+      "claim": "Manager- und Besitzerreferenzen muessen frisch gebunden werden: NetworkManager._instances -> Server/ClientManager -> Objects; Cache-Rueckverweise muessen identisch sein. _registeredComponents kann eigene Unity-Komponenten enthalten. Verbindungen enthalten Objects, FirstObject und LevelOfDetails-Schluessel.",
+      "sources": [
+        "NetworkManager.fresh.cs.txt:353",
+        "NetworkManager.fresh.cs.txt:383",
+        "NetworkManager.fresh.cs.txt:398",
+        "NetworkManager.fresh.cs.txt:757",
+        "ServerManager.fresh.cs.txt:625",
+        "ServerManager.fresh.cs.txt:640",
+        "ClientManager.fresh.cs.txt:456",
+        "ClientManager.fresh.cs.txt:471",
+        "ClientManager.fresh.cs.txt:486",
+        "ManagedObjects.fresh.cs.txt:200",
+        "ClientObjectCache.fresh.cs.txt:174",
+        "ClientObjectCache.fresh.cs.txt:189",
+        "NetworkConnection.fresh.cs.txt:518",
+        "NetworkConnection.fresh.cs.txt:533",
+        "NetworkConnection.fresh.cs.txt:657"
+      ]
+    }
+  ],
+  "requiredOwnBindings": [
+    "own exact root/business/network/class identities",
+    "network._networkBehaviours exact singleton own Business",
+    "business._networkObjectCache exact own NetworkObject",
+    "business._componentIndexCache=0",
+    "ObjectId equals freshly read UNSET_OBJECTID_VALUE; SceneId=0; networked/client/server init false",
+    "own parents/runtime parents/owner/managers null; exact own empty children/observers collections",
+    "native class and own Unity named method declaring class, signature, method/virtual/invoker pointers; own vtable targets for virtual overrides"
+  ],
+  "knownExternalHolders": {
+    "ManagedObjects": [
+      "Spawned",
+      "SceneObjects_Internal"
+    ],
+    "ServerObjects": [
+      "_dirtySyncVarBehaviours",
+      "_dirtySyncObjectBehaviours",
+      "_pendingDestroy",
+      "_spawnCache",
+      "_observerChangedObjectsCache",
+      "_timedNetworkObservers"
+    ],
+    "ClientObjects": [
+      "LocalClientSpawned",
+      "_objectCache"
+    ],
+    "ClientObjectCache": [
+      "IteratedSpawningObjects",
+      "_iteratedSpawns",
+      "_cachedObjects[].NetworkObject",
+      "ReadSpawningObjects (ID only)",
+      "_conflictingDespawns (ID only)"
+    ],
+    "NetworkManager": [
+      "_registeredComponents"
+    ],
+    "NetworkConnection": [
+      "Objects",
+      "_FirstObject_k__BackingField",
+      "LevelOfDetails.Keys"
+    ]
+  },
+  "cleanupContract": [
+    "same current world generation and canonical save context",
+    "fresh same manager/holder identity binding before activation, deactivation, destruction",
+    "all covered holders readable and own references absent; null/unavailable/changed identity blocks",
+    "fresh callbacks and Unity frame never regress; no unexpected callbacks",
+    "deactivate then fresh check then destroy only own root; no shared collection restore/removal",
+    "uncertain effects/context revocation retain handles and consume attempt; no retry"
+  ],
+  "limitations": [
+    "No native game code executed. Proxy API shape is not Unity dispatch runtime evidence.",
+    "No proof of original NetworkObject constructor/Awake/Start or full FishNet initialization.",
+    "Native .pdata windows may omit split-function blocks and transitive callees.",
+    "Finite named holder coverage is not global heap-reference, delegate-closure, object-pool or last-use proof.",
+    "Own fields and no original calls narrow exposure; they do not prove all external engine code is unable to discover a Unity component.",
+    "Raw decompiles can include the ilspycmd version notice."
+  ],
+  "gameInvoked": false,
+  "saveFilesAccessed": false,
+  "buildsRun": false
+}

@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>12</LangVersion>
+    <CheckEolTargetFramework>false</CheckEolTargetFramework>
+    <NuGetAudit>false</NuGetAudit>
+    <S1NoDeploy>true</S1NoDeploy>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- Immutable V2 text; no main-project dependency, runtime symbol or package. -->
+    <Compile Include="../../candidate-v2/source.txt" Link="FrozenBusinessConstruction.cs" />
+  </ItemGroup>
+</Project>

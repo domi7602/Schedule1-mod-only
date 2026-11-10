@@ -1,0 +1,88 @@
+; ScheduleOne.Persistence.SaveManager::RegisterSaveable/1, token 0x0600182E, RVA 0x5AA5C0, metadata-pointer window 0x150 bytes
+; Raw native bytes only. Window ends at next distinct managed-method pointer, includes padding/cold fragments; not proof of full transitive/exception coverage. Shared target names show at most eight aliases; total count is recorded.
+0x5AA5C0     48 89 5C 24 10                  mov [rsp+10h],rbx
+0x5AA5C5     57                              push rdi
+0x5AA5C6     48 83 EC 20                     sub rsp,20h
+0x5AA5CA     80 3D 82 11 65 03 00            cmp byte ptr [183BFB753h],0
+0x5AA5D1     48 8B FA                        mov rdi,rdx
+0x5AA5D4     48 8B D9                        mov rbx,rcx
+0x5AA5D7     75 37                           jne short 00000001805AA610h
+0x5AA5D9     48 8D 0D F8 9C 3F 03            lea rcx,[1839A42D8h] ; TypeInfo: ScheduleOne.Persistence.IBaseSaveable
+0x5AA5E0     E8 BB D2 D6 FF                  call 00000001803178A0h
+0x5AA5E5     48 8D 0D 24 B9 44 03            lea rcx,[1839F5F10h] ; MethodRef: System.Void System.Collections.Generic.List`1<ScheduleOne.Persistence.ISaveable>.Add
+0x5AA5EC     E8 AF D2 D6 FF                  call 00000001803178A0h
+0x5AA5F1     48 8D 0D D0 5E 44 03            lea rcx,[1839F04C8h] ; MethodRef: System.Void System.Collections.Generic.List`1<ScheduleOne.Persistence.IBaseSaveable>.Add
+0x5AA5F8     E8 A3 D2 D6 FF                  call 00000001803178A0h
+0x5AA5FD     48 8D 0D BC BA 44 03            lea rcx,[1839F60C0h] ; MethodRef: System.Boolean System.Collections.Generic.List`1<ScheduleOne.Persistence.ISaveable>.Contains
+0x5AA604     E8 97 D2 D6 FF                  call 00000001803178A0h
+0x5AA609     C6 05 43 11 65 03 01            mov byte ptr [183BFB753h],1
+0x5AA610     48 8B 4B 48                     mov rcx,[rbx+48h]
+0x5AA614     48 89 74 24 30                  mov [rsp+30h],rsi
+0x5AA619     48 85 C9                        test rcx,rcx
+0x5AA61C     0F 84 DB 00 00 00               je near ptr 00000001805AA6FDh
+0x5AA622     4C 8B 05 97 BA 44 03            mov r8,[1839F60C0h] ; MethodRef: System.Boolean System.Collections.Generic.List`1<ScheduleOne.Persistence.ISaveable>.Contains
+0x5AA629     48 8B D7                        mov rdx,rdi
+0x5AA62C     E8 5F 9A 32 01                  call 00000001818D4090h
+0x5AA631     84 C0                           test al,al
+0x5AA633     0F 85 85 00 00 00               jne near ptr 00000001805AA6BEh
+0x5AA639     48 8B 4B 48                     mov rcx,[rbx+48h]
+0x5AA63D     48 85 C9                        test rcx,rcx
+0x5AA640     0F 84 B7 00 00 00               je near ptr 00000001805AA6FDh
+0x5AA646     4C 8B 05 C3 B8 44 03            mov r8,[1839F5F10h] ; MethodRef: System.Void System.Collections.Generic.List`1<ScheduleOne.Persistence.ISaveable>.Add
+0x5AA64D     48 8B D7                        mov rdx,rdi
+0x5AA650     E8 CB 87 A5 FF                  call 0000000180002E20h
+0x5AA655     48 8B 15 7C 9C 3F 03            mov rdx,[1839A42D8h] ; TypeInfo: ScheduleOne.Persistence.IBaseSaveable
+0x5AA65C     48 8B CF                        mov rcx,rdi
+0x5AA65F     E8 6C C4 D6 FF                  call 0000000180316AD0h
+0x5AA664     48 85 C0                        test rax,rax
+0x5AA667     74 55                           je short 00000001805AA6BEh
+0x5AA669     48 8B 5B 50                     mov rbx,[rbx+50h]
+0x5AA66D     48 85 DB                        test rbx,rbx
+0x5AA670     0F 84 87 00 00 00               je near ptr 00000001805AA6FDh
+0x5AA676     48 8B 15 5B 9C 3F 03            mov rdx,[1839A42D8h] ; TypeInfo: ScheduleOne.Persistence.IBaseSaveable
+0x5AA67D     48 8B CF                        mov rcx,rdi
+0x5AA680     48 8B 35 41 5E 44 03            mov rsi,[1839F04C8h] ; MethodRef: System.Void System.Collections.Generic.List`1<ScheduleOne.Persistence.IBaseSaveable>.Add
+0x5AA687     E8 44 C4 D6 FF                  call 0000000180316AD0h
+0x5AA68C     48 8B 53 10                     mov rdx,[rbx+10h]
+0x5AA690     4C 8B C8                        mov r9,rax
+0x5AA693     FF 43 1C                        inc dword ptr [rbx+1Ch]
+0x5AA696     48 85 D2                        test rdx,rdx
+0x5AA699     74 62                           je short 00000001805AA6FDh
+0x5AA69B     48 63 4B 18                     movsxd rcx,dword ptr [rbx+18h]
+0x5AA69F     3B 4A 18                        cmp ecx,[rdx+18h]
+0x5AA6A2     72 2A                           jb short 00000001805AA6CEh
+0x5AA6A4     48 8B 56 20                     mov rdx,[rsi+20h]
+0x5AA6A8     48 8B CB                        mov rcx,rbx
+0x5AA6AB     4C 8B 82 C0 00 00 00            mov r8,[rdx+0C0h]
+0x5AA6B2     48 8B D0                        mov rdx,rax
+0x5AA6B5     4D 8B 40 70                     mov r8,[r8+70h]
+0x5AA6B9     E8 D2 83 32 01                  call 00000001818D2A90h
+0x5AA6BE     48 8B 74 24 30                  mov rsi,[rsp+30h]
+0x5AA6C3     48 8B 5C 24 38                  mov rbx,[rsp+38h]
+0x5AA6C8     48 83 C4 20                     add rsp,20h
+0x5AA6CC     5F                              pop rdi
+0x5AA6CD     C3                              ret
+0x5AA6CE     8D 41 01                        lea eax,[rcx+1]
+0x5AA6D1     89 43 18                        mov [rbx+18h],eax
+0x5AA6D4     3B 4A 18                        cmp ecx,[rdx+18h]
+0x5AA6D7     73 2A                           jae short 00000001805AA703h
+0x5AA6D9     4C 89 4C CA 20                  mov [rdx+rcx*8+20h],r9
+0x5AA6DE     48 83 C2 20                     add rdx,20h
+0x5AA6E2     48 8D 0C CA                     lea rcx,[rdx+rcx*8]
+0x5AA6E6     49 8B D1                        mov rdx,r9
+0x5AA6E9     48 8B 74 24 30                  mov rsi,[rsp+30h]
+0x5AA6EE     48 8B 5C 24 38                  mov rbx,[rsp+38h]
+0x5AA6F3     48 83 C4 20                     add rsp,20h
+0x5AA6F7     5F                              pop rdi
+0x5AA6F8     E9 B3 C3 D6 FF                  jmp near ptr 0000000180316AB0h
+0x5AA6FD     E8 7E D4 D6 FF                  call 0000000180317B80h
+0x5AA702     CC                              int 3
+0x5AA703     E8 68 D4 D6 FF                  call 0000000180317B70h
+0x5AA708     CC                              int 3
+0x5AA709     CC                              int 3
+0x5AA70A     CC                              int 3
+0x5AA70B     CC                              int 3
+0x5AA70C     CC                              int 3
+0x5AA70D     CC                              int 3
+0x5AA70E     CC                              int 3
+0x5AA70F     CC                              int 3

@@ -1,0 +1,95 @@
+; ScheduleOne.Property.Property::Start/0, token 0x06001421, RVA 0x556FE0, next-pointer window 0x160 bytes
+; No target execution. Parser-pointer window can contain padding/cold fragments and is not exact/full function, EH or transitive coverage. Shared direct aliases are truncated to eight names.
+0x556FE0     48 89 5C 24 18                  mov [rsp+18h],rbx
+0x556FE5     57                              push rdi
+0x556FE6     48 83 EC 20                     sub rsp,20h
+0x556FEA     80 3D 62 45 6A 03 00            cmp byte ptr [183BFB553h],0
+0x556FF1     48 8B F9                        mov rdi,rcx
+0x556FF4     75 1F                           jne short 0000000180557015h
+0x556FF6     48 8D 0D 4B E1 4A 03            lea rcx,[183A05148h] ; TypeInfo: System.Action`1<ScheduleOne.Money.MoneyManager+FloatContainer>
+0x556FFD     E8 9E 08 DC FF                  call 00000001803178A0h
+0x557002     48 8D 0D 37 C8 44 03            lea rcx,[1839A3840h] ; MethodRef: T ScheduleOne.DevUtilities.NetworkSingleton`1<ScheduleOne.Money.MoneyManager>.get_Instance
+0x557009     E8 92 08 DC FF                  call 00000001803178A0h
+0x55700E     C6 05 3E 45 6A 03 01            mov byte ptr [183BFB553h],1
+0x557015     48 8B 05 24 C8 44 03            mov rax,[1839A3840h] ; MethodRef: T ScheduleOne.DevUtilities.NetworkSingleton`1<ScheduleOne.Money.MoneyManager>.get_Instance
+0x55701C     48 8B 40 20                     mov rax,[rax+20h]
+0x557020     F6 80 35 01 00 00 01            test byte ptr [rax+135h],1
+0x557027     75 08                           jne short 0000000180557031h
+0x557029     48 8B C8                        mov rcx,rax
+0x55702C     E8 0F 58 DC FF                  call 000000018031C840h
+0x557031     48 8B 80 C0 00 00 00            mov rax,[rax+0C0h]
+0x557038     48 8B 40 10                     mov rax,[rax+10h]
+0x55703C     F6 80 35 01 00 00 01            test byte ptr [rax+135h],1
+0x557043     75 08                           jne short 000000018055704Dh
+0x557045     48 8B C8                        mov rcx,rax
+0x557048     E8 F3 57 DC FF                  call 000000018031C840h
+0x55704D     48 8B 80 B8 00 00 00            mov rax,[rax+0B8h]
+0x557054     48 89 6C 24 30                  mov [rsp+30h],rbp
+0x557059     48 89 74 24 38                  mov [rsp+38h],rsi
+0x55705E     48 8B 18                        mov rbx,[rax]
+0x557061     48 85 DB                        test rbx,rbx
+0x557064     0F 84 AE 00 00 00               je near ptr 0000000180557118h
+0x55706A     48 8B 0D D7 E0 4A 03            mov rcx,[183A05148h] ; TypeInfo: System.Action`1<ScheduleOne.Money.MoneyManager+FloatContainer>
+0x557071     48 8B AB 58 01 00 00            mov rbp,[rbx+158h]
+0x557078     E8 A3 0A DC FF                  call 0000000180317B20h
+0x55707D     48 8B F0                        mov rsi,rax
+0x557080     48 85 FF                        test rdi,rdi
+0x557083     0F 84 8F 00 00 00               je near ptr 0000000180557118h
+0x557089     4C 8B 07                        mov r8,[rdi]
+0x55708C     45 33 C9                        xor r9d,r9d
+0x55708F     48 8B D7                        mov rdx,rdi
+0x557092     48 8B C8                        mov rcx,rax
+0x557095     4D 8B 80 30 04 00 00            mov r8,[r8+430h]
+0x55709C     E8 FF F9 FD FF                  call 0000000180536AA0h ; VLB.MaterialModifier+Callback::.ctor/2 | LiquidVolumeFX.PropertiesChangedEvent::.ctor/2 | ScheduleOne.Vehicles.AI.NavigationUtility+PathGroupEvent::.ctor/2 | ScheduleOne.Vision.VisionCone+EventStateChange::.ctor/2 | ScheduleOne.UI.Input.InputPromptReferenceEventHandler::.ctor/2 | UnityEngine.UIElements.EventCallback`1::.ctor/2 | UnityEngine.Rendering.Universal.DecalProjector+DecalProjectorAction::.ctor/2 | System.IOAsyncCallback::.ctor/2 | ... SHARED TARGET: 9 aliases
+0x5570A1     45 33 C0                        xor r8d,r8d
+0x5570A4     48 8B D6                        mov rdx,rsi
+0x5570A7     48 8B CD                        mov rcx,rbp
+0x5570AA     E8 31 89 69 01                  call 0000000181BEF9E0h ; System.Delegate::Combine/2
+0x5570AF     48 8B F8                        mov rdi,rax
+0x5570B2     48 85 C0                        test rax,rax
+0x5570B5     75 09                           jne short 00000001805570C0h
+0x5570B7     48 89 83 58 01 00 00            mov [rbx+158h],rax
+0x5570BE     EB 35                           jmp short 00000001805570F5h
+0x5570C0     48 8B 35 81 E0 4A 03            mov rsi,[183A05148h] ; TypeInfo: System.Action`1<ScheduleOne.Money.MoneyManager+FloatContainer>
+0x5570C7     48 8B CF                        mov rcx,rdi
+0x5570CA     48 8B D6                        mov rdx,rsi
+0x5570CD     E8 FE F9 DB FF                  call 0000000180316AD0h
+0x5570D2     48 8B CF                        mov rcx,rdi
+0x5570D5     48 85 C0                        test rax,rax
+0x5570D8     74 50                           je short 000000018055712Ah
+0x5570DA     48 89 83 58 01 00 00            mov [rbx+158h],rax
+0x5570E1     48 8B 35 60 E0 4A 03            mov rsi,[183A05148h] ; TypeInfo: System.Action`1<ScheduleOne.Money.MoneyManager+FloatContainer>
+0x5570E8     48 8B D6                        mov rdx,rsi
+0x5570EB     E8 E0 F9 DB FF                  call 0000000180316AD0h
+0x5570F0     48 85 C0                        test rax,rax
+0x5570F3     74 29                           je short 000000018055711Eh
+0x5570F5     48 8D 8B 58 01 00 00            lea rcx,[rbx+158h]
+0x5570FC     48 8B D0                        mov rdx,rax
+0x5570FF     48 8B 74 24 38                  mov rsi,[rsp+38h]
+0x557104     48 8B 6C 24 30                  mov rbp,[rsp+30h]
+0x557109     48 8B 5C 24 40                  mov rbx,[rsp+40h]
+0x55710E     48 83 C4 20                     add rsp,20h
+0x557112     5F                              pop rdi
+0x557113     E9 98 F9 DB FF                  jmp near ptr 0000000180316AB0h
+0x557118     E8 63 0A DC FF                  call 0000000180317B80h
+0x55711D     CC                              int 3
+0x55711E     48 8B D6                        mov rdx,rsi
+0x557121     48 8B CF                        mov rcx,rdi
+0x557124     E8 C7 F9 DB FF                  call 0000000180316AF0h
+0x557129     CC                              int 3
+0x55712A     48 8B D6                        mov rdx,rsi
+0x55712D     E8 BE F9 DB FF                  call 0000000180316AF0h
+0x557132     CC                              int 3
+0x557133     CC                              int 3
+0x557134     CC                              int 3
+0x557135     CC                              int 3
+0x557136     CC                              int 3
+0x557137     CC                              int 3
+0x557138     CC                              int 3
+0x557139     CC                              int 3
+0x55713A     CC                              int 3
+0x55713B     CC                              int 3
+0x55713C     CC                              int 3
+0x55713D     CC                              int 3
+0x55713E     CC                              int 3
+0x55713F     CC                              int 3

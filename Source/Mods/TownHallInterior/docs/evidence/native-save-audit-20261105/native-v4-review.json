@@ -1,0 +1,230 @@
+{
+  "schema": 1,
+  "capturedUtc": "2026-11-05T09:03:02.1492323Z",
+  "reviewer": "GPT-6.1 Sol / OpenCode; unabhängiger, eng begrenzter V4-Nachtragsprüfer",
+  "status": "targeted-v4-local-claims-corroborated-with-mapping-and-coverage-limits",
+  "runtimeApproval": false,
+  "nativeWriteApproval": false,
+  "nativeUnregisterApproval": false,
+  "nativeDestroyApproval": false,
+  "evidenceRoot": ".scratch/townhall-native-save-audit-20261105/",
+  "pathConvention": "Kurze Artefaktpfade sind relativ zu evidenceRoot. Quellenkürzel request, write-base und complete-save bezeichnen die Textdatei der entsprechenden methodEvidence-ID und deren 1-basierte Zeilen.",
+  "outcome": [
+    "Kein neuer sachlicher Widerspruch gegen die ausdrücklich lokal und begrenzt formulierten Parent-Claims gefunden.",
+    "Der vorher nicht sichtbare SaveRequest-Suffix ist jetzt lokal nachgewiesen: Queue-Remove vor weiteren Requestfeldzugriffen und dynamischem Slot-13-Taildispatch. Das ist kein Queue-leer/Arbeit-fertig-Vertrag.",
+    "WriteBaseData leitet den Slot-15-Bool aus !IsNullOrEmpty(SaveString) ab, nicht aus bestätigtem Schreiberfolg. Die sichtbare Fehlerlogsequenz läuft bei normaler Rückkehr ihres Logaufrufs ebenfalls in diesen gemeinsamen Nachlauf.",
+    "Default-CompleteSave führt weitere this-/Extra-/Slot-16-/gegebenenfalls Slot-17-Arbeit aus und ruft CompleteSaveable im sichtbaren normalen Nachlauf bei RVA 0x5837E4. Das belegt nicht das Ziel der eigenen injizierten Business-Slots 13/15.",
+    "Fenster- und Symbolgrenzen bleiben erhalten: nächster verschiedener Parser-Methodpointer ist keine exakte Funktions-/EH-/Transitivgrenze; null ausgegebene ResolutionErrors ist keine vollständige oder universell richtige Symbolabdeckung."
+  ],
+  "scope": {
+    "project": "schedule1-mod-only",
+    "directory": "C:/Users/pc/Schedule1-mod-only",
+    "baseRevision": "b2c6c7e6c6ecc778da9624cdb68a6578b9db471a",
+    "workingTree": "dirty; Parent aktualisiert Repository-Dokumentation ausdrücklich beauftragt",
+    "methodsIndependentlyByteChecked": ["0x0600184B", "0x06001785", "0x06001787"],
+    "notRepeated": ["Kein Managed- oder V2-Semantikreview", "Kein Parser-/Exporter-/Parent-Validatorneulauf", "Keine erneute 23-Fenster-Gesamtbyteprüfung", "Keine erneute Modell-/Testprüfung"],
+    "documentationDriftPolicy": "Frühere business-manager-save-probe.md- und sonstige laufend geänderte Dokumentationshashes wurden ausdrücklich nicht als Driftgate verwendet. Die frühere sourceSnapshots-Liste des Managed-Berichts wurde nicht erneut abgearbeitet.",
+    "productionAndTestState": "Laut Parent unverändert; für diesen gezielten Nachtrag keine erneute 41-Dateien-Prüfung ausgeführt.",
+    "readBoundaries": "GameAssembly nur als Bytes; global-metadata.dat nur SHA-256. Keine UserData, Saves, Spiel-/Modassemblyausführung, Installation, Downloads, Builds, Tests, Spiel- oder Bridgeaktion.",
+    "onlyNewReport": ".scratch/townhall-native-save-audit-20261105/native-v4-review.json",
+    "ownToolOutputs": ".scratch/townhall-native-save-audit-20261105/managed-review/native-check-v4/",
+    "otherFilesOrVaultWritten": false,
+    "subagentsCreated": false,
+    "dotnetRoot": {"before": null, "changed": false}
+  },
+  "frozenInputs": [
+    {"path": "native-map-v4.json", "sha256": "b0325caba7394ceb3b2f2d6cd1a3d99830d982b285b6c81420a941892ff8e2a5"},
+    {"path": "map-native.ps1", "sha256": "e00ff7ef52bb7ce354d909bbed609cc3d2f49df1f98b44fcee2da287f2dd5a61"},
+    {"path": "validate-native-evidence.py", "sha256": "21aca9ebd3e37719b9d7b80351dc00a8c78e1e139a3463d2606dda2032790ed2"},
+    {"path": "native-integrity-before-docs-20261105.json", "sha256": "f14a4505af27b650d122590ed02ea5d629b1dee48a024382d7d25e0abb63890f"}
+  ],
+  "preservedEarlierReports": [
+    {"path": "managed-boundary-review.json", "sha256": "3d48257c04fcc5d93de23f03db2432f4be87207b3fde5c533f1f0a5ba9b9ef19", "unchanged": true},
+    {"path": "native-claims-review.json", "sha256": "12baccbcf1942927b1d6db57558ab0575f17e87f3f43dced7d8fcc402a6430bb", "unchanged": true}
+  ],
+  "nativeByteIdentity": {
+    "gameAssemblySha256": "61829050e56ca180d67be592e4bfe61ec97d2e9573f720d90a54e318a7e4381d",
+    "globalMetadataSha256": "e775c97da277da8eb1a90265478f3b65c9c3d6464aff4f7255d45280a1d1181f",
+    "imageBase": "0x180000000",
+    "identityAndBytesCheckedUtc": "2026-11-05T08:58:42.460265Z",
+    "method": "Vorhandenes Python 3.12 mit -B und ausschließlich Standardbibliothek; eigener gezielter Byte-/PE-/RVA-/relativer-Transfercheck, keine Target- oder Analysebibliothek geladen",
+    "independentScope": {"windows": 3, "bytesIncludingPadding": 3632, "instructionByteRows": 874, "relativeTransfersRecomputed": 217},
+    "checked": [
+      "Tatsächliche PE32+/x64-Header, ImageBase und Sections gelesen; RawOffsets unabhängig aus Sections berechnet",
+      "Alle drei PrimaryPdataBounds gegen echte .pdata-Einträge gegengeprüft",
+      "Jede Instruktionsbytezeile, VA/RVA, Länge, Reihenfolge und Verkettung gegen tatsächliche GameAssembly-Bytes geprüft",
+      "Alle drei Fensterhashes gegen JSON und native-map-v4.json gegengeprüft; TXT-Instruktionszeilen gegen JSON gegengeprüft",
+      "217 relative direkte Transfers aus rel32/rel8 neu berechnet; indirekte Dispatchziele ausdrücklich nicht als konkrete Runtimeadressen aufgelöst",
+      "Fensterenden passen zum jeweils nächsten höheren Pointer im eingefrorenen 70er-MethodMap; globale Parser-Pointermenge nicht neu aufgebaut"
+    ],
+    "toolOutput": "managed-review/native-check-v4/targeted-byte-check.json",
+    "toolOutputSha256": "77af57dba22a68a2a5055306dd53641e949ae62b948c66921b807e3751d14bbd"
+  },
+  "methodEvidence": [
+    {
+      "id": "request",
+      "type": "ScheduleOne.Persistence.SaveRequest",
+      "name": "Complete",
+      "token": "0x0600184B",
+      "rva": "0x5ABA60",
+      "rawOffset": "0x5AAC60",
+      "primaryPdataEndRvaExclusive": "0x5ABB31",
+      "primaryPdataBytes": 209,
+      "windowEndRvaExclusive": "0x5ABBC0",
+      "windowBytes": 352,
+      "windowBytesSha256": "0dc7ca7a1685ce48e3d87e5890bda044c1811a03c7d04a2df588b6934fc8d06b",
+      "json": "native-disassembly-v4/0x0600184B-Complete.json",
+      "jsonSha256": "d7ede109a461a651ade7c7dad2b7240a14c3ad8e87e23e6d5353f1e80861a9f2",
+      "text": "native-disassembly-v4/0x0600184B-Complete.txt",
+      "textSha256": "9dd2577c46b6dc089a8a09c002eefa780ccccfcd3e36ab029d1f5bfc21910139"
+    },
+    {
+      "id": "write-base",
+      "type": "ScheduleOne.Persistence.ISaveable",
+      "name": "WriteBaseData",
+      "token": "0x06001785",
+      "rva": "0x583E70",
+      "rawOffset": "0x583070",
+      "primaryPdataEndRvaExclusive": "0x584200",
+      "primaryPdataBytes": 912,
+      "windowEndRvaExclusive": "0x584200",
+      "windowBytes": 912,
+      "windowBytesSha256": "403722a870f8948f87ce1d43d6b409fdbb8617b5604984fb413a931a8977ba28",
+      "json": "native-disassembly-v4/0x06001785-WriteBaseData.json",
+      "jsonSha256": "3fc1fce080eb5be151edd1be028d56d8cf702331fe12ee14e4f51f3f8835bc83",
+      "text": "native-disassembly-v4/0x06001785-WriteBaseData.txt",
+      "textSha256": "6f999668af96df9b70372f685ec3c65548eb796cdf585d5a5cf427f9111a9b72"
+    },
+    {
+      "id": "complete-save",
+      "type": "ScheduleOne.Persistence.ISaveable",
+      "name": "CompleteSave",
+      "token": "0x06001787",
+      "rva": "0x582F00",
+      "rawOffset": "0x582100",
+      "primaryPdataEndRvaExclusive": "0x583834",
+      "primaryPdataBytes": 2356,
+      "windowEndRvaExclusive": "0x583840",
+      "windowBytes": 2368,
+      "windowBytesSha256": "8cd46f2fef9c1530e353f7fc3cd4f839f526555a04e924930520ee9b5773cb44",
+      "json": "native-disassembly-v4/0x06001787-CompleteSave.json",
+      "jsonSha256": "50d21b73e016a30b90498164d733a3859593ce24c00896dbc08f3c4369bab938",
+      "text": "native-disassembly-v4/0x06001787-CompleteSave.txt",
+      "textSha256": "7bd5cfe2e71fa9d2afe67b041f409427df04c7177293dce9ca01d760e7a0c289"
+    }
+  ],
+  "claimChecks": [
+    {
+      "id": "V4-01",
+      "claim": "V4 verwendet ein Fenster bis zum nächsten anderen Managedpointer, keine exakte Funktions-/EH-/Transitivgrenze.",
+      "verdict": "agree",
+      "evidence": ["map-native.ps1:28-29,114-130,155", "request:1-2,47-88", "native-map-v4.json:954-972,1328-1342"],
+      "assessment": "Der Exporter sucht im sortierten Parser-MethodsByPtr-Schlüsselbestand strikt den nächsten höheren Pointer. Für Request.Complete ist das Fenster [0x5ABA60,0x5ABBC0), 0x160 Bytes; der nächste gemappte Pointer gehört zum SaveRequest-Konstruktor. Der primäre .pdata-Eintrag bleibt [0x5ABA60,0x5ABB31), 0xD1 Bytes. Der vorher fehlende lokale Suffix einschließlich Branchziel 0x5ABBB7 und Taildispatch ist jetzt sichtbar; 0x5ABBBC-0x5ABBBF enthält CC-Bytes.",
+      "limit": "Globaler Pointerbestand nicht neu geparst. Ein Parserpointer-Fenster kann Padding, ausgelagerte Blöcke oder nicht separat gemappten Code einschließen und andere ausgelagerte Bereiche verfehlen. Kein neuer Vollmethoden-/EH-/Transitivbeweis."
+    },
+    {
+      "id": "V4-02",
+      "claim": "Queue-Remove bei 0x5ABB13 erfolgt vor weiteren Requestfeldern und dem Slot-13-Taildispatch.",
+      "verdict": "agree",
+      "methodEvidence": ["request"],
+      "evidence": ["request:32-50,62-83", "native-map-v4.json:216-221,251-270,404-412"],
+      "decisiveBytes": [
+        "0x5ABAFC: 48 8B 4B 68; MethodRef bei 0x5ABAE9/0x5ABB09 bezeichnet List<SaveRequest>.Remove",
+        "0x5ABB13: E8 88 C8 32 01 -> 0x18D83A0",
+        "0x5ABB18: 48 8B 5F 10; 0x5ABB36: 48 8B 77 18; 0x5ABB42: 48 8B 7F 20",
+        "0x5ABB68: 41 B8 0D 00 00 00; alternativer Tabellenpfad 0x5ABBA3: 83 C0 0D",
+        "0x5ABB95: 48 FF 20"
+      ],
+      "assessment": "Nach dem Remove-Aufruf werden Saveable(+0x10), ParentFolderPath(+0x18) und SaveString(+0x20) geladen. Die Interface-Auflösung benutzt Slot 13 und transferiert this, Pfad und SaveString indirekt an das aus der konkreten Saveable-Klasse aufgelöste Ziel.",
+      "additionalObservation": "Der Bool-Rückgabewert von List.Remove wird vor dem folgenden Feldzugriff nicht getestet. Der sichtbare Fortsetzungspfad verlangt also keine bestätigte erfolgreiche Entfernung und kann bei normal zurückkehrendem Remove auch mit dessen false-Ergebnis weiterlaufen.",
+      "consequence": "Queueleerheit quittiert weder Ende der aktuellen Requestarbeit noch Ende weiterer Teilnehmerzugriffe. Ein unmittelbar anschließender Saveable-Nullfehler oder späterer Dispatchfehler wäre nach dem bereits erfolgten Remove-Aufruf möglich; kein solcher Lauf wurde ausgeführt."
+    },
+    {
+      "id": "V4-03",
+      "claim": "Frische FieldMap/MethodMap ordnet Requestfelder und Slots 13/15 korrekt für die lokale Dispatchanalyse zu.",
+      "verdict": "limited",
+      "evidence": ["map-native.ps1:19-26,98-109", "native-map-v4.json:216-221,251-270,404-452", "request:35,41,48-50,62-83", "write-base:200-223"],
+      "assessment": "Die eingefrorene Map weist Queue=+0x68, Request.Saveable=+0x10, Pfad=+0x18 und SaveString=+0x20 aus. Ihre Interface-Slots sind WriteBaseData=13, CompleteSave=15, WriteData=16 und DeleteUnapprovedFiles=17. Diese Werte passen zu den tatsächlichen Feldzugriffsbytes und beiden sichtbaren Slotauflösungspfaden. Der Exporter entnimmt Offsets aus GetFieldOffsetFromIndex und Slots aus dem Metadatenfeld slot, nicht aus dem Namen eines leeren C#-Rumpfs.",
+      "limit": "Die frische LibCpp2IL-Map ist Parent-Primärevidenz; kein eigener Parserneulauf und keine unabhängige Rekonstruktion der rohen Offset-/Slotmetadaten. Diese Zuordnung ist kein Readback der Interface-Tabelle einer konkreten injizierten Business-Instanz."
+    },
+    {
+      "id": "V4-04",
+      "claim": "WriteBaseData zeigt WriteAllText und eine Fehlerlogsequenz mit gemeinsamem Nachlauf.",
+      "verdict": "agree",
+      "methodEvidence": ["write-base"],
+      "evidence": ["write-base:76-104,112-113,177-185"],
+      "decisiveBytes": ["0x584009: E8 72 35 5E 01 -> 0x1B67580 / File.WriteAllText", "0x584011: E9 52 01 00 00 -> 0x584168", "0x584159: E8 32 48 32 00 -> 0x8A8990 / Console.LogError"],
+      "assessment": "Der nichtleere-String-Pfad ruft File.WriteAllText auf und springt bei normaler Rückkehr zu 0x584168. Der sichtbare Block 0x584016ff baut den Failed-to-write-save-data-file-Fehlertext auf, protokolliert bei 0x584159 und läuft bei normaler Rückkehr dieses Logs über Registerrestauration ebenfalls nach 0x584168. Auch der explizite Empty-String-Logpfad springt dorthin.",
+      "limit": "Damit sind lokale Blockinhalte, explizite Sprünge und der sichtbare Fallthrough belegt. Welche Exceptions genau durch welchen EH-Dispatcher in den Fehlerblock gelangen, ob weitere Handler existieren oder ein Helper selbst wirft, wurde nicht aus bloßer Blocknachbarschaft abgeleitet. Keine Behauptung, dass jeder Schreibfehler abgefangen wird oder den Nachlauf erreicht."
+    },
+    {
+      "id": "V4-05",
+      "claim": "Der Bool für CompleteSave wird aus Nichtleerheit des SaveStrings gebildet, nicht aus bestätigtem Write-Erfolg.",
+      "verdict": "agree",
+      "methodEvidence": ["write-base"],
+      "evidence": ["write-base:3,12-14,97-104,162-165,181-223"],
+      "decisiveBytes": ["0x58416D: E8 EE 41 46 01 / String.IsNullOrEmpty", "0x584172: 0F B6 F0", "0x5841B5: 40 80 F6 01", "0x5841BD: 44 0F B6 C6", "0x5841A7: 41 B8 0F 00 00 00; 0x5841E0: 83 C0 0F", "0x5841D2: 48 FF 20"],
+      "assessment": "RSI hält den SaveString; im sichtbaren Fehlerlogpfad wird dieser aus dem gesicherten ursprünglichen Argument wiederhergestellt. Der gemeinsame Nachlauf ruft IsNullOrEmpty(RSI), übernimmt AL, invertiert dessen Bool mit xor sil,1 und übergibt ihn als dritten nativen Parameter in R8D an den dynamischen Slot-15-Taildispatch. Ein WriteAllText-Erfolgsstatus wird hierfür nicht gelesen.",
+      "limit": "Ein nichtleerer String erlaubt true auch für den sichtbaren Fehlerlog-Fortsetzungspfad, sofern dieser normal zurückkehrt. Das ist lokale Datenflusssemantik, kein ausgeführter Fehlerinjektionstest und kein Nachweis vollständiger EH-Erreichbarkeit. Der Bool bezeichnet keinen bestätigten Datenträgercommit."
+    },
+    {
+      "id": "V4-06",
+      "claim": "Default-CompleteSave benutzt this/Extra-/WriteData-/Cleanup-Pfade und ruft CompleteSaveable erst im sichtbaren normalen Nachlauf.",
+      "verdict": "agree",
+      "methodEvidence": ["complete-save"],
+      "evidence": ["complete-save:13-14,55-64,149-166,255-288,494-544"],
+      "decisiveBytes": ["0x583398: 41 B8 10 00 00 00; 0x5833BB: FF 10 / Slot 16", "0x583778: 41 B8 11 00 00 00; 0x583795: FF 10 / Slot 17", "0x5837E1: 49 8B D6", "0x5837E4: E8 B7 62 02 00 -> 0x5A9AA0 / CompleteSaveable"],
+      "assessment": "Die Default-Implementierung hält this in R14, liest Extra-Listen über Interface-Slots, ruft WriteData/Slot 16 und führt im bedingten Folderpfad Datei-/Verzeichnis-Cleanup sowie DeleteUnapprovedFiles/Slot 17 aus. Der sichtbare normale Nachlauf übergibt dieses this erst bei 0x5837E4 an CompleteSaveable; danach folgt der lokale Epilog.",
+      "limit": "Nur Reihenfolge der sichtbaren lokalen Default-Implementierung und ihres direkten CompleteSaveable-Aufrufs. Nicht bewiesen ist, dass jeder Pfad dort ankommt oder dass dynamische Helfer nicht selbst schon früher weitere Completionarbeit auslösen. Keine vollständige transitive Letztnutzung oder Fehlerabdeckung."
+    },
+    {
+      "id": "V4-07",
+      "claim": "Die Default-Rümpfe belegen nicht den tatsächlichen Dispatch des eigenen injizierten Business für Slots 13/15.",
+      "verdict": "agree",
+      "methodEvidence": ["request", "write-base", "complete-save"],
+      "evidence": ["request:44-83", "write-base:187-223", "native-map-v4.json:374-382,404-432"],
+      "assessment": "Der Request springt nicht direkt an RVA 0x583E70, sondern indirekt an das Slot-13-Ziel der konkreten Saveable-Klasse. WriteBaseData löst Slot 15 ebenfalls dynamisch auf, statt die Default-Adresse 0x582F00 zwingend anzuspringen. Die Default-Rumpfanalyse belegt somit nur Verhalten, falls genau diese Default-Ziele tatsächlich ausgewählt werden.",
+      "limit": "Kein Instanz-/VTable-/Interface-Readback und kein Aufruf des eigenen Business. Der frühere InitializeSaveable-Einzeltest betraf Slot 10 und bleibt auf seinen ursprünglichen Umfang beschränkt; er wird weder entwertet noch zu einem 13/15-Nachweis erweitert."
+    },
+    {
+      "id": "V4-08",
+      "claim": "AsGenericMethodRef und Pointer-/LEA-Filter ergeben null gemeldete ResolutionErrors; die angegebenen Gesamtchecks bleiben begrenzt.",
+      "verdict": "limited",
+      "evidence": ["map-native.ps1:64-84,138-150", "validate-native-evidence.py:91-118,137-181", "native-integrity-before-docs-20261105.json:496-526"],
+      "assessment": "MethodRef wird jetzt mit AsGenericMethodRef statt AsMethod ausgewertet. MetadataGlobal-Kandidaten werden auf ausgerichtete RIP-relative UInt64-Referenzen oder LEA gefiltert. Die drei selbst gegengeprüften Fenster enthalten keine ResolutionError-Einträge und liefern den passenden Remove-MethodRef. Der Parent-Bericht ist intern mit 23 Fenstern, 3285 Instruktionszeilen, 13376 Bytes, 863 relativen Transfers, 50 Dummy-Addresstokens, 70 MethodMap-Einträgen und 10 fokussierten Offsets konsistent.",
+      "limit": "Der 23-Fenster-Bytecheck, die 50 Dummy-Token-Gegenprobe und der vollständige Parserlauf wurden nicht wiederholt. Null Fehler betrifft die tatsächlich ausgegebenen, bereits gefilterten Hints. Es sagt nichts über unterdrückte/unerkannte Symbole und beweist keine universelle semantische Richtigkeit. Shared-Target-Aliasse bleiben; selbst die Stichprobe enthält beim List-Konstruktor 0x58300B zwei Namen für dasselbe Ziel. Indirekte Interfaceziele bleiben ohne Instanzdaten offen."
+    }
+  ],
+  "additionalLocalObservations": [
+    {
+      "id": "V4-O1",
+      "title": "False im Slot-15-Bool ist kein globales Schreib-/Cleanup-Verbot",
+      "evidence": ["complete-save:165-166,255-290,494-534"],
+      "rvas": ["0x5831DD: test r12b,r12b", "0x5831E0: je 0x58335A", "0x5833BB: Slot-16-Aufruf", "0x583795: bedingter Slot-17-Aufruf", "0x5837E4: CompleteSaveable"],
+      "deduction": "Im sichtbaren Default-Rumpf überspringt false einen bedingten Abschnitt der Basissave-Dateibehandlung, führt aber zu 0x58335A und damit weiter in WriteData/Slot 16 und die nachfolgenden bedingten Cleanup-/Buchhaltungspfade. Der Bool darf deshalb weder als bestätigter Write-Erfolg noch als pauschales 'keine weiteren Dateioperationen' interpretiert werden.",
+      "limit": "Bedingte lokale Kontrollflussableitung, kein tatsächlich ausgeführter IO-Pfad. Weder konkrete Dateiinhalte/Löschungen noch die Auswahl dieses Defaults durch das injizierte Business sind belegt."
+    },
+    {
+      "id": "V4-O2",
+      "title": "Das Auflösen der früheren lokalen Request-Lücke ist kein neuer Vollständigkeitsclaim",
+      "evidence": ["request:47-88", "map-native.ps1:129-130,155"],
+      "deduction": "V4 zeigt jetzt die zuvor außerhalb des primären .pdata-Ausschnitts liegenden Pfad-/Stringzugriffe, beide Slot-13-Auflösungspfade und das frühere externe Fehlerziel. Für diese lokalen Aussagen besteht die alte Ausschnittslücke nicht mehr. Unverändert offen sind Vollabdeckung aller EH-/Transitivpfade und der reale Dispatch eigener Instanzen.",
+      "limit": "Der unveränderte V2-Bericht beschreibt weiter seine damaligen V2-Eingaben; er wird durch diesen zeitlich und sachlich begrenzten Nachtrag nicht rückwirkend umgeschrieben."
+    }
+  ],
+  "toolReviewBoundary": {
+    "mapNativeScript": "Vollständig als Provenienz-/Auswahllogik gelesen, nicht ausgeführt. Trusted-Analysis-Library-Loader und LibCpp2IL-Dateileser des Parent wurden nicht neu gestartet.",
+    "parentValidator": "Vollständig gelesen, nicht ausgeführt. Dessen Schleife über alle input-manifest-Einträge und GeneratorConfig wurde nicht übernommen; dadurch keine zusätzlichen UserData-/Konfigurationszugriffe durch diesen Reviewer.",
+    "noSecondDecoderClaim": "Die unabhängige Gegenprobe prüft Bytes, RVA-Mapping und relative Transfers, nicht jedes x64-Mnemonic mit einer zweiten Decoderimplementierung.",
+    "frozenInputsInOwnSnapshot": 12,
+    "snapshotIncludes": "Vier benannte V4-Provenienzdateien, JSON/TXT der drei Methoden und die zwei ausschließlich gehashten alten Berichte."
+  },
+  "rejectedInferencesNotAssertedByParent": [
+    "Das Fensterende am nächsten gemappten Pointer wäre eine exakte vollständige native Funktions-/EH-/Transitivgrenze.",
+    "Remove-Aufruf oder Queueleerheit bedeuteten, dass aktuelle Request-/Teilnehmerarbeit abgeschlossen oder Referenzen freigegeben seien.",
+    "Der Slot-15-Bool oder ein normal erreichter CompleteSaveable-Aufruf beweise erfolgreichen Datenträgerwrite, atomaren Checkpoint oder sichere Freigabe.",
+    "Default-Interface-Rümpfe oder der frühere Slot-10-Einzeltest bewiesen den tatsächlichen eigenen Business-Dispatch auf Slots 13/15.",
+    "ResolutionErrors=0 bedeutete vollständige und für jeden Alias/dynamischen Aufruf richtige Symbolabdeckung."
+  ],
+  "conclusion": "Acht neue, eng formulierte Claims geprüft: sechs agree, zwei limited; kein neuer Einwand gegen deren ausdrücklich begrenzten Umfang. Der lokale Request-/WriteBaseData-/Default-CompleteSave-Zusammenhang ist präziser belegt, aber es gibt weiterhin keine Runtime-, Write-, Unregister- oder Destroy-Freigabe. Keine Wiederholung oder Neueröffnung der abgeschlossenen Managed-/V2-/Modellarbeit."
+}

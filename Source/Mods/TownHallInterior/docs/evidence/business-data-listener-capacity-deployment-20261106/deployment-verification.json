@@ -1,0 +1,49 @@
+{
+  "schema": 1,
+  "checkedUtc": "2026-11-06T14:44:22.152965+00:00",
+  "deployedAtUtc": "2026-11-06T14:43:53.2991901Z",
+  "sourceRevision": "b2c6c7e6c6ecc778da9624cdb68a6578b9db471a",
+  "sourceWorktree": "dirty",
+  "authorization": "User approved installation: 'Ja, installieren (Empfohlen)'",
+  "attemptId": "20261106T144353094Z-698bae441291",
+  "backupId": "20261106T144353135Z-TownHallInterior-51c006b6",
+  "baselineCheckpointId": "20261106T132157195259Z-af2660f4",
+  "candidateRelativePath": ".backups/townhall-business-data-prepared/20261106T143520573Z",
+  "candidateSha256": "b449c1c18062edff3729483b020eca578c7483ad958ef3d7c3ad72a57f9cce01",
+  "candidatePdbSha256": "943b9176dadc0e72690a0b2861b442649fc8b0e099b4a6ea6b7a6beec142078a",
+  "installedHashes": {
+    "Mods/TownHallInterior.dll": "b449c1c18062edff3729483b020eca578c7483ad958ef3d7c3ad72a57f9cce01",
+    "UserData/TownHallInterior/TownHallInterior.pdb": "943b9176dadc0e72690a0b2861b442649fc8b0e099b4a6ea6b7a6beec142078a",
+    "UserData/TownHallInterior/mod.json": "65938002b7273ef77dedbadf9092a186e6742f1e40fe404ef91576d3e4f81660",
+    "UserData/.deploy/receipts/TownHallInterior.json": "c1200d0fea73f71602bf4f4eefdd4e7ff9c9d0af6796829e97fd4d7fa7b4fa5d"
+  },
+  "deployedCandidate": true,
+  "copied": 2,
+  "unchanged": 1,
+  "stale": [],
+  "gameClosedBeforeAndAfter": true,
+  "nativeFiles": 39,
+  "nativeFilesByteIdentical": true,
+  "nativeChanged": [],
+  "nativeAdded": [],
+  "nativeRemoved": [],
+  "modsFiles": 38,
+  "modsChanged": [
+    "TownHallInterior.dll"
+  ],
+  "modsAdded": [],
+  "modsRemoved": [],
+  "userDataDeploymentScope": "receipt: TownHallInterior.pdb Copied; mod.json NotAttempted; no full UserData inventory was taken before this installation",
+  "nativeDataQueriesObserved": false,
+  "nativeSaveWriteAllowed": false,
+  "normalBuildRestored": false,
+  "gameLaunched": false,
+  "nativeSlot1Accessed": false,
+  "limits": [
+    "Installation verifies file delivery only, not native listener capture, data queries or a functioning purchasable Business.",
+    "No full UserData inventory was taken before this installation; the receipt scopes the deployment to DLL/PDB.",
+    "File equality is not proof of no filesystem operations; empty-directory baselines were not recorded.",
+    "No new builds or tests were run in this deployment turn."
+  ],
+  "nextStep": "User starts through Steam, explicitly loads TownHallTest / Slot 2, waits at least ten seconds and reports 'geladen'. Inspect Native.DataListenerDiagnostics['minute-list'] and the data-query results. After regular exit compare the 39 native files and restore normal build 614b81fd..."
+}

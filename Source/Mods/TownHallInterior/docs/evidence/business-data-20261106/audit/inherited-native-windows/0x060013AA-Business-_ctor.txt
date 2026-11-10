@@ -1,0 +1,61 @@
+; ScheduleOne.Property.Business::.ctor/0, token 0x060013AA, RVA 0x54DD00, next-pointer window 0xF0 bytes
+; No target execution. Parser-pointer window can contain padding/cold fragments and is not exact/full function, EH or transitive coverage. Shared direct aliases are truncated to eight names.
+0x54DD00     48 89 5C 24 08                  mov [rsp+8],rbx
+0x54DD05     57                              push rdi
+0x54DD06     48 83 EC 20                     sub rsp,20h
+0x54DD0A     80 3D 17 D8 6A 03 00            cmp byte ptr [183BFB528h],0
+0x54DD11     48 8B F9                        mov rdi,rcx
+0x54DD14     75 37                           jne short 000000018054DD4Dh
+0x54DD16     48 8D 0D 13 A2 49 03            lea rcx,[1839E7F30h] ; TypeInfo: ScheduleOne.Persistence.Loaders.BusinessLoader
+0x54DD1D     E8 7E 9B DC FF                  call 00000001803178A0h
+0x54DD22     48 8D 0D 37 B8 4B 03            lea rcx,[183A09560h] ; MethodRef: System.Void System.Collections.Generic.List`1<ScheduleOne.Property.LaunderingOperation>..ctor
+0x54DD29     E8 72 9B DC FF                  call 00000001803178A0h
+0x54DD2E     48 8D 0D CB 0B 4B 03            lea rcx,[1839FE900h] ; TypeInfo: System.Collections.Generic.List`1<ScheduleOne.Property.LaunderingOperation>
+0x54DD35     E8 66 9B DC FF                  call 00000001803178A0h
+0x54DD3A     48 8D 0D 4F 52 4B 03            lea rcx,[183A02F90h] ; TypeInfo: ScheduleOne.Property.Property
+0x54DD41     E8 5A 9B DC FF                  call 00000001803178A0h
+0x54DD46     C6 05 DB D7 6A 03 01            mov byte ptr [183BFB528h],1
+0x54DD4D     C7 87 68 02 00 00 00 00 7A 44   mov dword ptr [rdi+268h],447A0000h
+0x54DD57     48 8B 0D A2 0B 4B 03            mov rcx,[1839FE900h] ; TypeInfo: System.Collections.Generic.List`1<ScheduleOne.Property.LaunderingOperation>
+0x54DD5E     E8 BD 9D DC FF                  call 0000000180317B20h
+0x54DD63     48 8B 15 F6 B7 4B 03            mov rdx,[183A09560h] ; MethodRef: System.Void System.Collections.Generic.List`1<ScheduleOne.Property.LaunderingOperation>..ctor
+0x54DD6A     48 8B C8                        mov rcx,rax
+0x54DD6D     48 8B D8                        mov rbx,rax
+0x54DD70     E8 BB 60 A6 00                  call 0000000180FB3E30h ; System.Collections.Generic.List`1::.ctor/0 | System.Collections.Generic.LowLevelList`1::.ctor/0
+0x54DD75     48 8D 8F 70 02 00 00            lea rcx,[rdi+270h]
+0x54DD7C     48 89 9F 70 02 00 00            mov [rdi+270h],rbx
+0x54DD83     48 8B D3                        mov rdx,rbx
+0x54DD86     E8 25 8D DC FF                  call 0000000180316AB0h
+0x54DD8B     48 8B 0D 9E A1 49 03            mov rcx,[1839E7F30h] ; TypeInfo: ScheduleOne.Persistence.Loaders.BusinessLoader
+0x54DD92     E8 89 9D DC FF                  call 0000000180317B20h
+0x54DD97     33 D2                           xor edx,edx
+0x54DD99     48 8B C8                        mov rcx,rax
+0x54DD9C     48 8B D8                        mov rbx,rax
+0x54DD9F     E8 DC F7 EC FF                  call 000000018041D580h ; DeveloperManager::OnStartServer/0 | DeveloperManager+LiveFloatVariable::.ctor/0 | DeveloperManager+LiveStringVariable::.ctor/0 | DeveloperManager+<>c__DisplayClass11_0::.ctor/0 | DeveloperManager+<>c__DisplayClass15_0::.ctor/0 | DeveloperManager+<>c__DisplayClass16_0::.ctor/0 | DeveloperSettings+Item::.ctor/0 | InvertMouseSetter+<>c::.ctor/0 | ... SHARED TARGET: 2614 aliases
+0x54DDA4     48 8D 8F 78 02 00 00            lea rcx,[rdi+278h]
+0x54DDAB     48 89 9F 78 02 00 00            mov [rdi+278h],rbx
+0x54DDB2     48 8B D3                        mov rdx,rbx
+0x54DDB5     E8 F6 8C DC FF                  call 0000000180316AB0h
+0x54DDBA     48 8B 0D CF 51 4B 03            mov rcx,[183A02F90h] ; TypeInfo: ScheduleOne.Property.Property
+0x54DDC1     83 B9 E0 00 00 00 00            cmp dword ptr [rcx+0E0h],0
+0x54DDC8     75 05                           jne short 000000018054DDCFh
+0x54DDCA     E8 61 9E DC FF                  call 0000000180317C30h
+0x54DDCF     33 D2                           xor edx,edx
+0x54DDD1     48 8B CF                        mov rcx,rdi
+0x54DDD4     48 8B 5C 24 30                  mov rbx,[rsp+30h]
+0x54DDD9     48 83 C4 20                     add rsp,20h
+0x54DDDD     5F                              pop rdi
+0x54DDDE     E9 FD 99 00 00                  jmp near ptr 00000001805577E0h ; ScheduleOne.Property.Property::.ctor/0
+0x54DDE3     CC                              int 3
+0x54DDE4     CC                              int 3
+0x54DDE5     CC                              int 3
+0x54DDE6     CC                              int 3
+0x54DDE7     CC                              int 3
+0x54DDE8     CC                              int 3
+0x54DDE9     CC                              int 3
+0x54DDEA     CC                              int 3
+0x54DDEB     CC                              int 3
+0x54DDEC     CC                              int 3
+0x54DDED     CC                              int 3
+0x54DDEE     CC                              int 3
+0x54DDEF     CC                              int 3

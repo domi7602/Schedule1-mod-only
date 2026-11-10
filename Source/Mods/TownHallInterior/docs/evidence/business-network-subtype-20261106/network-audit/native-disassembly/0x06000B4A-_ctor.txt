@@ -1,0 +1,58 @@
+; FishNet.Managing.NetworkManager::.ctor/0, token 0x06000B4A, RVA 0xCF8F10, .pdata primary extent 0x11B bytes
+; Raw native bytes decoded without invoking the game. .pdata primary extent is not a proof of full transitive/exception-path coverage.
+0xCF8F10     48 89 5C 24 08                  mov [rsp+8],rbx
+0xCF8F15     57                              push rdi
+0xCF8F16     48 83 EC 20                     sub rsp,20h
+0xCF8F1A     80 3D AD 7E F0 02 00            cmp byte ptr [183C00DCEh],0
+0xCF8F21     48 8B F9                        mov rdi,rcx
+0xCF8F24     75 4F                           jne short 0000000180CF8F75h
+0xCF8F26     48 8D 0D 4B E7 D0 02            lea rcx,[183A07678h]
+0xCF8F2D     E8 6E E9 61 FF                  call 00000001803178A0h
+0xCF8F32     48 8D 0D 5F 02 CF 02            lea rcx,[1839E9198h]
+0xCF8F39     E8 62 E9 61 FF                  call 00000001803178A0h
+0xCF8F3E     48 8D 0D 7B 42 CF 02            lea rcx,[1839ED1C0h]
+0xCF8F45     E8 56 E9 61 FF                  call 00000001803178A0h
+0xCF8F4A     48 8D 0D E7 92 CA 02            lea rcx,[1839A2238h] ; TypeInfo: System.Collections.Generic.Dictionary`2<System.UInt16, FishNet.Managing.Object.PrefabObjects>
+0xCF8F51     E8 4A E9 61 FF                  call 00000001803178A0h
+0xCF8F56     48 8D 0D 7B 34 CA 02            lea rcx,[18399C3D8h] ; TypeInfo: System.Collections.Generic.Dictionary`2<System.String, UnityEngine.Component>
+0xCF8F5D     E8 3E E9 61 FF                  call 00000001803178A0h
+0xCF8F62     48 8D 0D 17 26 CA 02            lea rcx,[18399B580h] ; TypeInfo: System.Collections.Generic.Dictionary`2<System.String, System.Collections.Generic.List`1<System.Action`1<UnityEngine.Component>>>
+0xCF8F69     E8 32 E9 61 FF                  call 00000001803178A0h
+0xCF8F6E     C6 05 59 7E F0 02 01            mov byte ptr [183C00DCEh],1
+0xCF8F75     66 C7 47 71 01 01               mov word ptr [rdi+71h],101h
+0xCF8F7B     48 8B 0D B6 92 CA 02            mov rcx,[1839A2238h] ; TypeInfo: System.Collections.Generic.Dictionary`2<System.UInt16, FishNet.Managing.Object.PrefabObjects>
+0xCF8F82     E8 99 EB 61 FF                  call 0000000180317B20h
+0xCF8F87     48 8B 15 EA E6 D0 02            mov rdx,[183A07678h]
+0xCF8F8E     48 8B C8                        mov rcx,rax
+0xCF8F91     48 8B D8                        mov rbx,rax
+0xCF8F94     E8 47 D0 86 00                  call 0000000181565FE0h
+0xCF8F99     48 8D 8F A0 00 00 00            lea rcx,[rdi+0A0h]
+0xCF8FA0     48 89 9F A0 00 00 00            mov [rdi+0A0h],rbx
+0xCF8FA7     48 8B D3                        mov rdx,rbx
+0xCF8FAA     E8 01 DB 61 FF                  call 0000000180316AB0h
+0xCF8FAF     48 8B 0D CA 25 CA 02            mov rcx,[18399B580h] ; TypeInfo: System.Collections.Generic.Dictionary`2<System.String, System.Collections.Generic.List`1<System.Action`1<UnityEngine.Component>>>
+0xCF8FB6     E8 65 EB 61 FF                  call 0000000180317B20h
+0xCF8FBB     48 8B 15 D6 01 CF 02            mov rdx,[1839E9198h]
+0xCF8FC2     48 8B C8                        mov rcx,rax
+0xCF8FC5     48 8B D8                        mov rbx,rax
+0xCF8FC8     E8 63 6F 81 00                  call 000000018150FF30h
+0xCF8FCD     48 8D 8F A8 00 00 00            lea rcx,[rdi+0A8h]
+0xCF8FD4     48 89 9F A8 00 00 00            mov [rdi+0A8h],rbx
+0xCF8FDB     48 8B D3                        mov rdx,rbx
+0xCF8FDE     E8 CD DA 61 FF                  call 0000000180316AB0h
+0xCF8FE3     48 8B 0D EE 33 CA 02            mov rcx,[18399C3D8h] ; TypeInfo: System.Collections.Generic.Dictionary`2<System.String, UnityEngine.Component>
+0xCF8FEA     E8 31 EB 61 FF                  call 0000000180317B20h
+0xCF8FEF     48 8B 15 CA 41 CF 02            mov rdx,[1839ED1C0h]
+0xCF8FF6     48 8B C8                        mov rcx,rax
+0xCF8FF9     48 8B D8                        mov rbx,rax
+0xCF8FFC     E8 2F 6F 81 00                  call 000000018150FF30h
+0xCF9001     48 8D 8F B0 00 00 00            lea rcx,[rdi+0B0h]
+0xCF9008     48 89 9F B0 00 00 00            mov [rdi+0B0h],rbx
+0xCF900F     48 8B D3                        mov rdx,rbx
+0xCF9012     E8 99 DA 61 FF                  call 0000000180316AB0h
+0xCF9017     33 D2                           xor edx,edx
+0xCF9019     48 8B CF                        mov rcx,rdi
+0xCF901C     48 8B 5C 24 30                  mov rbx,[rsp+30h]
+0xCF9021     48 83 C4 20                     add rsp,20h
+0xCF9025     5F                              pop rdi
+0xCF9026     E9 95 AA E7 01                  jmp near ptr 0000000182B73AC0h ; UnityEngine.Behaviour::.ctor/0 | UnityEngine.Component::.ctor/0 | UnityEngine.MonoBehaviour::.ctor/0 | UnityEngine.RectTransform::.ctor/0 | UnityEngine.Transform::.ctor/0 | UnityEngine.U2D.Light2DBase::.ctor/0

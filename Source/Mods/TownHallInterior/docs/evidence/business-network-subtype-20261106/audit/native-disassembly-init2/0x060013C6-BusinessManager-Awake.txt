@@ -1,0 +1,22 @@
+; ScheduleOne.Property.BusinessManager::Awake/0, token 0x060013C6, RVA 0x54B560, next-pointer window 0x50 bytes
+; No target execution. Parser-pointer window can contain padding/cold fragments and is not exact/full function, EH or transitive coverage. Shared direct aliases are truncated to eight names.
+0x54B560     40 53                           push rbx
+0x54B562     48 83 EC 20                     sub rsp,20h
+0x54B566     80 3D C6 FF 6A 03 00            cmp byte ptr [183BFB533h],0
+0x54B56D     48 8B D9                        mov rbx,rcx
+0x54B570     75 13                           jne short 000000018054B585h
+0x54B572     48 8D 0D 7F 86 49 03            lea rcx,[1839E3BF8h] ; MethodRef: System.Void ScheduleOne.DevUtilities.Singleton`1<ScheduleOne.Property.BusinessManager>.Awake
+0x54B579     E8 22 C3 DC FF                  call 00000001803178A0h
+0x54B57E     C6 05 AE FF 6A 03 01            mov byte ptr [183BFB533h],1
+0x54B585     48 8B 15 6C 86 49 03            mov rdx,[1839E3BF8h] ; MethodRef: System.Void ScheduleOne.DevUtilities.Singleton`1<ScheduleOne.Property.BusinessManager>.Awake
+0x54B58C     48 8B CB                        mov rcx,rbx
+0x54B58F     E8 3C A2 BE 00                  call 00000001811357D0h ; ScheduleOne.DevUtilities.Singleton`1::Awake/0
+0x54B594     48 8B 03                        mov rax,[rbx]
+0x54B597     48 8B CB                        mov rcx,rbx
+0x54B59A     48 8B 90 30 03 00 00            mov rdx,[rax+330h]
+0x54B5A1     48 83 C4 20                     add rsp,20h
+0x54B5A5     5B                              pop rbx
+0x54B5A6     48 FF A0 28 03 00 00            jmp qword ptr [rax+328h]
+0x54B5AD     CC                              int 3
+0x54B5AE     CC                              int 3
+0x54B5AF     CC                              int 3

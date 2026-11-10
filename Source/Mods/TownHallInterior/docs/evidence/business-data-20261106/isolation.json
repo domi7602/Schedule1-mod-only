@@ -1,0 +1,149 @@
+{
+  "checkedUtc": "2026-11-06T13:09:12.478710+00:00",
+  "status": "Failed",
+  "passedSteps": 21,
+  "failedSteps": [
+    "versions"
+  ],
+  "preexistingVersionDrift": [
+    "HitmanPhone",
+    "Minimap",
+    "PoliceTestMode"
+  ],
+  "snapshotFilesCompared": 2531,
+  "sourceAndCheckoutHashAndFileSetsEqualAfterRun": true,
+  "submodulesVerified": [
+    {
+      "path": "ThirdParty/S1API",
+      "commit": "6b6d7bada39054822732224508cf0f4f45ee7c26"
+    },
+    {
+      "path": "ThirdParty/S1MAPI",
+      "commit": "89b8d0173946324bb21b3eb1fa584ee9c5f3e618"
+    }
+  ],
+  "submoduleCheckoutSource": "Process-local exact-URL rewrites to existing clean pinned local repositories; no global Git configuration changes. See isolated-local-submodules.json.",
+  "xunitProjects": 18,
+  "xunitPassed": 5097,
+  "xunitFailed": 0,
+  "townHallPassed": 1166,
+  "testProjects": [
+    {
+      "file": "AutoPackagingStation.Tests-bbbf528cb57b.trx",
+      "total": 66,
+      "passed": 66,
+      "failed": 0
+    },
+    {
+      "file": "BankApp.Tests-0e83cb22b8ad.trx",
+      "total": 103,
+      "passed": 103,
+      "failed": 0
+    },
+    {
+      "file": "BusinessIncome.ConfigIo.Tests-9456288cbee9.trx",
+      "total": 17,
+      "passed": 17,
+      "failed": 0
+    },
+    {
+      "file": "BusinessIncome.Tests-825e6659110a.trx",
+      "total": 228,
+      "passed": 228,
+      "failed": 0
+    },
+    {
+      "file": "CalculatorApp.Tests-03fa2d6cbe1f.trx",
+      "total": 18,
+      "passed": 18,
+      "failed": 0
+    },
+    {
+      "file": "GoldenHour.Tests-ba47a230bfdc.trx",
+      "total": 104,
+      "passed": 104,
+      "failed": 0
+    },
+    {
+      "file": "HitmanPhone.Tests-411d5ec72449.trx",
+      "total": 148,
+      "passed": 148,
+      "failed": 0
+    },
+    {
+      "file": "MessagesPlus.Tests-9d818eade453.trx",
+      "total": 25,
+      "passed": 25,
+      "failed": 0
+    },
+    {
+      "file": "Minimap.Tests-dc2732bc55bc.trx",
+      "total": 222,
+      "passed": 222,
+      "failed": 0
+    },
+    {
+      "file": "PocketShop.Tests-ddf2c32e6c24.trx",
+      "total": 64,
+      "passed": 64,
+      "failed": 0
+    },
+    {
+      "file": "PoliceTestMode.Tests-c3e36358c94b.trx",
+      "total": 36,
+      "passed": 36,
+      "failed": 0
+    },
+    {
+      "file": "PropertyLEDs.Tests-87e67ac364ab.trx",
+      "total": 122,
+      "passed": 122,
+      "failed": 0
+    },
+    {
+      "file": "S1MCP.Tests-32af1c8c168a.trx",
+      "total": 62,
+      "passed": 62,
+      "failed": 0
+    },
+    {
+      "file": "StorageScanner.Tests-4d867835f312.trx",
+      "total": 37,
+      "passed": 37,
+      "failed": 0
+    },
+    {
+      "file": "TaxiDriver.Tests-95ea496a5c12.trx",
+      "total": 1402,
+      "passed": 1402,
+      "failed": 0
+    },
+    {
+      "file": "TownHallInterior.Tests-a33cbff60c0e.trx",
+      "total": 1166,
+      "passed": 1166,
+      "failed": 0
+    },
+    {
+      "file": "WaterShader.Tests-add96e76412f.trx",
+      "total": 1231,
+      "passed": 1231,
+      "failed": 0
+    },
+    {
+      "file": "WorldLook.Tests-33c22a38e02f.trx",
+      "total": 46,
+      "passed": 46,
+      "failed": 0
+    }
+  ],
+  "installedNormalPayloadAndReceiptUnchanged": true,
+  "limit": "No repository-wide pass; only preexisting versions failed. Separate final isolation/manifest files are added after snapshot comparison; captured production, tests, status docs and focused verification remain unchanged.",
+  "supersededFirstAttempt": {
+    "failedSteps": [
+      "format",
+      "versions"
+    ],
+    "scope": "Historical snapshot before final formatting; source was subsequently formatted and final candidate rebuilt/reviewed. Not used for final source identity or acceptance."
+  }
+}

@@ -1,0 +1,17 @@
+[
+  {
+    "Kind": "dll",
+    "Source": "C:\\Users\\pc\\Schedule1-mod-only\\.backups\\townhall-business-data-prepared\\20261106T125743151244Z\\TownHallInterior.dll",
+    "DestinationRelative": "Mods\\TownHallInterior.dll"
+  },
+  {
+    "Kind": "pdb",
+    "Source": "C:\\Users\\pc\\Schedule1-mod-only\\.backups\\townhall-business-data-prepared\\20261106T125743151244Z\\TownHallInterior.pdb",
+    "DestinationRelative": "UserData\\TownHallInterior\\TownHallInterior.pdb"
+  },
+  {
+    "Kind": "metadata",
+    "Source": "C:\\Users\\pc\\Schedule1-mod-only\\Source\\Mods\\TownHallInterior\\docs\\mod.json",
+    "DestinationRelative": "UserData\\TownHallInterior\\mod.json"
+  }
+]

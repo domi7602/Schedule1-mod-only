@@ -1,0 +1,1 @@
+[deploy-mod] TownHallInterior -> Copied 2, Unchanged 1; receipt C:\Program Files (x86)\Steam\steamapps\common\Schedule I\UserData\.deploy\receipts\TownHallInterior.json

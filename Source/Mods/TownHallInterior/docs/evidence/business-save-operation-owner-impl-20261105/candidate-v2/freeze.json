@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "frozenUtc": "2026-11-05T18:17:04.861519+00:00",
+  "sourceRevision": "b2c6c7e6c6ecc778da9624cdb68a6578b9db471a",
+  "sourceWorktree": "dirty",
+  "scope": "Pure synthetic ownership model and new tests; no runtime wiring or native proof",
+  "sourcePath": "Source/Mods/TownHallInterior/src/BusinessConstruction.cs",
+  "testPath": "Source/Tests/TownHallInterior.Tests/BusinessSaveOperationOwnerTests.cs",
+  "sourceSha256": "e4bb1d13324a3d61419d26ba172e88ba2ea53e30b15d3c6b6f43fb3e72212f50",
+  "testSha256": "c92e90af755b8feadbd77282ccf0a852b0e1cedaf25ec63eea8a354f3d9ce198",
+  "blockSha256": "7683e61d725f8a89e766de4e1d92dcdb0f3295c8ed301bf8815042a2d6efb102",
+  "sourceBeforeSha256": "8964512eeb94ae63acadbe5cd47caa7c36a325e10cd75af73cc5c1091c4db5d2",
+  "oldSourceBytesPreservedByRemovingBlock": true,
+  "otherProtectedSourcesUnchanged": 40,
+  "priorArtifactsUnchangedExcludingManifests": 237,
+  "priorManifestsUnchanged": 3,
+  "productionFiles": 20,
+  "nativeSaveWriteAllowed": false,
+  "files": [
+    {
+      "path": "source.txt",
+      "sha256": "e4bb1d13324a3d61419d26ba172e88ba2ea53e30b15d3c6b6f43fb3e72212f50",
+      "bytes": 177015
+    },
+    {
+      "path": "tests.txt",
+      "sha256": "c92e90af755b8feadbd77282ccf0a852b0e1cedaf25ec63eea8a354f3d9ce198",
+      "bytes": 44277
+    },
+    {
+      "path": "ownership-block.txt",
+      "sha256": "7683e61d725f8a89e766de4e1d92dcdb0f3295c8ed301bf8815042a2d6efb102",
+      "bytes": 19980
+    },
+    {
+      "path": "implementation-contract.txt",
+      "sha256": "03cb9ad799c42475236caecb7ad1795ad4ecb00776b1b0ae0b3fa68bcda8cd53",
+      "bytes": 8188
+    }
+  ]
+}

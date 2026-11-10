@@ -1,0 +1,103 @@
+{
+  "capturedUtc": "2026-11-06T11:40:23.210623+00:00",
+  "reviewer": "/root/active_lifetime_review",
+  "status": "accepted",
+  "acceptanceScope": "Independent static review of the opt-in own no-base NetworkObject/Business binding candidate; no open mandatory findings in this bounded code slice.",
+  "sourceSha256": "9a62ceefc8808888a226a979801425e98d1130aa1ea385034afce08fdc3be12b",
+  "sourceFiles": [
+    {
+      "path": "Source/Mods/TownHallInterior/src/BusinessConstruction.cs",
+      "sha256": "9a62ceefc8808888a226a979801425e98d1130aa1ea385034afce08fdc3be12b",
+      "bytes": 266585
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/TownHallInterior.csproj",
+      "sha256": "7c9f0c1818016e27754c6a76a2d96b2a4843c55f57cabfb4a4423f7edb774327",
+      "bytes": 2788
+    }
+  ],
+  "basisRevision": "b2c6c7e6c6ecc778da9624cdb68a6578b9db471a",
+  "workingTree": "Uncommitted changes; exact reviewed files are identified by the hashes above.",
+  "findings": [],
+  "closedFindings": [
+    {
+      "id": "N1",
+      "priority": "P1",
+      "finding": "Fresh holder scans did not enforce prior manager/container identities and contents at the native mutation boundary.",
+      "resolution": "Copied initial holder baseline is compared on every scan used by Capture and internal ReadNetworkBinding.",
+      "lines": [
+        3865
+      ]
+    },
+    {
+      "id": "N2",
+      "priority": "P1",
+      "finding": "Cleanup ignored fresh base flags; internal state could also accept changed valid Slot2 paths or extra property callbacks after owner read.",
+      "resolution": "Canonical paths, generation/root/Business/class/SaveManager, frame and callback floors are pinned. SetActive and Cleanup enforce all base/network flags plus exact ShouldSave/CanBePurchased counts.",
+      "lines": [
+        3565,
+        3599,
+        3611
+      ]
+    },
+    {
+      "id": "N3",
+      "priority": "P1",
+      "finding": "DestroyImmediate could be followed by native absence reads after context revocation during callbacks.",
+      "resolution": "RequireContext immediately follows DestroyImmediate before Unity native absence reads. Report Details uses cached evidence and managed ledgers.",
+      "lines": [
+        4047,
+        3333
+      ]
+    },
+    {
+      "id": "N4",
+      "priority": "P1",
+      "finding": "Overloaded null comparisons could accept stale nonzero parent/manager/owner references as absent.",
+      "resolution": "Direct backing references use ReferenceEquals via NullNativeReference. Post-destroy NetworkObject checks distinguish retained wrapper from Unity native-null absence.",
+      "lines": [
+        3632,
+        3671,
+        4066
+      ]
+    },
+    {
+      "id": "N5",
+      "priority": "P2",
+      "finding": "Report unconditionally claimed NetworkObjectAdded on skipped or partial-failure attempts.",
+      "resolution": "Final report separately states probe enabled, construction attempted before AddComponent, and cached handle acquired; it does not infer definite absence after uncertain native effects.",
+      "lines": [
+        3045,
+        3448
+      ]
+    }
+  ],
+  "verifiedBySourceReview": [
+    "Own NetworkObject IntPtr constructor and own Unity callbacks do not call original native constructor/lifecycle bodies.",
+    "Own named OnEnable/OnDisable/OnDestroy/FixedUpdate entries are distinct from inherited nonvirtual proxies; Awake/Start vtable targets are separately checked.",
+    "Business cache/index and exact singleton NetworkObject behaviour array are retained and checked with native own-class identity.",
+    "Unspawned/detached predicates check fresh sentinel ObjectId, state/scene/network/init flags, real-null parent/owner/managers and readable empty child/observer collections.",
+    "Bounded known holders include Server/Client object registries, pending/spawn/observer/dirty lists, registered components, connection Objects/FirstObject/LevelOfDetails and object-ID queue fingerprint.",
+    "Three pointer-bearing ClientObjectCache containers and two ID-only sets must be readable and empty; manager/cache backreferences must match.",
+    "Fresh native boundaries enforce same world/instance/holder binding, required flags and callback/frame floors before activation/deactivation/destruction.",
+    "Cleanup verifies own root, Business and NetworkObject native absence; owner verifies exact final callbacks and unchanged snapshots. Unknown effects quarantine without retry or shared-state restoration.",
+    "Reports use retained evidence and managed callback ledgers rather than initiating fresh native observations after revocation.",
+    "Build flag remains opt-in and incompatible manager/interface/construction and active-only combinations are guarded; withdrawn legacy activation remains compile-time blocked."
+  ],
+  "limits": [
+    "Reviewer ran no builds, tests, game, save or deployment actions and edited no production files.",
+    "Parent reports six clean NoDeploy WarnAsError builds and three expected CS1029 guard failures; those executions are not independently claimed by this reviewer.",
+    "Static metadata/source checks do not prove new NetworkObject shell Unity message delivery. That still requires the bounded live observation.",
+    "No proof of original FishNet initialization, native Business readiness, spawn, purchase, laundering, persistence/reload, world-exit drain or unload safety.",
+    "Finite named holder coverage is not global heap, object-pool, delegate-closure or native last-use proof; legitimate changing foreign state may conservatively quarantine.",
+    "Own named Unity messages do not intercept explicit inherited nonvirtual native method calls."
+  ],
+  "auditEvidence": {
+    "path": ".scratch/townhall-business-bind-20261106/network-audit/network-audit.json",
+    "sha256": "f614a83c825a706395d4e1153dd77cdc57103b76dc40a483adccfe1f58b901c4"
+  },
+  "reviewerBuildsRun": false,
+  "reviewerTestsRun": false,
+  "reviewerGameInvoked": false,
+  "reviewerSaveFilesAccessed": false
+}

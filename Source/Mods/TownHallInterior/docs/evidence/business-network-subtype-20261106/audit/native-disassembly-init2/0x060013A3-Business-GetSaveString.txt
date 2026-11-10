@@ -1,0 +1,234 @@
+; ScheduleOne.Property.Business::GetSaveString/0, token 0x060013A3, RVA 0x54C4D0, next-pointer window 0x410 bytes
+; No target execution. Parser-pointer window can contain padding/cold fragments and is not exact/full function, EH or transitive coverage. Shared direct aliases are truncated to eight names.
+0x54C4D0     40 57                           push rdi
+0x54C4D2     48 81 EC 80 00 00 00            sub rsp,80h
+0x54C4D9     80 3D 44 F0 6A 03 00            cmp byte ptr [183BFB524h],0
+0x54C4E0     48 8B F9                        mov rdi,rcx
+0x54C4E3     0F 85 8B 00 00 00               jne near ptr 000000018054C574h
+0x54C4E9     48 8D 0D E8 43 46 03            lea rcx,[1839B08D8h] ; TypeInfo: System.Boolean[]
+0x54C4F0     E8 AB B3 DC FF                  call 00000001803178A0h
+0x54C4F5     48 8D 0D 5C B9 49 03            lea rcx,[1839E7E58h] ; TypeInfo: ScheduleOne.Persistence.Datas.BusinessData
+0x54C4FC     E8 9F B3 DC FF                  call 00000001803178A0h
+0x54C501     48 8D 0D 88 F6 46 03            lea rcx,[1839BBB90h] ; TypeInfo: ScheduleOne.Persistence.Datas.LaunderOperationData[]
+0x54C508     E8 93 B3 DC FF                  call 00000001803178A0h
+0x54C50D     48 8D 0D 84 21 48 03            lea rcx,[1839CE698h] ; TypeInfo: ScheduleOne.Persistence.Datas.LaunderOperationData
+0x54C514     E8 87 B3 DC FF                  call 00000001803178A0h
+0x54C519     48 8D 0D 08 10 49 03            lea rcx,[1839DD528h] ; MethodRef: T[] System.Collections.Generic.List`1<ScheduleOne.Persistence.Datas.DynamicSaveData>.ToArray
+0x54C520     E8 7B B3 DC FF                  call 00000001803178A0h
+0x54C525     48 8D 0D 24 84 43 03            lea rcx,[183984950h] ; MethodRef: System.Int32 System.Collections.Generic.List`1<ScheduleOne.Misc.ModularSwitch>.get_Count
+0x54C52C     E8 6F B3 DC FF                  call 00000001803178A0h
+0x54C531     48 8D 0D E8 5A 4B 03            lea rcx,[183A02020h] ; MethodRef: System.Int32 System.Collections.Generic.List`1<ScheduleOne.Interaction.InteractableToggleable>.get_Count
+0x54C538     E8 63 B3 DC FF                  call 00000001803178A0h
+0x54C53D     48 8D 0D 54 D4 4B 03            lea rcx,[183A09998h] ; MethodRef: System.Int32 System.Collections.Generic.List`1<ScheduleOne.Property.LaunderingOperation>.get_Count
+0x54C544     E8 57 B3 DC FF                  call 00000001803178A0h
+0x54C549     48 8D 0D A8 5B 4B 03            lea rcx,[183A020F8h] ; MethodRef: T System.Collections.Generic.List`1<ScheduleOne.Interaction.InteractableToggleable>.get_Item
+0x54C550     E8 4B B3 DC FF                  call 00000001803178A0h
+0x54C555     48 8D 0D 14 D5 4B 03            lea rcx,[183A09A70h] ; MethodRef: T System.Collections.Generic.List`1<ScheduleOne.Property.LaunderingOperation>.get_Item
+0x54C55C     E8 3F B3 DC FF                  call 00000001803178A0h
+0x54C561     48 8D 0D C0 84 43 03            lea rcx,[183984A28h] ; MethodRef: T System.Collections.Generic.List`1<ScheduleOne.Misc.ModularSwitch>.get_Item
+0x54C568     E8 33 B3 DC FF                  call 00000001803178A0h
+0x54C56D     C6 05 B0 EF 6A 03 01            mov byte ptr [183BFB524h],1
+0x54C574     48 8B 97 C8 01 00 00            mov rdx,[rdi+1C8h]
+0x54C57B     48 89 9C 24 90 00 00 00         mov [rsp+90h],rbx
+0x54C583     48 89 AC 24 98 00 00 00         mov [rsp+98h],rbp
+0x54C58B     48 89 B4 24 A0 00 00 00         mov [rsp+0A0h],rsi
+0x54C593     4C 89 64 24 78                  mov [rsp+78h],r12
+0x54C598     4C 89 6C 24 70                  mov [rsp+70h],r13
+0x54C59D     4C 89 74 24 68                  mov [rsp+68h],r14
+0x54C5A2     4C 89 7C 24 60                  mov [rsp+60h],r15
+0x54C5A7     0F 29 74 24 50                  movaps [rsp+50h],xmm6
+0x54C5AC     48 85 D2                        test rdx,rdx
+0x54C5AF     0F 84 08 03 00 00               je near ptr 000000018054C8BDh
+0x54C5B5     8B 52 18                        mov edx,[rdx+18h]
+0x54C5B8     48 8B 0D 19 43 46 03            mov rcx,[1839B08D8h] ; TypeInfo: System.Boolean[]
+0x54C5BF     E8 6C A5 DC FF                  call 0000000180316B30h
+0x54C5C4     48 8B 8F C8 01 00 00            mov rcx,[rdi+1C8h]
+0x54C5CB     4C 8B F8                        mov r15,rax
+0x54C5CE     48 85 C9                        test rcx,rcx
+0x54C5D1     0F 84 E6 02 00 00               je near ptr 000000018054C8BDh
+0x54C5D7     33 DB                           xor ebx,ebx
+0x54C5D9     33 D2                           xor edx,edx
+0x54C5DB     0F 1F 44 00 00                  nop dword ptr [rax+rax]
+0x54C5E0     3B 51 18                        cmp edx,[rcx+18h]
+0x54C5E3     7D 5F                           jge short 000000018054C644h
+0x54C5E5     48 8B 8F C8 01 00 00            mov rcx,[rdi+1C8h]
+0x54C5EC     48 85 C9                        test rcx,rcx
+0x54C5EF     0F 84 C8 02 00 00               je near ptr 000000018054C8BDh
+0x54C5F5     4C 8B 05 2C 84 43 03            mov r8,[183984A28h] ; MethodRef: T System.Collections.Generic.List`1<ScheduleOne.Misc.ModularSwitch>.get_Item
+0x54C5FC     8B D3                           mov edx,ebx
+0x54C5FE     E8 2D A6 30 01                  call 0000000181856C30h
+0x54C603     48 85 C0                        test rax,rax
+0x54C606     0F 84 B1 02 00 00               je near ptr 000000018054C8BDh
+0x54C60C     4D 85 FF                        test r15,r15
+0x54C60F     0F 84 A8 02 00 00               je near ptr 000000018054C8BDh
+0x54C615     41 3B 5F 18                     cmp ebx,[r15+18h]
+0x54C619     0F 83 B4 02 00 00               jae near ptr 000000018054C8D3h
+0x54C61F     0F B6 80 18 01 00 00            movzx eax,byte ptr [rax+118h]
+0x54C626     48 63 CB                        movsxd rcx,ebx
+0x54C629     FF C3                           inc ebx
+0x54C62B     8B D3                           mov edx,ebx
+0x54C62D     42 88 44 39 20                  mov [rcx+r15+20h],al
+0x54C632     48 8B 8F C8 01 00 00            mov rcx,[rdi+1C8h]
+0x54C639     48 85 C9                        test rcx,rcx
+0x54C63C     0F 84 7B 02 00 00               je near ptr 000000018054C8BDh
+0x54C642     EB 9C                           jmp short 000000018054C5E0h
+0x54C644     48 8B 97 70 02 00 00            mov rdx,[rdi+270h]
+0x54C64B     48 85 D2                        test rdx,rdx
+0x54C64E     0F 84 69 02 00 00               je near ptr 000000018054C8BDh
+0x54C654     8B 52 18                        mov edx,[rdx+18h]
+0x54C657     48 8B 0D 32 F5 46 03            mov rcx,[1839BBB90h] ; TypeInfo: ScheduleOne.Persistence.Datas.LaunderOperationData[]
+0x54C65E     E8 CD A4 DC FF                  call 0000000180316B30h
+0x54C663     4C 8B F0                        mov r14,rax
+0x54C666     48 85 C0                        test rax,rax
+0x54C669     0F 84 4E 02 00 00               je near ptr 000000018054C8BDh
+0x54C66F     33 F6                           xor esi,esi
+0x54C671     33 C0                           xor eax,eax
+0x54C673     41 3B 46 18                     cmp eax,[r14+18h]
+0x54C677     0F 8D C1 00 00 00               jge near ptr 000000018054C73Eh
+0x54C67D     48 8B 8F 70 02 00 00            mov rcx,[rdi+270h]
+0x54C684     48 85 C9                        test rcx,rcx
+0x54C687     0F 84 30 02 00 00               je near ptr 000000018054C8BDh
+0x54C68D     4C 8B 05 DC D3 4B 03            mov r8,[183A09A70h] ; MethodRef: T System.Collections.Generic.List`1<ScheduleOne.Property.LaunderingOperation>.get_Item
+0x54C694     8B D6                           mov edx,esi
+0x54C696     E8 95 A5 30 01                  call 0000000181856C30h
+0x54C69B     48 85 C0                        test rax,rax
+0x54C69E     0F 84 19 02 00 00               je near ptr 000000018054C8BDh
+0x54C6A4     48 8B 8F 70 02 00 00            mov rcx,[rdi+270h]
+0x54C6AB     48 85 C9                        test rcx,rcx
+0x54C6AE     0F 84 09 02 00 00               je near ptr 000000018054C8BDh
+0x54C6B4     4C 8B 05 B5 D3 4B 03            mov r8,[183A09A70h] ; MethodRef: T System.Collections.Generic.List`1<ScheduleOne.Property.LaunderingOperation>.get_Item
+0x54C6BB     8B D6                           mov edx,esi
+0x54C6BD     F3 0F 10 70 18                  movss xmm6,dword ptr [rax+18h]
+0x54C6C2     E8 69 A5 30 01                  call 0000000181856C30h
+0x54C6C7     48 85 C0                        test rax,rax
+0x54C6CA     0F 84 ED 01 00 00               je near ptr 000000018054C8BDh
+0x54C6D0     48 8B 0D C1 1F 48 03            mov rcx,[1839CE698h] ; TypeInfo: ScheduleOne.Persistence.Datas.LaunderOperationData
+0x54C6D7     8B 58 1C                        mov ebx,[rax+1Ch]
+0x54C6DA     E8 41 B4 DC FF                  call 0000000180317B20h
+0x54C6DF     45 33 C9                        xor r9d,r9d
+0x54C6E2     44 8B C3                        mov r8d,ebx
+0x54C6E5     0F 28 CE                        movaps xmm1,xmm6
+0x54C6E8     48 8B C8                        mov rcx,rax
+0x54C6EB     48 8B E8                        mov rbp,rax
+0x54C6EE     E8 0D 3B 07 00                  call 00000001805C0200h ; ScheduleOne.Persistence.Datas.LaunderOperationData::.ctor/2
+0x54C6F3     48 85 ED                        test rbp,rbp
+0x54C6F6     74 18                           je short 000000018054C710h
+0x54C6F8     49 8B 16                        mov rdx,[r14]
+0x54C6FB     48 8B CD                        mov rcx,rbp
+0x54C6FE     48 8B 52 40                     mov rdx,[rdx+40h]
+0x54C702     E8 C9 A3 DC FF                  call 0000000180316AD0h
+0x54C707     48 85 C0                        test rax,rax
+0x54C70A     0F 84 B3 01 00 00               je near ptr 000000018054C8C3h
+0x54C710     41 3B 76 18                     cmp esi,[r14+18h]
+0x54C714     0F 83 B9 01 00 00               jae near ptr 000000018054C8D3h
+0x54C71A     48 63 C6                        movsxd rax,esi
+0x54C71D     48 8B D5                        mov rdx,rbp
+0x54C720     49 89 6C C6 20                  mov [r14+rax*8+20h],rbp
+0x54C725     48 63 C6                        movsxd rax,esi
+0x54C728     48 83 C0 04                     add rax,4
+0x54C72C     49 8D 0C C6                     lea rcx,[r14+rax*8]
+0x54C730     E8 7B A3 DC FF                  call 0000000180316AB0h
+0x54C735     FF C6                           inc esi
+0x54C737     8B C6                           mov eax,esi
+0x54C739     E9 35 FF FF FF                  jmp near ptr 000000018054C673h
+0x54C73E     48 8B 97 D0 01 00 00            mov rdx,[rdi+1D0h]
+0x54C745     48 85 D2                        test rdx,rdx
+0x54C748     0F 84 6F 01 00 00               je near ptr 000000018054C8BDh
+0x54C74E     8B 52 18                        mov edx,[rdx+18h]
+0x54C751     48 8B 0D 80 41 46 03            mov rcx,[1839B08D8h] ; TypeInfo: System.Boolean[]
+0x54C758     E8 D3 A3 DC FF                  call 0000000180316B30h
+0x54C75D     48 8B 8F D0 01 00 00            mov rcx,[rdi+1D0h]
+0x54C764     48 8B F0                        mov rsi,rax
+0x54C767     48 85 C9                        test rcx,rcx
+0x54C76A     0F 84 4D 01 00 00               je near ptr 000000018054C8BDh
+0x54C770     33 DB                           xor ebx,ebx
+0x54C772     33 C0                           xor eax,eax
+0x54C774     3B 41 18                        cmp eax,[rcx+18h]
+0x54C777     7D 59                           jge short 000000018054C7D2h
+0x54C779     48 8B 8F D0 01 00 00            mov rcx,[rdi+1D0h]
+0x54C780     48 85 C9                        test rcx,rcx
+0x54C783     0F 84 34 01 00 00               je near ptr 000000018054C8BDh
+0x54C789     4C 8B 05 68 59 4B 03            mov r8,[183A020F8h] ; MethodRef: T System.Collections.Generic.List`1<ScheduleOne.Interaction.InteractableToggleable>.get_Item
+0x54C790     8B D3                           mov edx,ebx
+0x54C792     E8 99 A4 30 01                  call 0000000181856C30h
+0x54C797     48 85 C0                        test rax,rax
+0x54C79A     0F 84 1D 01 00 00               je near ptr 000000018054C8BDh
+0x54C7A0     48 85 F6                        test rsi,rsi
+0x54C7A3     0F 84 14 01 00 00               je near ptr 000000018054C8BDh
+0x54C7A9     3B 5E 18                        cmp ebx,[rsi+18h]
+0x54C7AC     0F 83 21 01 00 00               jae near ptr 000000018054C8D3h
+0x54C7B2     0F B6 40 20                     movzx eax,byte ptr [rax+20h]
+0x54C7B6     48 63 CB                        movsxd rcx,ebx
+0x54C7B9     FF C3                           inc ebx
+0x54C7BB     88 44 31 20                     mov [rcx+rsi+20h],al
+0x54C7BF     8B C3                           mov eax,ebx
+0x54C7C1     48 8B 8F D0 01 00 00            mov rcx,[rdi+1D0h]
+0x54C7C8     48 85 C9                        test rcx,rcx
+0x54C7CB     75 A7                           jne short 000000018054C774h
+0x54C7CD     E9 EB 00 00 00                  jmp near ptr 000000018054C8BDh
+0x54C7D2     48 8B AF 50 01 00 00            mov rbp,[rdi+150h]
+0x54C7D9     33 D2                           xor edx,edx
+0x54C7DB     44 0F B6 A7 20 01 00 00         movzx r12d,byte ptr [rdi+120h]
+0x54C7E3     48 8B CF                        mov rcx,rdi
+0x54C7E6     E8 65 7F 00 00                  call 0000000180554750h ; ScheduleOne.Property.Property::GetEmployeeSaveDatas/0
+0x54C7EB     48 85 C0                        test rax,rax
+0x54C7EE     0F 84 C9 00 00 00               je near ptr 000000018054C8BDh
+0x54C7F4     48 8B 15 2D 0D 49 03            mov rdx,[1839DD528h] ; MethodRef: T[] System.Collections.Generic.List`1<ScheduleOne.Persistence.Datas.DynamicSaveData>.ToArray
+0x54C7FB     48 8B C8                        mov rcx,rax
+0x54C7FE     E8 8D 70 A6 00                  call 0000000180FB3890h ; System.Collections.Generic.List`1::ToArray/0
+0x54C803     33 D2                           xor edx,edx
+0x54C805     48 8B CF                        mov rcx,rdi
+0x54C808     4C 8B E8                        mov r13,rax
+0x54C80B     E8 F0 80 00 00                  call 0000000180554900h ; ScheduleOne.Property.Property::GetObjectSaveDatas/0
+0x54C810     48 85 C0                        test rax,rax
+0x54C813     0F 84 A4 00 00 00               je near ptr 000000018054C8BDh
+0x54C819     48 8B 15 08 0D 49 03            mov rdx,[1839DD528h] ; MethodRef: T[] System.Collections.Generic.List`1<ScheduleOne.Persistence.Datas.DynamicSaveData>.ToArray
+0x54C820     48 8B C8                        mov rcx,rax
+0x54C823     E8 68 70 A6 00                  call 0000000180FB3890h ; System.Collections.Generic.List`1::ToArray/0
+0x54C828     48 8B 0D 29 B6 49 03            mov rcx,[1839E7E58h] ; TypeInfo: ScheduleOne.Persistence.Datas.BusinessData
+0x54C82F     48 8B D8                        mov rbx,rax
+0x54C832     E8 E9 B2 DC FF                  call 0000000180317B20h
+0x54C837     48 C7 44 24 40 00 00 00 00      mov qword ptr [rsp+40h],0
+0x54C840     4D 8B CF                        mov r9,r15
+0x54C843     4C 89 74 24 38                  mov [rsp+38h],r14
+0x54C848     45 0F B6 C4                     movzx r8d,r12b
+0x54C84C     48 89 5C 24 30                  mov [rsp+30h],rbx
+0x54C851     48 8B D5                        mov rdx,rbp
+0x54C854     4C 89 6C 24 28                  mov [rsp+28h],r13
+0x54C859     48 8B C8                        mov rcx,rax
+0x54C85C     48 89 74 24 20                  mov [rsp+20h],rsi
+0x54C861     48 8B F8                        mov rdi,rax
+0x54C864     E8 B7 98 06 00                  call 00000001805B6120h ; ScheduleOne.Persistence.Datas.BusinessData::.ctor/7
+0x54C869     48 85 FF                        test rdi,rdi
+0x54C86C     74 4F                           je short 000000018054C8BDh
+0x54C86E     4C 8B 0F                        mov r9,[rdi]
+0x54C871     B2 01                           mov dl,1
+0x54C873     48 8B CF                        mov rcx,rdi
+0x54C876     4D 8B 81 90 01 00 00            mov r8,[r9+190h]
+0x54C87D     0F 28 74 24 50                  movaps xmm6,[rsp+50h]
+0x54C882     4C 8B 7C 24 60                  mov r15,[rsp+60h]
+0x54C887     4C 8B 74 24 68                  mov r14,[rsp+68h]
+0x54C88C     4C 8B 6C 24 70                  mov r13,[rsp+70h]
+0x54C891     4C 8B 64 24 78                  mov r12,[rsp+78h]
+0x54C896     48 8B B4 24 A0 00 00 00         mov rsi,[rsp+0A0h]
+0x54C89E     48 8B AC 24 98 00 00 00         mov rbp,[rsp+98h]
+0x54C8A6     48 8B 9C 24 90 00 00 00         mov rbx,[rsp+90h]
+0x54C8AE     48 81 C4 80 00 00 00            add rsp,80h
+0x54C8B5     5F                              pop rdi
+0x54C8B6     49 FF A1 88 01 00 00            jmp qword ptr [r9+188h]
+0x54C8BD     E8 BE B2 DC FF                  call 0000000180317B80h
+0x54C8C2     CC                              int 3
+0x54C8C3     E8 28 AB DC FF                  call 00000001803173F0h
+0x54C8C8     48 8B C8                        mov rcx,rax
+0x54C8CB     33 D2                           xor edx,edx
+0x54C8CD     E8 6E B2 DC FF                  call 0000000180317B40h
+0x54C8D2     CC                              int 3
+0x54C8D3     E8 98 B2 DC FF                  call 0000000180317B70h
+0x54C8D8     CC                              int 3
+0x54C8D9     CC                              int 3
+0x54C8DA     CC                              int 3
+0x54C8DB     CC                              int 3
+0x54C8DC     CC                              int 3
+0x54C8DD     CC                              int 3
+0x54C8DE     CC                              int 3
+0x54C8DF     CC                              int 3

@@ -1,0 +1,16 @@
+; ScheduleOne.Persistence.SaveManager+<>c__DisplayClass52_0+<<Save>g__SaveRoutine|0>d::System.IDisposable.Dispose/0, token 0x0600183B, RVA 0x43FEC0, next-pointer window 0x10 bytes
+; No target execution. Parser-pointer window can contain padding/cold fragments and is not exact/full function, EH or transitive coverage. Shared direct aliases are truncated to eight names.
+0x43FEC0     C2 00 00                        ret 0
+0x43FEC3     CC                              int 3
+0x43FEC4     CC                              int 3
+0x43FEC5     CC                              int 3
+0x43FEC6     CC                              int 3
+0x43FEC7     CC                              int 3
+0x43FEC8     CC                              int 3
+0x43FEC9     CC                              int 3
+0x43FECA     CC                              int 3
+0x43FECB     CC                              int 3
+0x43FECC     CC                              int 3
+0x43FECD     CC                              int 3
+0x43FECE     CC                              int 3
+0x43FECF     CC                              int 3

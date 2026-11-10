@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "capturedUtc": "2026-11-05T17:38:34.327450+00:00",
+  "sourceRevision": "b2c6c7e6c6ecc778da9624cdb68a6578b9db471a",
+  "sourceWorktree": "dirty",
+  "files": [
+    {
+      "path": "Source/Mods/TownHallInterior/docs/business-save-operation-owner.md",
+      "sha256": "985642354836f8a8eb6b4109277261e42b196c4ab2f3f7641407b2347b954549",
+      "bytes": 21927
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/docs/business-manager-save-probe.md",
+      "sha256": "922016338bcdd09b67dbae202904d70ca41269bfdaff5057e4cfc6a63db19895",
+      "bytes": 13720
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/docs/business-completion-plan.md",
+      "sha256": "9f5cf240dbae647756f218884a404c1343e5ac21672d2596de8816bc90b4e642",
+      "bytes": 23574
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/docs/README.md",
+      "sha256": "e617b283b9b96f7f4bbe53def76c8fd0586e7b4c3005777879c8338a885d2bbf",
+      "bytes": 29451
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/docs/CHANGELOG.md",
+      "sha256": "bdf3ce63a3552899718e5d42bcfc0ef45f659c320fe4db499dfdffabafaed8ad",
+      "bytes": 26821
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/docs/native-save-completion-audit.md",
+      "sha256": "168abd65c1d313d897ba85ef22d6f3dd9ce814c7b29c0036ab65de85c679bd93",
+      "bytes": 19773
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/docs/native-world-exit-audit.md",
+      "sha256": "c97bfcbdfd39f8df4a87f16141f08aeb0ee20b7b6e5a3d9715db2102af3996bf",
+      "bytes": 17341
+    },
+    {
+      "path": "docs/compatibility.md",
+      "sha256": "8e0dedcdd5fdf32df6ca47443af93d949493983483db35a1f2551d698b914476",
+      "bytes": 33293
+    }
+  ]
+}

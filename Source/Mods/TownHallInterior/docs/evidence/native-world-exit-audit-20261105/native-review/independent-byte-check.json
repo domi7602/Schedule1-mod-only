@@ -1,0 +1,1989 @@
+{
+  "schema": 1,
+  "startedUtc": "2026-11-05T17:03:11.369813+00:00",
+  "completedUtc": "2026-11-05T17:03:11.549454+00:00",
+  "kind": "Independently authored stdlib PE/hash/payload/selected-operand checks; no x64 decoder rerun",
+  "sourceRevision": "b2c6c7e6c6ecc778da9624cdb68a6578b9db471a",
+  "dotnetRoot": null,
+  "inputs": [
+    {
+      "path": "GameAssembly.dll",
+      "sha256": "61829050e56ca180d67be592e4bfe61ec97d2e9573f720d90a54e318a7e4381d",
+      "bytes": 66477568,
+      "match": true
+    },
+    {
+      "path": "Schedule I_Data/il2cpp_data/Metadata/global-metadata.dat",
+      "sha256": "e775c97da277da8eb1a90265478f3b65c9c3d6464aff4f7255d45280a1d1181f",
+      "bytes": 18689168,
+      "match": true
+    },
+    {
+      "path": "MelonLoader/Il2CppAssemblies/Assembly-CSharp.dll",
+      "sha256": "346205306273805a78b01a917f14b94518498af1361595c4c417baa0b32b4bd8",
+      "bytes": 14168576,
+      "match": true
+    },
+    {
+      "path": "MelonLoader/Dependencies/Il2CppAssemblyGenerator/Cpp2IL/Cpp2IL.exe",
+      "sha256": "663fb432433b4371fd1ee0ebc321a8fff2a9aac5ac4230c843f9e03ddee4e04c",
+      "bytes": 15137811,
+      "match": true
+    },
+    {
+      "path": "MelonLoader/Dependencies/Il2CppAssemblyGenerator/Cpp2IL/cpp2il_out/Assembly-CSharp.dll",
+      "sha256": "1aec8c918c39ff75f0e4d8e2c38bd11752c593119701d7e524a4ee82fdc30f21",
+      "bytes": 5888000,
+      "match": true
+    },
+    {
+      "path": "Mods/TownHallInterior.dll",
+      "sha256": "614b81fd584040d4cebe7a18929bca09eabae478a6487ec6d846ea01d6062003",
+      "bytes": 1760768,
+      "match": true
+    },
+    {
+      "path": "Mods/S1API.Il2Cpp.MelonLoader.dll",
+      "sha256": "d751a3cb66003f7a616eb9f8054daf34da0d9d7f23416a5005a586738a680852",
+      "bytes": 1590784,
+      "match": true
+    }
+  ],
+  "protectedSources": [
+    {
+      "path": "Source/Mods/TownHallInterior/src/BusinessBindingProbe.cs",
+      "sha256": "fb82cfafbee2f92b7c52d76edc9a3fe417cb905ad7f20a90a082ce681efa7fa1",
+      "bytes": 21182,
+      "match": true
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/BusinessConstruction.cs",
+      "sha256": "8964512eeb94ae63acadbe5cd47caa7c36a325e10cd75af73cc5c1091c4db5d2",
+      "bytes": 157035,
+      "match": true
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/BusinessProbeEvidence.cs",
+      "sha256": "37ce332858d00368ebde93c3f13af3b20482d0de15f07b559e34078597603458",
+      "bytes": 12674,
+      "match": true
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/CleanupJournal.cs",
+      "sha256": "310955ae9d1f5115941ef5bf7920ed49f6ff47086d8187fe050f444f63f09b76",
+      "bytes": 1199,
+      "match": true
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/DoorAdapter.cs",
+      "sha256": "6d5e638b3217b24d3d4a86ea768912e26bdf73449cef98196502586f036a6341",
+      "bytes": 3846,
+      "match": true
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/DoorChoice.cs",
+      "sha256": "42093f9e71f5c4fe832dac0eff888654163389b86dac1d6be494f7f715943201",
+      "bytes": 2593,
+      "match": true
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/DoorHook.cs",
+      "sha256": "10bfdd035b414e0727c01aef12a08b1fb0a33abbd897a6c3efc79e7da006934c",
+      "bytes": 5297,
+      "match": true
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/FacadePortal.cs",
+      "sha256": "4b2cc05e14353fddccc2ddb404fed35b1859d950f5e80e6a6735a8d196cf2270",
+      "bytes": 9088,
+      "match": true
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/FurniturePlan.cs",
+      "sha256": "17e8402738ff124a54f1e61a076618894a6ca5b3d3e6733242f71217a5a18e6b",
+      "bytes": 16772,
+      "match": true
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/HallFittings.cs",
+      "sha256": "210301b0663b1a0b3fdbedbcb2231a007d62f2d0bb19828250c4ffd6fddc7492",
+      "bytes": 2876,
+      "match": true
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/Mod.cs",
+      "sha256": "82323dd725b033b124c0f5edd6252730676f3f1910bdd402441945f0fe4e9385",
+      "bytes": 4096,
+      "match": true
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/NativeFacadeSwap.cs",
+      "sha256": "58542a588017f540a7b546845b038174d96ef761acfacd7101c0004a5ceae5e3",
+      "bytes": 13398,
+      "match": true
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/NativeSceneSwap.cs",
+      "sha256": "a526e26ffb62fbf08ad8e3725779c83dbc85558fcb22a1b34cb12dc061bed6aa",
+      "bytes": 4280,
+      "match": true
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/PublicEntrance.cs",
+      "sha256": "4fdb304a13cd24a496e9368c211bf09f8aaf1da9041a8912fdb364f46ec9dd5f",
+      "bytes": 7155,
+      "match": true
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/PublicHallHost.cs",
+      "sha256": "d85708f66705a1ac87aec2d1def1f4daff0cebabd78b459b93a589418be65bcc",
+      "bytes": 15859,
+      "match": true
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/RoomBuilder.cs",
+      "sha256": "44b555668aecbb0055b902d204716861399ee59e439971f842d5f0b4a3a48f68",
+      "bytes": 622,
+      "match": true
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/RoomPlan.cs",
+      "sha256": "ebe89aa2620044c170f08c33382aa420bb1aa22e78d56ed74b97a4561f864233",
+      "bytes": 4398,
+      "match": true
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/TownHallInterior.csproj",
+      "sha256": "c730506d8c85e9d9fb88def2c397920f408b7771576a59aacc2c4b183bcde9df",
+      "bytes": 1942,
+      "match": true
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/UnityRoomSink.cs",
+      "sha256": "646b693e349e61126bc548c59e9bdf8e4f978787eeab1173a8535323f9588d17",
+      "bytes": 2795,
+      "match": true
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/VanillaFurnishings.cs",
+      "sha256": "c434ab9c4b0055c531250b5a45b672703e266fbe962e3934ffa58f951cce98aa",
+      "bytes": 12934,
+      "match": true
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/BusinessActivationTests.cs",
+      "sha256": "c43b5aa08c51a151d042f4a8e4a0c56cd79892ed98723e4fb883bba57b1b8a7f",
+      "bytes": 17330,
+      "match": true
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/BusinessConstructionTests.cs",
+      "sha256": "43ac3184d66a64bfc6ae9b6ba6587df6a3eb333575d93cc187c291e45e7630b8",
+      "bytes": 13767,
+      "match": true
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/BusinessInterfaceTests.cs",
+      "sha256": "d1b13f70314555a2702d732b078bafb9cef7e9b71eaea8249b74ae8736bd2abf",
+      "bytes": 15297,
+      "match": true
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/BusinessManagerAuditTests.cs",
+      "sha256": "164eaeb014c1d63b776c47d0dd105f4f12bec79d4ffb02a135d3da5f5f82323d",
+      "bytes": 22770,
+      "match": true
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/BusinessManagerSafetyTests.cs",
+      "sha256": "ead2dbe76be2679c8be006b114075c55d58b1cddfe08e292f8551c225f70a035",
+      "bytes": 8068,
+      "match": true
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/BusinessManagerSaveTests.cs",
+      "sha256": "0d9fe4fe204e20a6850945b4a7c32c3285cc060942140b9837ac3aafc34aa963",
+      "bytes": 35802,
+      "match": true
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/BusinessManagerTests.cs",
+      "sha256": "d62a8ad7a82e9cedd7554e7e489cba55fee62409dd3de347130575fb69524b1e",
+      "bytes": 3813,
+      "match": true
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/BusinessProbeEvidenceTests.cs",
+      "sha256": "71797f12c5f96f633d44127a08cbdaf93dba26dc75a521c648d130f6b5b3d9de",
+      "bytes": 19150,
+      "match": true
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/BusinessSubtypeTests.cs",
+      "sha256": "d58b1b960098861782725d71811fa17f27b0bf195d8e25ef37a5c586674f380a",
+      "bytes": 11073,
+      "match": true
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/BusinessTypeResolutionTests.cs",
+      "sha256": "58325e28dc822ffe2cc493c1f426d1c3acf3147efa457edc32f93e317aa82c46",
+      "bytes": 14018,
+      "match": true
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/CleanupJournalTests.cs",
+      "sha256": "1fc594bb24f1ac542d5ee8878ce88b54b7d295b132cce3112dc0d40c4708f1cb",
+      "bytes": 2963,
+      "match": true
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/DoorAdapterTests.cs",
+      "sha256": "97e44aee74c74d5ba2f5672deec7319876eb3b1b2b8c71a12ca516f839ed907e",
+      "bytes": 6573,
+      "match": true
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/DoorChoiceTests.cs",
+      "sha256": "6f9f493e814b8a6db340d916f3932d5b68b77a48b608c86e6bdaa6bb85d01946",
+      "bytes": 3302,
+      "match": true
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/EnclosureTests.cs",
+      "sha256": "cc381927c62e5bdbb2f412bab72abd88a66ccd6780f5f260d26003caaa3814db",
+      "bytes": 14608,
+      "match": true
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/FacadePortalTests.cs",
+      "sha256": "876eff42444821a38103b7b97173b30b4d2bb3c94aa8856b48510ff81f7bbced",
+      "bytes": 9526,
+      "match": true
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/FurniturePlanTests.cs",
+      "sha256": "99f99db70533724fe939aa73b6b2bafac295d361d9280f92a42f6001eb4594aa",
+      "bytes": 17084,
+      "match": true
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/HallFittingsTests.cs",
+      "sha256": "8d18df41130233be9543c38d419ef36273f2ae2d09bba520e6abfc57799a7209",
+      "bytes": 3875,
+      "match": true
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/NativeSceneSwapTests.cs",
+      "sha256": "d77efe579cd909c42dc48245b427d30c59874955c1b0dcdb6652a110f441d37c",
+      "bytes": 4003,
+      "match": true
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/PublicEntranceTests.cs",
+      "sha256": "1ab9d7d8825911ea4777ea56fd109bf2f7a4ef679f258108c98a42580e80d6c3",
+      "bytes": 7557,
+      "match": true
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/RoomPlanTests.cs",
+      "sha256": "fdeb4a9c49d2e83b71e0edeb50ed3f0f5e68ce6508801198bedca997638a71a3",
+      "bytes": 12065,
+      "match": true
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/TownHallInterior.Tests.csproj",
+      "sha256": "dc582cf6a85f3c98417c83cd67a65f28b8f8739bb1a1507fe665eaa52ceec26c",
+      "bytes": 2005,
+      "match": true
+    }
+  ],
+  "artifactSnapshot": [
+    {
+      "path": "direct-reference-candidates.json",
+      "sha256": "3b65cfca73f159426757e645cdafa219336f484ca9af5e00e1a47ec212745a53",
+      "bytes": 1338
+    },
+    {
+      "path": "input-manifest.json",
+      "sha256": "f7d3b2a163daba9b96be7d078caf3fd0f7723b718f9468ff61b3262f2f88c498",
+      "bytes": 12457
+    },
+    {
+      "path": "inspect-inputs.py",
+      "sha256": "cf15a082b13fbccf039899f4dfe5fad8009e0945daf068042f12877cca482f77",
+      "bytes": 4997
+    },
+    {
+      "path": "inventory.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "inventory.stdout.txt",
+      "sha256": "d53f2e1cddffe31bda1efbf0c28bacd6c015d42dcd13d55ebfe780068c8356cc",
+      "bytes": 21613
+    },
+    {
+      "path": "inventory2.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "inventory2.stdout.txt",
+      "sha256": "e44dce50332f79cb9ecc055a7f99a473380a747c0c5ea9730bb6073fc0275f11",
+      "bytes": 21617
+    },
+    {
+      "path": "map-world-exit-pass1.ps1",
+      "sha256": "91bea085b89a75952be1aaaf4feeb8e0bd637cb2ad1fc9072bbaefa5e37ee023",
+      "bytes": 13779
+    },
+    {
+      "path": "map-world-exit-pass2.ps1",
+      "sha256": "34196c7c45f6cf8d4d8272f248988a42adb6bba9bae80c937dfe3c40f9753213",
+      "bytes": 14696
+    },
+    {
+      "path": "map-world-exit.ps1",
+      "sha256": "1ac2c8d2c9dc52702241b944e1ced063ece1aadbb2e9410f9db0caabafbd4854",
+      "bytes": 14877
+    },
+    {
+      "path": "native-byte-integrity.json",
+      "sha256": "db33286d473193c80a6e88bc8e6ca9cc792ea5c56a95b6b706839f573684a1c9",
+      "bytes": 26404
+    },
+    {
+      "path": "native-map-inventory.json",
+      "sha256": "bd0f5ac38cc3c532dec13c2f2db3d2f50d5493531f47c1f36c52c46c0c9ec4e9",
+      "bytes": 143594
+    },
+    {
+      "path": "native-map-inventory2.json",
+      "sha256": "b1e92151cb069c4a9067d9dbb2c463c3a8234b83e09827ced5a87664abe12d2b",
+      "bytes": 380626
+    },
+    {
+      "path": "native-map-pass2.json",
+      "sha256": "39428cef78a72a2149714f01c15be470cb8d4253168ed051a7d92d73b283062f",
+      "bytes": 151571
+    },
+    {
+      "path": "native-map-pass3.json",
+      "sha256": "50f6f6c543ddc2cadbfdd43428b40051a845cb1e24f3b8226f222ce2912efaab",
+      "bytes": 384014
+    },
+    {
+      "path": "native-map-pass4.json",
+      "sha256": "99429e78a7085342ba69aea0b3f05d96bb088a3475bf440b0c0dc14225d48f77",
+      "bytes": 382881
+    },
+    {
+      "path": "own-lifecycle-review.json",
+      "sha256": "3895fb846b141ab29f4a2af3c183d47c062762d04556121385795e6a0097aedd",
+      "bytes": 28837
+    },
+    {
+      "path": "pass1.stderr.txt",
+      "sha256": "625b77f5a28f9ed406e68a446c2cc5b7a558d03ddb0f46efa616e31153b03abc",
+      "bytes": 540
+    },
+    {
+      "path": "pass1.stdout.txt",
+      "sha256": "4c6f48876b5ba9611072009a8731369d780baf4fb7028dc3631baf99eaef1e1c",
+      "bytes": 21466
+    },
+    {
+      "path": "pass2.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "pass2.stdout.txt",
+      "sha256": "2a2d9be199a16d9938b83c15c7087089665d2b795fc9a10a27d7c4e547c57e42",
+      "bytes": 21615
+    },
+    {
+      "path": "pass3.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "pass3.stdout.txt",
+      "sha256": "7bb8d19d4ee3daacec394bc6d799685f78b5db3aa5aa4559f5ac04a00b0116bb",
+      "bytes": 21609
+    },
+    {
+      "path": "pass4.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "pass4.stdout.txt",
+      "sha256": "4f4fc88850ac8eb2a7b68b37d5654af7a22f95f0716263c946096d2a3d2331b5",
+      "bytes": 21616
+    },
+    {
+      "path": "scan-direct-references.py",
+      "sha256": "4a094eabd72f5f1f7b4db74805f80be33c6ac5fe7dcfa03195e7de771306c0f9",
+      "bytes": 3046
+    },
+    {
+      "path": "selection-pass1.json",
+      "sha256": "22ea0d2aad008c0ed1ddb2a7942af51b73b03fa24253096c12132ba418e508c0",
+      "bytes": 1121
+    },
+    {
+      "path": "selection-pass3.json",
+      "sha256": "0931275b39ecc119b8b333c52e3474d6ee700560765861ae125978e4940d8b63",
+      "bytes": 463
+    },
+    {
+      "path": "selection-pass4.json",
+      "sha256": "663cc954f38f9d7af2c1a0d7a9b35b92834fa45f99dc37da9837a9d33f615381",
+      "bytes": 293
+    },
+    {
+      "path": "validate-world-exit-evidence.py",
+      "sha256": "a2612c2b135c99638b8ce97e3917cae2ff2eef711dba0b3fc93740b028383eb7",
+      "bytes": 13959
+    },
+    {
+      "path": "world-exit-claims.json",
+      "sha256": "91615648a1dbea3a90c3628bcd840e26a8c784b60670c78deb2311630a1752cb",
+      "bytes": 9049
+    },
+    {
+      "path": "world-exit-reference-candidates.json",
+      "sha256": "c7878d62ef57a8264fcb3ec228e0f8ee42a526ec12379667dd92144a4e4b1188",
+      "bytes": 7128
+    },
+    {
+      "path": "native-disassembly-pass2/0x06000A53-MonoBehaviour-StopAllCoroutines.json",
+      "sha256": "745280eb5b41267fba38ec378858ab41948fc02934aa9608c0259ff000af80b8",
+      "bytes": 8636
+    },
+    {
+      "path": "native-disassembly-pass2/0x06000A53-MonoBehaviour-StopAllCoroutines.txt",
+      "sha256": "0e202b886ca77279062450c57fe430086b1bc039fd4b3356a55786239837b581",
+      "bytes": 1781
+    },
+    {
+      "path": "native-disassembly-pass2/0x060017A8-LoadManager-Start.json",
+      "sha256": "8bd68d4dd4647ab9782e30a31d8e2b647511ffa52839cffa3eda3aa0315d6ace",
+      "bytes": 128378
+    },
+    {
+      "path": "native-disassembly-pass2/0x060017A8-LoadManager-Start.txt",
+      "sha256": "0e9d75eaa50a29935fb0dfd8ab40209e77a91616e783aa800e5d08cfe0a35a7e",
+      "bytes": 37153
+    },
+    {
+      "path": "native-disassembly-pass2/0x060017B5-LoadManager-StartGame.json",
+      "sha256": "e72b1266ed82677c49ee9a598812f30f47b457c7811097d64fb910948566e991",
+      "bytes": 74969
+    },
+    {
+      "path": "native-disassembly-pass2/0x060017B5-LoadManager-StartGame.txt",
+      "sha256": "01ee1472dc3d25e20ec20c8b63d6f3338e5a0e88029b5c2f945a9a67369dcdf1",
+      "bytes": 17450
+    },
+    {
+      "path": "native-disassembly-pass2/0x060017BA-LoadManager-LoadLastSave.json",
+      "sha256": "a01946c0c75793505b6d145af56e93905018a01f4fe9cc852771c3c151b03c64",
+      "bytes": 14297
+    },
+    {
+      "path": "native-disassembly-pass2/0x060017BA-LoadManager-LoadLastSave.txt",
+      "sha256": "f75bbb0b5fe948fd0d34e5567e51c88a9bc80412d229d174f25c2a5ac2b7e14f",
+      "bytes": 3160
+    },
+    {
+      "path": "native-disassembly-pass2/0x060017BB-LoadManager-CleanUp.json",
+      "sha256": "b15283db8a1def886f4dae98b95cc9a10b2bf3c0cc685c2c273ddc59ddbdfc88",
+      "bytes": 120915
+    },
+    {
+      "path": "native-disassembly-pass2/0x060017BB-LoadManager-CleanUp.txt",
+      "sha256": "878f48d0c6ff938e811a99403ca5851b9a143a75a79001346af32f2b54ba4df6",
+      "bytes": 27060
+    },
+    {
+      "path": "native-disassembly-pass2/0x060017BC-LoadManager-ExitToMenu.json",
+      "sha256": "8f1cf388b58ba12a787168b90db0374bfb0b1904a76be9f64a3525eb89e359ed",
+      "bytes": 74274
+    },
+    {
+      "path": "native-disassembly-pass2/0x060017BC-LoadManager-ExitToMenu.txt",
+      "sha256": "e042fc7b7c4fe6593a891cfacd752327b54498f9e4eb391ba516c0a5ccd711ce",
+      "bytes": 17689
+    },
+    {
+      "path": "native-disassembly-pass2/0x060017E4-__StartGame_g__LoadRoutine_0_d-MoveNext.json",
+      "sha256": "161c0e94d9abf101a8fcfa6ae7dff8cba096288951e25ea42317014b3913ba11",
+      "bytes": 516509
+    },
+    {
+      "path": "native-disassembly-pass2/0x060017E4-__StartGame_g__LoadRoutine_0_d-MoveNext.txt",
+      "sha256": "0c3a51650f590e3d4df516cae1387b2ef18cc942d0bf8eeb86b258d4a0c6c7f6",
+      "bytes": 122303
+    },
+    {
+      "path": "native-disassembly-pass2/0x06001806-__ExitToMenu_g__Load_0_d-MoveNext.json",
+      "sha256": "052a515699e8a2882433bd80b7b109c86489c19b5cbcbc50c2ea0c443e3dfb2a",
+      "bytes": 188395
+    },
+    {
+      "path": "native-disassembly-pass2/0x06001806-__ExitToMenu_g__Load_0_d-MoveNext.txt",
+      "sha256": "f050f0cb715f9d122eecd67deb39f1f89e71bcb1747fd742e43f88cd1bf5a8b8",
+      "bytes": 43440
+    },
+    {
+      "path": "native-disassembly-pass2/0x06001824-SaveManager-Start.json",
+      "sha256": "239f26c40c39e505ffdefaa94ec1858e7835ea817ab0c60704dffdaa697f8166",
+      "bytes": 25449
+    },
+    {
+      "path": "native-disassembly-pass2/0x06001824-SaveManager-Start.txt",
+      "sha256": "45688e751b7aa6fd34ca18ddc8ab92325b8129c91ef95cced3eddc2c2e5abcce",
+      "bytes": 6443
+    },
+    {
+      "path": "native-disassembly-pass2/0x06001834-SaveManager-Clean.json",
+      "sha256": "41d4227179620545562740af61f6191dab344124c8a31d9ffdf374cd7380c2b7",
+      "bytes": 16952
+    },
+    {
+      "path": "native-disassembly-pass2/0x06001834-SaveManager-Clean.txt",
+      "sha256": "b1368a4f23a8a5e5a8d9bcf2ecaa6a9aca494b55660ebcfc96496d08c49a2900",
+      "bytes": 3712
+    },
+    {
+      "path": "native-disassembly-pass2/0x0600183B-__Save_g__SaveRoutine_0_d-System_IDisposable_Dispose.json",
+      "sha256": "72fddcc46b080d6e6832874cb20414da958bb49fd311d05c087e5c4dcb8657ba",
+      "bytes": 4814
+    },
+    {
+      "path": "native-disassembly-pass2/0x0600183B-__Save_g__SaveRoutine_0_d-System_IDisposable_Dispose.txt",
+      "sha256": "6fad993845c69514f744a39dc9938cbf507e6ab56d9835215a26b64bae23344d",
+      "bytes": 1101
+    },
+    {
+      "path": "native-disassembly-pass2/0x06001AD2-Lobby-LeaveLobby.json",
+      "sha256": "c109438b499bfcedd78bca798f8521e4a96e94cdb558e84e4f922a9e520adcd7",
+      "bytes": 8383
+    },
+    {
+      "path": "native-disassembly-pass2/0x06001AD2-Lobby-LeaveLobby.txt",
+      "sha256": "3f299d75bfed7e37bea9439af604ea97b3dccacb9a4a88256356a9cf030340b8",
+      "bytes": 1869
+    },
+    {
+      "path": "native-disassembly-pass2/0x06002516-PlayerManager-SavePlayer.json",
+      "sha256": "941e84e6a7db100465db49548cf965a96cfde6e35d90f7ff3b480d59cd347334",
+      "bytes": 91969
+    },
+    {
+      "path": "native-disassembly-pass2/0x06002516-PlayerManager-SavePlayer.txt",
+      "sha256": "f630e78fd7229d247b7bd234d614d665bcaaa8ae9f0f562134a02ab0a779c047",
+      "bytes": 21457
+    },
+    {
+      "path": "native-disassembly-pass2/0x0600628F-PauseMenu-Exit.json",
+      "sha256": "a52cfafdb219856d8a03d0549d140f253a0d54e11145cb36160a181d29d3e959",
+      "bytes": 20592
+    },
+    {
+      "path": "native-disassembly-pass2/0x0600628F-PauseMenu-Exit.txt",
+      "sha256": "cc8e6378c135224989647ff1bc69d8540b5250589274ceb41d4f35d77bbce6fa",
+      "bytes": 4556
+    },
+    {
+      "path": "native-disassembly-pass3/0x0600180B-__c__DisplayClass81_1-_ExitToMenu_b__1.json",
+      "sha256": "712157e425552c62525604fe58da9cf48a9e8b23a7dcf5c05ee443f3e1532a25",
+      "bytes": 15340
+    },
+    {
+      "path": "native-disassembly-pass3/0x0600180B-__c__DisplayClass81_1-_ExitToMenu_b__1.txt",
+      "sha256": "fedf2a609abb14fa669c43121820b5ead028d0ab0841c88425720321106e2c00",
+      "bytes": 3322
+    },
+    {
+      "path": "native-disassembly-pass3/0x060030C9-PersistentSingleton_1-Awake.json",
+      "sha256": "35ffffc59f7fbabe1ce0eb5bac28f283f5f247d248a646cb37b6b629e0c69031",
+      "bytes": 18369
+    },
+    {
+      "path": "native-disassembly-pass3/0x060030C9-PersistentSingleton_1-Awake.txt",
+      "sha256": "d4f0ee293d27a0046703ab45a4ab42f8a584428eb26b627d29830317d71b7b00",
+      "bytes": 4014
+    },
+    {
+      "path": "native-disassembly-pass3/0x060030FF-Singleton_1-Awake.json",
+      "sha256": "d09d830c3f7d49638d76ab4405c02be96620e5de9ac9b3eb499da39cebb630a7",
+      "bytes": 47232
+    },
+    {
+      "path": "native-disassembly-pass3/0x060030FF-Singleton_1-Awake.txt",
+      "sha256": "8db06b32e8ba17957e0b34cba252375dddf8c48fc564fe7324ffe49f8654f131",
+      "bytes": 10086
+    },
+    {
+      "path": "native-disassembly-pass3/0x06003100-Singleton_1-OnDestroy.json",
+      "sha256": "a175f3b8fb6573a6f4fc3c9569b0789acac7a20e449c83f7c6dbafcd206f394e",
+      "bytes": 15776
+    },
+    {
+      "path": "native-disassembly-pass3/0x06003100-Singleton_1-OnDestroy.txt",
+      "sha256": "155f2a44b0997b6fbea2c388d810b544a6599222e3fa292e0b3944ef189783be",
+      "bytes": 3411
+    },
+    {
+      "path": "native-disassembly-pass3/0x06003CFE-ExitToMenu-Exit.json",
+      "sha256": "d46838eada68f77c9d9c2568e3733c9fd5d17a175c4909c6bfb4f1282a7e3293",
+      "bytes": 13301
+    },
+    {
+      "path": "native-disassembly-pass3/0x06003CFE-ExitToMenu-Exit.txt",
+      "sha256": "b7498fb66575d1774eb5eeb8f31617cb212b7e03c11a256f9f324867aa6d4914",
+      "bytes": 2993
+    },
+    {
+      "path": "native-disassembly-pass3/0x06006A54-ConfirmExitScreen-ConfirmExit.json",
+      "sha256": "a85060a0021b251c765343b8a74013c8707dad7042afbc5d341cc8dc6ded7e1d",
+      "bytes": 14122
+    },
+    {
+      "path": "native-disassembly-pass3/0x06006A54-ConfirmExitScreen-ConfirmExit.txt",
+      "sha256": "ffc2b15e009c2b73249e0cf686fd3c471a92802675eec636958cfda97221f202",
+      "bytes": 3258
+    },
+    {
+      "path": "native-disassembly-pass4/0x060017B6-LoadManager-LoadTutorialAsClient.json",
+      "sha256": "6ff1bd0fd4850cf397c3059f62a4c82310aa4850494982e071510a01cee2f223",
+      "bytes": 23059
+    },
+    {
+      "path": "native-disassembly-pass4/0x060017B6-LoadManager-LoadTutorialAsClient.txt",
+      "sha256": "b3791c508d2af882b3482f998f3f10ec97db8982b769e869d5844db4fb10e613",
+      "bytes": 5462
+    },
+    {
+      "path": "native-disassembly-pass4/0x060017B7-LoadManager-LoadAsClient.json",
+      "sha256": "9d0aa18128cfd3ec5570984abd42eb53c8db42204c4e1733ad33485cb4724dae",
+      "bytes": 24945
+    },
+    {
+      "path": "native-disassembly-pass4/0x060017B7-LoadManager-LoadAsClient.txt",
+      "sha256": "7a08cedc9330643e12bd757626fe3307a52fa73f4a26d902635ae26c2d390c50",
+      "bytes": 5839
+    },
+    {
+      "path": "native-disassembly-pass4/0x06001823-SaveManager-Awake.json",
+      "sha256": "488911ffc39861c6e3977c76a18db3cdde3b3dcc2fb6cde343696d0e28c5d734",
+      "bytes": 58266
+    },
+    {
+      "path": "native-disassembly-pass4/0x06001823-SaveManager-Awake.txt",
+      "sha256": "f44b70fbc4c73a5cf39032e8824b4f4627ee51785871442ca74849c86d7cdb7b",
+      "bytes": 13042
+    },
+    {
+      "path": "native-disassembly-pass4/0x06006A53-ConfirmExitScreen-Update.json",
+      "sha256": "91de6e42edfeb6319f457a482ccd7df48aeb07279777807f4d0de7672b99a365",
+      "bytes": 65791
+    },
+    {
+      "path": "native-disassembly-pass4/0x06006A53-ConfirmExitScreen-Update.txt",
+      "sha256": "216fd703ffe777e43c4b93ec419a1e877ff5ead65c9923b53a6939dae29fcb3b",
+      "bytes": 14153
+    }
+  ],
+  "artifactSnapshotUnchangedAtEnd": true,
+  "snapshotLimit": "Snapshot made after initial human/model reading; no pre-reading integrity snapshot claimed.",
+  "sectionsParsedFromOriginalPe": [
+    {
+      "name": ".text",
+      "rva": "0x1000",
+      "rawOffset": "0x400",
+      "virtualBytes": 4304060,
+      "rawBytes": 4304384
+    },
+    {
+      "name": "il2cpp",
+      "rva": "0x41c000",
+      "rawOffset": "0x41b200",
+      "virtualBytes": 44300460,
+      "rawBytes": 44300800
+    },
+    {
+      "name": ".rdata",
+      "rva": "0x2e5c000",
+      "rawOffset": "0x2e5ac00",
+      "virtualBytes": 10787522,
+      "rawBytes": 10787840
+    },
+    {
+      "name": ".data",
+      "rva": "0x38a6000",
+      "rawOffset": "0x38a4800",
+      "virtualBytes": 6370380,
+      "rawBytes": 3493376
+    },
+    {
+      "name": ".pdata",
+      "rva": "0x3eba000",
+      "rawOffset": "0x3bf9600",
+      "virtualBytes": 2543400,
+      "rawBytes": 2543616
+    },
+    {
+      "name": ".fptable",
+      "rva": "0x4127000",
+      "rawOffset": "0x3e66600",
+      "virtualBytes": 256,
+      "rawBytes": 512
+    },
+    {
+      "name": ".reloc",
+      "rva": "0x4128000",
+      "rawOffset": "0x3e66800",
+      "virtualBytes": 1045560,
+      "rawBytes": 1046016
+    }
+  ],
+  "mappingRecordConsistency": [
+    {
+      "path": "native-map-pass2.json",
+      "capturedUtc": "2026-11-05T16:42:26.4578265Z",
+      "selectedMethods": 14,
+      "metadataVersionAsReported": 31.1,
+      "globalMethodCountAsReported": 149349
+    },
+    {
+      "path": "native-map-pass3.json",
+      "capturedUtc": "2026-11-05T16:50:39.2470976Z",
+      "selectedMethods": 6,
+      "metadataVersionAsReported": 31.1,
+      "globalMethodCountAsReported": 149349
+    },
+    {
+      "path": "native-map-pass4.json",
+      "capturedUtc": "2026-11-05T16:52:29.0081403Z",
+      "selectedMethods": 4,
+      "metadataVersionAsReported": 31.1,
+      "globalMethodCountAsReported": 149349
+    }
+  ],
+  "nativeWindows": [
+    {
+      "path": "native-disassembly-pass2/0x06000A53-MonoBehaviour-StopAllCoroutines.json",
+      "token": "0x06000A53",
+      "type": "UnityEngine.MonoBehaviour",
+      "method": "StopAllCoroutines",
+      "rva": "0x2b79b50",
+      "bytes": 64,
+      "bytesSha256": "81006996ff92089e2d279a4f4986e1babece16d5feccd4a15426b049121bd827",
+      "linearRowsByteAndTextMatched": 26,
+      "suffixBytes": 0
+    },
+    {
+      "path": "native-disassembly-pass2/0x060017A8-LoadManager-Start.json",
+      "token": "0x060017A8",
+      "type": "ScheduleOne.Persistence.LoadManager",
+      "method": "Start",
+      "rva": "0x5885e0",
+      "bytes": 1552,
+      "bytesSha256": "ba379ff685e1bb09643c894b34cb8c6d9b46d7a8be3803fe68ea27f33190fa94",
+      "linearRowsByteAndTextMatched": 338,
+      "suffixBytes": 0
+    },
+    {
+      "path": "native-disassembly-pass2/0x060017B5-LoadManager-StartGame.json",
+      "token": "0x060017B5",
+      "type": "ScheduleOne.Persistence.LoadManager",
+      "method": "StartGame",
+      "rva": "0x5881c0",
+      "bytes": 928,
+      "bytesSha256": "9a49823d736b6130433e14923ed3ad978ffcedebdac58ee940cf343f3e3e974d",
+      "linearRowsByteAndTextMatched": 219,
+      "suffixBytes": 0
+    },
+    {
+      "path": "native-disassembly-pass2/0x060017BA-LoadManager-LoadLastSave.json",
+      "token": "0x060017BA",
+      "type": "ScheduleOne.Persistence.LoadManager",
+      "method": "LoadLastSave",
+      "rva": "0x587b00",
+      "bytes": 144,
+      "bytesSha256": "32a42ec6b57d7d851dea8423b1da4338f3c6a6bda456b28b04073302c03e74f5",
+      "linearRowsByteAndTextMatched": 42,
+      "suffixBytes": 0
+    },
+    {
+      "path": "native-disassembly-pass2/0x060017BB-LoadManager-CleanUp.json",
+      "token": "0x060017BB",
+      "type": "ScheduleOne.Persistence.LoadManager",
+      "method": "CleanUp",
+      "rva": "0x586250",
+      "bytes": 1600,
+      "bytesSha256": "3470b87df83ea8cecdab25b64a91841d4a1bf28dfb14abb4694afc46ac9a3b7b",
+      "linearRowsByteAndTextMatched": 356,
+      "suffixBytes": 0
+    },
+    {
+      "path": "native-disassembly-pass2/0x060017BC-LoadManager-ExitToMenu.json",
+      "token": "0x060017BC",
+      "type": "ScheduleOne.Persistence.LoadManager",
+      "method": "ExitToMenu",
+      "rva": "0x5868f0",
+      "bytes": 928,
+      "bytesSha256": "6ab070125cdeb9e8075875bd8dba9f93a41238fc7a841e1d22d9e712fb071a42",
+      "linearRowsByteAndTextMatched": 214,
+      "suffixBytes": 0
+    },
+    {
+      "path": "native-disassembly-pass2/0x060017E4-__StartGame_g__LoadRoutine_0_d-MoveNext.json",
+      "token": "0x060017E4",
+      "type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass74_0+<<StartGame>g__LoadRoutine|0>d",
+      "method": "MoveNext",
+      "rva": "0x590a80",
+      "bytes": 6928,
+      "bytesSha256": "3a39b54415a32ca5af6d1b43f2218a5879a6744802a3aec9ff4d087c9f071c22",
+      "linearRowsByteAndTextMatched": 1497,
+      "suffixBytes": 23
+    },
+    {
+      "path": "native-disassembly-pass2/0x06001806-__ExitToMenu_g__Load_0_d-MoveNext.json",
+      "token": "0x06001806",
+      "type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass81_0+<<ExitToMenu>g__Load|0>d",
+      "method": "MoveNext",
+      "rva": "0x5ae1a0",
+      "bytes": 2304,
+      "bytesSha256": "006caaa019e172ae332d88d04daa10f61ed7eb784c01f9298673983b21050a32",
+      "linearRowsByteAndTextMatched": 555,
+      "suffixBytes": 0
+    },
+    {
+      "path": "native-disassembly-pass2/0x06001824-SaveManager-Start.json",
+      "token": "0x06001824",
+      "type": "ScheduleOne.Persistence.SaveManager",
+      "method": "Start",
+      "rva": "0x5aacb0",
+      "bytes": 272,
+      "bytesSha256": "bc00755902a69fa83f77cb8a703ebc99e71a773a7ea7d451690cb7217d00c428",
+      "linearRowsByteAndTextMatched": 72,
+      "suffixBytes": 0
+    },
+    {
+      "path": "native-disassembly-pass2/0x06001834-SaveManager-Clean.json",
+      "token": "0x06001834",
+      "type": "ScheduleOne.Persistence.SaveManager",
+      "method": "Clean",
+      "rva": "0x5a94e0",
+      "bytes": 160,
+      "bytesSha256": "0af8f80860459954ee799b804ba303fdab88504ccc4c1677e78ec83e6f083444",
+      "linearRowsByteAndTextMatched": 51,
+      "suffixBytes": 0
+    },
+    {
+      "path": "native-disassembly-pass2/0x0600183B-__Save_g__SaveRoutine_0_d-System_IDisposable_Dispose.json",
+      "token": "0x0600183B",
+      "type": "ScheduleOne.Persistence.SaveManager+<>c__DisplayClass52_0+<<Save>g__SaveRoutine|0>d",
+      "method": "System.IDisposable.Dispose",
+      "rva": "0x43fec0",
+      "bytes": 16,
+      "bytesSha256": "28f844b5972c241e804231b0e41b93e13696e59b98dde74f19029386db5da0c5",
+      "linearRowsByteAndTextMatched": 14,
+      "suffixBytes": 0
+    },
+    {
+      "path": "native-disassembly-pass2/0x06001AD2-Lobby-LeaveLobby.json",
+      "token": "0x06001AD2",
+      "type": "ScheduleOne.Networking.Lobby",
+      "method": "LeaveLobby",
+      "rva": "0x5c0bf0",
+      "bytes": 80,
+      "bytesSha256": "fa16e467a8b12a78c56703980063a0c1772efd541d81f20a956529b7efdd7238",
+      "linearRowsByteAndTextMatched": 24,
+      "suffixBytes": 0
+    },
+    {
+      "path": "native-disassembly-pass2/0x06002516-PlayerManager-SavePlayer.json",
+      "token": "0x06002516",
+      "type": "ScheduleOne.PlayerScripts.PlayerManager",
+      "method": "SavePlayer",
+      "rva": "0x676f40",
+      "bytes": 1168,
+      "bytesSha256": "872b77d657c42e88ee9b27c4fc94142a8038691cef761396dc7508d5d4673be6",
+      "linearRowsByteAndTextMatched": 270,
+      "suffixBytes": 0
+    },
+    {
+      "path": "native-disassembly-pass2/0x0600628F-PauseMenu-Exit.json",
+      "token": "0x0600628F",
+      "type": "ScheduleOne.UI.PauseMenu",
+      "method": "Exit",
+      "rva": "0x9f5cf0",
+      "bytes": 208,
+      "bytesSha256": "a5ed77a67cea12cc285aac63af92528af423ecdddc1698c7703eb5137547215b",
+      "linearRowsByteAndTextMatched": 61,
+      "suffixBytes": 0
+    },
+    {
+      "path": "native-disassembly-pass3/0x0600180B-__c__DisplayClass81_1-_ExitToMenu_b__1.json",
+      "token": "0x0600180B",
+      "type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass81_1",
+      "method": "<ExitToMenu>b__1",
+      "rva": "0x5b3a40",
+      "bytes": 144,
+      "bytesSha256": "8b90169c3a1cf6402b8e27eeee615f2f9af2fd291807864259692cc66ffef36b",
+      "linearRowsByteAndTextMatched": 46,
+      "suffixBytes": 0
+    },
+    {
+      "path": "native-disassembly-pass3/0x060030C9-PersistentSingleton_1-Awake.json",
+      "token": "0x060030C9",
+      "type": "ScheduleOne.DevUtilities.PersistentSingleton`1",
+      "method": "Awake",
+      "rva": "0x10709b0",
+      "bytes": 176,
+      "bytesSha256": "d27132be3277236514544a0f6fee9855e4633b32968d4ff039b2800547199dd0",
+      "linearRowsByteAndTextMatched": 55,
+      "suffixBytes": 0
+    },
+    {
+      "path": "native-disassembly-pass3/0x060030FF-Singleton_1-Awake.json",
+      "token": "0x060030FF",
+      "type": "ScheduleOne.DevUtilities.Singleton`1",
+      "method": "Awake",
+      "rva": "0x11357d0",
+      "bytes": 592,
+      "bytesSha256": "573df25f6601da2c13f91f8af38133abd7c7d6b4b80e680bde8a0529a33bd1fa",
+      "linearRowsByteAndTextMatched": 143,
+      "suffixBytes": 0
+    },
+    {
+      "path": "native-disassembly-pass3/0x06003100-Singleton_1-OnDestroy.json",
+      "token": "0x06003100",
+      "type": "ScheduleOne.DevUtilities.Singleton`1",
+      "method": "OnDestroy",
+      "rva": "0x1135a70",
+      "bytes": 192,
+      "bytesSha256": "4804a0cd81381bdb69fcfa7206ea16dccfb59cd6c1863bc82ca93da6bd7a4a11",
+      "linearRowsByteAndTextMatched": 47,
+      "suffixBytes": 0
+    },
+    {
+      "path": "native-disassembly-pass3/0x06003CFE-ExitToMenu-Exit.json",
+      "token": "0x06003CFE",
+      "type": "ScheduleOne.Tools.ExitToMenu",
+      "method": "Exit",
+      "rva": "0x7dfbe0",
+      "bytes": 144,
+      "bytesSha256": "30415c1c000c9ec7ee1c1d78b0dea4763eed29b008a010396d53b6f3662c2132",
+      "linearRowsByteAndTextMatched": 39,
+      "suffixBytes": 0
+    },
+    {
+      "path": "native-disassembly-pass3/0x06006A54-ConfirmExitScreen-ConfirmExit.json",
+      "token": "0x06006A54",
+      "type": "ScheduleOne.UI.MainMenu.ConfirmExitScreen",
+      "method": "ConfirmExit",
+      "rva": "0xa68030",
+      "bytes": 160,
+      "bytesSha256": "3d0113f6b3636425546d92c8a4eefab04967211fc9771923425817e38abc41ba",
+      "linearRowsByteAndTextMatched": 41,
+      "suffixBytes": 0
+    },
+    {
+      "path": "native-disassembly-pass4/0x060017B6-LoadManager-LoadTutorialAsClient.json",
+      "token": "0x060017B6",
+      "type": "ScheduleOne.Persistence.LoadManager",
+      "method": "LoadTutorialAsClient",
+      "rva": "0x587b90",
+      "bytes": 240,
+      "bytesSha256": "86a04b29dff50f667c53cafa3030d9a6a34270363553fb155c670a759b917b53",
+      "linearRowsByteAndTextMatched": 67,
+      "suffixBytes": 0
+    },
+    {
+      "path": "native-disassembly-pass4/0x060017B7-LoadManager-LoadAsClient.json",
+      "token": "0x060017B7",
+      "type": "ScheduleOne.Persistence.LoadManager",
+      "method": "LoadAsClient",
+      "rva": "0x5879f0",
+      "bytes": 272,
+      "bytesSha256": "a8517dfa11e1c6d95d554406f739c59ab6b431ec6b98ce5b7e823ee4d97fb01a",
+      "linearRowsByteAndTextMatched": 73,
+      "suffixBytes": 0
+    },
+    {
+      "path": "native-disassembly-pass4/0x06001823-SaveManager-Awake.json",
+      "token": "0x06001823",
+      "type": "ScheduleOne.Persistence.SaveManager",
+      "method": "Awake",
+      "rva": "0x5a8f70",
+      "bytes": 704,
+      "bytesSha256": "97820d9334a7d96d29504e0d73f6ac40865b85e4059014ba7044716c55eccb22",
+      "linearRowsByteAndTextMatched": 173,
+      "suffixBytes": 0
+    },
+    {
+      "path": "native-disassembly-pass4/0x06006A53-ConfirmExitScreen-Update.json",
+      "token": "0x06006A53",
+      "type": "ScheduleOne.UI.MainMenu.ConfirmExitScreen",
+      "method": "Update",
+      "rva": "0xa680d0",
+      "bytes": 880,
+      "bytesSha256": "1306427ff91b800908cb962a6c0be2c452a95da829389f731c127da0a810977a",
+      "linearRowsByteAndTextMatched": 198,
+      "suffixBytes": 0
+    }
+  ],
+  "focusedOriginalByteAnchors": [
+    {
+      "rva": "0x5aad59",
+      "rawOffset": "0x5a9f59",
+      "bytes": "48 8b 79 78",
+      "textAsExported": "mov rdi,[rcx+78h]"
+    },
+    {
+      "rva": "0x5aad69",
+      "rawOffset": "0x5a9f69",
+      "bytes": "4c 8b 05 48 36 3f 03",
+      "textAsExported": "mov r8,[18399E3B8h]",
+      "independentRipTargetVa": "0x18399e3b8",
+      "metadataLabelAsExportedNotIndependentlyRemapped": {
+        "Kind": "MethodDef",
+        "Value": "ScheduleOne.Persistence.SaveManager::Clean/0"
+      }
+    },
+    {
+      "rva": "0x5aad73",
+      "rawOffset": "0x5a9f73",
+      "bytes": "48 8b d3",
+      "textAsExported": "mov rdx,rbx"
+    },
+    {
+      "rva": "0x5aad7c",
+      "rawOffset": "0x5a9f7c",
+      "bytes": "e8 6f a8 e7 ff",
+      "textAsExported": "call 00000001804255F0h",
+      "independentRelativeTargetVa": "0x1804255f0"
+    },
+    {
+      "rva": "0x5aad8f",
+      "rawOffset": "0x5a9f8f",
+      "bytes": "e8 9c bf 5f 02",
+      "textAsExported": "call 0000000182BA6D30h",
+      "independentRelativeTargetVa": "0x182ba6d30"
+    },
+    {
+      "rva": "0x5a9511",
+      "rawOffset": "0x5a8711",
+      "bytes": "48 8b 4b 48",
+      "textAsExported": "mov rcx,[rbx+48h]"
+    },
+    {
+      "rva": "0x5a9521",
+      "rawOffset": "0x5a8721",
+      "bytes": "c7 41 18 00 00 00 00",
+      "textAsExported": "mov dword ptr [rcx+18h],0"
+    },
+    {
+      "rva": "0x5a9536",
+      "rawOffset": "0x5a8736",
+      "bytes": "e8 c5 4f 60 01",
+      "textAsExported": "call 0000000181BAE500h",
+      "independentRelativeTargetVa": "0x181bae500"
+    },
+    {
+      "rva": "0x5a953b",
+      "rawOffset": "0x5a873b",
+      "bytes": "48 8b 4b 50",
+      "textAsExported": "mov rcx,[rbx+50h]"
+    },
+    {
+      "rva": "0x5a954b",
+      "rawOffset": "0x5a874b",
+      "bytes": "c7 41 18 00 00 00 00",
+      "textAsExported": "mov dword ptr [rcx+18h],0"
+    },
+    {
+      "rva": "0x5a9565",
+      "rawOffset": "0x5a8765",
+      "bytes": "e9 96 4f 60 01",
+      "textAsExported": "jmp near ptr 0000000181BAE500h",
+      "independentRelativeTargetVa": "0x181bae500"
+    },
+    {
+      "rva": "0x58690c",
+      "rawOffset": "0x585b0c",
+      "bytes": "48 8b f9",
+      "textAsExported": "mov rdi,rcx"
+    },
+    {
+      "rva": "0x586a16",
+      "rawOffset": "0x585c16",
+      "bytes": "80 7f 28 00",
+      "textAsExported": "cmp byte ptr [rdi+28h],0"
+    },
+    {
+      "rva": "0x586bcb",
+      "rawOffset": "0x585dcb",
+      "bytes": "c6 47 28 00",
+      "textAsExported": "mov byte ptr [rdi+28h],0"
+    },
+    {
+      "rva": "0x586bd1",
+      "rawOffset": "0x585dd1",
+      "bytes": "48 c7 47 40 00 00 00 00",
+      "textAsExported": "mov qword ptr [rdi+40h],0"
+    },
+    {
+      "rva": "0x586be8",
+      "rawOffset": "0x585de8",
+      "bytes": "c6 47 29 01",
+      "textAsExported": "mov byte ptr [rdi+29h],1"
+    },
+    {
+      "rva": "0x586c5c",
+      "rawOffset": "0x585e5c",
+      "bytes": "e9 af 2b 5f 02",
+      "textAsExported": "jmp near ptr 0000000182B79810h",
+      "independentRelativeTargetVa": "0x182b79810"
+    },
+    {
+      "rva": "0x5ae414",
+      "rawOffset": "0x5ad614",
+      "bytes": "48 8b 48 78",
+      "textAsExported": "mov rcx,[rax+78h]"
+    },
+    {
+      "rva": "0x5ae418",
+      "rawOffset": "0x5ad618",
+      "bytes": "e8 d3 8a 5f 02",
+      "textAsExported": "call 0000000182BA6EF0h",
+      "independentRelativeTargetVa": "0x182ba6ef0"
+    },
+    {
+      "rva": "0x5ae947",
+      "rawOffset": "0x5adb47",
+      "bytes": "e8 24 6f 6f 00",
+      "textAsExported": "call 0000000180CA5870h",
+      "independentRelativeTargetVa": "0x180ca5870"
+    },
+    {
+      "rva": "0x5ae94e",
+      "rawOffset": "0x5adb4e",
+      "bytes": "74 43",
+      "textAsExported": "je short 00000001805AE993h",
+      "independentRelativeTargetVa": "0x1805ae993"
+    },
+    {
+      "rva": "0x5ae962",
+      "rawOffset": "0x5adb62",
+      "bytes": "f3 0f 10 0d f6 e2 8a 02",
+      "textAsExported": "movss xmm1,dword ptr [182E5CC60h]",
+      "independentRipTargetVa": "0x182e5cc60",
+      "metadataLabelAsExportedNotIndependentlyRemapped": null
+    },
+    {
+      "rva": "0x5ae96d",
+      "rawOffset": "0x5adb6d",
+      "bytes": "e8 0e e6 5d 02",
+      "textAsExported": "call 0000000182B8CF80h",
+      "independentRelativeTargetVa": "0x182b8cf80"
+    },
+    {
+      "rva": "0x5aea07",
+      "rawOffset": "0x5adc07",
+      "bytes": "e8 14 95 07 00",
+      "textAsExported": "call 0000000180627F20h",
+      "independentRelativeTargetVa": "0x180627f20"
+    },
+    {
+      "rva": "0x5aea11",
+      "rawOffset": "0x5adc11",
+      "bytes": "c7 43 14 00 00 40 40",
+      "textAsExported": "mov dword ptr [rbx+14h],40400000h"
+    },
+    {
+      "rva": "0x5aea1a",
+      "rawOffset": "0x5adc1a",
+      "bytes": "e8 41 5a 5d 02",
+      "textAsExported": "call 0000000182B84460h",
+      "independentRelativeTargetVa": "0x182b84460"
+    },
+    {
+      "rva": "0x5aea1f",
+      "rawOffset": "0x5adc1f",
+      "bytes": "f3 0f 11 43 10",
+      "textAsExported": "movss dword ptr [rbx+10h],xmm0"
+    },
+    {
+      "rva": "0x5aea36",
+      "rawOffset": "0x5adc36",
+      "bytes": "4c 8b 05 3b 3d 44 03",
+      "textAsExported": "mov r8,[1839F2778h]",
+      "independentRipTargetVa": "0x1839f2778",
+      "metadataLabelAsExportedNotIndependentlyRemapped": {
+        "Kind": "MethodDef",
+        "Value": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass81_1::<ExitToMenu>b__1/0"
+      }
+    },
+    {
+      "rva": "0x5aea60",
+      "rawOffset": "0x5adc60",
+      "bytes": "e8 eb 1b e9 ff",
+      "textAsExported": "call 0000000180440650h",
+      "independentRelativeTargetVa": "0x180440650"
+    },
+    {
+      "rva": "0x5ae91a",
+      "rawOffset": "0x5adb1a",
+      "bytes": "eb 34",
+      "textAsExported": "jmp short 00000001805AE950h",
+      "independentRelativeTargetVa": "0x1805ae950"
+    },
+    {
+      "rva": "0x5b3a8b",
+      "rawOffset": "0x5b2c8b",
+      "bytes": "48 8b 48 18",
+      "textAsExported": "mov rcx,[rax+18h]"
+    },
+    {
+      "rva": "0x5b3a94",
+      "rawOffset": "0x5b2c94",
+      "bytes": "80 b9 30 03 00 00 00",
+      "textAsExported": "cmp byte ptr [rcx+330h],0"
+    },
+    {
+      "rva": "0x5b3a9b",
+      "rawOffset": "0x5b2c9b",
+      "bytes": "74 08",
+      "textAsExported": "je short 00000001805B3AA5h",
+      "independentRelativeTargetVa": "0x1805b3aa5"
+    },
+    {
+      "rva": "0x5b3a9d",
+      "rawOffset": "0x5b2c9d",
+      "bytes": "b0 01",
+      "textAsExported": "mov al,1"
+    },
+    {
+      "rva": "0x5b3aa7",
+      "rawOffset": "0x5b2ca7",
+      "bytes": "e8 b4 09 5d 02",
+      "textAsExported": "call 0000000182B84460h",
+      "independentRelativeTargetVa": "0x182b84460"
+    },
+    {
+      "rva": "0x5b3aac",
+      "rawOffset": "0x5b2cac",
+      "bytes": "f3 0f 5c 43 10",
+      "textAsExported": "subss xmm0,dword ptr [rbx+10h]"
+    },
+    {
+      "rva": "0x5b3ab1",
+      "rawOffset": "0x5b2cb1",
+      "bytes": "0f 2f 43 14",
+      "textAsExported": "comiss xmm0,dword ptr [rbx+14h]"
+    },
+    {
+      "rva": "0x5b3ab5",
+      "rawOffset": "0x5b2cb5",
+      "bytes": "0f 97 c0",
+      "textAsExported": "seta al"
+    },
+    {
+      "rva": "0x5a8fe1",
+      "rawOffset": "0x5a81e1",
+      "bytes": "48 8b 15 58 5b 41 03",
+      "textAsExported": "mov rdx,[1839BEB40h]",
+      "independentRipTargetVa": "0x1839beb40",
+      "metadataLabelAsExportedNotIndependentlyRemapped": {
+        "Kind": "MethodRef",
+        "Value": "System.Void ScheduleOne.DevUtilities.PersistentSingleton`1<ScheduleOne.Persistence.SaveManager>.Awake"
+      }
+    },
+    {
+      "rva": "0x5a8feb",
+      "rawOffset": "0x5a81eb",
+      "bytes": "e8 c0 79 ac 00",
+      "textAsExported": "call 00000001810709B0h",
+      "independentRelativeTargetVa": "0x1810709b0"
+    },
+    {
+      "rva": "0x10709f2",
+      "rawOffset": "0x106fbf2",
+      "bytes": "e8 d9 4d 0c 00",
+      "textAsExported": "call 00000001811357D0h",
+      "independentRelativeTargetVa": "0x1811357d0"
+    },
+    {
+      "rva": "0x10709f7",
+      "rawOffset": "0x106fbf7",
+      "bytes": "80 7b 20 00",
+      "textAsExported": "cmp byte ptr [rbx+20h],0"
+    },
+    {
+      "rva": "0x10709fb",
+      "rawOffset": "0x106fbfb",
+      "bytes": "75 48",
+      "textAsExported": "jne short 0000000181070A45h",
+      "independentRelativeTargetVa": "0x181070a45"
+    },
+    {
+      "rva": "0x1070a0f",
+      "rawOffset": "0x106fc0f",
+      "bytes": "33 d2",
+      "textAsExported": "xor edx,edx"
+    },
+    {
+      "rva": "0x1070a14",
+      "rawOffset": "0x106fc14",
+      "bytes": "e8 e7 65 b1 01",
+      "textAsExported": "call 0000000182B87000h",
+      "independentRelativeTargetVa": "0x182b87000"
+    },
+    {
+      "rva": "0x1070a40",
+      "rawOffset": "0x106fc40",
+      "bytes": "e8 1b a0 b0 01",
+      "textAsExported": "call 0000000182B7AA60h",
+      "independentRelativeTargetVa": "0x182b7aa60"
+    },
+    {
+      "rva": "0x1135873",
+      "rawOffset": "0x1134a73",
+      "bytes": "0f 85 f8 00 00 00",
+      "textAsExported": "jne near ptr 0000000181135971h",
+      "independentRelativeTargetVa": "0x181135971"
+    },
+    {
+      "rva": "0x11359c4",
+      "rawOffset": "0x1134bc4",
+      "bytes": "c6 43 20 01",
+      "textAsExported": "mov byte ptr [rbx+20h],1"
+    },
+    {
+      "rva": "0x11359fc",
+      "rawOffset": "0x1134bfc",
+      "bytes": "e9 ef 4f a4 01",
+      "textAsExported": "jmp near ptr 0000000182B7A9F0h",
+      "independentRelativeTargetVa": "0x182b7a9f0"
+    },
+    {
+      "rva": "0x1135ae9",
+      "rawOffset": "0x1134ce9",
+      "bytes": "e8 b2 65 a4 01",
+      "textAsExported": "call 0000000182B7C0A0h",
+      "independentRelativeTargetVa": "0x182b7c0a0"
+    },
+    {
+      "rva": "0x1135af0",
+      "rawOffset": "0x1134cf0",
+      "bytes": "74 2c",
+      "textAsExported": "je short 0000000181135B1Eh",
+      "independentRelativeTargetVa": "0x181135b1e"
+    },
+    {
+      "rva": "0x1135b1b",
+      "rawOffset": "0x1134d1b",
+      "bytes": "48 89 08",
+      "textAsExported": "mov [rax],rcx"
+    },
+    {
+      "rva": "0xa6809c",
+      "rawOffset": "0xa6729c",
+      "bytes": "45 33 c9",
+      "textAsExported": "xor r9d,r9d"
+    },
+    {
+      "rva": "0xa680a8",
+      "rawOffset": "0xa672a8",
+      "bytes": "45 33 c0",
+      "textAsExported": "xor r8d,r8d"
+    },
+    {
+      "rva": "0xa680ab",
+      "rawOffset": "0xa672ab",
+      "bytes": "33 d2",
+      "textAsExported": "xor edx,edx"
+    },
+    {
+      "rva": "0xa680ad",
+      "rawOffset": "0xa672ad",
+      "bytes": "e8 3e e8 b1 ff",
+      "textAsExported": "call 00000001805868F0h",
+      "independentRelativeTargetVa": "0x1805868f0"
+    },
+    {
+      "rva": "0x7dfc47",
+      "rawOffset": "0x7dee47",
+      "bytes": "45 33 c9",
+      "textAsExported": "xor r9d,r9d"
+    },
+    {
+      "rva": "0x7dfc53",
+      "rawOffset": "0x7dee53",
+      "bytes": "45 33 c0",
+      "textAsExported": "xor r8d,r8d"
+    },
+    {
+      "rva": "0x7dfc56",
+      "rawOffset": "0x7dee56",
+      "bytes": "33 d2",
+      "textAsExported": "xor edx,edx"
+    },
+    {
+      "rva": "0x7dfc58",
+      "rawOffset": "0x7dee58",
+      "bytes": "e8 93 6c da ff",
+      "textAsExported": "call 00000001805868F0h",
+      "independentRelativeTargetVa": "0x1805868f0"
+    },
+    {
+      "rva": "0xa681b6",
+      "rawOffset": "0xa673b6",
+      "bytes": "f3 0f 10 71 2c",
+      "textAsExported": "movss xmm6,dword ptr [rcx+2Ch]"
+    },
+    {
+      "rva": "0x5881d0",
+      "rawOffset": "0x5873d0",
+      "bytes": "41 0f b6 e8",
+      "textAsExported": "movzx ebp,r8b"
+    },
+    {
+      "rva": "0x5882ad",
+      "rawOffset": "0x5874ad",
+      "bytes": "80 7f 28 00",
+      "textAsExported": "cmp byte ptr [rdi+28h],0"
+    },
+    {
+      "rva": "0x5882b1",
+      "rawOffset": "0x5874b1",
+      "bytes": "74 33",
+      "textAsExported": "je short 00000001805882E6h",
+      "independentRelativeTargetVa": "0x1805882e6"
+    },
+    {
+      "rva": "0x5882b3",
+      "rawOffset": "0x5874b3",
+      "bytes": "40 84 ed",
+      "textAsExported": "test bpl,bpl"
+    },
+    {
+      "rva": "0x5882b6",
+      "rawOffset": "0x5874b6",
+      "bytes": "75 2e",
+      "textAsExported": "jne short 00000001805882E6h",
+      "independentRelativeTargetVa": "0x1805882e6"
+    },
+    {
+      "rva": "0x588385",
+      "rawOffset": "0x587585",
+      "bytes": "48 89 57 40",
+      "textAsExported": "mov [rdi+40h],rdx"
+    },
+    {
+      "rva": "0x5883aa",
+      "rawOffset": "0x5875aa",
+      "bytes": "48 89 57 38",
+      "textAsExported": "mov [rdi+38h],rdx"
+    },
+    {
+      "rva": "0x5884e7",
+      "rawOffset": "0x5876e7",
+      "bytes": "e9 24 13 5f 02",
+      "textAsExported": "jmp near ptr 0000000182B79810h",
+      "independentRelativeTargetVa": "0x182b79810"
+    },
+    {
+      "rva": "0x5ae798",
+      "rawOffset": "0x5ad998",
+      "bytes": "45 33 c0",
+      "textAsExported": "xor r8d,r8d"
+    },
+    {
+      "rva": "0x5ae79f",
+      "rawOffset": "0x5ad99f",
+      "bytes": "e8 1c 9a fd ff",
+      "textAsExported": "call 00000001805881C0h",
+      "independentRelativeTargetVa": "0x1805881c0"
+    },
+    {
+      "rva": "0x5ae883",
+      "rawOffset": "0x5ada83",
+      "bytes": "45 33 c0",
+      "textAsExported": "xor r8d,r8d"
+    },
+    {
+      "rva": "0x5ae88a",
+      "rawOffset": "0x5ada8a",
+      "bytes": "e8 31 99 fd ff",
+      "textAsExported": "call 00000001805881C0h",
+      "independentRelativeTargetVa": "0x1805881c0"
+    },
+    {
+      "rva": "0x591153",
+      "rawOffset": "0x590353",
+      "bytes": "e8 98 5d 61 02",
+      "textAsExported": "call 0000000182BA6EF0h",
+      "independentRelativeTargetVa": "0x182ba6ef0"
+    },
+    {
+      "rva": "0x59116f",
+      "rawOffset": "0x59036f",
+      "bytes": "e8 dc 50 ff ff",
+      "textAsExported": "call 0000000180586250h",
+      "independentRelativeTargetVa": "0x180586250"
+    },
+    {
+      "rva": "0x591335",
+      "rawOffset": "0x590535",
+      "bytes": "e8 d6 15 61 02",
+      "textAsExported": "call 0000000182BA2910h",
+      "independentRelativeTargetVa": "0x182ba2910"
+    },
+    {
+      "rva": "0x590dd9",
+      "rawOffset": "0x58ffd9",
+      "bytes": "83 f8 0a",
+      "textAsExported": "cmp eax,0Ah"
+    },
+    {
+      "rva": "0x590deb",
+      "rawOffset": "0x58ffeb",
+      "bytes": "48 8d 15 0e f2 a6 ff",
+      "textAsExported": "lea rdx,[180000000h]",
+      "independentRipTargetVa": "0x180000000",
+      "metadataLabelAsExportedNotIndependentlyRemapped": null
+    },
+    {
+      "rva": "0x590df2",
+      "rawOffset": "0x58fff2",
+      "bytes": "8b 8c 82 60 25 59 00",
+      "textAsExported": "mov ecx,[rdx+rax*4+592560h]"
+    },
+    {
+      "rva": "0x590dfc",
+      "rawOffset": "0x58fffc",
+      "bytes": "ff e1",
+      "textAsExported": "jmp rcx"
+    },
+    {
+      "rva": "0x43fec0",
+      "rawOffset": "0x43f0c0",
+      "bytes": "c2 00 00",
+      "textAsExported": "ret 0"
+    },
+    {
+      "rva": "0x2b79b56",
+      "rawOffset": "0x2b78d56",
+      "bytes": "48 8b 05 8b 55 09 01",
+      "textAsExported": "mov rax,[183C0F0E8h]",
+      "independentRipTargetVa": "0x183c0f0e8",
+      "metadataLabelAsExportedNotIndependentlyRemapped": null
+    },
+    {
+      "rva": "0x2b79b65",
+      "rawOffset": "0x2b78d65",
+      "bytes": "48 8d 0d dc e5 3f 00",
+      "textAsExported": "lea rcx,[182F78148h]",
+      "independentRipTargetVa": "0x182f78148",
+      "metadataLabelAsExportedNotIndependentlyRemapped": null
+    },
+    {
+      "rva": "0x2b79b6c",
+      "rawOffset": "0x2b78d6c",
+      "bytes": "e8 7f e0 79 fd",
+      "textAsExported": "call 0000000180317BF0h",
+      "independentRelativeTargetVa": "0x180317bf0"
+    },
+    {
+      "rva": "0x2b79b71",
+      "rawOffset": "0x2b78d71",
+      "bytes": "48 89 05 70 55 09 01",
+      "textAsExported": "mov [183C0F0E8h],rax",
+      "independentRipTargetVa": "0x183c0f0e8",
+      "metadataLabelAsExportedNotIndependentlyRemapped": null
+    },
+    {
+      "rva": "0x2b79b80",
+      "rawOffset": "0x2b78d80",
+      "bytes": "48 ff e0",
+      "textAsExported": "jmp rax"
+    }
+  ],
+  "startGameDataTable": {
+    "rva": "0x592560",
+    "bytes": "fe 0d 59 00 cb 0f 59 00 4c 13 59 00 5e 19 59 00 e9 1a 59 00 09 1c 59 00 d4 1e 59 00 a6 22 59 00 e4 22 59 00 22 23 59 00 96 23 59 00",
+    "targets": [
+      "0x590dfe",
+      "0x590fcb",
+      "0x59134c",
+      "0x59195e",
+      "0x591ae9",
+      "0x591c09",
+      "0x591ed4",
+      "0x5922a6",
+      "0x5922e4",
+      "0x592322",
+      "0x592396"
+    ],
+    "excludedLinearRowRvas": [
+      "0x592560",
+      "0x592566",
+      "0x592567",
+      "0x59256b",
+      "0x59256e",
+      "0x59256f",
+      "0x592571",
+      "0x592574",
+      "0x592577"
+    ],
+    "limit": "11 RVA values, not code; local switch supplement only, not full CFG/EH or indirect-call coverage."
+  },
+  "referenceCandidates": [
+    {
+      "rva": "0x53bc3b",
+      "targetRva": "0x2b79b50",
+      "existingDecoderRowMatched": false,
+      "status": "raw-byte-candidate-only-not-code-or-owner-proof"
+    },
+    {
+      "rva": "0x53bc62",
+      "targetRva": "0x2b79b50",
+      "existingDecoderRowMatched": false,
+      "status": "raw-byte-candidate-only-not-code-or-owner-proof"
+    },
+    {
+      "rva": "0x53c3df",
+      "targetRva": "0x2b79b50",
+      "existingDecoderRowMatched": false,
+      "status": "raw-byte-candidate-only-not-code-or-owner-proof"
+    },
+    {
+      "rva": "0x53c9cf",
+      "targetRva": "0x2b79b50",
+      "existingDecoderRowMatched": false,
+      "status": "raw-byte-candidate-only-not-code-or-owner-proof"
+    },
+    {
+      "rva": "0x587ac3",
+      "targetRva": "0x5868f0",
+      "existingDecoderRowMatched": true,
+      "status": "existing-decoder-row-plus-independent-byte-target"
+    },
+    {
+      "rva": "0x587c47",
+      "targetRva": "0x5868f0",
+      "existingDecoderRowMatched": true,
+      "status": "existing-decoder-row-plus-independent-byte-target"
+    },
+    {
+      "rva": "0x59116f",
+      "targetRva": "0x586250",
+      "existingDecoderRowMatched": true,
+      "status": "existing-decoder-row-plus-independent-byte-target"
+    },
+    {
+      "rva": "0x5aef57",
+      "targetRva": "0x586250",
+      "existingDecoderRowMatched": false,
+      "status": "raw-byte-candidate-only-not-code-or-owner-proof"
+    },
+    {
+      "rva": "0x5aff48",
+      "targetRva": "0x586250",
+      "existingDecoderRowMatched": false,
+      "status": "raw-byte-candidate-only-not-code-or-owner-proof"
+    },
+    {
+      "rva": "0x5b10cd",
+      "targetRva": "0x5aba60",
+      "existingDecoderRowMatched": false,
+      "status": "raw-byte-candidate-only-not-code-or-owner-proof"
+    },
+    {
+      "rva": "0x628eee",
+      "targetRva": "0x5868f0",
+      "existingDecoderRowMatched": false,
+      "status": "raw-byte-candidate-only-not-code-or-owner-proof"
+    },
+    {
+      "rva": "0x677182",
+      "targetRva": "0x5a9a40",
+      "existingDecoderRowMatched": true,
+      "status": "existing-decoder-row-plus-independent-byte-target"
+    },
+    {
+      "rva": "0x71265c",
+      "targetRva": "0x5868f0",
+      "existingDecoderRowMatched": false,
+      "status": "raw-byte-candidate-only-not-code-or-owner-proof"
+    },
+    {
+      "rva": "0x7dfc58",
+      "targetRva": "0x5868f0",
+      "existingDecoderRowMatched": true,
+      "status": "existing-decoder-row-plus-independent-byte-target"
+    },
+    {
+      "rva": "0x9ebdf3",
+      "targetRva": "0x5868f0",
+      "existingDecoderRowMatched": false,
+      "status": "raw-byte-candidate-only-not-code-or-owner-proof"
+    },
+    {
+      "rva": "0xa680ad",
+      "targetRva": "0x5868f0",
+      "existingDecoderRowMatched": true,
+      "status": "existing-decoder-row-plus-independent-byte-target"
+    },
+    {
+      "rva": "0xb2a9c1",
+      "targetRva": "0x2b79b50",
+      "existingDecoderRowMatched": false,
+      "status": "raw-byte-candidate-only-not-code-or-owner-proof"
+    },
+    {
+      "rva": "0x1e43855",
+      "targetRva": "0x2b79b50",
+      "existingDecoderRowMatched": false,
+      "status": "raw-byte-candidate-only-not-code-or-owner-proof"
+    },
+    {
+      "rva": "0x1e4391e",
+      "targetRva": "0x2b79b50",
+      "existingDecoderRowMatched": false,
+      "status": "raw-byte-candidate-only-not-code-or-owner-proof"
+    },
+    {
+      "rva": "0x1e5ffd9",
+      "targetRva": "0x2b79b50",
+      "existingDecoderRowMatched": false,
+      "status": "raw-byte-candidate-only-not-code-or-owner-proof"
+    },
+    {
+      "rva": "0x1e66a8c",
+      "targetRva": "0x2b79b50",
+      "existingDecoderRowMatched": false,
+      "status": "raw-byte-candidate-only-not-code-or-owner-proof"
+    },
+    {
+      "rva": "0x1e6f959",
+      "targetRva": "0x2b79b50",
+      "existingDecoderRowMatched": false,
+      "status": "raw-byte-candidate-only-not-code-or-owner-proof"
+    },
+    {
+      "rva": "0x2ac984a",
+      "targetRva": "0x2b79b50",
+      "existingDecoderRowMatched": false,
+      "status": "raw-byte-candidate-only-not-code-or-owner-proof"
+    }
+  ],
+  "targetedOriginalMetadataRecords": [
+    {
+      "token": "0x60017b5",
+      "name": "StartGame",
+      "declaringTypeIndex": 892,
+      "rawOffset": "0x44f1f0",
+      "recordBytes": "ad 0e 01 00 7c 03 00 00 64 98 00 00 00 00 00 08 0e 0e 00 00 ff ff ff ff b5 17 00 06 86 00 00 00 ff ff 03 00",
+      "parameters": [
+        {
+          "name": "info",
+          "token": "0x8000e00",
+          "typeIndex": 34330,
+          "rawOffset": "0xa7f874",
+          "bytes": "7e 5e 02 00 00 0e 00 08 1a 86 00 00"
+        },
+        {
+          "name": "allowLoadStacking",
+          "token": "0x8000e01",
+          "typeIndex": 20368,
+          "rawOffset": "0xa7f880",
+          "bytes": "83 5e 02 00 01 0e 00 08 90 4f 00 00"
+        },
+        {
+          "name": "allowSaveBackup",
+          "token": "0x8000e02",
+          "typeIndex": 20368,
+          "rawOffset": "0xa7f88c",
+          "bytes": "95 5e 02 00 02 0e 00 08 90 4f 00 00"
+        }
+      ]
+    },
+    {
+      "token": "0x60017bc",
+      "name": "ExitToMenu",
+      "declaringTypeIndex": 892,
+      "rawOffset": "0x44f2ec",
+      "recordBytes": "3a 5f 02 00 7c 03 00 00 64 98 00 00 00 00 00 08 12 0e 00 00 ff ff ff ff bc 17 00 06 86 00 00 00 ff ff 03 00",
+      "parameters": [
+        {
+          "name": "autoLoadSave",
+          "token": "0x8000e04",
+          "typeIndex": 34334,
+          "rawOffset": "0xa7f8a4",
+          "bytes": "0d 5f 02 00 04 0e 00 08 1e 86 00 00"
+        },
+        {
+          "name": "mainMenuPopup",
+          "token": "0x8000e05",
+          "typeIndex": 45183,
+          "rawOffset": "0xa7f8b0",
+          "bytes": "1a 5f 02 00 05 0e 00 08 7f b0 00 00"
+        },
+        {
+          "name": "preventLeaveLobby",
+          "token": "0x8000e06",
+          "typeIndex": 20368,
+          "rawOffset": "0xa7f8bc",
+          "bytes": "28 5f 02 00 06 0e 00 08 90 4f 00 00"
+        }
+      ]
+    }
+  ],
+  "fieldMapEntriesCorrelatedWithNativeOperands": [
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager",
+      "Name": "<IsGameLoaded>k__BackingField",
+      "Static": false,
+      "Offset": "0x28"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager",
+      "Name": "<IsLoading>k__BackingField",
+      "Static": false,
+      "Offset": "0x29"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager",
+      "Name": "<ActiveSaveInfo>k__BackingField",
+      "Static": false,
+      "Offset": "0x40"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager",
+      "Name": "<LoadedGameFolderPath>k__BackingField",
+      "Static": false,
+      "Offset": "0x38"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager",
+      "Name": "onPreSceneChange",
+      "Static": false,
+      "Offset": "0x78"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "<IsSaving>k__BackingField",
+      "Static": false,
+      "Offset": "0x29"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "Saveables",
+      "Static": false,
+      "Offset": "0x48"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "BaseSaveables",
+      "Static": false,
+      "Offset": "0x50"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "CompletedSaveables",
+      "Static": false,
+      "Offset": "0x60"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "QueuedSaveRequests",
+      "Static": false,
+      "Offset": "0x68"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "<SecondsSinceLastSave>k__BackingField",
+      "Static": false,
+      "Offset": "0x2C"
+    },
+    {
+      "Type": "ScheduleOne.PlayerScripts.Player",
+      "Name": "Local",
+      "Static": true,
+      "Offset": "0x18"
+    },
+    {
+      "Type": "ScheduleOne.PlayerScripts.Player",
+      "Name": "<playerSaveRequestReturned>k__BackingField",
+      "Static": false,
+      "Offset": "0x330"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass81_1",
+      "Name": "timeOnWaitStart",
+      "Static": false,
+      "Offset": "0x10"
+    },
+    {
+      "Type": "ScheduleOne.Persistence.LoadManager+<>c__DisplayClass81_1",
+      "Name": "maxWait",
+      "Static": false,
+      "Offset": "0x14"
+    }
+  ],
+  "genericFieldMapLimit": "Open generic Destroyed offset can be zero/unresolved. Only native +0x20 read/write path used, not inferred generic field layout.",
+  "floatConstants": [
+    {
+      "rva": "0x2e5cc60",
+      "bytes": "00 00 a0 3f",
+      "float32": 1.25
+    },
+    {
+      "rva": "0x2e5cb40",
+      "bytes": "00 00 00 3f",
+      "float32": 0.5
+    }
+  ],
+  "maxWaitImmediateFloat32": 3.0,
+  "stopAllCoroutinesIcallString": {
+    "rva": "0x2f78148",
+    "value": "UnityEngine.MonoBehaviour::StopAllCoroutines()"
+  },
+  "counts": {
+    "inputsHashed": 7,
+    "protectedSourcesHashed": 41,
+    "windowsPayloadCompared": 24,
+    "windowBytesCompared": 19856,
+    "linearRowsByteAndTextMatchedNotRedecoded": 4621,
+    "suffixBytesMatchedNotDecoded": 23,
+    "focusedByteAnchors": 86,
+    "focusedRelativeTargetsRecomputed": 35,
+    "focusedRipTargetsRecomputed": 8,
+    "rawReferenceByteTargetsRecomputed": 23,
+    "existingDecoderReferenceRowsMatched": 6
+  },
+  "targetAssembliesLoadedOrInvoked": false,
+  "nativeSaveFilesRead": false,
+  "gameStartedOrControlled": false,
+  "nativeSaveWriteAllowed": false,
+  "notRepeated": [
+    "LibCpp2IL full method remap",
+    "Iced x64 decoding",
+    "all 1416 relative-transfer checks",
+    "pdata/EH validation",
+    "135-artifact prior V4 audit",
+    "builds/testsuites/live baseline"
+  ],
+  "status": "pass-bounded-independent-integrity-check-not-a-release-proof"
+}

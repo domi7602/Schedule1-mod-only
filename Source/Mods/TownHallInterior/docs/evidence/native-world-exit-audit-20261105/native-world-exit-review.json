@@ -1,0 +1,229 @@
+{
+  "schema": 1,
+  "assessmentUtc": "2026-11-05T17:04:16.1468933Z",
+  "reviewer": "GPT-6.1 Sol / OpenCode; separat delegierter unabhängiger enger Native-Weltwechsel-Gegenprüfer",
+  "project": "schedule1-mod-only",
+  "status": "complete-bounded-static-counterreview-one-wording-correction-required-no-release-approval",
+  "sourceRevision": "b2c6c7e6c6ecc778da9624cdb68a6578b9db471a",
+  "sourceWorktree": "dirty; HEAD und tracked Status eigenständig gelesen, vorgefundene Änderungen erhalten",
+  "nativeSaveWriteAllowed": false,
+  "saveApproval": false,
+  "safeNativeUnregistrationEstablished": false,
+  "safeNativeDestroyEstablished": false,
+  "implementationPerformed": false,
+  "claimVerdicts": { "agree": 7, "limited": 1, "disagree": 0 },
+  "summary": [
+    "Die acht eingefrorenen Behauptungen tragen die begrenzte Architekturentscheidung: Sperre vor Registrierung/Save beibehalten. Keine eigene Last-Use-/Weltwechselquittung ist durch diese Belege hergestellt.",
+    "WX-06 braucht eine konkrete Präzisierung: StartGame weist eine schon geladene Welt nur bei allowLoadStacking=false ab. Das Bool-Argument stammt aus r8b; sein Name wurde zusätzlich unmittelbar aus den passenden Metadatenbytes gelesen. Die beiden hier betrachteten Exit→StartGame-Aufrufer setzen es tatsächlich auf false.",
+    "Clean-Delegatebindung, zwei lokale Listen-Clears, LoadManager-Identitätsinvalidierung vor PreSceneChange, Player-Acknowledgement-ODER-Timeout, PersistentSingleton-Pfad und der leere Dispose-Stub sind anhand der Fenster eigenständig nachvollzogen und an gezielten Originalbytes gegengeprüft.",
+    "Es wurde kein Spiel-/Modassembly geladen oder aufgerufen. Keine Produktions-/Teständerung, kein Build, keine Testsuite, kein Download, kein Spiel-/Bridge-/Savezugriff, kein Commit/Push und keine weitere Delegation. TownHallTest wurde weder gelesen noch verändert."
+  ],
+  "scope": {
+    "ownedReport": ".scratch/townhall-native-world-exit-audit-20261105/native-world-exit-review.json",
+    "ownedToolOutputsOnly": ".scratch/townhall-native-world-exit-audit-20261105/native-review/",
+    "parentOwnsDocumentationExclusively": true,
+    "instructionsRead": [
+      "AGENTS.md vollständig, 327 Zeilen",
+      "Skills/schedule1-modding/SKILL.md",
+      "Skills/schedule1-modding/references/working-contract.md",
+      "Skills/schedule1-modding/references/evidence-policy.md",
+      "Skills/schedule1-persistence/SKILL.md",
+      "Skills/schedule1-mod-reversing/SKILL.md",
+      "Vault-Regeln im Sitzungskontext, SCHEMA.md, index.md, Projektkarte, connections.local.json und letzte relevante log.md-Einträge; nur gelesen"
+    ],
+    "semanticReview": {
+      "windowCount": 17,
+      "tokens": ["0x06001824", "0x06001834", "0x060017BC", "0x06001806", "0x0600180B", "0x06001823", "0x060030C9", "0x060030FF", "0x06003100", "0x06006A54", "0x06003CFE", "0x06006A53", "0x060017B5", "0x060017E4", "0x060017BB", "0x0600183B", "0x06000A53"],
+      "extent": "16 kurze/mittlere Textfenster gelesen; beim großen StartGame.MoveNext gezielt der Initial-/Resume-Pfad, Dispatcher und PreSceneChange→CleanUp→LoadSceneAsync (Textzeilen 145–474) sowie die rohe Tabelle geprüft. Keine Vollmethoden-/CFG-/EH-Abdeckung daraus abgeleitet.",
+      "jsonAndMapping": "Zugehörige JSON-Operanden, MethodMap-Zuordnung und ausgewählte konkrete FieldMap-Einträge der frischen pass2/pass3/pass4-Exporte abgeglichen. Labelauflösung und globale MethodPointer-Ermittlung sind die bestehenden LibCpp2IL-Ergebnisse, nicht ein neuer eigener Remap."
+    },
+    "byteOnlyCoverage": "Alle 24 pass2/pass3/pass4-Fenster zusätzlich gegen originale GameAssembly-Bytes und ihre Text-/JSON-Payloads geprüft. Für sieben nicht im semantischen Teilreview genannte Fenster wird nur Byte-/Exportkonsistenz beansprucht.",
+    "ownLifecycleBoundary": "own-lifecycle-review.json vollständig gelesen, gehasht und gegen die Native-Folgerungen abgegrenzt; seine Produktionsquelltextinterpretation nicht nochmals vollständig ausgeführt. 41 Quelldateihashes wurden unabhängig gegen denselben Freeze bestätigt.",
+    "notReopened": [
+      "Früherer 681er-Modellreview, Basistest oder gesamte Managed-/Native-V4-Analyse",
+      "135 frühere Belege; deren unveränderte Integrität bleibt eine zugeordnete Parent-Prüfung",
+      "Alle 149349 nativen Methoden remappen oder 24 Fenster neu dekodieren",
+      "Unity-Engine-internes StopAllCoroutines, vollständiges EH/indirekte/transitive Pfade oder Laufzeit-Halterinventar"
+    ]
+  },
+  "integrity": {
+    "independentChecker": {
+      "path": "native-review/review-byte-check.py",
+      "sha256": "3c28190396039637298a0edb5141caf6415dd103983c07bb8ba3dae0fbc8322c",
+      "output": "native-review/independent-byte-check.json",
+      "outputSha256": "7dcb8f63ec9a9d920b69b0ba983890f50f791a5af29af40ab5194f3a43f04f91",
+      "checkedUtc": "2026-11-05T17:03:11.549454+00:00",
+      "method": "Neu verfasster Python-stdlib-Checker; keine Analysebibliothek oder Zielassembly geladen. PE-Sektionen aus Originalheader gelesen, Fensterpayloads und fokussierte Operanden gegen Originalbytes geprüft.",
+      "counts": {
+        "inputsHashedAgainstFreeze": 7,
+        "protectedSourcesHashedAgainstFreeze": 41,
+        "existingArtifactsSnapshottedAndRechecked": 80,
+        "nativeWindowsPayloadCompared": 24,
+        "nativeWindowBytesCompared": 19856,
+        "linearRowsByteAndTextMatchedNotRedecoded": 4621,
+        "suffixBytesMatchedNotDecoded": 23,
+        "focusedOriginalByteAnchors": 86,
+        "focusedRelativeTargetsRecomputed": 35,
+        "focusedRipTargetsRecomputed": 8,
+        "rawXrefByteTargetsRecomputed": 23,
+        "existingDecoderXrefRowsMatched": 6
+      },
+      "countsLimit": "Die 35 fokussierten Transfers und 23 Roh-Xrefs können sich überschneiden; sie sind nicht 58 verschiedene Codepfade. Text-/Payloadabgleich von 4621 Rows ist keine zweite Dekodierung und keine Bestätigung aller Mnemonics oder aller 1416 Transfers.",
+      "snapshotLimit": "Eigener Snapshot nach dem ersten Lesen, kein Prä-Lese-Snapshot behauptet; 80 bestehende Auditartefakte während des erfolgreichen Checkers unverändert. Auch ursprüngliche pass1-Dateien wurden nicht geändert.",
+      "helperAttempts": [
+        "Erster eigener Checker-Versuch endete an einer zu strengen Textspalten-RegEx für eine 11-Byte-NOP-Zeile; keine Evidenzabweichung und keine Ausgabedatei erzeugt.",
+        "Zweiter Versuch endete an einem eigenen falschen erwarteten Feldnamen LoadedSaveFolderPath; der vorhandene Map-Eintrag heißt LoadedGameFolderPath. Eigene Erwartung berichtigt, keine Parentdatei geändert.",
+        "Dritter Versuch erfolgreich; obiger Output gehört ausschließlich diesem erfolgreichen Lauf."
+      ]
+    },
+    "originalByteInputs": [
+      { "path": "GameAssembly.dll", "sha256": "61829050e56ca180d67be592e4bfe61ec97d2e9573f720d90a54e318a7e4381d", "bytes": 66477568, "independentlyHashed": true },
+      { "path": "Schedule I_Data/il2cpp_data/Metadata/global-metadata.dat", "sha256": "e775c97da277da8eb1a90265478f3b65c9c3d6464aff4f7255d45280a1d1181f", "bytes": 18689168, "independentlyHashed": true }
+    ],
+    "checkedArtifactHashes": [
+      { "path": "input-manifest.json", "sha256": "f7d3b2a163daba9b96be7d078caf3fd0f7723b718f9468ff61b3262f2f88c498" },
+      { "path": "world-exit-claims.json", "sha256": "91615648a1dbea3a90c3628bcd840e26a8c784b60670c78deb2311630a1752cb" },
+      { "path": "own-lifecycle-review.json", "sha256": "3895fb846b141ab29f4a2af3c183d47c062762d04556121385795e6a0097aedd" },
+      { "path": "native-map-pass2.json", "sha256": "39428cef78a72a2149714f01c15be470cb8d4253168ed051a7d92d73b283062f" },
+      { "path": "native-map-pass3.json", "sha256": "50f6f6c543ddc2cadbfdd43428b40051a845cb1e24f3b8226f222ce2912efaab" },
+      { "path": "native-map-pass4.json", "sha256": "99429e78a7085342ba69aea0b3f05d96bb088a3475bf440b0c0dc14225d48f77" },
+      { "path": "native-byte-integrity.json", "sha256": "db33286d473193c80a6e88bc8e6ca9cc792ea5c56a95b6b706839f573684a1c9" },
+      { "path": "validate-world-exit-evidence.py", "sha256": "a2612c2b135c99638b8ce97e3917cae2ff2eef711dba0b3fc93740b028383eb7" },
+      { "path": "world-exit-reference-candidates.json", "sha256": "c7878d62ef57a8264fcb3ec228e0f8ee42a526ec12379667dd92144a4e4b1188" },
+      { "path": "map-world-exit.ps1", "sha256": "1ac2c8d2c9dc52702241b944e1ced063ece1aadbb2e9410f9db0caabafbd4854" },
+      { "path": "map-world-exit-pass2.ps1", "sha256": "34196c7c45f6cf8d4d8272f248988a42adb6bba9bae80c937dfe3c40f9753213" }
+    ],
+    "perWindowAndSourceHashes": "native-review/independent-byte-check.json enthält für jedes der 24 Fenster Originalbytes-SHA-256 und für jede JSON-/Textdatei den separaten Dateihash in artifactSnapshot; außerdem alle sieben Input- und 41 Produktions-/Testquellhashes mit aktuellem Größen-/Freezeabgleich. Ein Fensterbyteshash ist ausdrücklich nicht der JSON-Dateihash.",
+    "inheritedOnly": [
+      "LibCpp2IL NativePointer-/MetadataGlobal-/FieldMap-Auflösung aus den benannten frischen Exports; Count/Version und ausgewählte Zuordnungen auf Konsistenz geprüft, kein neuer Remap.",
+      "Parent native-byte-integrity.json: sämtliche 1416 relativen Transfers, Primary-pdata-Anwesenheit/-Bounds und fünf Analysebibliotheks-/135 frühere Artefakthashes. Eigenständig wurden nur die oben ausdrücklich gezählten Teile reproduziert; Parent-Validator gelesen, nicht nochmals ausgeführt.",
+      "own-lifecycle-review.json: dem dort benannten Prüfer/Datum zugeordnete Quelltextbefunde OWN-01..OWN-08 und ARCH-01..ARCH-05. Dieser Gegenreview übernimmt nicht dessen vollständigen Prüfungsumfang als eigenen."
+    ],
+    "environmentObserved": {
+      "checkedUtc": "2026-11-05T17:04:16.1468933Z",
+      "gameProcessCount": 0,
+      "dotnetRoot": null,
+      "dotnetRootChanged": false,
+      "note": "Zusätzlich früher eigener read-only Prozess-/Umgebungscheck um 16:58:40 UTC: ebenfalls 0/null. Kein Prozess gestartet oder gesteuert."
+    },
+    "finalReadbackOutput": "native-review/final-integrity-check.json"
+  },
+  "findings": [
+    {
+      "id": "WX-01",
+      "verdict": "agree",
+      "classification": "locally-inspected-native-registration-path",
+      "sources": ["native-disassembly-pass2/0x06001824-SaveManager-Start.json", "native-disassembly-pass2/0x06001824-SaveManager-Start.txt:6,20-52", "native-map-pass4.json:FieldMap"],
+      "locations": ["RVA 0x5AACBD speichert this in rbx", "0x5AAD08..0x5AAD59: LoadManager-Singleton-Kontext und event +0x78", "0x5AAD69: Clean MethodDef; 0x5AAD73: Zielobjekt rbx", "0x5AAD7C: geteilter Delegatekonstruktor; 0x5AAD8F: UnityEvent.AddListener"],
+      "reason": "Empfänger rdi stammt aus LoadManager+0x78. Der neue UnityAction-Typ, der Clean-MethodDef in r8 und das unveränderte eigene SaveManager-this in rdx sind lokal bis AddListener nachvollziehbar. Der geteilte Konstruktor wird nicht allein anhand der ersten acht Aliasnamen benannt. Der Bindungspfad erklärt, warum ein Roh-E8/E9-Suchtreffer auf Clean nicht erforderlich ist.",
+      "limits": "Kein Nachweis der Laufzeitinstallation, Reihenfolge, Fehlerfreiheit oder vollständigen Invoke-Zustellung. Die Kandidatenliste wurde nicht als vollständiger Callerbeweis gewertet.",
+      "recommendation": "So beibehalten; stets native Registrierungsroute statt universell erfolgreicher Listenerinstallation formulieren."
+    },
+    {
+      "id": "WX-02",
+      "verdict": "agree",
+      "classification": "local-positive-clears-and-local-negative-drain-boundary",
+      "sources": ["native-disassembly-pass2/0x06001834-SaveManager-Clean.txt:13-42", "native-disassembly-pass2/0x06001834-SaveManager-Clean.json", "native-map-pass4.json:FieldMap SaveManager"],
+      "locations": ["0x5A9511..0x5A9536: Saveables+0x48, size=0 und Array.Clear", "0x5A953B..0x5A9565: BaseSaveables+0x50, size=0 und Array.Clear-Tailcall"],
+      "reason": "Die zwei lokalen Clear-Sequenzen verändern die Listenlänge und löschen belegte Arrayplätze. Der gezeigte Rumpf enthält keinen korrelierten Request-/Completed-Drain und keinen SaveManager-IsSaving-Reset. Die zugehörigen +0x60/+0x68/+0x29-Felder bleiben davon zu unterscheiden.",
+      "limits": "Nur gezeigter lokaler Clean-Pfad einschließlich seiner Null-/Leerlistenzweige, kein transitive- oder weltweiter Negativbeweis. Die Clear-Aufrufe garantieren bei Fehlern keine vollständige Bereinigung und quittieren nicht das Ende laufender Verbraucher.",
+      "recommendation": "Listen-Clear nicht zu Last-Use, Abmeldung aller Halter oder Destroy-Erlaubnis aufwerten."
+    },
+    {
+      "id": "WX-03",
+      "verdict": "agree",
+      "classification": "locally-inspected-loaded-exit-order",
+      "sources": ["native-disassembly-pass2/0x060017BC-LoadManager-ExitToMenu.txt:13,64-66,162-201", "native-disassembly-pass2/0x06001806-__ExitToMenu_g__Load_0_d-MoveNext.txt:122-134", "native-map-pass4.json:FieldMap LoadManager/SaveManager"],
+      "locations": ["0x58690C: rdi=this LoadManager", "0x586BCB: +0x28=false", "0x586BD1: +0x40=null", "0x586BE8: LoadManager+0x29=true", "0x586C44/0x586C5C: Coroutinefabrik/StartCoroutine", "0x5AE414/0x5AE418: +0x78 laden/Invoke"],
+      "reason": "Nach dem geladenen Gate werden in der eigenen LoadManager-Instanz IsGameLoaded und ActiveSaveInfo invalidiert, dann IsLoading gesetzt, bevor die Exit-Coroutine gestartet wird. Ihr späterer PreSceneChange-Pfad kann die alte ActiveSaveInfo deshalb nicht verlässlich aus dem aktuellen Manager zurückholen. Gleicher Offset +0x29 in einer anderen Klasse ist ausdrücklich nicht SaveManager.IsSaving.",
+      "limits": "Nur die gezeigte erfolgreiche lokale Folge, keine Behauptung über alle früheren transitive Lobby-/Player-Callbacks, vollständiges EH oder universelle Eventzustellung.",
+      "recommendation": "Altidentität vor Übergang einfrieren; PreSceneChange als Widerrufssignal, nicht als nachträglichen Altwelt-Identityprovider behandeln."
+    },
+    {
+      "id": "WX-04",
+      "verdict": "agree",
+      "classification": "inspected-player-predicate-and-independent-float-bytes",
+      "sources": ["native-disassembly-pass2/0x06001806-__ExitToMenu_g__Load_0_d-MoveNext.txt:445-543", "native-disassembly-pass3/0x0600180B-__c__DisplayClass81_1-_ExitToMenu_b__1.txt:17-35", "native-map-pass4.json:FieldMap Player/DisplayClass81_1", "native-review/independent-byte-check.json:floatConstants,targetedOriginalMetadataRecords,focusedOriginalByteAnchors"],
+      "locations": ["0x5AE947/0x5AE94E: IsServer-Verzweigung", "0x5AE962→0x2E5CC60: 00 00 A0 3F = 1.25f", "0x5AEA07: RequestSavePlayer", "0x5AEA11: 00 00 40 40 = 3.0f an closure+0x14", "0x5AEA1A/0x5AEA1F: realtime-Waitstart an closure+0x10", "0x5AEA36/0x5AEA60: Predicate/WaitUntil", "0x5B3A8B..0x5B3AB5: Player.Local+0x330 oder (realtime-start)>maxWait"],
+      "reason": "Der Acknowledgement-Zweig liefert sofort true; sonst subss/comiss/seta implementieren strikt elapsed>maxWait, nicht >= und keine SaveManager-Queuebedingung. Der bekannte Feldoffset Player.Local+0x18 und das +0x330-Byte sind mit dem frischen Map abgeglichen. Beide relevanten Floats sind unmittelbar aus Originalbytes gelesen.",
+      "clarification": "Auch der normale Client-Resume nach WaitUntil läuft über 0x5AE91A auf 0x5AE950 und damit anschließend durch dieselbe feste 1.25-s-Realtimewartezeit. Die Kurzfassung server fixed/client WaitUntil darf diese gemeinsame Nachwartezeit nicht als exklusiven Serverpfad missverständlich darstellen. Der spätere 0.5-s-Wait nach RefreshSaveInfo (0x5AE71A→0x2E5CB40) ist nochmals ein anderer Wait.",
+      "limits": "Bei fehlendem Player.Local führt der gezeigte Predicate-Pfad zur Nullfehlerhilfe; die OR-Formel gilt im nichtnullen Normalpfad. Weder Timeout noch Meldung Player data saved belegt den tatsächlichen nativen Speichererfolg. Keine MP-Abnahme oder transitive Netzwerk-Saveanalyse.",
+      "recommendation": "OR und strikt >3 s sowie 1.25 s anhand dieser Bytes dokumentieren; optional gemeinsame Client-Nachwartezeit ergänzen. Kein Drain-/Abschlussbeweis für das eigene Business."
+    },
+    {
+      "id": "WX-05",
+      "verdict": "agree",
+      "classification": "inspected-generic-base-call-and-native-duplicate-gate",
+      "sources": ["native-disassembly-pass4/0x06001823-SaveManager-Awake.txt:24-26", "native-disassembly-pass3/0x060030C9-PersistentSingleton_1-Awake.txt:15-45", "native-disassembly-pass3/0x060030FF-Singleton_1-Awake.txt:36-38,119-134", "native-disassembly-pass3/0x06003100-Singleton_1-OnDestroy.txt:27-47"],
+      "locations": ["0x5A8FE1/0x5A8FEB: SaveManager-spezifischer PersistentSingleton MethodRef und direkter Basiscall", "0x10709F2: Singleton.Awake", "0x11359C4: duplicate +0x20=1", "0x10709F7/0x10709FB: natives +0x20-Gate", "0x1070A14: SetParent(null)", "0x1070A40: DontDestroyOnLoad(gameObject)", "0x1135AE9..0x1135B1B: bedingter statischer Reset"],
+      "reason": "Der SaveManager-Kontext wird dem gemeinsamen PersistentSingleton-Body übergeben. Dieser führt nach Singleton.Awake nur für nicht duplicate-markierte Instanzen Detach und DontDestroyOnLoad aus. Der OnDestroy-Body enthält nach Unity-Objektgleichheit nur den bedingten Reset des generischen statischen Instanzplatzes, keine lokale Save-Drainquittung.",
+      "genericOffsetWarning": "Kein gültiges offenes generisches FieldMap-Layout behauptet. Die Aussage beruht auf dem tatsächlichen +0x20-Schreibpfad in Singleton.Awake und demselben nativen +0x20-Test in PersistentSingleton.Awake, nicht auf einem eventuell als 0 ausgegebenen Destroyed-Offset.",
+      "limits": "Potenzieller persistenter Lebenszykluspfad, kein Beweis, dass jede konkrete Liveinstanz überlebt oder welche ihrer Referenzen später noch benutzt werden. Engine-Persistenz und alle Zerstörungswege nicht neu implementiert/geprüft.",
+      "recommendation": "Menü-/Szenenwechsel nicht als implizites Ende der Manager-/Requestlebensdauer benutzen; OnDestroy-Reset von Save-Drain strikt trennen."
+    },
+    {
+      "id": "WX-06",
+      "verdict": "limited",
+      "classification": "main-order-agrees-but-unqualified-startgame-rejection-needs-correction",
+      "sources": ["native-disassembly-pass3/0x06006A54-ConfirmExitScreen-ConfirmExit.txt:27-31", "native-disassembly-pass3/0x06003CFE-ExitToMenu-Exit.txt:25-29", "native-disassembly-pass4/0x06006A53-ConfirmExitScreen-Update.txt:30-68,92-189", "native-disassembly-pass2/0x060017B5-LoadManager-StartGame.txt:9-11,52-68,104-116,174-187", "native-disassembly-pass2/0x060017E4-__StartGame_g__LoadRoutine_0_d-MoveNext.txt:345-360,454-460", "native-disassembly-pass2/0x06001806-__ExitToMenu_g__Load_0_d-MoveNext.txt:343-354,410-421", "native-review/independent-byte-check.json:targetedOriginalMetadataRecords"],
+      "locations": ["0xA680AD / 0x7DFC58: direkte ExitToMenu(null,null,false)-Aufrufe", "0xA681B6: SaveManager.SecondsSinceLastSave+0x2C", "0x5AE79F / 0x5AE88A: StartGame mit gespeichertem autoLoadSave und r8d=0", "0x588385 / 0x5883AA: neue ActiveSaveInfo / LoadedGameFolderPath", "0x591153→0x59116F→0x591335: später PreSceneChange→LoadManager.CleanUp→SceneLoad", "0x5881D0: bpl=r8b; 0x5882AD/0x5882B3/0x5882B6: IsGameLoaded UND NICHT allowLoadStacking steuern Ablehnung"],
+      "agreedPart": "Beide kurzen UI-/Tool-Rümpfe zeigen den wirklichen direkten Exitaufruf ohne lokalen SaveManager-Drain. Update formatiert Save-Alter und Anzeigezustand, keine Request- oder Batchquittung. Neue Current-Identity/-Folder werden vor dem StartGame-LoadRoutine-PreScene/CleanUp-Pfad veröffentlicht; spätere Singleton-/Pfadabfragen ersetzen keine eingefrorene alte Operationsbindung.",
+      "requiredCorrection": "Die eingefrorene limit-Formulierung StartGame rejects an already loaded world ist ohne Bedingung zu weit. Originalbytes: bei IsGameLoaded!=0 springt allowLoadStacking!=0 an 0x5882B6 direkt weiter nach 0x5882E6 und überspringt den Warnungs-/Returnpfad. Es gilt lokal nur: StartGame lehnt eine bereits geladene Welt bei allowLoadStacking=false ab. Genau false setzen die zwei hier betrachteten Exit→StartGame-Callsites. Keine Aussage über Nutzung oder Sicherheit des True-Pfades ableiten.",
+      "independentMetadataCheck": "global-metadata.dat MethodDef 0x060017B5 an Rawoffset 0x44F1F0; Parameterrecords 0xA7F874/0xA7F880/0xA7F88C heißen info/allowLoadStacking/allowSaveBackup. Der zweite Parameter liegt im betrachteten x64-Instanzaufruf in r8b. Metadaten nur als Bytes gelesen.",
+      "limits": "Kein vollständiges UI-/Caller-Inventar; weder Bedienbarkeit während Save noch ein tatsächlich unsicherer Direkt-Slotwechsel oder Korruption bewiesen. LoadManager.CleanUp und SaveManager.Clean sind verschiedene Rümpfe. Kein globaler/transitiver Negativbeweis für fehlende Drainlogik.",
+      "recommendation": "In der Parent-Dokumentation die Ablehnung auf allowLoadStacking=false und die tatsächlich betrachteten Exit-Callsites begrenzen. Hauptfolge und Fail-Closed-Entscheidung bleiben unverändert; frozen world-exit-claims.json nicht nachträglich verändern."
+    },
+    {
+      "id": "WX-07",
+      "verdict": "agree",
+      "classification": "inspected-dispose-stub-and-unknown-engine-abort-boundary",
+      "sources": ["native-disassembly-pass2/0x0600183B-__Save_g__SaveRoutine_0_d-System_IDisposable_Dispose.txt:3-16", "native-disassembly-pass2/0x06000A53-MonoBehaviour-StopAllCoroutines.txt:5-15", "world-exit-reference-candidates.json", "native-review/independent-byte-check.json:referenceCandidates,stopAllCoroutinesIcallString"],
+      "locations": ["0x43FEC0: C2 00 00, danach 13 CC-Paddingbytes", "0x2B79B56: Cache lesen; 0x2B79B65/0x2B79B6C: Resolverargument/-call; 0x2B79B71: Cache speichern; 0x2B79B80: jmp rax", "0x2F78148: ASCII UnityEngine.MonoBehaviour::StopAllCoroutines()"],
+      "reason": "Der ausgewählte Dispose-Eintritt ist ein geteilter leerer Return-Stub, kein eigener Abschluss-/Cleanuphandler. Der StopAllCoroutines-Export endet im indirekten Sprung zur aufgelösten Unity-Internalcall-Adresse. Der Name wurde zusätzlich direkt aus den Originalbytes des Resolverarguments gelesen; der engineinterne Rumpf liegt in diesem Fenster gerade nicht vor.",
+      "xrefReview": "Alle 23 gelisteten E8/E9-Kandidaten passen als Rohbytes samt rel32-Arithmetik. Nur 0x587AC3, 0x587C47, 0x59116F, 0x677182, 0x7DFC58 und 0xA680AD stimmen zusätzlich mit vorhandenen Decoderzeilengrenzen der neuen Fenster überein. Die restlichen 17 sind hier ausschließlich Kandidaten; auch null Treffer auf Clean beweist keine Caller-Abwesenheit.",
+      "limits": "Kein vollständiger Negativbeweis zu Abort/Terminalität und keine Aussage, dass Unity Dispose immer/nie aufruft. Kein kompletter indirekter, delegierter, externer, transitive- oder EH-Nachweis. Geteilter Dispose-Stub ist ausdrücklich kein vorgeschlagenes Hookziel.",
+      "recommendation": "StopAllCoroutines, OnDestroy und den leeren Dispose-Stub nicht zu einer Entfernungs-/Last-Use-Quittung zusammensetzen. Engine-Verhalten als offen belassen."
+    },
+    {
+      "id": "WX-08",
+      "verdict": "agree",
+      "classification": "bounded-architecture-decision-not-native-implementation-theorem",
+      "sources": ["own-lifecycle-review.json:OWN-01..OWN-08,ARCH-01..ARCH-05", "world-exit-claims.json:WX-01..WX-07", "native-review/independent-byte-check.json"],
+      "locations": ["own-lifecycle-review.json:69-70 heutige Sperre/fehlender RuntimeSaveAdapter", "78-89 eigene Invalidierung versus alte Operations-/Managerbindung", "96-107 Retain/Wrapper/Callbackzähler ohne nativen Lebensdauer-/Quieszenzbeweis", "114-125 synchroner Cleanup/Stop/Main-Unload ohne Save-Drain", "149-174 begrenzte Architekturentscheidungen"],
+      "reason": "Die eigenen Leaving-/Stop-Pfade liefern dem zugeordneten Quellreview zufolge Widerruf, nicht den Besitz eines alten eingefrorenen Saveauftrags und keine native Last-Usequittung. Die neuen nativen Teilfolgen liefern ebenfalls keine korrelierte letzte mögliche Nutzung/Entfernung der eigenen Instanz. Deshalb ist die Nicht-Einstiegs-Sperre die begründete aktuelle Schutzentscheidung; ihre bloße Entfernung wäre keine geprüfte asynchrone Umsetzung.",
+      "designBoundary": "Ein getrennt entworfener Altauftragbesitzer mit unveränderlicher Identität, Widerruf/Quarantäne und belegter nativer Teilnehmerlebensdauer kann eine Architekturwahl sein. Alternativ ist vollständiger transiente Detach zu belegen. Beide Varianten brauchen explizit Nicht-Retarget-/Nicht-IO- und Last-Use-Nachweise für alle tatsächlich erreichbaren Pfade; keine ist implementiert oder hier freigegeben.",
+      "notReleaseProofs": ["Retain oder starker verwalteter Wrapper", "eigener Callbackcounter=0", "PersistentRoot/DontDestroyOnLoad", "Idle/IsSaving=false", "Completion-Event", "leere Requestqueue", "ein späterer Frame", "Abmeldung eines Managed-Listeners oder Main-Unload"],
+      "limits": "Diese Entscheidung folgt aus einer begrenzten Beweislücke, nicht aus einem Theorem, dass nirgends ein brauchbarer nativer Mechanismus existiert. Die früheren Queue-/Batch-/Completed-Befunde bleiben zugeordnete Vorbefunde, nicht neuer Vollaudit dieses Prüfers.",
+      "recommendation": "Fail-Closed beibehalten. Eigene Referenzfreigabe, Erfolg/Dauerhaftigkeit nativer Writes und Sidecar-Konsistenz als drei getrennte Beweisziele führen. Keine neue Write-/Unregister-/Destroyfreigabe."
+    }
+  ],
+  "dataAndCoverageLimits": {
+    "startGameTable": "Originale 44 Bytes an RVA 0x592560 ergeben 11 DWORD-RVAs. Dispatcher 0x590DD9 vergleicht mit 10, 0x590DF2 lädt base+index*4+0x592560 und 0x590DFC springt zum addierten Ziel. Die neun linearen Decoder-Rows in diesem Bereich sind ausdrücklich Daten, kein Codebeleg.",
+    "suffix": "Alle 23 Suffixbytes originalbytegleich, nicht nachdekodiert. Die unabhängige Tabellenableitung deckt darin 19 Resttabellenbytes und vier folgende CC-Bytes ab; sie macht daraus keinen verborgenen Codeabschluss oder Voll-CFG-Beweis.",
+    "pdata": "Primary pdata/Next-pointer-Fenster und richtige Bytes etablieren keine exakten vollständigen Funktions-, EH-, indirekten oder transitiven Grenzen. Kein neuer pdata-/Unwind-Parserlauf in diesem Gegenreview.",
+    "metadata": "Originalmetadata-Header und zwei konkrete MethodDef-/Parameterfolgen zusätzlich bytegelesen; sämtliche übrigen LibCpp2IL-Feld-/Methodenlabels sind dem frischen benannten Toolmapping zugeordnet. Offene generische FieldMap-Nullwerte nicht als gültige Layouts behandelt.",
+    "negativeClaims": "Lokal fehlender Drain, rohe Xref-Abwesenheit und unanalysierte Engineimplementation sind drei unterschiedliche Aussagegrenzen. Kein globaler No-Abort-/No-Cleanup-/No-Caller-Nachweis.",
+    "runtime": "Keine Runtimebeobachtung, kein Write-/Durability-/Sidecarnachweis, keine Multiplayerabnahme. TownHallTest unverändert durch vollständigen Nichtzugriff, nicht durch einen unerlaubten neuen Save-Dateihashvergleich."
+  },
+  "correctionsForParent": [
+    { "id": "C-01", "severity": "required-wording-correction", "claim": "WX-06", "action": "StartGame-Ablehnung nur für IsGameLoaded && !allowLoadStacking formulieren. Die zwei geprüften Exit→StartGame-Aufrufer setzen allowLoadStacking=false; keine pauschale Ablehnung aller bereits geladenen StartGame-Aufrufe behaupten.", "changesReleaseDecision": false },
+    { "id": "C-02", "severity": "optional-order-clarification", "claim": "WX-04", "action": "Client WaitUntil→Resume→gemeinsamer 1.25-s-Realtimewait ergänzen, um die feste Wartezeit nicht als ausschließlich serverseitig erscheinen zu lassen.", "changesReleaseDecision": false }
+  ],
+  "verificationNotExecuted": [
+    "Produktions-/Teständerungen, Builds, Testsuiten, Quick/Pure/Full, isolierter Checkout oder 681er-Modelltests",
+    "Installation/Deployment, Downloads oder neue Toolinstallation",
+    "Spielstart/-steuerung, Bridge/Konsole, native Methodenaufrufe oder Laden/Ausführen einer Spiel-/Modassembly",
+    "Zugriff auf native Save-, UserData- oder Sidecardateien; neuer Save oder TownHallTest-Veränderung",
+    "Repository-/Vault-Dokumentationsänderungen oder Vaultvalidator; Parent besitzt die Dokumentation exklusiv",
+    "Commit/Push, Aufräumen fremder Änderungen oder weitere Unteragenten"
+  ],
+  "conclusion": {
+    "reviewComplete": true,
+    "accessOrToolBlocker": null,
+    "requiredParentDocumentationCorrections": 1,
+    "safeNativeLastUseBoundaryEstablished": false,
+    "nativeWriteSuccessEstablished": false,
+    "sidecarConsistencyEstablished": false,
+    "finalPermission": "Keine Write-, Unregister- oder Destroyfreigabe. NativeSaveWriteAllowed bleibt false; keine Änderung des RuntimeSaveAdapters oder der Produktionssperre."
+  }
+}

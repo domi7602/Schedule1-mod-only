@@ -1,0 +1,31 @@
+{
+  "checkedUtc": "2026-11-05T09:07:39.697772+00:00",
+  "report": ".scratch/townhall-native-save-audit-20261105/native-v4-review.json",
+  "reportSha256": "143e30f4dd558e9b0d3f293ce225279dae62d88ba0cf59ab9163f1800b466180",
+  "jsonParse": "PASS",
+  "claimVerdicts": {
+    "agree": 6,
+    "limited": 2
+  },
+  "additionalLocalObservations": 2,
+  "frozenInputsRechecked": 12,
+  "inputHashMismatches": [],
+  "oldManagedAndV2ReportsUnchanged": true,
+  "methodEvidenceMatchesOwnActualPeCheck": true,
+  "independentlyCheckedWindows": 3,
+  "independentlyCheckedInstructionByteRows": 874,
+  "independentlyRecomputedRelativeTransfers": 217,
+  "independentlyCheckedBytes": 3632,
+  "parentAll23WindowCheckRerun": false,
+  "parserRerun": false,
+  "repositoryDocumentationHashesUsedAsDriftGate": false,
+  "productionTestCodeOrVaultWritten": false,
+  "targetLoadedOrInvoked": false,
+  "userDataOrSavesRead": false,
+  "buildTestsRuntimeOrSaveActions": false,
+  "dotnetRoot": null,
+  "sourceRevision": "b2c6c7e6c6ecc778da9624cdb68a6578b9db471a",
+  "gameAssemblySha256": "61829050e56ca180d67be592e4bfe61ec97d2e9573f720d90a54e318a7e4381d",
+  "globalMetadataSha256": "e775c97da277da8eb1a90265478f3b65c9c3d6464aff4f7255d45280a1d1181f",
+  "allApprovalsFalse": true
+}

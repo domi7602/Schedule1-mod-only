@@ -1,0 +1,146 @@
+{
+  "schema": 1,
+  "validatedUtc": "2026-11-05T18:33:27.265398+00:00",
+  "reportSha256": "eea7470821ecc1f94b1fc2f6eb9583497347d0c5a07120521a175e840de65891",
+  "counts": {
+    "total": 33,
+    "passed": 33,
+    "failed": 0
+  },
+  "checks": [
+    {
+      "check": "criteria status counts",
+      "passed": true
+    },
+    {
+      "check": "criteria unique IDs",
+      "passed": true
+    },
+    {
+      "check": "designCounterexamples status counts",
+      "passed": true
+    },
+    {
+      "check": "designCounterexamples unique IDs",
+      "passed": true
+    },
+    {
+      "check": "16 criteria",
+      "passed": true
+    },
+    {
+      "check": "15 design cases",
+      "passed": true
+    },
+    {
+      "check": "one formatting-only required correction",
+      "passed": true
+    },
+    {
+      "check": "whole review keeps required correction visible",
+      "passed": true
+    },
+    {
+      "check": "all native flags remain false",
+      "passed": true
+    },
+    {
+      "check": "all native proofs remain unknown",
+      "passed": true
+    },
+    {
+      "check": "reviewed hash remains exact: Source/Mods/TownHallInterior/src/BusinessConstruction.cs",
+      "passed": true
+    },
+    {
+      "check": "reviewed hash remains exact: Source/Tests/TownHallInterior.Tests/BusinessSaveOperationOwnerTests.cs",
+      "passed": true
+    },
+    {
+      "check": "reviewed hash remains exact: .scratch/townhall-save-operation-owner-impl-20261105/candidate-v2/ownership-block.txt",
+      "passed": true
+    },
+    {
+      "check": "reviewed hash remains exact: .scratch/townhall-save-operation-owner-impl-20261105/BusinessConstruction.before.cs",
+      "passed": true
+    },
+    {
+      "check": "reviewed hash remains exact: .scratch/townhall-save-operation-owner-impl-20261105/implementation-contract.md",
+      "passed": true
+    },
+    {
+      "check": "reviewed hash remains exact: Source/Mods/TownHallInterior/docs/business-save-operation-owner.md",
+      "passed": true
+    },
+    {
+      "check": "reviewed hash remains exact: Source/Tests/TownHallInterior.Tests/TownHallInterior.Tests.csproj",
+      "passed": true
+    },
+    {
+      "check": "artifact exists: impl-review.json",
+      "passed": true
+    },
+    {
+      "check": "artifact exists: verify-integrity.py",
+      "passed": true
+    },
+    {
+      "check": "artifact exists: integrity-open.json",
+      "passed": true
+    },
+    {
+      "check": "artifact exists: integrity-close.json",
+      "passed": true
+    },
+    {
+      "check": "artifact exists: run-probes.py",
+      "passed": true
+    },
+    {
+      "check": "artifact exists: probe-run.json",
+      "passed": true
+    },
+    {
+      "check": "artifact exists: restore.log",
+      "passed": true
+    },
+    {
+      "check": "artifact exists: build.log",
+      "passed": true
+    },
+    {
+      "check": "artifact exists: probe.log",
+      "passed": true
+    },
+    {
+      "check": "artifact exists: probe/ReviewProbes.csproj",
+      "passed": true
+    },
+    {
+      "check": "artifact exists: probe/NuGet.Config",
+      "passed": true
+    },
+    {
+      "check": "artifact exists: probe/Program.cs",
+      "passed": true
+    },
+    {
+      "check": "artifact exists: check-isolation-artifacts.py",
+      "passed": true
+    },
+    {
+      "check": "artifact exists: isolation-artifact-check.json",
+      "passed": true
+    },
+    {
+      "check": "Pure failed not reclassified",
+      "passed": true
+    },
+    {
+      "check": "33 probe groups, not 233 tests",
+      "passed": true
+    }
+  ],
+  "candidateIsStillFrozenV2": true,
+  "nativeSaveWriteAllowed": false
+}

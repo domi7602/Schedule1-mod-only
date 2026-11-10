@@ -1,0 +1,33 @@
+; ScheduleOne.GameTime.TimeManager::Load/1, token 0x06000BFB, RVA 0x9C96D0, next-pointer window 0x50 bytes
+; No target execution. Parser-pointer window can contain padding/cold fragments and is not exact/full function, EH or transitive coverage. Shared direct aliases are truncated to eight names.
+0x9C96D0     48 85 D2                        test rdx,rdx
+0x9C96D3     74 3E                           je short 00000001809C9713h
+0x9C96D5     48 89 5C 24 08                  mov [rsp+8],rbx
+0x9C96DA     57                              push rdi
+0x9C96DB     48 83 EC 20                     sub rsp,20h
+0x9C96DF     48 8B DA                        mov rbx,rdx
+0x9C96E2     48 8B F9                        mov rdi,rcx
+0x9C96E5     8B 52 28                        mov edx,[rdx+28h]
+0x9C96E8     45 33 C0                        xor r8d,r8d
+0x9C96EB     E8 D0 1F 00 00                  call 00000001809CB6C0h ; ScheduleOne.GameTime.TimeManager::SetTime/1
+0x9C96F0     8B 43 2C                        mov eax,[rbx+2Ch]
+0x9C96F3     89 87 2C 01 00 00               mov [rdi+12Ch],eax
+0x9C96F9     66 0F 6E 43 30                  movd xmm0,dword ptr [rbx+30h]
+0x9C96FE     48 8B 5C 24 30                  mov rbx,[rsp+30h]
+0x9C9703     0F 5B C0                        cvtdq2ps xmm0,xmm0
+0x9C9706     F3 0F 11 87 30 01 00 00         movss dword ptr [rdi+130h],xmm0
+0x9C970E     48 83 C4 20                     add rsp,20h
+0x9C9712     5F                              pop rdi
+0x9C9713     C3                              ret
+0x9C9714     CC                              int 3
+0x9C9715     CC                              int 3
+0x9C9716     CC                              int 3
+0x9C9717     CC                              int 3
+0x9C9718     CC                              int 3
+0x9C9719     CC                              int 3
+0x9C971A     CC                              int 3
+0x9C971B     CC                              int 3
+0x9C971C     CC                              int 3
+0x9C971D     CC                              int 3
+0x9C971E     CC                              int 3
+0x9C971F     CC                              int 3

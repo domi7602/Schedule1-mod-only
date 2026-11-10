@@ -1,0 +1,1022 @@
+{
+  "CapturedUtc": "2026-11-05T08:30:00.9582030Z",
+  "Method": "Fresh LibCpp2IL metadata/pointer parsing of exact on-disk GameAssembly + metadata; Iced decoding of primary x64 .pdata extents, no game execution",
+  "MetadataVersion": 31.1,
+  "GlobalMetadataMethodCount": 149349,
+  "Types": [
+    "ScheduleOne.Persistence.ISaveable",
+    "ScheduleOne.Persistence.SaveManager+<>c__DisplayClass52_0+<<Save>g__SaveRoutine|0>d",
+    "ScheduleOne.Persistence.SaveManager+<>c__DisplayClass52_0",
+    "ScheduleOne.Persistence.SaveManager",
+    "ScheduleOne.Persistence.SaveRequest"
+  ],
+  "AnalysisToolAssemblies": [
+    {
+      "Name": "AssetRipper.Primitives.dll",
+      "Identity": "AssetRipper.Primitives, Version=3.2.0.0, Culture=neutral, PublicKeyToken=null",
+      "Sha256": "da98be48de99a938b661d6582a50cf2a36ff9022a8dfa0a487ee7860965cb78f"
+    },
+    {
+      "Name": "WasmDisassembler.dll",
+      "Identity": "WasmDisassembler, Version=2022.1.0.0, Culture=neutral, PublicKeyToken=null",
+      "Sha256": "87bd7557beeb7f65f3de6ef07581a18a5669f389ecdc2319c1b01687eee5127b"
+    },
+    {
+      "Name": "Disarm.dll",
+      "Identity": "Disarm, Version=2022.1.0.0, Culture=neutral, PublicKeyToken=null",
+      "Sha256": "40e804c35369825884534734725d06831a534759478c8d9f3f908d80779a1a93"
+    },
+    {
+      "Name": "Iced.dll",
+      "Identity": "Iced, Version=1.21.0.0, Culture=neutral, PublicKeyToken=5baba79f4264913b",
+      "Sha256": "f058c01321b4cdfc9b9151879e88e59571c8d0ba176fbcf95bc936a8f3d073ed"
+    },
+    {
+      "Name": "LibCpp2IL.dll",
+      "Identity": "LibCpp2IL, Version=2022.1.0.0, Culture=neutral, PublicKeyToken=null",
+      "Sha256": "acc85f105ef788ee2a0e1d6ab824013029f9f580de0f7494e3793e1e55afddf6"
+    }
+  ],
+  "MethodMap": [
+    {
+      "Type": "ScheduleOne.Persistence.ISaveable",
+      "Name": "get_SaveFolderName",
+      "Token": "0x06001778",
+      "ParameterCount": 0,
+      "Va": "0x0",
+      "Rva": "0x0",
+      "NativePointerPresent": false
+    },
+    {
+      "Type": "ScheduleOne.Persistence.ISaveable",
+      "Name": "get_SaveFileName",
+      "Token": "0x06001779",
+      "ParameterCount": 0,
+      "Va": "0x0",
+      "Rva": "0x0",
+      "NativePointerPresent": false
+    },
+    {
+      "Type": "ScheduleOne.Persistence.ISaveable",
+      "Name": "get_Loader",
+      "Token": "0x0600177A",
+      "ParameterCount": 0,
+      "Va": "0x0",
+      "Rva": "0x0",
+      "NativePointerPresent": false
+    },
+    {
+      "Type": "ScheduleOne.Persistence.ISaveable",
+      "Name": "get_ShouldSaveUnderFolder",
+      "Token": "0x0600177B",
+      "ParameterCount": 0,
+      "Va": "0x0",
+      "Rva": "0x0",
+      "NativePointerPresent": false
+    },
+    {
+      "Type": "ScheduleOne.Persistence.ISaveable",
+      "Name": "get_LocalExtraFiles",
+      "Token": "0x0600177C",
+      "ParameterCount": 0,
+      "Va": "0x0",
+      "Rva": "0x0",
+      "NativePointerPresent": false
+    },
+    {
+      "Type": "ScheduleOne.Persistence.ISaveable",
+      "Name": "set_LocalExtraFiles",
+      "Token": "0x0600177D",
+      "ParameterCount": 1,
+      "Va": "0x0",
+      "Rva": "0x0",
+      "NativePointerPresent": false
+    },
+    {
+      "Type": "ScheduleOne.Persistence.ISaveable",
+      "Name": "get_LocalExtraFolders",
+      "Token": "0x0600177E",
+      "ParameterCount": 0,
+      "Va": "0x0",
+      "Rva": "0x0",
+      "NativePointerPresent": false
+    },
+    {
+      "Type": "ScheduleOne.Persistence.ISaveable",
+      "Name": "set_LocalExtraFolders",
+      "Token": "0x0600177F",
+      "ParameterCount": 1,
+      "Va": "0x0",
+      "Rva": "0x0",
+      "NativePointerPresent": false
+    },
+    {
+      "Type": "ScheduleOne.Persistence.ISaveable",
+      "Name": "get_HasChanged",
+      "Token": "0x06001780",
+      "ParameterCount": 0,
+      "Va": "0x0",
+      "Rva": "0x0",
+      "NativePointerPresent": false
+    },
+    {
+      "Type": "ScheduleOne.Persistence.ISaveable",
+      "Name": "set_HasChanged",
+      "Token": "0x06001781",
+      "ParameterCount": 1,
+      "Va": "0x0",
+      "Rva": "0x0",
+      "NativePointerPresent": false
+    },
+    {
+      "Type": "ScheduleOne.Persistence.ISaveable",
+      "Name": "InitializeSaveable",
+      "Token": "0x06001782",
+      "ParameterCount": 0,
+      "Va": "0x0",
+      "Rva": "0x0",
+      "NativePointerPresent": false
+    },
+    {
+      "Type": "ScheduleOne.Persistence.ISaveable",
+      "Name": "GetSaveString",
+      "Token": "0x06001783",
+      "ParameterCount": 0,
+      "Va": "0x0",
+      "Rva": "0x0",
+      "NativePointerPresent": false
+    },
+    {
+      "Type": "ScheduleOne.Persistence.ISaveable",
+      "Name": "Save",
+      "Token": "0x06001784",
+      "ParameterCount": 1,
+      "Va": "0x180583A50",
+      "Rva": "0x583A50",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.ISaveable",
+      "Name": "WriteBaseData",
+      "Token": "0x06001785",
+      "ParameterCount": 2,
+      "Va": "0x180583E70",
+      "Rva": "0x583E70",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.ISaveable",
+      "Name": "GetLocalPath",
+      "Token": "0x06001786",
+      "ParameterCount": 1,
+      "Va": "0x180583990",
+      "Rva": "0x583990",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.ISaveable",
+      "Name": "CompleteSave",
+      "Token": "0x06001787",
+      "ParameterCount": 2,
+      "Va": "0x180582F00",
+      "Rva": "0x582F00",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.ISaveable",
+      "Name": "WriteData",
+      "Token": "0x06001788",
+      "ParameterCount": 1,
+      "Va": "0x180584200",
+      "Rva": "0x584200",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.ISaveable",
+      "Name": "DeleteUnapprovedFiles",
+      "Token": "0x06001789",
+      "ParameterCount": 1,
+      "Va": "0x18043FEC0",
+      "Rva": "0x43FEC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.ISaveable",
+      "Name": "GetContainerFolder",
+      "Token": "0x0600178A",
+      "ParameterCount": 1,
+      "Va": "0x180583840",
+      "Rva": "0x583840",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.ISaveable",
+      "Name": "WriteSubfile",
+      "Token": "0x0600178B",
+      "ParameterCount": 3,
+      "Va": "0x1805846A0",
+      "Rva": "0x5846A0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.ISaveable",
+      "Name": "WriteFolder",
+      "Token": "0x0600178C",
+      "ParameterCount": 2,
+      "Va": "0x180584260",
+      "Rva": "0x584260",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.ISaveable",
+      "Name": "TryLoadFile",
+      "Token": "0x0600178D",
+      "ParameterCount": 3,
+      "Va": "0x180583D80",
+      "Rva": "0x583D80",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.ISaveable",
+      "Name": "TryLoadFile",
+      "Token": "0x0600178E",
+      "ParameterCount": 3,
+      "Va": "0x180583BB0",
+      "Rva": "0x583BB0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager+<>c__DisplayClass52_0+<<Save>g__SaveRoutine|0>d",
+      "Name": ".ctor",
+      "Token": "0x0600183A",
+      "ParameterCount": 1,
+      "Va": "0x18052D2B0",
+      "Rva": "0x52D2B0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager+<>c__DisplayClass52_0+<<Save>g__SaveRoutine|0>d",
+      "Name": "System.IDisposable.Dispose",
+      "Token": "0x0600183B",
+      "ParameterCount": 0,
+      "Va": "0x18043FEC0",
+      "Rva": "0x43FEC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager+<>c__DisplayClass52_0+<<Save>g__SaveRoutine|0>d",
+      "Name": "MoveNext",
+      "Token": "0x0600183C",
+      "ParameterCount": 0,
+      "Va": "0x1805B0C20",
+      "Rva": "0x5B0C20",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager+<>c__DisplayClass52_0+<<Save>g__SaveRoutine|0>d",
+      "Name": "System.Collections.Generic.IEnumerator<System.Object>.get_Current",
+      "Token": "0x0600183D",
+      "ParameterCount": 0,
+      "Va": "0x18043F260",
+      "Rva": "0x43F260",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager+<>c__DisplayClass52_0+<<Save>g__SaveRoutine|0>d",
+      "Name": "System.Collections.IEnumerator.Reset",
+      "Token": "0x0600183E",
+      "ParameterCount": 0,
+      "Va": "0x1805B14E0",
+      "Rva": "0x5B14E0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager+<>c__DisplayClass52_0+<<Save>g__SaveRoutine|0>d",
+      "Name": "System.Collections.IEnumerator.get_Current",
+      "Token": "0x0600183F",
+      "ParameterCount": 0,
+      "Va": "0x18043F260",
+      "Rva": "0x43F260",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager+<>c__DisplayClass52_0",
+      "Name": ".ctor",
+      "Token": "0x06001838",
+      "ParameterCount": 0,
+      "Va": "0x18041D580",
+      "Rva": "0x41D580",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager+<>c__DisplayClass52_0",
+      "Name": "<Save>g__SaveRoutine|0",
+      "Token": "0x06001839",
+      "ParameterCount": 0,
+      "Va": "0x1805B3220",
+      "Rva": "0x5B3220",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "ReportSaveError",
+      "Token": "0x06001815",
+      "ParameterCount": 0,
+      "Va": "0x1805AA710",
+      "Rva": "0x5AA710",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "get_AccessPermissionIssueDetected",
+      "Token": "0x06001816",
+      "ParameterCount": 0,
+      "Va": "0x18045FBC0",
+      "Rva": "0x45FBC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "set_AccessPermissionIssueDetected",
+      "Token": "0x06001817",
+      "ParameterCount": 1,
+      "Va": "0x18045FBD0",
+      "Rva": "0x45FBD0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "get_IsSaving",
+      "Token": "0x06001818",
+      "ParameterCount": 0,
+      "Va": "0x180589FE0",
+      "Rva": "0x589FE0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "set_IsSaving",
+      "Token": "0x06001819",
+      "ParameterCount": 1,
+      "Va": "0x18058A0F0",
+      "Rva": "0x58A0F0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "get_SecondsSinceLastSave",
+      "Token": "0x0600181A",
+      "ParameterCount": 0,
+      "Va": "0x180463B00",
+      "Rva": "0x463B00",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "set_SecondsSinceLastSave",
+      "Token": "0x0600181B",
+      "ParameterCount": 1,
+      "Va": "0x18058A110",
+      "Rva": "0x58A110",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "get_PlayersSavePath",
+      "Token": "0x0600181C",
+      "ParameterCount": 0,
+      "Va": "0x180421DD0",
+      "Rva": "0x421DD0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "set_PlayersSavePath",
+      "Token": "0x0600181D",
+      "ParameterCount": 1,
+      "Va": "0x180421E10",
+      "Rva": "0x421E10",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "get_IndividualSavesContainerPath",
+      "Token": "0x0600181E",
+      "ParameterCount": 0,
+      "Va": "0x180421DE0",
+      "Rva": "0x421DE0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "set_IndividualSavesContainerPath",
+      "Token": "0x0600181F",
+      "ParameterCount": 1,
+      "Va": "0x180421E20",
+      "Rva": "0x421E20",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "get_BackupFolderPath",
+      "Token": "0x06001820",
+      "ParameterCount": 0,
+      "Va": "0x1805AB0E0",
+      "Rva": "0x5AB0E0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "get_SaveName",
+      "Token": "0x06001821",
+      "ParameterCount": 0,
+      "Va": "0x1804610C0",
+      "Rva": "0x4610C0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "set_SaveName",
+      "Token": "0x06001822",
+      "ParameterCount": 1,
+      "Va": "0x18049EF90",
+      "Rva": "0x49EF90",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "Awake",
+      "Token": "0x06001823",
+      "ParameterCount": 0,
+      "Va": "0x1805A8F70",
+      "Rva": "0x5A8F70",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "Start",
+      "Token": "0x06001824",
+      "ParameterCount": 0,
+      "Va": "0x1805AACB0",
+      "Rva": "0x5AACB0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "CheckSaveFolderInitialized",
+      "Token": "0x06001825",
+      "ParameterCount": 0,
+      "Va": "0x1805A9230",
+      "Rva": "0x5A9230",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "HasWritePermissionOnDir",
+      "Token": "0x06001826",
+      "ParameterCount": 1,
+      "Va": "0x1805AA3A0",
+      "Rva": "0x5AA3A0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "Update",
+      "Token": "0x06001827",
+      "ParameterCount": 0,
+      "Va": "0x1805AAE30",
+      "Rva": "0x5AAE30",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "Save",
+      "Token": "0x06001828",
+      "ParameterCount": 0,
+      "Va": "0x1805AA800",
+      "Rva": "0x5AA800",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "Save",
+      "Token": "0x06001829",
+      "ParameterCount": 1,
+      "Va": "0x1805AA890",
+      "Rva": "0x5AA890",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "ClearBaseLevelOutdatedSaves",
+      "Token": "0x0600182A",
+      "ParameterCount": 1,
+      "Va": "0x1805A9580",
+      "Rva": "0x5A9580",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "CompleteSaveable",
+      "Token": "0x0600182B",
+      "ParameterCount": 1,
+      "Va": "0x1805A9AA0",
+      "Rva": "0x5A9AA0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "ClearCompletedSaveable",
+      "Token": "0x0600182C",
+      "ParameterCount": 1,
+      "Va": "0x1805A9A40",
+      "Rva": "0x5A9A40",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "CreateSaveBackup",
+      "Token": "0x0600182D",
+      "ParameterCount": 1,
+      "Va": "0x1805A9B70",
+      "Rva": "0x5A9B70",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "RegisterSaveable",
+      "Token": "0x0600182E",
+      "ParameterCount": 1,
+      "Va": "0x1805AA5C0",
+      "Rva": "0x5AA5C0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "QueueSaveRequest",
+      "Token": "0x0600182F",
+      "ParameterCount": 1,
+      "Va": "0x1805AA510",
+      "Rva": "0x5AA510",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "DequeueSaveRequest",
+      "Token": "0x06001830",
+      "ParameterCount": 1,
+      "Va": "0x1805A9FA0",
+      "Rva": "0x5A9FA0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "StripExtensions",
+      "Token": "0x06001831",
+      "ParameterCount": 1,
+      "Va": "0x1805AADC0",
+      "Rva": "0x5AADC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "MakeFileSafe",
+      "Token": "0x06001832",
+      "ParameterCount": 1,
+      "Va": "0x1805AA460",
+      "Rva": "0x5AA460",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "GetVersionNumber",
+      "Token": "0x06001833",
+      "ParameterCount": 1,
+      "Va": "0x1805AA1E0",
+      "Rva": "0x5AA1E0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "Clean",
+      "Token": "0x06001834",
+      "ParameterCount": 0,
+      "Va": "0x1805A94E0",
+      "Rva": "0x5A94E0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "DisablePlayTutorial",
+      "Token": "0x06001835",
+      "ParameterCount": 1,
+      "Va": "0x1805AA000",
+      "Rva": "0x5AA000",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": "SanitizeFileName",
+      "Token": "0x06001836",
+      "ParameterCount": 1,
+      "Va": "0x1805AA750",
+      "Rva": "0x5AA750",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveManager",
+      "Name": ".ctor",
+      "Token": "0x06001837",
+      "ParameterCount": 0,
+      "Va": "0x1805AAEE0",
+      "Rva": "0x5AAEE0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveRequest",
+      "Name": "get_SaveString",
+      "Token": "0x06001848",
+      "ParameterCount": 0,
+      "Va": "0x180421DC0",
+      "Rva": "0x421DC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveRequest",
+      "Name": "set_SaveString",
+      "Token": "0x06001849",
+      "ParameterCount": 1,
+      "Va": "0x180421E00",
+      "Rva": "0x421E00",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveRequest",
+      "Name": ".ctor",
+      "Token": "0x0600184A",
+      "ParameterCount": 2,
+      "Va": "0x1805ABBC0",
+      "Rva": "0x5ABBC0",
+      "NativePointerPresent": true
+    },
+    {
+      "Type": "ScheduleOne.Persistence.SaveRequest",
+      "Name": "Complete",
+      "Token": "0x0600184B",
+      "ParameterCount": 0,
+      "Va": "0x1805ABA60",
+      "Rva": "0x5ABA60",
+      "NativePointerPresent": true
+    }
+  ],
+  "Disassembled": [
+    {
+      "Method": {
+        "Type": "ScheduleOne.Persistence.ISaveable",
+        "Name": "Save",
+        "Token": "0x06001784",
+        "ParameterCount": 1,
+        "Va": "0x180583A50",
+        "Rva": "0x583A50",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 337,
+      "Instructions": 86,
+      "BytesSha256": "02c2b291e83866aded66feb0749920553d21aa24968afa72023a34eae10d7e83",
+      "TextFile": "0x06001784-Save.txt"
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Persistence.ISaveable",
+        "Name": "WriteBaseData",
+        "Token": "0x06001785",
+        "ParameterCount": 2,
+        "Va": "0x180583E70",
+        "Rva": "0x583E70",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 912,
+      "Instructions": 223,
+      "BytesSha256": "403722a870f8948f87ce1d43d6b409fdbb8617b5604984fb413a931a8977ba28",
+      "TextFile": "0x06001785-WriteBaseData.txt"
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Persistence.ISaveable",
+        "Name": "CompleteSave",
+        "Token": "0x06001787",
+        "ParameterCount": 2,
+        "Va": "0x180582F00",
+        "Rva": "0x582F00",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 2356,
+      "Instructions": 553,
+      "BytesSha256": "3173faefa6a01e31b1d03e4be0d51f3c6760fe80c478c793a4d7f8dd8ce0edf5",
+      "TextFile": "0x06001787-CompleteSave.txt"
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Persistence.ISaveable",
+        "Name": "WriteData",
+        "Token": "0x06001788",
+        "ParameterCount": 1,
+        "Va": "0x180584200",
+        "Rva": "0x584200",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 85,
+      "Instructions": 19,
+      "BytesSha256": "42cf4bc92860b805e73f659efcf41a91acb466a3ccfb3538fb7366bd367f5f00",
+      "TextFile": "0x06001788-WriteData.txt"
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Persistence.ISaveable",
+        "Name": "WriteSubfile",
+        "Token": "0x0600178B",
+        "ParameterCount": 3,
+        "Va": "0x1805846A0",
+        "Rva": "0x5846A0",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 1098,
+      "Instructions": 257,
+      "BytesSha256": "c28ae151c4abf37a7dc088134e1dd9012848a1a883f33d8581a64db879c6cb1e",
+      "TextFile": "0x0600178B-WriteSubfile.txt"
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Persistence.ISaveable",
+        "Name": "WriteFolder",
+        "Token": "0x0600178C",
+        "ParameterCount": 2,
+        "Va": "0x180584260",
+        "Rva": "0x584260",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 1084,
+      "Instructions": 248,
+      "BytesSha256": "22a72cc94a8be71e8145ae473a8df31da04b6f7536d40e54fcd3ea5c9b4840b3",
+      "TextFile": "0x0600178C-WriteFolder.txt"
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Persistence.SaveManager+<>c__DisplayClass52_0+<<Save>g__SaveRoutine|0>d",
+        "Name": ".ctor",
+        "Token": "0x0600183A",
+        "ParameterCount": 1,
+        "Va": "0x18052D2B0",
+        "Rva": "0x52D2B0",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 36,
+      "Instructions": 12,
+      "BytesSha256": "bea02b438d5cf8b5b879909aa2e42b6d03d0c556f1b148dec96594fb99c32e1b",
+      "TextFile": "0x0600183A-_ctor.txt"
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Persistence.SaveManager+<>c__DisplayClass52_0+<<Save>g__SaveRoutine|0>d",
+        "Name": "MoveNext",
+        "Token": "0x0600183C",
+        "ParameterCount": 0,
+        "Va": "0x1805B0C20",
+        "Rva": "0x5B0C20",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 2236,
+      "Instructions": 512,
+      "BytesSha256": "f777ad8d87880c40744ae8f77f48ba1f82328b5eabb82d28c1b89e6c382ec277",
+      "TextFile": "0x0600183C-MoveNext.txt"
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Persistence.SaveManager",
+        "Name": "ReportSaveError",
+        "Token": "0x06001815",
+        "ParameterCount": 0,
+        "Va": "0x1805AA710",
+        "Rva": "0x5AA710",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 54,
+      "Instructions": 11,
+      "BytesSha256": "bcf3dfad4470e88d2f1a4e19e82523f91473f03414026f49e30fea3259bf3979",
+      "TextFile": "0x06001815-ReportSaveError.txt"
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Persistence.SaveManager",
+        "Name": "Awake",
+        "Token": "0x06001823",
+        "ParameterCount": 0,
+        "Va": "0x1805A8F70",
+        "Rva": "0x5A8F70",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 463,
+      "Instructions": 101,
+      "BytesSha256": "bec6c8746feb6c8fbb2d187db1de70631b09d99e7cfa71a0ee1f19f557db2dd1",
+      "TextFile": "0x06001823-Awake.txt"
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Persistence.SaveManager",
+        "Name": "Start",
+        "Token": "0x06001824",
+        "ParameterCount": 0,
+        "Va": "0x1805AACB0",
+        "Rva": "0x5AACB0",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 259,
+      "Instructions": 59,
+      "BytesSha256": "52c1448c802d9bc19e6244b88cd1fb817efe5cd6c318dafd5e6809b098ae403c",
+      "TextFile": "0x06001824-Start.txt"
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Persistence.SaveManager",
+        "Name": "Update",
+        "Token": "0x06001827",
+        "ParameterCount": 0,
+        "Va": "0x1805AAE30",
+        "Rva": "0x5AAE30",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 127,
+      "Instructions": 30,
+      "BytesSha256": "deb3fe3b30488f577fd7805e5253e5b44cc458efc94a09a54b0581dda59ea38e",
+      "TextFile": "0x06001827-Update.txt"
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Persistence.SaveManager",
+        "Name": "Save",
+        "Token": "0x06001828",
+        "ParameterCount": 0,
+        "Va": "0x1805AA800",
+        "Rva": "0x5AA800",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 134,
+      "Instructions": 32,
+      "BytesSha256": "01903d197ce740ce7647585e4f821b2d12e6c882f500d31952d047722d91b2ef",
+      "TextFile": "0x06001828-Save.txt"
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Persistence.SaveManager",
+        "Name": "Save",
+        "Token": "0x06001829",
+        "ParameterCount": 1,
+        "Va": "0x1805AA890",
+        "Rva": "0x5AA890",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 1045,
+      "Instructions": 231,
+      "BytesSha256": "4aeb99c0050f5b26cabbedf0c2ff285e5218fc56c425615126a0309e04a77ce7",
+      "TextFile": "0x06001829-Save.txt"
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Persistence.SaveManager",
+        "Name": "CompleteSaveable",
+        "Token": "0x0600182B",
+        "ParameterCount": 1,
+        "Va": "0x1805A9AA0",
+        "Rva": "0x5A9AA0",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 196,
+      "Instructions": 46,
+      "BytesSha256": "d8d6ea11183021a81d159eb259bcda134f2f27af66b19680556f8c90ae52b0b9",
+      "TextFile": "0x0600182B-CompleteSaveable.txt"
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Persistence.SaveManager",
+        "Name": "ClearCompletedSaveable",
+        "Token": "0x0600182C",
+        "ParameterCount": 1,
+        "Va": "0x1805A9A40",
+        "Rva": "0x5A9A40",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 84,
+      "Instructions": 21,
+      "BytesSha256": "a855115b16cbf979ad5508bb9019f96bdfd0a2f56e2512aa7badec327e3c887b",
+      "TextFile": "0x0600182C-ClearCompletedSaveable.txt"
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Persistence.SaveManager",
+        "Name": "RegisterSaveable",
+        "Token": "0x0600182E",
+        "ParameterCount": 1,
+        "Va": "0x1805AA5C0",
+        "Rva": "0x5AA5C0",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 329,
+      "Instructions": 79,
+      "BytesSha256": "f8a9b02b20fbf2914980fcd1ef720e23eac20285d4b1aa918a6f471b910548be",
+      "TextFile": "0x0600182E-RegisterSaveable.txt"
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Persistence.SaveManager",
+        "Name": "QueueSaveRequest",
+        "Token": "0x0600182F",
+        "ParameterCount": 1,
+        "Va": "0x1805AA510",
+        "Rva": "0x5AA510",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 171,
+      "Instructions": 45,
+      "BytesSha256": "fc947ea034870aaf57fd604c02d732f12e0de5131cb02e1e678ad89a413dc6c2",
+      "TextFile": "0x0600182F-QueueSaveRequest.txt"
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Persistence.SaveManager",
+        "Name": "DequeueSaveRequest",
+        "Token": "0x06001830",
+        "ParameterCount": 1,
+        "Va": "0x1805A9FA0",
+        "Rva": "0x5A9FA0",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 84,
+      "Instructions": 21,
+      "BytesSha256": "f05bb581210e36628023c9750498766474ce0a3b54b09875a241d24cb1d9ebdb",
+      "TextFile": "0x06001830-DequeueSaveRequest.txt"
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Persistence.SaveManager",
+        "Name": "Clean",
+        "Token": "0x06001834",
+        "ParameterCount": 0,
+        "Va": "0x1805A94E0",
+        "Rva": "0x5A94E0",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 150,
+      "Instructions": 41,
+      "BytesSha256": "2959d639e0f90653dfbc4a1cd125aea6e502a3a16fa412d6bdd1a32566f7d65c",
+      "TextFile": "0x06001834-Clean.txt"
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Persistence.SaveManager",
+        "Name": ".ctor",
+        "Token": "0x06001837",
+        "ParameterCount": 0,
+        "Va": "0x1805AAEE0",
+        "Rva": "0x5AAEE0",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 507,
+      "Instructions": 102,
+      "BytesSha256": "6b58762ff29ce9f536841c6f5b0db8d4023dca4bb8fd6d03d58261f4e6272d7b",
+      "TextFile": "0x06001837-_ctor.txt"
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Persistence.SaveRequest",
+        "Name": ".ctor",
+        "Token": "0x0600184A",
+        "ParameterCount": 2,
+        "Va": "0x1805ABBC0",
+        "Rva": "0x5ABBC0",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 812,
+      "Instructions": 205,
+      "BytesSha256": "e8d702a093eb8ecd0ef53eed3dcb0158fd0e54451fff83a107f795e7ed1ba541",
+      "TextFile": "0x0600184A-_ctor.txt"
+    },
+    {
+      "Method": {
+        "Type": "ScheduleOne.Persistence.SaveRequest",
+        "Name": "Complete",
+        "Token": "0x0600184B",
+        "ParameterCount": 0,
+        "Va": "0x1805ABA60",
+        "Rva": "0x5ABA60",
+        "NativePointerPresent": true
+      },
+      "ByteLength": 209,
+      "Instructions": 44,
+      "BytesSha256": "03270d2542e5f39fb1e83ac374798f6682ea7604b05f6f3a0c2b3770d1243cba",
+      "TextFile": "0x0600184B-Complete.txt"
+    }
+  ],
+  "NativeSaveRouteAllowed": false,
+  "GameInvoked": false,
+  "SaveFilesAccessed": false
+}

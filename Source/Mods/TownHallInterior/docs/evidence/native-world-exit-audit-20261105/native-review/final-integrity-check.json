@@ -1,0 +1,53 @@
+{
+  "schema": 1,
+  "checkedUtc": "2026-11-05T17:08:02.055045+00:00",
+  "reviewSha256": "a0370f7a02b2687fde0ef53b25113ed53ef12eb1c9f49c938931c0bdd5dc7ec9",
+  "reviewBytes": 28654,
+  "reviewJsonAndEightVerdictsValidated": true,
+  "verdicts": {
+    "agree": 7,
+    "limited": 1,
+    "disagree": 0
+  },
+  "frozenAuditArtifactsUnchanged": 80,
+  "inputHashesUnchanged": 7,
+  "protectedSourceHashesUnchanged": 41,
+  "ownLifecycleSha256": "3895fb846b141ab29f4a2af3c183d47c062762d04556121385795e6a0097aedd",
+  "claimsSha256": "91615648a1dbea3a90c3628bcd840e26a8c784b60670c78deb2311630a1752cb",
+  "independentCheckerOutputSha256": "7dcb8f63ec9a9d920b69b0ba983890f50f791a5af29af40ab5194f3a43f04f91",
+  "instructionHashes": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "650b6f0d731ae83f02a60dd3b16ba52ccb322a92d1fb3c39f7b597b476a50913"
+    },
+    {
+      "path": "Skills/schedule1-modding/SKILL.md",
+      "sha256": "e53d4f97aa5a181921eecb98ef6da47992a974626b1ac300764ece4213a6e173"
+    },
+    {
+      "path": "Skills/schedule1-modding/references/working-contract.md",
+      "sha256": "9a0dbcfaf4ec08ea71c32d77d54cfe08b8961fe8647bc97fa997bda1f201f5b4"
+    },
+    {
+      "path": "Skills/schedule1-modding/references/evidence-policy.md",
+      "sha256": "05b4ad032db7609bf577ca5ffb661ab74ba3d4bb1be226c50d0fc7ea23934a9d"
+    },
+    {
+      "path": "Skills/schedule1-persistence/SKILL.md",
+      "sha256": "d39ed5fa6e97a77f5df95351b3d1cabdb06f3139dff39af7e61f2aa0fe454aca"
+    },
+    {
+      "path": "Skills/schedule1-mod-reversing/SKILL.md",
+      "sha256": "734e656e7ae2d6e8c72917f7deef06a4ee9f4b774b5c4ae807d39d044dbf3f1e"
+    }
+  ],
+  "sourceRevision": "b2c6c7e6c6ecc778da9624cdb68a6578b9db471a",
+  "environment": {
+    "GameProcessCount": 0,
+    "DotnetRoot": null
+  },
+  "nativeSaveFilesRead": false,
+  "productionOrTestChangedByReviewer": false,
+  "noWriteUnregisterDestroyApproval": true,
+  "status": "pass-bounded-final-readback-and-integrity"
+}

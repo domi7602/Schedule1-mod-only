@@ -1,0 +1,251 @@
+; ScheduleOne.Persistence.ISaveable::WriteFolder/2, token 0x0600178C, RVA 0x584260, .pdata primary extent 0x43C bytes
+; Raw native bytes decoded without invoking the game. .pdata primary extent is not a proof of full transitive/exception-path coverage.
+0x584260     48 89 5C 24 18                  mov [rsp+18h],rbx
+0x584265     48 89 74 24 20                  mov [rsp+20h],rsi
+0x58426A     57                              push rdi
+0x58426B     41 56                           push r14
+0x58426D     41 57                           push r15
+0x58426F     48 83 EC 50                     sub rsp,50h
+0x584273     49 8B F8                        mov rdi,r8
+0x584276     4C 8B FA                        mov r15,rdx
+0x584279     4C 8B F1                        mov r14,rcx
+0x58427C     80 3D 7E 74 67 03 00            cmp byte ptr [183BFB701h],0
+0x584283     0F 85 AF 00 00 00               jne near ptr 0000000180584338h
+0x584289     48 8D 0D D8 5A 47 03            lea rcx,[1839F9D68h] ; TypeInfo: ScheduleOne.Console
+0x584290     E8 0B 36 D9 FF                  call 00000001803178A0h
+0x584295     48 8D 0D 64 09 43 03            lea rcx,[1839B4C00h] ; TypeInfo: ScheduleOne.Persistence.ISaveable
+0x58429C     E8 FF 35 D9 FF                  call 00000001803178A0h
+0x5842A1     48 8D 0D F8 D4 43 03            lea rcx,[1839C17A0h]
+0x5842A8     E8 F3 35 D9 FF                  call 00000001803178A0h
+0x5842AD     48 8D 0D 5C 33 47 03            lea rcx,[1839F7610h] ; TypeInfo: System.IO.Path
+0x5842B4     E8 E7 35 D9 FF                  call 00000001803178A0h
+0x5842B9     48 8D 0D B8 F1 43 03            lea rcx,[1839C3478h] ; TypeInfo: System.String[]
+0x5842C0     E8 DB 35 D9 FF                  call 00000001803178A0h
+0x5842C5     48 8D 0D 14 6C 41 03            lea rcx,[18399AEE0h] ; TypeInfo: System.String
+0x5842CC     E8 CF 35 D9 FF                  call 00000001803178A0h
+0x5842D1     48 8D 0D 48 CE 45 03            lea rcx,[1839E1120h] ; StringLiteral: .json
+0x5842D8     E8 C3 35 D9 FF                  call 00000001803178A0h
+0x5842DD     48 8D 0D 7C F0 40 03            lea rcx,[183993360h] ; StringLiteral:  because the saveable is not saved under a folder.
+0x5842E4     E8 B7 35 D9 FF                  call 00000001803178A0h
+0x5842E9     48 8D 0D 70 B4 44 03            lea rcx,[1839CF760h] ; StringLiteral: ) does not exist.
+0x5842F0     E8 AB 35 D9 FF                  call 00000001803178A0h
+0x5842F5     48 8D 0D A4 E9 40 03            lea rcx,[183992CA0h] ; StringLiteral:  because it contains a data extension.
+0x5842FC     E8 9F 35 D9 FF                  call 00000001803178A0h
+0x584301     48 8D 0D 50 2C 44 03            lea rcx,[1839C6F58h] ; StringLiteral: Failed to write subfile: 
+0x584308     E8 93 35 D9 FF                  call 00000001803178A0h
+0x58430D     48 8D 0D EC EC 40 03            lea rcx,[183993000h] ; StringLiteral:  because the main folder (
+0x584314     E8 87 35 D9 FF                  call 00000001803178A0h
+0x584319     48 8D 0D 08 D4 43 03            lea rcx,[1839C1728h] ; StringLiteral: ' that is not in the list of extra saveables. Be sure to include it in the returned files list.
+0x584320     E8 7B 35 D9 FF                  call 00000001803178A0h
+0x584325     48 8D 0D B4 BE 46 03            lea rcx,[1839F01E0h] ; StringLiteral: Writing subfile called '
+0x58432C     E8 6F 35 D9 FF                  call 00000001803178A0h
+0x584331     C6 05 C9 73 67 03 01            mov byte ptr [183BFB701h],1
+0x584338     C6 44 24 70 00                  mov byte ptr [rsp+70h],0
+0x58433D     48 8B 15 BC 08 43 03            mov rdx,[1839B4C00h] ; TypeInfo: ScheduleOne.Persistence.ISaveable
+0x584344     4D 8B 0E                        mov r9,[r14]
+0x584347     41 0F B7 89 2E 01 00 00         movzx ecx,word ptr [r9+12Eh]
+0x58434F     33 DB                           xor ebx,ebx
+0x584351     66 3B D9                        cmp bx,cx
+0x584354     73 22                           jae short 0000000180584378h
+0x584356     4D 8B 81 B0 00 00 00            mov r8,[r9+0B0h]
+0x58435D     0F 1F 00                        nop dword ptr [rax]
+0x584360     0F B7 C3                        movzx eax,bx
+0x584363     48 03 C0                        add rax,rax
+0x584366     49 39 14 C0                     cmp [r8+rax*8],rdx
+0x58436A     0F 84 6F 01 00 00               je near ptr 00000001805844DFh
+0x584370     66 FF C3                        inc bx
+0x584373     66 3B D9                        cmp bx,cx
+0x584376     72 E8                           jb short 0000000180584360h
+0x584378     41 B8 0E 00 00 00               mov r8d,0Eh
+0x58437E     49 8B CE                        mov rcx,r14
+0x584381     E8 DA 7D D9 FF                  call 000000018031C160h
+0x584386     4C 8B 40 08                     mov r8,[rax+8]
+0x58438A     48 8D 54 24 70                  lea rdx,[rsp+70h]
+0x58438F     49 8B CE                        mov rcx,r14
+0x584392     FF 10                           call qword ptr [rax]
+0x584394     48 8B D8                        mov rbx,rax
+0x584397     48 8B 0D 72 32 47 03            mov rcx,[1839F7610h] ; TypeInfo: System.IO.Path
+0x58439E     83 B9 E0 00 00 00 00            cmp dword ptr [rcx+0E0h],0
+0x5843A5     75 05                           jne short 00000001805843ACh
+0x5843A7     E8 84 38 D9 FF                  call 0000000180317C30h
+0x5843AC     45 33 C0                        xor r8d,r8d
+0x5843AF     48 8B D3                        mov rdx,rbx
+0x5843B2     49 8B CF                        mov rcx,r15
+0x5843B5     E8 06 5D 5E 01                  call 0000000181B6A0C0h ; System.IO.Path::Combine/2
+0x5843BA     48 8B F0                        mov rsi,rax
+0x5843BD     80 7C 24 70 00                  cmp byte ptr [rsp+70h],0
+0x5843C2     0F 84 63 02 00 00               je near ptr 000000018058462Bh
+0x5843C8     33 D2                           xor edx,edx
+0x5843CA     48 8B C8                        mov rcx,rax
+0x5843CD     E8 1E 87 5D 01                  call 0000000181B5CAF0h ; System.IO.Directory::Exists/1
+0x5843D2     84 C0                           test al,al
+0x5843D4     0F 84 9A 01 00 00               je near ptr 0000000180584574h
+0x5843DA     B9 06 00 00 00                  mov ecx,6
+0x5843DF     4D 8B C6                        mov r8,r14
+0x5843E2     48 8B 15 17 08 43 03            mov rdx,[1839B4C00h] ; TypeInfo: ScheduleOne.Persistence.ISaveable
+0x5843E9     E8 82 F1 A7 FF                  call 0000000180003570h
+0x5843EE     48 85 C0                        test rax,rax
+0x5843F1     0F 84 9F 02 00 00               je near ptr 0000000180584696h
+0x5843F7     4C 8B 05 A2 D3 43 03            mov r8,[1839C17A0h]
+0x5843FE     48 8B D7                        mov rdx,rdi
+0x584401     48 8B C8                        mov rcx,rax
+0x584404     E8 87 FC 34 01                  call 00000001818D4090h
+0x584409     84 C0                           test al,al
+0x58440B     75 3E                           jne short 000000018058444Bh
+0x58440D     45 33 C9                        xor r9d,r9d
+0x584410     4C 8B 05 11 D3 43 03            mov r8,[1839C1728h] ; StringLiteral: ' that is not in the list of extra saveables. Be sure to include it in the returned files list.
+0x584417     48 8B D7                        mov rdx,rdi
+0x58441A     48 8B 0D BF BD 46 03            mov rcx,[1839F01E0h] ; StringLiteral: Writing subfile called '
+0x584421     E8 EA F3 45 01                  call 00000001819E3810h ; System.String::Concat/3
+0x584426     48 8B D8                        mov rbx,rax
+0x584429     48 8B 0D 38 59 47 03            mov rcx,[1839F9D68h] ; TypeInfo: ScheduleOne.Console
+0x584430     83 B9 E0 00 00 00 00            cmp dword ptr [rcx+0E0h],0
+0x584437     75 05                           jne short 000000018058443Eh
+0x584439     E8 F2 37 D9 FF                  call 0000000180317C30h
+0x58443E     45 33 C0                        xor r8d,r8d
+0x584441     33 D2                           xor edx,edx
+0x584443     48 8B CB                        mov rcx,rbx
+0x584446     E8 F5 46 32 00                  call 00000001808A8B40h ; ScheduleOne.Console::LogWarning/2
+0x58444B     48 85 FF                        test rdi,rdi
+0x58444E     0F 84 42 02 00 00               je near ptr 0000000180584696h
+0x584454     45 33 C0                        xor r8d,r8d
+0x584457     48 8B 15 C2 CC 45 03            mov rdx,[1839E1120h] ; StringLiteral: .json
+0x58445E     48 8B CF                        mov rcx,rdi
+0x584461     E8 2A FB 45 01                  call 00000001819E3F90h ; System.String::Contains/1
+0x584466     84 C0                           test al,al
+0x584468     0F 85 FA 00 00 00               jne near ptr 0000000180584568h
+0x58446E     48 8B 0D 9B 31 47 03            mov rcx,[1839F7610h] ; TypeInfo: System.IO.Path
+0x584475     83 B9 E0 00 00 00 00            cmp dword ptr [rcx+0E0h],0
+0x58447C     75 05                           jne short 0000000180584483h
+0x58447E     E8 AD 37 D9 FF                  call 0000000180317C30h
+0x584483     45 33 C9                        xor r9d,r9d
+0x584486     4C 8B C7                        mov r8,rdi
+0x584489     48 8B D6                        mov rdx,rsi
+0x58448C     49 8B CF                        mov rcx,r15
+0x58448F     E8 5C 5F 5E 01                  call 0000000181B6A3F0h ; System.IO.Path::Combine/3
+0x584494     48 8B D8                        mov rbx,rax
+0x584497     48 89 44 24 30                  mov [rsp+30h],rax
+0x58449C     33 D2                           xor edx,edx
+0x58449E     48 8B C8                        mov rcx,rax
+0x5844A1     E8 4A 83 5D 01                  call 0000000181B5C7F0h ; System.IO.Directory::CreateDirectory/1
+0x5844A6     90                              nop
+0x5844A7     E9 B4 00 00 00                  jmp near ptr 0000000180584560h
+0x5844AC     48 8B 5C 24 78                  mov rbx,[rsp+78h]
+0x5844B1     48 8D 0D C8 29 44 03            lea rcx,[1839C6E80h] ; StringLiteral: Failed to write sub folder. Exception: 
+0x5844B8     48 85 DB                        test rbx,rbx
+0x5844BB     74 44                           je short 0000000180584501h
+0x5844BD     E8 FE 33 D9 FF                  call 00000001803178C0h
+0x5844C2     48 8B F0                        mov rsi,rax
+0x5844C5     48 8B 03                        mov rax,[rbx]
+0x5844C8     48 8B 90 70 01 00 00            mov rdx,[rax+170h]
+0x5844CF     48 8B CB                        mov rcx,rbx
+0x5844D2     FF 90 68 01 00 00               call qword ptr [rax+168h]
+0x5844D8     48 8B F8                        mov rdi,rax
+0x5844DB     33 DB                           xor ebx,ebx
+0x5844DD     EB 2D                           jmp short 000000018058450Ch
+0x5844DF     0F B7 CB                        movzx ecx,bx
+0x5844E2     48 03 C9                        add rcx,rcx
+0x5844E5     41 8B 44 C8 08                  mov eax,[r8+rcx*8+8]
+0x5844EA     83 C0 0E                        add eax,0Eh
+0x5844ED     48 98                           cdqe
+0x5844EF     48 C1 E0 04                     shl rax,4
+0x5844F3     48 05 38 01 00 00               add rax,138h
+0x5844F9     49 03 C1                        add rax,r9
+0x5844FC     E9 85 FE FF FF                  jmp near ptr 0000000180584386h
+0x584501     48 8B FB                        mov rdi,rbx
+0x584504     E8 B7 33 D9 FF                  call 00000001803178C0h
+0x584509     48 8B F0                        mov rsi,rax
+0x58450C     48 8D 0D 45 48 48 03            lea rcx,[183A08D58h] ; StringLiteral: 
+Data path: 
+0x584513     E8 A8 33 D9 FF                  call 00000001803178C0h
+0x584518     4C 8B C0                        mov r8,rax
+0x58451B     48 89 5C 24 20                  mov [rsp+20h],rbx
+0x584520     48 8B 5C 24 30                  mov rbx,[rsp+30h]
+0x584525     4C 8B CB                        mov r9,rbx
+0x584528     48 8B D7                        mov rdx,rdi
+0x58452B     48 8B CE                        mov rcx,rsi
+0x58452E     E8 DD EC 45 01                  call 00000001819E3210h ; System.String::Concat/4
+0x584533     48 8B F8                        mov rdi,rax
+0x584536     48 8D 0D 2B 58 47 03            lea rcx,[1839F9D68h] ; TypeInfo: ScheduleOne.Console
+0x58453D     E8 7E 33 D9 FF                  call 00000001803178C0h
+0x584542     83 B8 E0 00 00 00 00            cmp dword ptr [rax+0E0h],0
+0x584549     75 08                           jne short 0000000180584553h
+0x58454B     48 8B C8                        mov rcx,rax
+0x58454E     E8 DD 36 D9 FF                  call 0000000180317C30h
+0x584553     45 33 C0                        xor r8d,r8d
+0x584556     33 D2                           xor edx,edx
+0x584558     48 8B CF                        mov rcx,rdi
+0x58455B     E8 30 44 32 00                  call 00000001808A8990h ; ScheduleOne.Console::LogError/2
+0x584560     48 8B C3                        mov rax,rbx
+0x584563     E9 12 01 00 00                  jmp near ptr 000000018058467Ah
+0x584568     4C 8B 05 31 E7 40 03            mov r8,[183992CA0h] ; StringLiteral:  because it contains a data extension.
+0x58456F     E9 BE 00 00 00                  jmp near ptr 0000000180584632h
+0x584574     BA 05 00 00 00                  mov edx,5
+0x584579     48 8B 0D F8 EE 43 03            mov rcx,[1839C3478h] ; TypeInfo: System.String[]
+0x584580     E8 AB 25 D9 FF                  call 0000000180316B30h
+0x584585     48 8B D8                        mov rbx,rax
+0x584588     48 85 C0                        test rax,rax
+0x58458B     0F 84 05 01 00 00               je near ptr 0000000180584696h
+0x584591     83 78 18 00                     cmp dword ptr [rax+18h],0
+0x584595     0F 86 F5 00 00 00               jbe near ptr 0000000180584690h
+0x58459B     48 8B 15 B6 29 44 03            mov rdx,[1839C6F58h] ; StringLiteral: Failed to write subfile: 
+0x5845A2     48 89 50 20                     mov [rax+20h],rdx
+0x5845A6     48 8D 48 20                     lea rcx,[rax+20h]
+0x5845AA     E8 01 25 D9 FF                  call 0000000180316AB0h
+0x5845AF     83 7B 18 01                     cmp dword ptr [rbx+18h],1
+0x5845B3     0F 86 D7 00 00 00               jbe near ptr 0000000180584690h
+0x5845B9     48 89 7B 28                     mov [rbx+28h],rdi
+0x5845BD     48 8D 4B 28                     lea rcx,[rbx+28h]
+0x5845C1     48 8B D7                        mov rdx,rdi
+0x5845C4     E8 E7 24 D9 FF                  call 0000000180316AB0h
+0x5845C9     83 7B 18 02                     cmp dword ptr [rbx+18h],2
+0x5845CD     0F 86 BD 00 00 00               jbe near ptr 0000000180584690h
+0x5845D3     48 8B 15 26 EA 40 03            mov rdx,[183993000h] ; StringLiteral:  because the main folder (
+0x5845DA     48 89 53 30                     mov [rbx+30h],rdx
+0x5845DE     48 8D 4B 30                     lea rcx,[rbx+30h]
+0x5845E2     E8 C9 24 D9 FF                  call 0000000180316AB0h
+0x5845E7     83 7B 18 03                     cmp dword ptr [rbx+18h],3
+0x5845EB     0F 86 9F 00 00 00               jbe near ptr 0000000180584690h
+0x5845F1     48 89 73 38                     mov [rbx+38h],rsi
+0x5845F5     48 8D 4B 38                     lea rcx,[rbx+38h]
+0x5845F9     48 8B D6                        mov rdx,rsi
+0x5845FC     E8 AF 24 D9 FF                  call 0000000180316AB0h
+0x584601     83 7B 18 04                     cmp dword ptr [rbx+18h],4
+0x584605     0F 86 85 00 00 00               jbe near ptr 0000000180584690h
+0x58460B     48 8B 15 4E B1 44 03            mov rdx,[1839CF760h] ; StringLiteral: ) does not exist.
+0x584612     48 89 53 40                     mov [rbx+40h],rdx
+0x584616     48 8D 4B 40                     lea rcx,[rbx+40h]
+0x58461A     E8 91 24 D9 FF                  call 0000000180316AB0h
+0x58461F     33 D2                           xor edx,edx
+0x584621     48 8B CB                        mov rcx,rbx
+0x584624     E8 87 EE 45 01                  call 00000001819E34B0h ; System.String::Concat/1
+0x584629     EB 19                           jmp short 0000000180584644h
+0x58462B     4C 8B 05 2E ED 40 03            mov r8,[183993360h] ; StringLiteral:  because the saveable is not saved under a folder.
+0x584632     45 33 C9                        xor r9d,r9d
+0x584635     48 8B D7                        mov rdx,rdi
+0x584638     48 8B 0D 19 29 44 03            mov rcx,[1839C6F58h] ; StringLiteral: Failed to write subfile: 
+0x58463F     E8 CC F1 45 01                  call 00000001819E3810h ; System.String::Concat/3
+0x584644     48 8B 0D 1D 57 47 03            mov rcx,[1839F9D68h] ; TypeInfo: ScheduleOne.Console
+0x58464B     48 8B D8                        mov rbx,rax
+0x58464E     83 B9 E0 00 00 00 00            cmp dword ptr [rcx+0E0h],0
+0x584655     75 05                           jne short 000000018058465Ch
+0x584657     E8 D4 35 D9 FF                  call 0000000180317C30h
+0x58465C     45 33 C0                        xor r8d,r8d
+0x58465F     33 D2                           xor edx,edx
+0x584661     48 8B CB                        mov rcx,rbx
+0x584664     E8 27 43 32 00                  call 00000001808A8990h ; ScheduleOne.Console::LogError/2
+0x584669     48 8B 05 70 68 41 03            mov rax,[18399AEE0h] ; TypeInfo: System.String
+0x584670     48 8B 80 B8 00 00 00            mov rax,[rax+0B8h]
+0x584677     48 8B 00                        mov rax,[rax]
+0x58467A     4C 8D 5C 24 50                  lea r11,[rsp+50h]
+0x58467F     49 8B 5B 30                     mov rbx,[r11+30h]
+0x584683     49 8B 73 38                     mov rsi,[r11+38h]
+0x584687     49 8B E3                        mov rsp,r11
+0x58468A     41 5F                           pop r15
+0x58468C     41 5E                           pop r14
+0x58468E     5F                              pop rdi
+0x58468F     C3                              ret
+0x584690     E8 DB 34 D9 FF                  call 0000000180317B70h
+0x584695     CC                              int 3
+0x584696     E8 E5 34 D9 FF                  call 0000000180317B80h
+0x58469B     CC                              int 3

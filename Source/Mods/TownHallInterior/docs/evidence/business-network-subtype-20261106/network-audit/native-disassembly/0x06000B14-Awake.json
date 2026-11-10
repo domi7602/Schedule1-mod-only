@@ -1,0 +1,769 @@
+{
+  "Method": {
+    "Type": "FishNet.Managing.NetworkManager",
+    "Name": "Awake",
+    "Token": "0x06000B14",
+    "ParameterCount": 0,
+    "Va": "0x180CF6830",
+    "Rva": "0xCF6830",
+    "NativePointerPresent": true
+  },
+  "Bounds": {
+    "BeginRva": 13592624,
+    "EndRva": 13592989,
+    "UnwindRva": 57303656
+  },
+  "RawOffset": "0xCF5A30",
+  "ByteLength": 365,
+  "BytesSha256": "968bf8591a46dcb35abaf7e3b239c09d47dfa5454031f460d976d5d745e394ea",
+  "Instructions": [
+    {
+      "Va": "0x180CF6830",
+      "Rva": "0xCF6830",
+      "Bytes": "48 89 5C 24 18",
+      "Text": "mov [rsp+18h],rbx",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CF6835",
+      "Rva": "0xCF6835",
+      "Bytes": "57",
+      "Text": "push rdi",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CF6836",
+      "Rva": "0xCF6836",
+      "Bytes": "48 83 EC 20",
+      "Text": "sub rsp,20h",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CF683A",
+      "Rva": "0xCF683A",
+      "Bytes": "80 3D 7C A5 F0 02 00",
+      "Text": "cmp byte ptr [183C00DBDh],0",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": "0x183C00DBD",
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CF6841",
+      "Rva": "0xCF6841",
+      "Bytes": "48 8B D9",
+      "Text": "mov rbx,rcx",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CF6844",
+      "Rva": "0xCF6844",
+      "Bytes": "0F 85 03 01 00 00",
+      "Text": "jne near ptr 0000000180CF694Dh",
+      "FlowControl": "ConditionalBranch",
+      "DirectTarget": "0x180CF694D",
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CF684A",
+      "Rva": "0xCF684A",
+      "Bytes": "48 8D 0D B7 A9 CA 02",
+      "Text": "lea rcx,[1839A1208h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": "0x1839A1208",
+      "MetadataGlobal": {
+        "ResolutionError": "Exception calling \"AsMethod\" with \"0\" argument(s): \"Cannot cast metadata usage of kind MethodRef to a Method Def\""
+      }
+    },
+    {
+      "Va": "0x180CF6851",
+      "Rva": "0xCF6851",
+      "Bytes": "E8 4A 10 62 FF",
+      "Text": "call 00000001803178A0h",
+      "FlowControl": "Call",
+      "DirectTarget": "0x1803178A0",
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CF6856",
+      "Rva": "0xCF6856",
+      "Bytes": "48 8D 0D 83 75 D1 02",
+      "Text": "lea rcx,[183A0DDE0h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": "0x183A0DDE0",
+      "MetadataGlobal": {
+        "Kind": "TypeInfo",
+        "Value": "FishNet.Managing.Object.DefaultPrefabObjects"
+      }
+    },
+    {
+      "Va": "0x180CF685D",
+      "Rva": "0xCF685D",
+      "Bytes": "E8 3E 10 62 FF",
+      "Text": "call 00000001803178A0h",
+      "FlowControl": "Call",
+      "DirectTarget": "0x1803178A0",
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CF6862",
+      "Rva": "0xCF6862",
+      "Bytes": "48 8D 0D 0F B7 C8 02",
+      "Text": "lea rcx,[183981F78h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": "0x183981F78",
+      "MetadataGlobal": {
+        "ResolutionError": "Exception calling \"AsMethod\" with \"0\" argument(s): \"Cannot cast metadata usage of kind MethodRef to a Method Def\""
+      }
+    },
+    {
+      "Va": "0x180CF6869",
+      "Rva": "0xCF6869",
+      "Bytes": "E8 32 10 62 FF",
+      "Text": "call 00000001803178A0h",
+      "FlowControl": "Call",
+      "DirectTarget": "0x1803178A0",
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CF686E",
+      "Rva": "0xCF686E",
+      "Bytes": "48 8D 0D 23 12 C9 02",
+      "Text": "lea rcx,[183987A98h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": "0x183987A98",
+      "MetadataGlobal": {
+        "ResolutionError": "Exception calling \"AsMethod\" with \"0\" argument(s): \"Cannot cast metadata usage of kind MethodRef to a Method Def\""
+      }
+    },
+    {
+      "Va": "0x180CF6875",
+      "Rva": "0xCF6875",
+      "Bytes": "E8 26 10 62 FF",
+      "Text": "call 00000001803178A0h",
+      "FlowControl": "Call",
+      "DirectTarget": "0x1803178A0",
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CF687A",
+      "Rva": "0xCF687A",
+      "Bytes": "48 8D 0D 97 68 C9 02",
+      "Text": "lea rcx,[18398D118h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": "0x18398D118",
+      "MetadataGlobal": {
+        "ResolutionError": "Exception calling \"AsMethod\" with \"0\" argument(s): \"Cannot cast metadata usage of kind MethodRef to a Method Def\""
+      }
+    },
+    {
+      "Va": "0x180CF6881",
+      "Rva": "0xCF6881",
+      "Bytes": "E8 1A 10 62 FF",
+      "Text": "call 00000001803178A0h",
+      "FlowControl": "Call",
+      "DirectTarget": "0x1803178A0",
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CF6886",
+      "Rva": "0xCF6886",
+      "Bytes": "48 8D 0D EB 95 CD 02",
+      "Text": "lea rcx,[1839CFE78h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": "0x1839CFE78",
+      "MetadataGlobal": {
+        "ResolutionError": "Exception calling \"AsMethod\" with \"0\" argument(s): \"Cannot cast metadata usage of kind MethodRef to a Method Def\""
+      }
+    },
+    {
+      "Va": "0x180CF688D",
+      "Rva": "0xCF688D",
+      "Bytes": "E8 0E 10 62 FF",
+      "Text": "call 00000001803178A0h",
+      "FlowControl": "Call",
+      "DirectTarget": "0x1803178A0",
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CF6892",
+      "Rva": "0xCF6892",
+      "Bytes": "48 8D 0D BF 96 CD 02",
+      "Text": "lea rcx,[1839CFF58h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": "0x1839CFF58",
+      "MetadataGlobal": {
+        "ResolutionError": "Exception calling \"AsMethod\" with \"0\" argument(s): \"Cannot cast metadata usage of kind MethodRef to a Method Def\""
+      }
+    },
+    {
+      "Va": "0x180CF6899",
+      "Rva": "0xCF6899",
+      "Bytes": "E8 02 10 62 FF",
+      "Text": "call 00000001803178A0h",
+      "FlowControl": "Call",
+      "DirectTarget": "0x1803178A0",
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CF689E",
+      "Rva": "0xCF689E",
+      "Bytes": "48 8D 0D 8B 97 CD 02",
+      "Text": "lea rcx,[1839D0030h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": "0x1839D0030",
+      "MetadataGlobal": {
+        "ResolutionError": "Exception calling \"AsMethod\" with \"0\" argument(s): \"Cannot cast metadata usage of kind MethodRef to a Method Def\""
+      }
+    },
+    {
+      "Va": "0x180CF68A5",
+      "Rva": "0xCF68A5",
+      "Bytes": "E8 F6 0F 62 FF",
+      "Text": "call 00000001803178A0h",
+      "FlowControl": "Call",
+      "DirectTarget": "0x1803178A0",
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CF68AA",
+      "Rva": "0xCF68AA",
+      "Bytes": "48 8D 0D 5F 98 CD 02",
+      "Text": "lea rcx,[1839D0110h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": "0x1839D0110",
+      "MetadataGlobal": {
+        "ResolutionError": "Exception calling \"AsMethod\" with \"0\" argument(s): \"Cannot cast metadata usage of kind MethodRef to a Method Def\""
+      }
+    },
+    {
+      "Va": "0x180CF68B1",
+      "Rva": "0xCF68B1",
+      "Bytes": "E8 EA 0F 62 FF",
+      "Text": "call 00000001803178A0h",
+      "FlowControl": "Call",
+      "DirectTarget": "0x1803178A0",
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CF68B6",
+      "Rva": "0xCF68B6",
+      "Bytes": "48 8D 0D 2B 99 CD 02",
+      "Text": "lea rcx,[1839D01E8h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": "0x1839D01E8",
+      "MetadataGlobal": {
+        "ResolutionError": "Exception calling \"AsMethod\" with \"0\" argument(s): \"Cannot cast metadata usage of kind MethodRef to a Method Def\""
+      }
+    },
+    {
+      "Va": "0x180CF68BD",
+      "Rva": "0xCF68BD",
+      "Bytes": "E8 DE 0F 62 FF",
+      "Text": "call 00000001803178A0h",
+      "FlowControl": "Call",
+      "DirectTarget": "0x1803178A0",
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CF68C2",
+      "Rva": "0xCF68C2",
+      "Bytes": "48 8D 0D FF 99 CD 02",
+      "Text": "lea rcx,[1839D02C8h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": "0x1839D02C8",
+      "MetadataGlobal": {
+        "ResolutionError": "Exception calling \"AsMethod\" with \"0\" argument(s): \"Cannot cast metadata usage of kind MethodRef to a Method Def\""
+      }
+    },
+    {
+      "Va": "0x180CF68C9",
+      "Rva": "0xCF68C9",
+      "Bytes": "E8 D2 0F 62 FF",
+      "Text": "call 00000001803178A0h",
+      "FlowControl": "Call",
+      "DirectTarget": "0x1803178A0",
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CF68CE",
+      "Rva": "0xCF68CE",
+      "Bytes": "48 8D 0D CB 9A CD 02",
+      "Text": "lea rcx,[1839D03A0h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": "0x1839D03A0",
+      "MetadataGlobal": {
+        "ResolutionError": "Exception calling \"AsMethod\" with \"0\" argument(s): \"Cannot cast metadata usage of kind MethodRef to a Method Def\""
+      }
+    },
+    {
+      "Va": "0x180CF68D5",
+      "Rva": "0xCF68D5",
+      "Bytes": "E8 C6 0F 62 FF",
+      "Text": "call 00000001803178A0h",
+      "FlowControl": "Call",
+      "DirectTarget": "0x1803178A0",
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CF68DA",
+      "Rva": "0xCF68DA",
+      "Bytes": "48 8D 0D 97 9B CD 02",
+      "Text": "lea rcx,[1839D0478h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": "0x1839D0478",
+      "MetadataGlobal": {
+        "ResolutionError": "Exception calling \"AsMethod\" with \"0\" argument(s): \"Cannot cast metadata usage of kind MethodRef to a Method Def\""
+      }
+    },
+    {
+      "Va": "0x180CF68E1",
+      "Rva": "0xCF68E1",
+      "Bytes": "E8 BA 0F 62 FF",
+      "Text": "call 00000001803178A0h",
+      "FlowControl": "Call",
+      "DirectTarget": "0x1803178A0",
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CF68E6",
+      "Rva": "0xCF68E6",
+      "Bytes": "48 8D 0D 63 9C CD 02",
+      "Text": "lea rcx,[1839D0550h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": "0x1839D0550",
+      "MetadataGlobal": {
+        "ResolutionError": "Exception calling \"AsMethod\" with \"0\" argument(s): \"Cannot cast metadata usage of kind MethodRef to a Method Def\""
+      }
+    },
+    {
+      "Va": "0x180CF68ED",
+      "Rva": "0xCF68ED",
+      "Bytes": "E8 AE 0F 62 FF",
+      "Text": "call 00000001803178A0h",
+      "FlowControl": "Call",
+      "DirectTarget": "0x1803178A0",
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CF68F2",
+      "Rva": "0xCF68F2",
+      "Bytes": "48 8D 0D 37 9D CD 02",
+      "Text": "lea rcx,[1839D0630h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": "0x1839D0630",
+      "MetadataGlobal": {
+        "ResolutionError": "Exception calling \"AsMethod\" with \"0\" argument(s): \"Cannot cast metadata usage of kind MethodRef to a Method Def\""
+      }
+    },
+    {
+      "Va": "0x180CF68F9",
+      "Rva": "0xCF68F9",
+      "Bytes": "E8 A2 0F 62 FF",
+      "Text": "call 00000001803178A0h",
+      "FlowControl": "Call",
+      "DirectTarget": "0x1803178A0",
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CF68FE",
+      "Rva": "0xCF68FE",
+      "Bytes": "48 8D 0D 03 9E CD 02",
+      "Text": "lea rcx,[1839D0708h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": "0x1839D0708",
+      "MetadataGlobal": {
+        "ResolutionError": "Exception calling \"AsMethod\" with \"0\" argument(s): \"Cannot cast metadata usage of kind MethodRef to a Method Def\""
+      }
+    },
+    {
+      "Va": "0x180CF6905",
+      "Rva": "0xCF6905",
+      "Bytes": "E8 96 0F 62 FF",
+      "Text": "call 00000001803178A0h",
+      "FlowControl": "Call",
+      "DirectTarget": "0x1803178A0",
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CF690A",
+      "Rva": "0xCF690A",
+      "Bytes": "48 8D 0D 2F 5B CF 02",
+      "Text": "lea rcx,[1839EC440h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": "0x1839EC440",
+      "MetadataGlobal": {
+        "Kind": "TypeInfo",
+        "Value": "FishNet.Managing.NetworkManager"
+      }
+    },
+    {
+      "Va": "0x180CF6911",
+      "Rva": "0xCF6911",
+      "Bytes": "E8 8A 0F 62 FF",
+      "Text": "call 00000001803178A0h",
+      "FlowControl": "Call",
+      "DirectTarget": "0x1803178A0",
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CF6916",
+      "Rva": "0xCF6916",
+      "Bytes": "48 8D 0D DB 96 CF 02",
+      "Text": "lea rcx,[1839EFFF8h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": "0x1839EFFF8",
+      "MetadataGlobal": {
+        "Kind": "TypeInfo",
+        "Value": "UnityEngine.Object"
+      }
+    },
+    {
+      "Va": "0x180CF691D",
+      "Rva": "0xCF691D",
+      "Bytes": "E8 7E 0F 62 FF",
+      "Text": "call 00000001803178A0h",
+      "FlowControl": "Call",
+      "DirectTarget": "0x1803178A0",
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CF6922",
+      "Rva": "0xCF6922",
+      "Bytes": "48 8D 0D 8F 9A CA 02",
+      "Text": "lea rcx,[1839A03B8h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": "0x1839A03B8",
+      "MetadataGlobal": {
+        "ResolutionError": "Exception calling \"AsMethod\" with \"0\" argument(s): \"Cannot cast metadata usage of kind MethodRef to a Method Def\""
+      }
+    },
+    {
+      "Va": "0x180CF6929",
+      "Rva": "0xCF6929",
+      "Bytes": "E8 72 0F 62 FF",
+      "Text": "call 00000001803178A0h",
+      "FlowControl": "Call",
+      "DirectTarget": "0x1803178A0",
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CF692E",
+      "Rva": "0xCF692E",
+      "Bytes": "48 8D 0D 23 70 CE 02",
+      "Text": "lea rcx,[1839DD958h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": "0x1839DD958",
+      "MetadataGlobal": {
+        "Kind": "StringLiteral",
+        "Value": "NetworkObject component found on the NetworkManager object "
+      }
+    },
+    {
+      "Va": "0x180CF6935",
+      "Rva": "0xCF6935",
+      "Bytes": "E8 66 0F 62 FF",
+      "Text": "call 00000001803178A0h",
+      "FlowControl": "Call",
+      "DirectTarget": "0x1803178A0",
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CF693A",
+      "Rva": "0xCF693A",
+      "Bytes": "48 8D 0D 87 8B CE 02",
+      "Text": "lea rcx,[1839DF4C8h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": "0x1839DF4C8",
+      "MetadataGlobal": {
+        "Kind": "StringLiteral",
+        "Value": ". This is not allowed and will cause problems. Remove the NetworkObject component from this object."
+      }
+    },
+    {
+      "Va": "0x180CF6941",
+      "Rva": "0xCF6941",
+      "Bytes": "E8 5A 0F 62 FF",
+      "Text": "call 00000001803178A0h",
+      "FlowControl": "Call",
+      "DirectTarget": "0x1803178A0",
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CF6946",
+      "Rva": "0xCF6946",
+      "Bytes": "C6 05 70 A4 F0 02 01",
+      "Text": "mov byte ptr [183C00DBDh],1",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": "0x183C00DBD",
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CF694D",
+      "Rva": "0xCF694D",
+      "Bytes": "80 3D 75 A4 F0 02 00",
+      "Text": "cmp byte ptr [183C00DC9h],0",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": "0x183C00DC9",
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CF6954",
+      "Rva": "0xCF6954",
+      "Bytes": "48 C7 44 24 30 00 00 00 00",
+      "Text": "mov qword ptr [rsp+30h],0",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CF695D",
+      "Rva": "0xCF695D",
+      "Bytes": "75 1F",
+      "Text": "jne short 0000000180CF697Eh",
+      "FlowControl": "ConditionalBranch",
+      "DirectTarget": "0x180CF697E",
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CF695F",
+      "Rva": "0xCF695F",
+      "Bytes": "48 8D 0D 92 96 CF 02",
+      "Text": "lea rcx,[1839EFFF8h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": "0x1839EFFF8",
+      "MetadataGlobal": {
+        "Kind": "TypeInfo",
+        "Value": "UnityEngine.Object"
+      }
+    },
+    {
+      "Va": "0x180CF6966",
+      "Rva": "0xCF6966",
+      "Bytes": "E8 35 0F 62 FF",
+      "Text": "call 00000001803178A0h",
+      "FlowControl": "Call",
+      "DirectTarget": "0x1803178A0",
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CF696B",
+      "Rva": "0xCF696B",
+      "Bytes": "48 8D 0D 06 A1 CA 02",
+      "Text": "lea rcx,[1839A0A78h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": "0x1839A0A78",
+      "MetadataGlobal": {
+        "ResolutionError": "Exception calling \"AsMethod\" with \"0\" argument(s): \"Cannot cast metadata usage of kind MethodRef to a Method Def\""
+      }
+    },
+    {
+      "Va": "0x180CF6972",
+      "Rva": "0xCF6972",
+      "Bytes": "E8 29 0F 62 FF",
+      "Text": "call 00000001803178A0h",
+      "FlowControl": "Call",
+      "DirectTarget": "0x1803178A0",
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CF6977",
+      "Rva": "0xCF6977",
+      "Bytes": "C6 05 4B A4 F0 02 01",
+      "Text": "mov byte ptr [183C00DC9h],1",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": "0x183C00DC9",
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CF697E",
+      "Rva": "0xCF697E",
+      "Bytes": "48 8B 0D 73 96 CF 02",
+      "Text": "mov rcx,[1839EFFF8h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": "0x1839EFFF8",
+      "MetadataGlobal": {
+        "Kind": "TypeInfo",
+        "Value": "UnityEngine.Object"
+      }
+    },
+    {
+      "Va": "0x180CF6985",
+      "Rva": "0xCF6985",
+      "Bytes": "48 8B BB 88 00 00 00",
+      "Text": "mov rdi,[rbx+88h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CF698C",
+      "Rva": "0xCF698C",
+      "Bytes": "83 B9 E0 00 00 00 00",
+      "Text": "cmp dword ptr [rcx+0E0h],0",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CF6993",
+      "Rva": "0xCF6993",
+      "Bytes": "75 05",
+      "Text": "jne short 0000000180CF699Ah",
+      "FlowControl": "ConditionalBranch",
+      "DirectTarget": "0x180CF699A",
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CF6995",
+      "Rva": "0xCF6995",
+      "Bytes": "E8 96 12 62 FF",
+      "Text": "call 0000000180317C30h",
+      "FlowControl": "Call",
+      "DirectTarget": "0x180317C30",
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CF699A",
+      "Rva": "0xCF699A",
+      "Bytes": "45 33 C0",
+      "Text": "xor r8d,r8d",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    }
+  ]
+}

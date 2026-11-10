@@ -1,0 +1,45 @@
+{
+  "schema": 1,
+  "capturedUtc": "2026-11-06T06:06:24.598934+00:00",
+  "checkpointId": "20261106T054537590245Z-9fbfdbeb",
+  "liveProbeReportRelative": "UserData/TownHallInterior/BusinessManager/20261106T054820764Z.json",
+  "liveProbeReportSha256": "fa29a33263d00086a8aa38580efcb9901b2c924812957faa5ed0d39852989878",
+  "probeResult": {
+    "status": "failed",
+    "findings": [
+      "inspect:InvalidOperationException:subtype-readback-invalid"
+    ],
+    "attemptConsumed": true,
+    "registrationAttempted": true,
+    "registrationCompleted": true,
+    "cleanupComplete": true,
+    "ownVirtualTargets": false
+  },
+  "nativeSaveState": {
+    "slot": "SaveGame_2",
+    "organisation": "TownHallTest",
+    "filesCount": 39,
+    "addedFiles": 0,
+    "removedFiles": 0,
+    "modifiedFilesNormalAutosaveOnly": [
+      "Metadata.json",
+      "NPCs.json",
+      "Players/Player_0/Player.json",
+      "Time.json",
+      "Trash.json"
+    ],
+    "businessesUntouched": true,
+    "nativeSlot1Accessed": false
+  },
+  "rollback": {
+    "attempted": true,
+    "succeeded": true,
+    "installedDllSha256": "614b81fd584040d4cebe7a18929bca09eabae478a6487ec6d846ea01d6062003",
+    "installedPdbSha256": "8126ae65f5c12f6e8261af0a1734e622d8c0ab5522a91e6653c7b1ffd7d8c497",
+    "expectedNormalDll": "614b81fd584040d4cebe7a18929bca09eabae478a6487ec6d846ea01d6062003",
+    "expectedNormalPdb": "8126ae65f5c12f6e8261af0a1734e622d8c0ab5522a91e6653c7b1ffd7d8c497",
+    "matchesExpectedBaseline": true
+  },
+  "gameProcessClosed": true,
+  "conclusion": "Controlled in-game test failed safely during virtual slot inspection before save execution. Native test save is verified undamaged. Normalbuild is fully restored."
+}

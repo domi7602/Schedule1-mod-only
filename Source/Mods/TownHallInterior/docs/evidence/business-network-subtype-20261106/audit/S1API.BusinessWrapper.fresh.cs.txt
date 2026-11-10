@@ -1,0 +1,332 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Runtime.CompilerServices;
+using Il2CppScheduleOne.Money;
+using Il2CppScheduleOne.Property;
+using Il2CppSystem.Collections.Generic;
+
+namespace S1API.Property;
+
+public class BusinessWrapper : PropertyWrapper
+{
+	[CompilerGenerated]
+	private sealed class <get_LaunderingCapacityPaths>d__25 : IEnumerable<string>, IEnumerable, IEnumerator<string>, IEnumerator, IDisposable
+	{
+		private int <>1__state;
+
+		private string <>2__current;
+
+		private int <>l__initialThreadId;
+
+		public BusinessWrapper <>4__this;
+
+		private string <baseName>5__1;
+
+		string IEnumerator<string>.Current
+		{
+			[DebuggerHidden]
+			get
+			{
+				return <>2__current;
+			}
+		}
+
+		object IEnumerator.Current
+		{
+			[DebuggerHidden]
+			get
+			{
+				return <>2__current;
+			}
+		}
+
+		[DebuggerHidden]
+		public <get_LaunderingCapacityPaths>d__25(int <>1__state)
+		{
+			this.<>1__state = <>1__state;
+			<>l__initialThreadId = Environment.CurrentManagedThreadId;
+		}
+
+		[DebuggerHidden]
+		void IDisposable.Dispose()
+		{
+			<baseName>5__1 = null;
+			<>1__state = -2;
+		}
+
+		private bool MoveNext()
+		{
+			switch (<>1__state)
+			{
+			default:
+				return false;
+			case 0:
+				<>1__state = -1;
+				<baseName>5__1 = <>4__this.PropertyName.Replace(" ", "");
+				<>2__current = "@Businesses/" + <baseName>5__1 + "/Grid/ItemContainer/LaunderingStation_Built(Clone)/LaunderingInterface/CurrentOperations/Total/Max";
+				<>1__state = 1;
+				return true;
+			case 1:
+				<>1__state = -1;
+				<>2__current = "@Businesses/" + <>4__this.PropertyName + "/Grid/ItemContainer/LaunderingStation_Built(Clone)/LaunderingInterface/CurrentOperations/Total/Max";
+				<>1__state = 2;
+				return true;
+			case 2:
+				<>1__state = -1;
+				<>2__current = "@Businesses/" + <baseName>5__1 + "/Grid (1)/ItemContainer/LaunderingStation_Built(Clone)/LaunderingInterface/CurrentOperations/Total/Max";
+				<>1__state = 3;
+				return true;
+			case 3:
+				<>1__state = -1;
+				<>2__current = "@Businesses/" + <>4__this.PropertyName + "/Grid (1)/ItemContainer/LaunderingStation_Built(Clone)/LaunderingInterface/CurrentOperations/Total/Max";
+				<>1__state = 4;
+				return true;
+			case 4:
+				<>1__state = -1;
+				return false;
+			}
+		}
+
+		bool IEnumerator.MoveNext()
+		{
+			//ILSpy generated this explicit interface implementation from .override directive in MoveNext
+			return this.MoveNext();
+		}
+
+		[DebuggerHidden]
+		void IEnumerator.Reset()
+		{
+			throw new NotSupportedException();
+		}
+
+		[DebuggerHidden]
+		IEnumerator<string> IEnumerable<string>.GetEnumerator()
+		{
+			<get_LaunderingCapacityPaths>d__25 result;
+			if (<>1__state == -2 && <>l__initialThreadId == Environment.CurrentManagedThreadId)
+			{
+				<>1__state = 0;
+				result = this;
+			}
+			else
+			{
+				result = new <get_LaunderingCapacityPaths>d__25(0)
+				{
+					<>4__this = <>4__this
+				};
+			}
+			return result;
+		}
+
+		[DebuggerHidden]
+		IEnumerator IEnumerable.GetEnumerator()
+		{
+			return ((IEnumerable<string>)this).GetEnumerator();
+		}
+	}
+
+	[CompilerGenerated]
+	private sealed class <get_SignPaths>d__21 : IEnumerable<string>, IEnumerable, IEnumerator<string>, IEnumerator, IDisposable
+	{
+		private int <>1__state;
+
+		private string <>2__current;
+
+		private int <>l__initialThreadId;
+
+		public BusinessWrapper <>4__this;
+
+		private string <baseName>5__1;
+
+		string IEnumerator<string>.Current
+		{
+			[DebuggerHidden]
+			get
+			{
+				return <>2__current;
+			}
+		}
+
+		object IEnumerator.Current
+		{
+			[DebuggerHidden]
+			get
+			{
+				return <>2__current;
+			}
+		}
+
+		[DebuggerHidden]
+		public <get_SignPaths>d__21(int <>1__state)
+		{
+			this.<>1__state = <>1__state;
+			<>l__initialThreadId = Environment.CurrentManagedThreadId;
+		}
+
+		[DebuggerHidden]
+		void IDisposable.Dispose()
+		{
+			<baseName>5__1 = null;
+			<>1__state = -2;
+		}
+
+		private bool MoveNext()
+		{
+			switch (<>1__state)
+			{
+			default:
+				return false;
+			case 0:
+				<>1__state = -1;
+				<baseName>5__1 = <>4__this.PropertyName.Replace(" ", "");
+				<>2__current = <>4__this.SignPrefix + <baseName>5__1 + "/ForSaleSign_Blue/Price";
+				<>1__state = 1;
+				return true;
+			case 1:
+				<>1__state = -1;
+				<>2__current = <>4__this.SignPrefix + <baseName>5__1 + "/ForSaleSign_Blue (1)/Price";
+				<>1__state = 2;
+				return true;
+			case 2:
+				<>1__state = -1;
+				<>2__current = <>4__this.SignPrefix + <>4__this.PropertyName + "/ForSaleSign_Blue/Price";
+				<>1__state = 3;
+				return true;
+			case 3:
+				<>1__state = -1;
+				<>2__current = <>4__this.SignPrefix + <>4__this.PropertyName + "/ForSaleSign_Blue (1)/Price";
+				<>1__state = 4;
+				return true;
+			case 4:
+				<>1__state = -1;
+				return false;
+			}
+		}
+
+		bool IEnumerator.MoveNext()
+		{
+			//ILSpy generated this explicit interface implementation from .override directive in MoveNext
+			return this.MoveNext();
+		}
+
+		[DebuggerHidden]
+		void IEnumerator.Reset()
+		{
+			throw new NotSupportedException();
+		}
+
+		[DebuggerHidden]
+		IEnumerator<string> IEnumerable<string>.GetEnumerator()
+		{
+			<get_SignPaths>d__21 result;
+			if (<>1__state == -2 && <>l__initialThreadId == Environment.CurrentManagedThreadId)
+			{
+				<>1__state = 0;
+				result = this;
+			}
+			else
+			{
+				result = new <get_SignPaths>d__21(0)
+				{
+					<>4__this = <>4__this
+				};
+			}
+			return result;
+		}
+
+		[DebuggerHidden]
+		IEnumerator IEnumerable.GetEnumerator()
+		{
+			return ((IEnumerable<string>)this).GetEnumerator();
+		}
+	}
+
+	internal readonly Business InnerBusiness;
+
+	public float LaunderCapacity
+	{
+		get
+		{
+			return InnerBusiness.LaunderCapacity;
+		}
+		set
+		{
+			InnerBusiness.LaunderCapacity = value;
+			foreach (string launderingCapacityPath in LaunderingCapacityPaths)
+			{
+				if (TrySetTMPText(launderingCapacityPath, MoneyManager.FormatAmount(value, false, false), "laundering capacity"))
+				{
+					break;
+				}
+			}
+		}
+	}
+
+	public List<LaunderingOperation> LaunderingOperations
+	{
+		get
+		{
+			List<LaunderingOperation> list = new List<LaunderingOperation>();
+			Enumerator<LaunderingOperation> enumerator = InnerBusiness.LaunderingOperations.GetEnumerator();
+			while (enumerator.MoveNext())
+			{
+				LaunderingOperation current = enumerator.Current;
+				list.Add(new LaunderingOperation(current));
+			}
+			return list;
+		}
+	}
+
+	public float CurrentLaunderTotal => InnerBusiness.currentLaunderTotal;
+
+	public float AppliedLaunderLimit => InnerBusiness.appliedLaunderLimit;
+
+	public int LaunderingOperationCount => InnerBusiness.LaunderingOperations.Count;
+
+	public bool IsAtLaunderingCapacity => AppliedLaunderLimit <= 0f;
+
+	public float LaunderingCapacityUsagePercent => (LaunderCapacity > 0f) ? (CurrentLaunderTotal / LaunderCapacity) : 0f;
+
+	internal override string SignPrefix => "@Businesses/";
+
+	internal override IEnumerable<string> SignPaths
+	{
+		[IteratorStateMachine(typeof(<get_SignPaths>d__21))]
+		get
+		{
+			//yield-return decompiler failed: Unexpected instruction in Iterator.Dispose()
+			<get_SignPaths>d__21 <get_SignPaths>d__ = new <get_SignPaths>d__21(-2);
+			<get_SignPaths>d__.<>4__this = this;
+			return <get_SignPaths>d__;
+		}
+	}
+
+	internal override string WhiteboardPath => "Map/Container/RE Office/Interior/Whiteboard (1)/PropertyListing " + PropertyName + "/Price";
+
+	internal IEnumerable<string> LaunderingCapacityPaths
+	{
+		[IteratorStateMachine(typeof(<get_LaunderingCapacityPaths>d__25))]
+		get
+		{
+			//yield-return decompiler failed: Unexpected instruction in Iterator.Dispose()
+			<get_LaunderingCapacityPaths>d__25 <get_LaunderingCapacityPaths>d__ = new <get_LaunderingCapacityPaths>d__25(-2);
+			<get_LaunderingCapacityPaths>d__.<>4__this = this;
+			return <get_LaunderingCapacityPaths>d__;
+		}
+	}
+
+	public BusinessWrapper(Business business)
+		: base((Property)(object)business)
+	{
+		InnerBusiness = business;
+	}
+
+	public void AddLaunderingOperation(float amount, int minutesSinceStarted)
+	{
+		InnerBusiness.StartLaunderingOperation(amount, minutesSinceStarted);
+	}
+}
+You are not using the latest version of the tool, please update.
+Latest version is '11.2.0.10050' (yours is '8.2.0.7535-95108c96')

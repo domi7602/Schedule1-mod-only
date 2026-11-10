@@ -1,0 +1,172 @@
+; ScheduleOne.Money.MoneyManager::NetworkInitialize___Early/0, token 0x06001CC6, RVA 0x5E5670, next-pointer window 0x300 bytes
+; No target execution. Parser-pointer window can contain padding/cold fragments and is not exact/full function, EH or transitive coverage. Shared direct aliases are truncated to eight names.
+0x5E5670     40 57                           push rdi
+0x5E5672     48 83 EC 70                     sub rsp,70h
+0x5E5676     80 3D EC 62 61 03 00            cmp byte ptr [183BFB969h],0
+0x5E567D     48 8B F9                        mov rdi,rcx
+0x5E5680     75 7F                           jne short 00000001805E5701h
+0x5E5682     48 8D 0D 27 D4 40 03            lea rcx,[1839F2AB0h] ; TypeInfo: FishNet.Object.Delegating.ClientRpcDelegate
+0x5E5689     E8 12 22 D3 FF                  call 00000001803178A0h
+0x5E568E     48 8D 0D 9B F9 3C 03            lea rcx,[1839B5030h] ; MethodDef: ScheduleOne.Money.MoneyManager::ReadSyncVar___ScheduleOne.Money.MoneyManager/3
+0x5E5695     E8 06 22 D3 FF                  call 00000001803178A0h
+0x5E569A     48 8D 0D 6F FA 3C 03            lea rcx,[1839B5110h] ; MethodDef: ScheduleOne.Money.MoneyManager::RpcReader___Observers_ReceiveOnlineTransaction_1419830531/2
+0x5E56A1     E8 FA 21 D3 FF                  call 00000001803178A0h
+0x5E56A6     48 8D 0D 43 FB 3C 03            lea rcx,[1839B51F0h] ; MethodDef: ScheduleOne.Money.MoneyManager::RpcReader___Server_ChangeLifetimeEarnings_431000436/3
+0x5E56AD     E8 EE 21 D3 FF                  call 00000001803178A0h
+0x5E56B2     48 8D 0D 17 FC 3C 03            lea rcx,[1839B52D0h] ; MethodDef: ScheduleOne.Money.MoneyManager::RpcReader___Server_CreateOnlineTransaction_1419830531/3
+0x5E56B9     E8 E2 21 D3 FF                  call 00000001803178A0h
+0x5E56BE     48 8D 0D F3 DE 3B 03            lea rcx,[1839A35B8h] ; MethodRef: System.Void ScheduleOne.DevUtilities.NetworkSingleton`1<ScheduleOne.Money.MoneyManager>.NetworkInitialize___Early
+0x5E56C5     E8 D6 21 D3 FF                  call 00000001803178A0h
+0x5E56CA     48 8D 0D B7 6E 3A 03            lea rcx,[18398C588h] ; TypeInfo: FishNet.Object.Delegating.ServerRpcDelegate
+0x5E56D1     E8 CA 21 D3 FF                  call 00000001803178A0h
+0x5E56D6     48 8D 0D 73 A5 3B 03            lea rcx,[18399FC50h] ; TypeInfo: FishNet.Object.Delegating.SyncVarReadDelegate
+0x5E56DD     E8 BE 21 D3 FF                  call 00000001803178A0h
+0x5E56E2     48 8D 0D 67 83 42 03            lea rcx,[183A0DA50h] ; MethodRef: System.Void FishNet.Object.Synchronizing.SyncVar`1<System.Single>..ctor
+0x5E56E9     E8 B2 21 D3 FF                  call 00000001803178A0h
+0x5E56EE     48 8D 0D 8B CB 3B 03            lea rcx,[1839A2280h] ; TypeInfo: FishNet.Object.Synchronizing.SyncVar`1<System.Single>
+0x5E56F5     E8 A6 21 D3 FF                  call 00000001803178A0h
+0x5E56FA     C6 05 68 62 61 03 01            mov byte ptr [183BFB969h],1
+0x5E5701     80 BF 90 01 00 00 00            cmp byte ptr [rdi+190h],0
+0x5E5708     0F 85 49 02 00 00               jne near ptr 00000001805E5957h
+0x5E570E     48 89 9C 24 80 00 00 00         mov [rsp+80h],rbx
+0x5E5716     48 89 B4 24 88 00 00 00         mov [rsp+88h],rsi
+0x5E571E     0F 29 74 24 60                  movaps [rsp+60h],xmm6
+0x5E5723     0F 29 7C 24 50                  movaps [rsp+50h],xmm7
+0x5E5728     C6 87 90 01 00 00 01            mov byte ptr [rdi+190h],1
+0x5E572F     48 8B CF                        mov rcx,rdi
+0x5E5732     48 8B 15 7F DE 3B 03            mov rdx,[1839A35B8h] ; MethodRef: System.Void ScheduleOne.DevUtilities.NetworkSingleton`1<ScheduleOne.Money.MoneyManager>.NetworkInitialize___Early
+0x5E5739     E8 C2 FF 14 00                  call 0000000180735700h ; ScheduleOne.DevUtilities.NetworkSingleton`1::NetworkInitialize___Early/0 | ScheduleOne.Configuration.ConfigurationServiceNetworker::NetworkInitialize__Late/0 | FishNet.Object.EmptyNetworkBehaviour::NetworkInitialize__Late/0
+0x5E573E     48 8B 0D 3B CB 3B 03            mov rcx,[1839A2280h] ; TypeInfo: FishNet.Object.Synchronizing.SyncVar`1<System.Single>
+0x5E5745     F3 0F 10 B7 2C 01 00 00         movss xmm6,dword ptr [rdi+12Ch]
+0x5E574D     E8 CE 23 D3 FF                  call 0000000180317B20h
+0x5E5752     48 8B 1D F7 82 42 03            mov rbx,[183A0DA50h] ; MethodRef: System.Void FishNet.Object.Synchronizing.SyncVar`1<System.Single>..ctor
+0x5E5759     33 D2                           xor edx,edx
+0x5E575B     48 8B C8                        mov rcx,rax
+0x5E575E     48 8B F0                        mov rsi,rax
+0x5E5761     E8 FA D5 6E 00                  call 0000000180CD2D60h ; FishNet.Object.Synchronizing.Internal.SyncBase::.ctor/0
+0x5E5766     48 8B 4B 20                     mov rcx,[rbx+20h]
+0x5E576A     0F 28 CE                        movaps xmm1,xmm6
+0x5E576D     4C 8B 81 C0 00 00 00            mov r8,[rcx+0C0h]
+0x5E5774     48 8B CE                        mov rcx,rsi
+0x5E5777     4D 8B 40 20                     mov r8,[r8+20h]
+0x5E577B     E8 30 63 B9 00                  call 000000018117BAB0h
+0x5E5780     48 85 F6                        test rsi,rsi
+0x5E5783     0F 84 D4 01 00 00               je near ptr 00000001805E595Dh
+0x5E5789     F3 0F 10 3D F3 73 87 02         movss xmm7,dword ptr [182E5CB84h]
+0x5E5791     41 B1 01                        mov r9b,1
+0x5E5794     48 C7 44 24 40 00 00 00 00      mov qword ptr [rsp+40h],0
+0x5E579D     41 B8 01 00 00 00               mov r8d,1
+0x5E57A3     C6 44 24 38 00                  mov byte ptr [rsp+38h],0
+0x5E57A8     48 8B D7                        mov rdx,rdi
+0x5E57AB     C6 44 24 30 00                  mov byte ptr [rsp+30h],0
+0x5E57B0     48 8B CE                        mov rcx,rsi
+0x5E57B3     F3 0F 11 7C 24 28               movss dword ptr [rsp+28h],xmm7
+0x5E57B9     C6 44 24 20 00                  mov byte ptr [rsp+20h],0
+0x5E57BE     E8 4D D1 6E 00                  call 0000000180CD2910h ; FishNet.Object.Synchronizing.Internal.SyncBase::InitializeInstance/7
+0x5E57C3     48 8D 8F 88 01 00 00            lea rcx,[rdi+188h]
+0x5E57CA     48 89 B7 88 01 00 00            mov [rdi+188h],rsi
+0x5E57D1     48 8B D6                        mov rdx,rsi
+0x5E57D4     E8 D7 12 D3 FF                  call 0000000180316AB0h
+0x5E57D9     48 8B 0D A0 CA 3B 03            mov rcx,[1839A2280h] ; TypeInfo: FishNet.Object.Synchronizing.SyncVar`1<System.Single>
+0x5E57E0     F3 0F 10 B7 28 01 00 00         movss xmm6,dword ptr [rdi+128h]
+0x5E57E8     E8 33 23 D3 FF                  call 0000000180317B20h
+0x5E57ED     48 8B 1D 5C 82 42 03            mov rbx,[183A0DA50h] ; MethodRef: System.Void FishNet.Object.Synchronizing.SyncVar`1<System.Single>..ctor
+0x5E57F4     33 D2                           xor edx,edx
+0x5E57F6     48 8B C8                        mov rcx,rax
+0x5E57F9     48 8B F0                        mov rsi,rax
+0x5E57FC     E8 5F D5 6E 00                  call 0000000180CD2D60h ; FishNet.Object.Synchronizing.Internal.SyncBase::.ctor/0
+0x5E5801     48 8B 4B 20                     mov rcx,[rbx+20h]
+0x5E5805     0F 28 CE                        movaps xmm1,xmm6
+0x5E5808     4C 8B 81 C0 00 00 00            mov r8,[rcx+0C0h]
+0x5E580F     48 8B CE                        mov rcx,rsi
+0x5E5812     4D 8B 40 20                     mov r8,[r8+20h]
+0x5E5816     E8 95 62 B9 00                  call 000000018117BAB0h
+0x5E581B     48 85 F6                        test rsi,rsi
+0x5E581E     0F 84 39 01 00 00               je near ptr 00000001805E595Dh
+0x5E5824     48 C7 44 24 40 00 00 00 00      mov qword ptr [rsp+40h],0
+0x5E582D     41 B1 01                        mov r9b,1
+0x5E5830     C6 44 24 38 00                  mov byte ptr [rsp+38h],0
+0x5E5835     45 33 C0                        xor r8d,r8d
+0x5E5838     C6 44 24 30 00                  mov byte ptr [rsp+30h],0
+0x5E583D     48 8B D7                        mov rdx,rdi
+0x5E5840     F3 0F 11 7C 24 28               movss dword ptr [rsp+28h],xmm7
+0x5E5846     48 8B CE                        mov rcx,rsi
+0x5E5849     C6 44 24 20 00                  mov byte ptr [rsp+20h],0
+0x5E584E     E8 BD D0 6E 00                  call 0000000180CD2910h ; FishNet.Object.Synchronizing.Internal.SyncBase::InitializeInstance/7
+0x5E5853     48 8D 8F 80 01 00 00            lea rcx,[rdi+180h]
+0x5E585A     48 89 B7 80 01 00 00            mov [rdi+180h],rsi
+0x5E5861     48 8B D6                        mov rdx,rsi
+0x5E5864     E8 47 12 D3 FF                  call 0000000180316AB0h
+0x5E5869     48 8B 0D 18 6D 3A 03            mov rcx,[18398C588h] ; TypeInfo: FishNet.Object.Delegating.ServerRpcDelegate
+0x5E5870     E8 AB 22 D3 FF                  call 0000000180317B20h
+0x5E5875     4C 8B 05 54 FA 3C 03            mov r8,[1839B52D0h] ; MethodDef: ScheduleOne.Money.MoneyManager::RpcReader___Server_CreateOnlineTransaction_1419830531/3
+0x5E587C     45 33 C9                        xor r9d,r9d
+0x5E587F     48 8B D7                        mov rdx,rdi
+0x5E5882     48 8B C8                        mov rcx,rax
+0x5E5885     48 8B D8                        mov rbx,rax
+0x5E5888     E8 63 C3 6E 00                  call 0000000180CD1BF0h ; FishNet.Object.Delegating.ServerRpcDelegate::.ctor/2
+0x5E588D     45 33 C9                        xor r9d,r9d
+0x5E5890     4C 8B C3                        mov r8,rbx
+0x5E5893     33 D2                           xor edx,edx
+0x5E5895     48 8B CF                        mov rcx,rdi
+0x5E5898     E8 23 16 F6 FF                  call 0000000180546EC0h
+0x5E589D     48 8B 0D 0C D2 40 03            mov rcx,[1839F2AB0h] ; TypeInfo: FishNet.Object.Delegating.ClientRpcDelegate
+0x5E58A4     E8 77 22 D3 FF                  call 0000000180317B20h
+0x5E58A9     4C 8B 05 60 F8 3C 03            mov r8,[1839B5110h] ; MethodDef: ScheduleOne.Money.MoneyManager::RpcReader___Observers_ReceiveOnlineTransaction_1419830531/2
+0x5E58B0     45 33 C9                        xor r9d,r9d
+0x5E58B3     48 8B D7                        mov rdx,rdi
+0x5E58B6     48 8B C8                        mov rcx,rax
+0x5E58B9     48 8B D8                        mov rbx,rax
+0x5E58BC     E8 BF 78 6D 00                  call 0000000180CBD180h ; FishNet.Object.Prediction.Delegating.ReconcileRpcDelegate::.ctor/2 | FishNet.Object.Delegating.ClientRpcDelegate::.ctor/2
+0x5E58C1     45 33 C9                        xor r9d,r9d
+0x5E58C4     4C 8B C3                        mov r8,rbx
+0x5E58C7     BA 01 00 00 00                  mov edx,1
+0x5E58CC     48 8B CF                        mov rcx,rdi
+0x5E58CF     E8 0C 14 F6 FF                  call 0000000180546CE0h
+0x5E58D4     48 8B 0D AD 6C 3A 03            mov rcx,[18398C588h] ; TypeInfo: FishNet.Object.Delegating.ServerRpcDelegate
+0x5E58DB     E8 40 22 D3 FF                  call 0000000180317B20h
+0x5E58E0     4C 8B 05 09 F9 3C 03            mov r8,[1839B51F0h] ; MethodDef: ScheduleOne.Money.MoneyManager::RpcReader___Server_ChangeLifetimeEarnings_431000436/3
+0x5E58E7     45 33 C9                        xor r9d,r9d
+0x5E58EA     48 8B D7                        mov rdx,rdi
+0x5E58ED     48 8B C8                        mov rcx,rax
+0x5E58F0     48 8B D8                        mov rbx,rax
+0x5E58F3     E8 F8 C2 6E 00                  call 0000000180CD1BF0h ; FishNet.Object.Delegating.ServerRpcDelegate::.ctor/2
+0x5E58F8     45 33 C9                        xor r9d,r9d
+0x5E58FB     4C 8B C3                        mov r8,rbx
+0x5E58FE     BA 02 00 00 00                  mov edx,2
+0x5E5903     48 8B CF                        mov rcx,rdi
+0x5E5906     E8 B5 15 F6 FF                  call 0000000180546EC0h
+0x5E590B     48 8B 0D 3E A3 3B 03            mov rcx,[18399FC50h] ; TypeInfo: FishNet.Object.Delegating.SyncVarReadDelegate
+0x5E5912     E8 09 22 D3 FF                  call 0000000180317B20h
+0x5E5917     4C 8B 05 12 F7 3C 03            mov r8,[1839B5030h] ; MethodDef: ScheduleOne.Money.MoneyManager::ReadSyncVar___ScheduleOne.Money.MoneyManager/3
+0x5E591E     45 33 C9                        xor r9d,r9d
+0x5E5921     48 8B D7                        mov rdx,rdi
+0x5E5924     48 8B C8                        mov rcx,rax
+0x5E5927     48 8B D8                        mov rbx,rax
+0x5E592A     E8 F1 F9 6E 00                  call 0000000180CD5320h ; FishNet.Object.Delegating.SyncVarReadDelegate::.ctor/2
+0x5E592F     45 33 C0                        xor r8d,r8d
+0x5E5932     48 8B D3                        mov rdx,rbx
+0x5E5935     48 8B CF                        mov rcx,rdi
+0x5E5938     E8 E3 2B 6E 00                  call 0000000180CC8520h ; FishNet.Object.NetworkBehaviour::RegisterSyncVarRead/1
+0x5E593D     0F 28 7C 24 50                  movaps xmm7,[rsp+50h]
+0x5E5942     48 8B B4 24 88 00 00 00         mov rsi,[rsp+88h]
+0x5E594A     48 8B 9C 24 80 00 00 00         mov rbx,[rsp+80h]
+0x5E5952     0F 28 74 24 60                  movaps xmm6,[rsp+60h]
+0x5E5957     48 83 C4 70                     add rsp,70h
+0x5E595B     5F                              pop rdi
+0x5E595C     C3                              ret
+0x5E595D     E8 1E 22 D3 FF                  call 0000000180317B80h
+0x5E5962     CC                              int 3
+0x5E5963     CC                              int 3
+0x5E5964     CC                              int 3
+0x5E5965     CC                              int 3
+0x5E5966     CC                              int 3
+0x5E5967     CC                              int 3
+0x5E5968     CC                              int 3
+0x5E5969     CC                              int 3
+0x5E596A     CC                              int 3
+0x5E596B     CC                              int 3
+0x5E596C     CC                              int 3
+0x5E596D     CC                              int 3
+0x5E596E     CC                              int 3
+0x5E596F     CC                              int 3

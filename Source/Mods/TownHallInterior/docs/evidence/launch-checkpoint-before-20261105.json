@@ -1,0 +1,47 @@
+{
+  "schema": 1,
+  "capturedUtc": "2026-11-05T06:27:36.305973+00:00",
+  "project": "schedule1-mod-only",
+  "sourceRevision": "b2c6c7e6c6ecc778da9624cdb68a6578b9db471a",
+  "sourceWorktree": "dirty",
+  "backupId": "20261105T062735613294Z-d8477f8e",
+  "backupRelativePath": ".backups/townhall-launch-prep/20261105T062735613294Z-d8477f8e",
+  "manifestSha256": "7df04016a7bc8a24e75fe5337151098e0020b8a899e14295b4ffbfce8819b6aa",
+  "organisation": "TownHallTest",
+  "slot": "SaveGame_2",
+  "savedGameVersion": "0.4.7f12",
+  "nativeFiles": 39,
+  "userDataFiles": 162,
+  "payloadFiles": 3,
+  "totalBytes": 67340458,
+  "backupVerified": true,
+  "sourcesUnchanged": true,
+  "nativeSlot1Accessed": false,
+  "sourceSaveWrites": false,
+  "deploymentPerformed": false,
+  "gameLaunched": false,
+  "steamCloud": {
+    "checkedUtc": "2026-11-05T06:27:36.305973+00:00",
+    "source": "Steam/config/config.vdf: InstallConfigStore/Software/Valve/Steam/Cloud/EnableCloud",
+    "globalCloudEnabled": null,
+    "configSha256": "dcde72b5331b2c0807140b718aff689bc883e02d22188720cda6d8ddadce74a1",
+    "recentAppSignals": [
+      {
+        "timestamp": "2026-11-04 08:12:17",
+        "kind": "sync-disabled",
+        "syncDisabled": true
+      }
+    ],
+    "settingsChanged": false,
+    "remoteStateChecked": false,
+    "conflictsResolved": false
+  },
+  "nativeSaveProbeAllowed": false,
+  "limitations": [
+    "Backup contains private config locally under a gitignored directory; no backup contents are knowledge imports.",
+    "Shared UserData can include sidecars of other slots; copied unchanged, not loaded or mutated.",
+    "Cloud remote state and existing conflict markers were not changed or resolved.",
+    "Baseline launch still requires the separate installed-binary audit; no save-probe readiness is implied.",
+    "Normal game autosaves are not disabled by preparation."
+  ]
+}

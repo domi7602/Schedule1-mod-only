@@ -1,0 +1,15 @@
+{
+  "reviewer": "townhall_save_verifier (independent Codex subagent)",
+  "scope": "Production diff and 24 regression cases; no own execution or native runtime proof",
+  "result": "accepted",
+  "required_corrections": [],
+  "source_hashes": {
+    "Source/Mods/TownHallInterior/src/BusinessConstruction.cs": "159f7cbdc6c7c01db1a34c93cfe2c02c8df095c2f709678afb2bf13256b9e868",
+    "Source/Tests/TownHallInterior.Tests/BusinessSubtypeTests.cs": "1f73b0a1b425a97d30004eb522c84fc640c9398953af3f9c8785f95e7e116d78",
+    "Source/Tests/TownHallInterior.Tests/BusinessSaveIntegrationRegressionTests.cs": "55111225977871cbb496505f000858f2c9c6f15ffbc2e0d820e8c2e28ce7c867"
+  },
+  "limitations": [
+    "No native world-exit or last-use guarantee",
+    "No new in-game or installation verification of corrected candidate"
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "capturedUtc": "2026-11-06T13:26:42.386370+00:00",
+  "files": {
+    "launch-request.json": {
+      "sha256": "77c46fe014db3250abe78972ff0b75e5ca98f500ce1788baef505c1f8377158d",
+      "bytes": 277
+    },
+    "live-log-excerpt.txt": {
+      "sha256": "aa9247f20e22c22c635a236cb7e232bbebc5c3f84894e703f5d7c134103b3a6e",
+      "bytes": 2101
+    },
+    "live-report.json": {
+      "sha256": "a5d8cc490cc9ca8db732281335a8b9be3ac5b4a52617be08b842d069d3bc8c97",
+      "bytes": 6037
+    },
+    "live-review.json": {
+      "sha256": "f701da5315dc655e7bf5c93ead03ad8ff540ff72657c11f2332dff841caeecb2",
+      "bytes": 3707
+    },
+    "observation.json": {
+      "sha256": "77c4e60ee77014169345f79f5a4f88f9dae77eb88480f8d6046ffd86493d87ca",
+      "bytes": 3233
+    },
+    "process.json": {
+      "sha256": "1762c04a8c343227e2ff184b0050f6eeb73583718585fce29003fbe5c8201720",
+      "bytes": 106
+    },
+    "rollback-checkpoint.json": {
+      "sha256": "257c55cf4f058978ad6907da24f23ca0f017e18936aad21410000b8dd5f473b5",
+      "bytes": 2849
+    },
+    "rollback-plan.json": {
+      "sha256": "684af864f4d73369580c5d406f7a5cf806acb39d6a84fdda73586583e4bb49cc",
+      "bytes": 1814
+    },
+    "rollback-receipt.json": {
+      "sha256": "680f7beb07c29ab5225842a6864415719146b463f9840deb3c0d0ea1e8abec64",
+      "bytes": 3364
+    },
+    "rollback-review.json": {
+      "sha256": "e0db0869bd73dd45c749cbc692d74c68a6850f29f33bc8417315871651290b41",
+      "bytes": 3288
+    },
+    "rollback-verification.json": {
+      "sha256": "26c773c8cb9027eda6ffee2a1986e96b6db0b8e4df3d18edc77efca0e3fe19a9",
+      "bytes": 1675
+    },
+    "rollback.log.txt": {
+      "sha256": "e2d686bdf9c92c885920b44680cce210b9ed5cf6792b4dcb6ed892a1b9fa9efd",
+      "bytes": 170
+    },
+    "save-verification.json": {
+      "sha256": "5bd17bf3c8d52134899a613bade2fb8388f11074369628ea14d031fb2d5ecfd8",
+      "bytes": 669
+    }
+  }
+}

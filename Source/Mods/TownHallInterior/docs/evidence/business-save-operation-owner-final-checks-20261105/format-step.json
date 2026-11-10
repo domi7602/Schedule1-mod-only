@@ -1,0 +1,20 @@
+{
+  "originalStep": {
+    "Name": "format",
+    "Status": "Passed",
+    "ExitCode": 0,
+    "Seconds": 30.3,
+    "Command": "C:\\Program Files\\dotnet\\dotnet.exe",
+    "Arguments": [
+      "format",
+      "C:\\Users\\pc\\.cache\\s1ov\\clean-checkout-e0035c00d8f4\\checkout\\Source\\Mods\\S1Mods.sln",
+      "--verify-no-changes",
+      "--verbosity",
+      "minimal"
+    ],
+    "LogPath": "C:\\Users\\pc\\.cache\\s1ov\\clean-checkout-e0035c00d8f4\\checks\\verify-626a10b2f4fd\\format.log",
+    "Error": null
+  },
+  "originalLogExists": false,
+  "note": "Successful formatter produced no output, so Tee created no format.log."
+}

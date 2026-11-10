@@ -1,0 +1,120 @@
+{
+  "schema": 1,
+  "capturedUtc": "2026-11-05T05:42:13.3384368Z",
+  "reviewer": "GPT-6.1 Sol / unabhängiger BusinessManager-Delta-Auditor dieser Sitzung",
+  "status": "green-offline-audit-80-native-save-remains-blocked",
+  "evidenceKind": "Unveränderter game-free Audit-Nachlauf und begrenzte Quellprüfung des Parent-Fix; kein nativer Laufzeitnachweis",
+  "repository": {
+    "project": "schedule1-mod-only",
+    "baseRevision": "b2c6c7e6c6ecc778da9624cdb68a6578b9db471a",
+    "workingTree": "dirty; parallele autorisierte Parent-/Coder-Arbeit bleibt erhalten",
+    "productionEditedByReviewer": false,
+    "auditTestsEditedForGreen": false
+  },
+  "originalRed": {
+    "path": "Source/Mods/TownHallInterior/docs/evidence/business-save-safety-review-20261105.json",
+    "sha256": "920d7d6efc16cc8753bcd303358455a5ca95834f3bc7faed9f2f09b7d8bd5bf8",
+    "checkedBeforeAndAfterGreenRun": true,
+    "overwritten": false,
+    "sourceSha256": "0bc19d1bb0ab04632569b190bc2983ab8b1e63fe5208a9e4d9413dfed517f1f7",
+    "total": 80,
+    "passed": 72,
+    "failed": 8,
+    "limit": "Der ursprüngliche Bericht bleibt unverändert als RED-Beleg seines damaligen Quellstands bestehen. Dieser neue Bericht schließt die dort benannten Modellblocker für den hier gehashten Parent-Fix."
+  },
+  "checkedSources": [
+    {
+      "path": "Source/Mods/TownHallInterior/src/BusinessConstruction.cs",
+      "sha256": "8964512eeb94ae63acadbe5cd47caa7c36a325e10cd75af73cc5c1091c4db5d2",
+      "checkedBeforeAndAfterGreenRun": true,
+      "scope": "ManagerSaveResult und BusinessManagerSaveTrial, Entfernung des Legacy-Save-Pfads sowie fortbestehende native Schreibsperre"
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/BusinessManagerAuditTests.cs",
+      "sha256": "164eaeb014c1d63b776c47d0dd105f4f12bec79d4ffb02a135d3da5f5f82323d",
+      "checkedBeforeAndAfterGreenRun": true,
+      "identicalToRedRun": true,
+      "assertionsChanged": false
+    }
+  ],
+  "testRun": {
+    "phase": "GREEN nach Parent-Fix mit unveränderten Audit80",
+    "sdk": "8.0.426",
+    "testTarget": "net6.0",
+    "gameProcessPreflightUtc": "2026-11-05T05:41:34.8236378Z",
+    "gameProcessPreflight": "PASS: Get-Process gelesen; weder Schedule I noch ScheduleI vorhanden. Kein Prozess gestartet oder beendet.",
+    "command": "dotnet test Source/Tests/TownHallInterior.Tests/TownHallInterior.Tests.csproj -p:S1NoDeploy=true --filter FullyQualifiedName~BusinessManagerAuditTests --artifacts-path .scratch/townhall-save-step1-20261105/audit-artifacts --results-directory .scratch/townhall-save-step1-20261105/audit --logger trx",
+    "startedUtc": "2026-11-05T05:41:47.1567521Z",
+    "finishedUtc": "2026-11-05T05:41:48.0539423Z",
+    "exitCode": 0,
+    "total": 80,
+    "passed": 80,
+    "failed": 0,
+    "skipped": 0,
+    "trx": ".scratch/townhall-save-step1-20261105/audit/pc_WINDOWS_2026-11-05_06_41_47.trx",
+    "trxSha256": "3e8dd284901fb1bf8c255c4a8ce29f236e2754179963b503897d7113404888ec",
+    "runtimeEvidence": false,
+    "otherTestSuitesExecutedByReviewer": false
+  },
+  "closedFindings": [
+    {
+      "id": "BSA-001",
+      "status": "closed-for-offline-model",
+      "sourceLocations": ["BusinessConstruction.cs:145", "BusinessConstruction.cs:218-223"],
+      "review": "_safe hat keinen true-Initialisierer mehr. Die einzige Zuweisung true steht nach erfolgreicher eigener Entfernung, unverändertem Identitätsreadback, idle/leerer Queue/keinen eigenen Einträgen oder aktiven Callbacks und der abschließenden Kontextprüfung.",
+      "tests": "Alle sieben ursprünglichen RED-Fälle für initialen Read-Fehler und vorbestehende Referenz-/Saveaktivität bestehen unverändert. Auch Fehler und Widerrufe nach möglicher Wirkung erlauben keine sichere Zerstörung."
+    },
+    {
+      "id": "BSA-002",
+      "status": "closed-for-requested-offline-frame-boundary",
+      "sourceLocations": ["BusinessConstruction.cs:147,179", "BusinessConstruction.cs:211-217"],
+      "review": "Der erste identitäts- und zählergültige Complete-Snapshot setzt _completionFrame. RemoveSaveable verlangt Frame > _dispatchFrame und Frame > _completionFrame. Wiederholte Ticks im ersten Completionframe entfernen nicht.",
+      "tests": "First_completion_observation_requires_a_later_frame_before_removal und die übrigen Auditfälle bestehen ohne geänderte Assertions.",
+      "limit": "Diese konservative Modellgrenze ist kein Nachweis des nativen Freigabezeitpunkts."
+    }
+  ],
+  "additionalFixDeltaReview": [
+    {
+      "source": "BusinessConstruction.cs:130-133,150-152",
+      "finding": "DispatchFrame wird erst bei versuchtem Save exportiert; CompletionObservedFrame erst nach erfasstem gültigem Complete-Snapshot. Beide Grenzen sind im Result getrennt sichtbar.",
+      "verification": "Quellprüfung; kein neuer Test und keine neue Behauptung nativer Frame-/Eventreihenfolge."
+    },
+    {
+      "source": "BusinessConstruction.cs:154-157,186-190",
+      "finding": "Begin berücksichtigt _terminal vor ReadSaveState. Ein initialer Read-Fehler setzt terminal, behält AttemptConsumed=false und SafeToDestroy=false; ein weiterer Begin erreicht keinen Portread.",
+      "verification": "Quellprüfung der zusätzlichen Parent-/Coder-Korrektur. Audit80 prüft den initialen Fehlerzustand; die separate Coder-Regression für Wiederaufnahme wurde hier nicht zusätzlich ausgeführt."
+    },
+    {
+      "source": "BusinessConstruction.cs:179-190",
+      "finding": "Nach SaveOnce-Rückkehr wird SaveReturned=true gesetzt und RequireContext vor pending ausgeführt. Widerruf führt dadurch bei möglicher Savewirkung terminal in quarantined; keine Entfernung, kein Retry.",
+      "verification": "Quellprüfung; separate Parent-/Coder-Tests hierfür sind nicht als eigene Audit-Ausführung übernommen."
+    }
+  ],
+  "safetyBoundaryRechecked": {
+    "checkSave": "BusinessConstruction.cs:530-531 erlaubt ausschließlich TownHallTest / SaveGame_2, ohne explizite Umleitung.",
+    "legacyProbeSave": "BusinessConstruction.cs:269-272 bleibt vor Portzugriff, Typregistrierung und Save blockiert.",
+    "nativeWrites": "BusinessConstruction.cs:1900 setzt NativeSaveWriteAllowed=false und SaveCompletionContractVerified=false.",
+    "sourceSearch": "In Source/Mods/*.cs rekursiv keine SaveRegistered-Referenz, kein save.Save()-Aufruf des entfernten Pfads, kein new BusinessManagerSaveTrial und kein Produktionsimplementierer von IBusinessSavePort gefunden.",
+    "nativeSaveAdapterPresent": false,
+    "newNativeHooksAddedByReviewer": false,
+    "newBlockerFoundInLimitedFixDelta": false
+  },
+  "nativeContractStillMissing": {
+    "sourceEvidence": "Der unveränderte ursprüngliche RED-Bericht enthält Originalpfade, Zeilen und Hashes des nativen Quellenchecks vom 2026-11-05.",
+    "s1apiForwarding": "GameLifecycle.OnSaveComplete ist eine direkte Weiterleitung von SaveManager.onSaveComplete, kein Save-Postfix. Das macht den in Proxys fehlenden nativen Abschluss-/Freigaberumpf nicht sichtbar.",
+    "limits": [
+      "Native Reihenfolge von Queueentnahme, Dateiarbeit, IsSaving=false, Event und letzter Referenznutzung bleibt unbelegt.",
+      "Das Completionevent ist parameterlos und enthält keine Request-ID oder Zielpfadquittung.",
+      "Main-Unload entfernt S1APIs native Save-Listener; ein früherer werfender Multicast-Teilnehmer kann spätere verwaltete Teilnehmer überspringen.",
+      "Complete + idle + leere Queue + Folgeframe ist allein kein etablierter Engine-Freigabevertrag und keine atomare Erfolgsquittung aller Moddaten."
+    ],
+    "recommendation": "Native Schreibsperre vor Registrierung und Save beibehalten. GREEN schließt ausschließlich die geprüften Offline-Modellblocker."
+  },
+  "remainingLimits": [
+    "Keine Produktionsänderungen, Teständerungen oder Änderungen am ursprünglichen RED-Bericht durch diesen Nachlauf; neu geschrieben wurde nur diese Closed-Evidence.",
+    "Kein nativer Save-Dateizugriff, Spielstart, Deployment, nativer Callbackaufruf oder Subagent.",
+    "Keine Gesamtprüfung und kein Produktions-Modbuild durch diesen Auditor; Parent führt Gesamtprüfungen und den endgültigen Dokumentationsabgleich aus.",
+    "Das Ergebnis gilt für die genannten Quellhashes. Spätere parallele Änderungen sind dadurch nicht automatisch geprüft.",
+    "Kein Nachweis gespeicherter/wiederhergestellter Businessdaten, kein Save-/Load-Erfolg und keine Freigabe eines Live-Versuchs."
+  ]
+}

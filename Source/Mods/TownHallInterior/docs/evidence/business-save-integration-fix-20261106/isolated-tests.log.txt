@@ -1,0 +1,506 @@
+
+test-all.ps1 | selection=pure | configuration=Release
+dotnet      : C:\Program Files\dotnet\dotnet.exe
+SDK version : 8.0.426
+artifacts   : C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-0b9c6fa73435\checks\verify-ac7d12cf80c7\tests\test-all-20261106-090611-9eef8167
+game probe  : C:\Program Files (x86)\Steam\steamapps\common\Schedule I\MelonLoader\Il2CppAssemblies\Assembly-CSharp.dll (present)
+S1NoDeploy  : -p:S1NoDeploy=true on every dotnet test/run (env alone is not trusted)
+
+Classification:
+  [RUN ] AutoPackagingStation.Tests       xunit          test SDK + xunit, game-free
+  [RUN ] BankApp.Tests                    xunit          test SDK + xunit, game-free
+  [RUN ] BusinessIncome.ConfigIo.Tests    xunit          test SDK + xunit, game-free
+  [RUN ] BusinessIncome.Tests             xunit          test SDK + xunit, game-free
+  [RUN ] CalculatorApp.Tests              xunit          test SDK + xunit, game-free
+  [RUN ] GoldenHour.Tests                 xunit          test SDK + xunit, game-free
+  [RUN ] HitmanPhone.Tests                xunit          test SDK + xunit, game-free
+  [RUN ] LightControl.Tests               console        OutputType Exe, declared output contract
+  [RUN ] MessagesPlus.Tests               xunit          test SDK + xunit, game-free
+  [RUN ] Minimap.Tests                    xunit          test SDK + xunit, game-free
+  [RUN ] PocketShop.Tests                 xunit          test SDK + xunit, game-free
+  [RUN ] PoliceTestMode.Tests             xunit          test SDK + xunit, game-free
+  [RUN ] PropertyLEDs.Tests               xunit          test SDK + xunit, game-free
+  [RUN ] S1MCP.Tests                      xunit          test SDK + xunit, game-free
+  [SKIP] Shared.Tests                     game-required  test SDK + xunit + game/Mods reference
+  [RUN ] StorageScanner.Tests             xunit          test SDK + xunit, game-free
+  [RUN ] TaxiDriver.Tests                 xunit          test SDK + xunit, game-free
+  [RUN ] TownHallInterior.Tests           xunit          test SDK + xunit, game-free
+  [RUN ] WaterShader.Tests                xunit          test SDK + xunit, game-free
+  [RUN ] WorldLook.Tests                  xunit          test SDK + xunit, game-free
+
+=== AutoPackagingStation.Tests (xunit) ===
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  AutoPackagingStation.Tests -> C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-0b9c6fa73435\checkout\Source\Tests\AutoPackagingStation.Tests\bin\Release\net6.0\AutoPackagingStation.Tests.dll
+Test run for C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-0b9c6fa73435\checkout\Source\Tests\AutoPackagingStation.Tests\bin\Release\net6.0\AutoPackagingStation.Tests.dll (.NETCoreApp,Version=v6.0)
+A total of 1 test files matched the specified pattern.
+Results File: C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-0b9c6fa73435\checks\verify-ac7d12cf80c7\tests\test-all-20261106-090611-9eef8167\AutoPackagingStation.Tests\AutoPackagingStation.Tests-bfecd2068ccc.trx
+
+Passed!  - Failed:     0, Passed:    66, Skipped:     0, Total:    66, Duration: 60 ms - AutoPackagingStation.Tests.dll (net6.0)
+--- AutoPackagingStation.Tests: PASSED (66/66 passed, 0 failed, 66 executed) (2,0s) ---
+=== BankApp.Tests (xunit) ===
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  BankApp.Tests -> C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-0b9c6fa73435\checkout\Source\Tests\BankApp.Tests\bin\Release\net6.0\BankApp.Tests.dll
+Test run for C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-0b9c6fa73435\checkout\Source\Tests\BankApp.Tests\bin\Release\net6.0\BankApp.Tests.dll (.NETCoreApp,Version=v6.0)
+A total of 1 test files matched the specified pattern.
+Results File: C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-0b9c6fa73435\checks\verify-ac7d12cf80c7\tests\test-all-20261106-090611-9eef8167\BankApp.Tests\BankApp.Tests-1520d0586561.trx
+
+Passed!  - Failed:     0, Passed:   103, Skipped:     0, Total:   103, Duration: 66 ms - BankApp.Tests.dll (net6.0)
+--- BankApp.Tests: PASSED (103/103 passed, 0 failed, 103 executed) (2,0s) ---
+=== BusinessIncome.ConfigIo.Tests (xunit) ===
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  BusinessIncome.ConfigIo.Tests -> C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-0b9c6fa73435\checkout\Source\Tests\BusinessIncome.ConfigIo.Tests\bin\Release\net6.0\BusinessIncome.ConfigIo.Tests.dll
+Test run for C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-0b9c6fa73435\checkout\Source\Tests\BusinessIncome.ConfigIo.Tests\bin\Release\net6.0\BusinessIncome.ConfigIo.Tests.dll (.NETCoreApp,Version=v6.0)
+A total of 1 test files matched the specified pattern.
+Results File: C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-0b9c6fa73435\checks\verify-ac7d12cf80c7\tests\test-all-20261106-090611-9eef8167\BusinessIncome.ConfigIo.Tests\BusinessIncome.ConfigIo.Tests-4f535833bd3d.trx
+
+Passed!  - Failed:     0, Passed:    17, Skipped:     0, Total:    17, Duration: 149 ms - BusinessIncome.ConfigIo.Tests.dll (net6.0)
+--- BusinessIncome.ConfigIo.Tests: PASSED (17/17 passed, 0 failed, 17 executed) (2,0s) ---
+=== BusinessIncome.Tests (xunit) ===
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  BusinessIncome.Tests -> C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-0b9c6fa73435\checkout\Source\Tests\BusinessIncome.Tests\bin\Release\net6.0\BusinessIncome.Tests.dll
+Test run for C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-0b9c6fa73435\checkout\Source\Tests\BusinessIncome.Tests\bin\Release\net6.0\BusinessIncome.Tests.dll (.NETCoreApp,Version=v6.0)
+A total of 1 test files matched the specified pattern.
+Results File: C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-0b9c6fa73435\checks\verify-ac7d12cf80c7\tests\test-all-20261106-090611-9eef8167\BusinessIncome.Tests\BusinessIncome.Tests-16c1c055be74.trx
+
+Passed!  - Failed:     0, Passed:   228, Skipped:     0, Total:   228, Duration: 59 ms - BusinessIncome.Tests.dll (net6.0)
+--- BusinessIncome.Tests: PASSED (228/228 passed, 0 failed, 228 executed) (2,0s) ---
+=== CalculatorApp.Tests (xunit) ===
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CalculatorApp.Tests -> C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-0b9c6fa73435\checkout\Source\Tests\CalculatorApp.Tests\bin\Release\net6.0\CalculatorApp.Tests.dll
+Test run for C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-0b9c6fa73435\checkout\Source\Tests\CalculatorApp.Tests\bin\Release\net6.0\CalculatorApp.Tests.dll (.NETCoreApp,Version=v6.0)
+A total of 1 test files matched the specified pattern.
+Results File: C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-0b9c6fa73435\checks\verify-ac7d12cf80c7\tests\test-all-20261106-090611-9eef8167\CalculatorApp.Tests\CalculatorApp.Tests-6f4a8ec3bb9c.trx
+
+Passed!  - Failed:     0, Passed:    18, Skipped:     0, Total:    18, Duration: 50 ms - CalculatorApp.Tests.dll (net6.0)
+--- CalculatorApp.Tests: PASSED (18/18 passed, 0 failed, 18 executed) (1,9s) ---
+=== GoldenHour.Tests (xunit) ===
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  GoldenHour.Tests -> C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-0b9c6fa73435\checkout\Source\Tests\GoldenHour.Tests\bin\Release\net6.0\GoldenHour.Tests.dll
+Test run for C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-0b9c6fa73435\checkout\Source\Tests\GoldenHour.Tests\bin\Release\net6.0\GoldenHour.Tests.dll (.NETCoreApp,Version=v6.0)
+A total of 1 test files matched the specified pattern.
+Results File: C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-0b9c6fa73435\checks\verify-ac7d12cf80c7\tests\test-all-20261106-090611-9eef8167\GoldenHour.Tests\GoldenHour.Tests-69f8faded126.trx
+
+Passed!  - Failed:     0, Passed:   104, Skipped:     0, Total:   104, Duration: 75 ms - GoldenHour.Tests.dll (net6.0)
+--- GoldenHour.Tests: PASSED (104/104 passed, 0 failed, 104 executed) (2,0s) ---
+=== HitmanPhone.Tests (xunit) ===
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  HitmanPhone.Tests -> C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-0b9c6fa73435\checkout\Source\Tests\HitmanPhone.Tests\bin\Release\net6.0\HitmanPhone.Tests.dll
+Test run for C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-0b9c6fa73435\checkout\Source\Tests\HitmanPhone.Tests\bin\Release\net6.0\HitmanPhone.Tests.dll (.NETCoreApp,Version=v6.0)
+A total of 1 test files matched the specified pattern.
+Results File: C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-0b9c6fa73435\checks\verify-ac7d12cf80c7\tests\test-all-20261106-090611-9eef8167\HitmanPhone.Tests\HitmanPhone.Tests-1b951a68e14a.trx
+
+Passed!  - Failed:     0, Passed:   148, Skipped:     0, Total:   148, Duration: 57 ms - HitmanPhone.Tests.dll (net6.0)
+--- HitmanPhone.Tests: PASSED (148/148 passed, 0 failed, 148 executed) (2,0s) ---
+=== LightControl.Tests (console) ===
+LightControl.Core behavioral checks | runtime 6.0.36 | 265 cases
+PASS C01 Eleven-color cycle preserves brightness
+PASS C02 Reject invalid color and intensity enums
+PASS C03 Reject nonfinite/unsafe effect parameters
+PASS C04 Persistent identity has collision-safe encoding
+PASS C05 Reject missing identities and invalid Unicode
+PASS C06 Reject duplicate logical and runtime instances
+PASS C07 Temporary unload and explicit rebind preserve state
+PASS C08 Permanent removal and replacement use default state
+PASS C09 Move preserves base state and changes effective scope
+PASS C10 New group members do not inherit previous group edits
+PASS C11 Temporarily unloaded lamps are not state-command targets
+PASS C12 Group authorization is atomic
+PASS C13 Authorization cannot reenter a mutation
+PASS C14 Authorization exceptions preserve all state
+PASS C15 Host rejects stale command revisions
+PASS C16 Host rejects wrong protocol and session
+PASS C17 Duplicate command is not executed twice
+PASS C18 Command IDs are scoped to verified sender
+PASS C19 Missing targets and unauthorized properties are rejected
+PASS C20 Client cannot become a local authority implicitly
+PASS C21 Snapshot may precede object registration
+PASS C22 Early delta prevents older initial snapshot overwrite
+PASS C23 Gap delta requires sufficiently new snapshot
+PASS C24 Delayed old snapshot cannot roll back a newer delta
+PASS C25 Invalid duplicate snapshot is rejected atomically
+PASS C26 Invalid overlapping delta is rejected atomically
+PASS C27 Wrong-session ephemeral payload does not enter model
+PASS C28 Unknown remote lamps wait for local registration
+PASS C29 Snapshot/delta constructors enforce collection bounds
+PASS C30 World/property disco precedence restores underlying effects
+PASS C31 Color edit under disco changes durable base only
+PASS C32 Brightness edit under disco acts immediately
+PASS C33 New lamp starts default and joins active disco
+PASS C34 Shared time and stable identity reproduce disco color
+PASS C35 Rainbow wraps at configurable period
+PASS C36 Disabled mode removes all visual influence
+PASS C37 Original color leaves current game color intact
+PASS C38 Intensity uses fresh baseline and leaves zero off
+PASS C39 Nonfinite or overflowing native intensity is rejected
+PASS C40 Persistence cannot write before initial load
+PASS C41 Corrupt data causes write lock
+PASS C42 Missing declaration cannot bypass load-error lock
+PASS C43 Unknown future schema remains write locked
+PASS C44 Duplicate JSON fields and lamp IDs are rejected
+PASS C45 Invalid persisted state is rejected before mutation
+PASS C46 Repeated load cycles preserve distinct identical fixtures
+PASS C47 Save A cannot read or overwrite save B
+PASS C48 Unregistered durable states survive saving
+PASS C49 Temporary effects and ephemeral IDs are not saved
+PASS C50 Local lamp state never becomes a persisted host state
+PASS C51 Old messages are rejected after session transition
+PASS C52 Loading after state mutation does not overwrite it
+PASS C53 Actual deletion removes persisted state
+PASS C54 Valid recovered JSON can unblock a failed initial load
+PASS C55 Oversized/nested/null JSON fails safely
+PASS C56 Protocol and model collections are defensive copies
+PASS C57 Concurrent commands from same revision have one winner
+PASS C58 Repeated menu sessions clear registrations and effects
+PASS C59 Authority time cannot run backwards
+PASS C60 Effect timestamps cannot originate after envelope time
+PASS C61 Duplicate successful load notification preserves write gate
+PASS C62 Later actual storage read failure blocks writes
+PASS C63 Native policy writes nothing before it owns a light
+PASS C64 Native 2x rebases on the fresh sample without compounding
+PASS C65 Native scaling follows external baseline drift
+PASS C66 Native scaling keeps zero and native flicker
+PASS C67 Original restores the latest native baseline
+PASS C68 Invalid or overflowing native samples write nothing
+PASS C69 Native teardown restores the baseline once
+PASS C70 Native identity rejects missing, empty and malformed GUIDs
+PASS C71 Native identity accepts a verified placed GUID
+PASS C72 Save slot -1 never yields a save id
+PASS C73 Load decision separates missing, unreadable and valid data
+PASS C74 A write requires the captured active slot
+PASS C75 Reconcile scans obey a bounded cadence
+PASS C76 Invalid time and nonpositive interval are rejected
+PASS C77 Color cycle visits all eleven modes
+PASS C78 Intensity cycle visits all seven levels
+PASS C79 Original action resets to the model default
+PASS C80 Native undo preserves an external write after late-update
+PASS C81 Native undo restores the baseline when nothing else wrote
+PASS C82 Native float round-trip is not misread as an external write
+PASS C83 Native teardown preserves an external write and releases ownership
+PASS C84 Native failed setter never claims ownership
+PASS C85 Native repeated 2x stays 2x and zero stays zero
+PASS C86 Color undo preserves an external write and restores otherwise
+PASS C87 Color failed setter never claims ownership
+PASS C88 Owned-property gate requires a live owned property
+PASS C89 Scan budget bounds nodes and milliseconds per frame
+PASS C90 Scan budget reports limits and truncation
+PASS C91 Fair root order rotates across scans
+PASS C92 Light pointer dedupe keeps the first distinct unowned pointer
+PASS C93 Persistence write uses the strict slot guard
+PASS C94 Persist retries a failed write at the next autosave
+PASS C95 Mod deinitializes symmetrically
+PASS C96 Ownership gate and unload/rebind wiring
+PASS C97 Cooperative bounded scan wiring
+PASS C98 App removes the exact wired UnityEvent without a button gate
+PASS C99 App action failure is reported, not silently refreshed
+PASS C100 Blocked lamp-data read surfaces a status message
+PASS C101 LED surface slot classification
+PASS C102 Foreign or empty surface slot is never overridden
+PASS C103 A switched-off lamp is never recoloured
+PASS C104 LED surface colour scales the native emission magnitude
+PASS C105 Original brightness scales the native hue only
+PASS C106 Zero percent yields zero emission without switching the lamp
+PASS C107 LED surface rebases on the native baseline and never compounds
+PASS C108 Invalid surface baseline writes nothing and releases ownership
+PASS C109 A failed surface write never claims ownership
+PASS C110 Teardown restores the native slot exactly once
+PASS C111 Original at 100 percent leaves no owned material influence
+PASS C112 Switching the lamp off restores our own clone slot
+PASS C113 An owned clone slot keeps ownership while the lamp stays on
+PASS C114 Every surface brightness level scales the baseline
+PASS C115 Owned output matching compares the exact installed floats
+PASS C116 Surface sample validation rejects unsafe values
+PASS C117 Runtime drives only the lamp's own panel and emitted light
+PASS C118 Runtime touches only shared materials and owns its clones
+PASS C119 Runtime restores and releases owned surface resources
+PASS C120 App states the unified panel and emitted-light scope
+PASS C121 LED surface clone source stays the installed native material
+PASS C122 LED surface clone source never drifts across changes
+PASS C123 LED surface release is deferred while unproven
+PASS C124 LED surface release is safe only when proven disconnected
+PASS C125 Runtime uses the ownership helper and retains unproven releases
+PASS C126 Native material identity needs a usable nonzero id
+PASS C127 Distinct wrappers of one native material are the same material
+PASS C128 An unreadable or disposed material handle is never equal
+PASS C129 An incomplete material-array scan never proves disconnection
+PASS C130 Second and third colours reuse the same clone without compounding
+PASS C131 Native identity restores across wrappers and rejects a same-named foreigner
+PASS C132 Native-id clone reuse keeps the source stable
+PASS C133 A deferred restore is never converged and must retry
+PASS C134 Runtime decides material identity by native id only
+PASS C135 Coupled lamp readiness fails closed without both outputs
+PASS C136 A chosen colour is the same hue on panel and emitted light
+PASS C137 Second and third picks update both through distinct wrappers
+PASS C138 Original restores the panel slot and the emitted light
+PASS C139 A switched-off lamp never emits our illumination
+PASS C140 Emitted intensity scales each level against its own baseline
+PASS C141 An external write after late-update is preserved
+PASS C142 One failed source cannot block another lamp's cleanup
+PASS C143 Runtime couples the panel with the lamp's own native light
+PASS C144 Verified panel pairs are LED and grow-tent halogen only
+PASS C145 The prologue RV is never tracked, even while it still exists
+PASS C146 Only a grow tent contributes a built-in light
+PASS C147 Runtime drops exploded-RV lamps and registers grow-tent lights
+PASS C148 The lamp list keeps the selected row when the filter still shows it
+PASS C149 A palette pick sets that color instead of cycling
+PASS C150 Lamps stay under the property they were first seen in
+PASS A01-A20 Selection, available targets, preview and save notices
+PASS LC02 Rebind commits new property and group with runtime identity
+PASS LC02 Rejected rebind preserves old registration and state
+PASS LC03 Throwing rebind preparation leaves model unavailable and retryable
+PASS LC06 Lost preview target rejects without changing another target
+PASS LC06 Changed catalog rejects even with identical state revision
+PASS LC06 Same-sized different target set rejects atomically
+PASS LC06 Exact confirmed targets apply and stale rejection is retryable
+PASS LC06 Duplicate confirmed keys reject without mutation
+PASS LC11 Static visual instructions are reused
+PASS LC11 Rainbow ticks are flagged and skip the apply breadcrumb
+PASS LC01 Pending restore pressure blocks new claims, not existing owners
+PASS LC01 Source wiring never discards an owned source at the soft limit
+PASS Native destruction proof is not proxy collection or a missing pointer
+PASS LC05 Material conflict and retained cleanup remain visible with empty catalog
+PASS LC04 Own clone suffix after Instance can never be a native panel
+PASS LC04 Discovery checks retained clone identity before promotion
+PASS LC11 Unowned Original100 needs no native apply, pending output still does
+PASS UI Empty catalog text distinguishes a finished scan
+PASS UI A single changed lamp has singular wording
+PASS UI Empty-state wiring updates outside catalog-only layout changes
+PASS UI Selection changes dismiss frozen world-copy confirmation
+PASS LC12 An unconsulted backup is not proof of missing data
+PASS LC03 Source wiring commits tent model before releasing and publishing
+PASS LC07 Source wiring reconciles inactive known lamps too
+PASS LC06 Source wiring reconciles before final preview and pins mutation targets
+PASS Teardown source wiring contains final persistence exceptions
+PASS LC12-01 Proven absence of main and backup confirms missing data
+PASS LC12-02 Unreadable main blocks even when a valid backup exists
+PASS LC12-03 A readable valid main is loaded from the main file
+PASS LC12-04 Unknown schema main blocks even with a valid backup
+PASS LC12-05 Foreign save-id main blocks even with a valid backup
+PASS LC12-06 Corrupt main recovers from an independently validated backup
+PASS LC12-07 Corrupt main with a foreign-save backup blocks
+PASS LC12-08 Corrupt main with an unknown-schema backup blocks
+PASS LC12-09 Corrupt main with no backup blocks as invalid JSON
+PASS LC12-10 Corrupt main with an unreadable backup blocks
+PASS LC12-11 Absent main with an unreadable backup blocks
+PASS LC12-12 Absent main with a corrupt backup blocks as invalid JSON
+PASS LC12-13 Inspect never mutates or applies data by itself
+PASS LC12-14 The adapter reads outcomes and never consults File.Exists
+PASS LC12-15 A later explicit read failure blocks an already-ready gate
+PASS N01 Late-update never rebases intensity on our own installed output
+PASS N02 Late-update never rebases colour on our own installed output
+PASS N03 Original after a missed undo restores the real baseline
+PASS N04 A failed hand-back keeps intensity ownership and its baseline
+PASS N05 A failed hand-back keeps colour ownership and its baseline
+PASS N06 A hand-back never writes when nothing of ours is installed
+PASS N07 A failed apply keeps the previously installed ownership and baseline
+PASS N08 A failed first apply still claims nothing
+PASS N09 A binding confirms each property's hand-back independently
+PASS N10 A binding supersedes a dead hand-back on the next apply
+PASS N11 A null neighbour slot is a readable empty element
+PASS N12 A restore releases only after a full re-read proves no reference
+PASS N13 Installing into a new slot hands the previous slot back first
+PASS N14 A provably destroyed light drops its claim without a write
+PASS N15 Runtime confirms native hand-backs and retains them past teardown
+PASS N16 Runtime releases a clone only after a full re-read
+PASS N17 Runtime relocates our clone when MaterialIndex moves
+PASS N18 Runtime keys its surface cache on the slot and refreshes at a bounded cadence
+PASS N19 Runtime guards the apply breadcrumb before the native read-back
+PASS Disk01 First-use missing mod directory on reachable storage is allowed
+PASS Disk02 Unreachable drive is not confirmed missing data
+PASS Disk03 Directory in place of a file blocks and never overwrites
+PASS Disk04 Validated backup recovery preserves the good backup on save
+PASS Disk05 Foreign identity and future schema never recover over main
+PASS Disk06 Locked main stays blocked after access returns
+PASS Disk07 Slot drift and thrown slot probe never write
+PASS Disk08 Ordinary saves execute the real Shared writer and rotate valid backup
+PASS Disk09 Absent main uses fully validated backup
+PASS Disk10 Repeated load cannot discard recovered backup protection
+PASS Disk11 Foreign identity remains a conflict with unexpected root fields
+PASS UI01 Temporary unload keeps the selected key, including an empty list
+PASS UI02 Only a completed scan may treat an unknown key as permanent removal
+PASS UI03 A filtered or unloaded selection keeps state but is not editable
+PASS UI04 Original, fixed color and rainbow are the only three modes
+PASS UI05 Fixed mode remembers the last solid color and falls back safely
+PASS UI06 Copy labels and the global confirmation name the source and exact count
+PASS UI07 An unchanged action never claims that lamps changed
+PASS UI08 Status keeps the actual reason, scan state and persistence even when empty
+PASS UI09 The legacy compact-layout policy keeps its bounded width decision
+PASS UI10 Phone app wires LC08 selection, LC09 availability state and LC10 status
+PASS UI11 Phone app exposes ten palette choices and seven immediate brightness steps
+PASS UI12 Phone app keeps the clipping fix, stable labels, copy confirmation and cleanup
+PASS CP01 Opening stages the source color and SELECT commits it once
+PASS CP02 Original stays unselected and Rainbow stages itself without becoming White
+PASS CP03 BACK discards the staged pick without applying
+PASS CP04 A late confirmation fails closed on a different session
+PASS CP05 A different source key cannot retarget the open picker
+PASS CP06 An unloaded or unknown source cannot be confirmed
+PASS CP07 A source changed while pending is rejected and requires a re-pick
+PASS CP08 Nine fixed colors and Rainbow can be staged; Original and invalid values cannot
+PASS CP09 Two lamps keep independent staged picks
+PASS CP10 Closing the phone or switching sessions drops the pending pick
+PASS CP11 Every documented brightness step still applies immediately
+PASS CP12 The phone app wires the immediate brightness path and keeps other actions reachable
+PASS CP13 A modal action is bound to its captured session and exact visible lamp
+PASS CP14 A brightness step applies on click and never after another card opens
+PASS CP15 The legacy modal-width policy retains its bounded behavior
+PASS CP16 Every scrollable body is width-pinned so the card never clips 50 units
+PASS CP17 An outside click dismisses while a card click is consumed by the card
+PASS CP18 The app gates every modal action and carries the session into the commit
+PASS CP19 Lamp rows use small square swatches and consistent aligned columns
+PASS CP20 Modal footer buttons reserve explicit rendered height
+PASS G01 Rainbow is staged and committed once to the captured lamp
+PASS G02 Reopening Rainbow selects Rainbow rather than a fixed color
+PASS G03 A stale Rainbow pick requires a fresh choice
+PASS G04 Original stays unselected and cancelled Rainbow cannot commit
+PASS G05 Rainbow obeys the existing session and availability gates
+PASS G06 The reference canvas fits wide, short and small hosts without overflow
+PASS G07 The palette exposes nine fixed colors followed by Rainbow
+PASS G08 Brightness bars show the documented 200-percent scale
+PASS G09 Equal actions remain distinct subscriptions at S1API's delegate-keyed boundary
+PASS G10 Released click bindings reject late callbacks independently
+PASS G11 The column heading follows its initial position then stays visible while scrolling
+RESULT: 265/265 passed; 0 failed. Core/adapter/source checks; no native-game verification.
+--- LightControl.Tests: PASSED (265/265 passed, 0 failed) (1,6s) ---
+=== MessagesPlus.Tests (xunit) ===
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  MessagesPlus.Tests -> C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-0b9c6fa73435\checkout\Source\Tests\MessagesPlus.Tests\bin\Release\net6.0\MessagesPlus.Tests.dll
+Test run for C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-0b9c6fa73435\checkout\Source\Tests\MessagesPlus.Tests\bin\Release\net6.0\MessagesPlus.Tests.dll (.NETCoreApp,Version=v6.0)
+A total of 1 test files matched the specified pattern.
+Results File: C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-0b9c6fa73435\checks\verify-ac7d12cf80c7\tests\test-all-20261106-090611-9eef8167\MessagesPlus.Tests\MessagesPlus.Tests-b2e3a5adccb2.trx
+
+Passed!  - Failed:     0, Passed:    25, Skipped:     0, Total:    25, Duration: 54 ms - MessagesPlus.Tests.dll (net6.0)
+--- MessagesPlus.Tests: PASSED (25/25 passed, 0 failed, 25 executed) (1,9s) ---
+=== Minimap.Tests (xunit) ===
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  Minimap.Tests -> C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-0b9c6fa73435\checkout\Source\Tests\Minimap.Tests\bin\Release\net6.0\Minimap.Tests.dll
+Test run for C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-0b9c6fa73435\checkout\Source\Tests\Minimap.Tests\bin\Release\net6.0\Minimap.Tests.dll (.NETCoreApp,Version=v6.0)
+A total of 1 test files matched the specified pattern.
+Results File: C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-0b9c6fa73435\checks\verify-ac7d12cf80c7\tests\test-all-20261106-090611-9eef8167\Minimap.Tests\Minimap.Tests-7d321711707f.trx
+
+Passed!  - Failed:     0, Passed:   222, Skipped:     0, Total:   222, Duration: 61 ms - Minimap.Tests.dll (net6.0)
+--- Minimap.Tests: PASSED (222/222 passed, 0 failed, 222 executed) (2,0s) ---
+=== PocketShop.Tests (xunit) ===
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  PocketShop.Tests -> C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-0b9c6fa73435\checkout\Source\Tests\PocketShop.Tests\bin\Release\net6.0\PocketShop.Tests.dll
+Test run for C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-0b9c6fa73435\checkout\Source\Tests\PocketShop.Tests\bin\Release\net6.0\PocketShop.Tests.dll (.NETCoreApp,Version=v6.0)
+A total of 1 test files matched the specified pattern.
+Results File: C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-0b9c6fa73435\checks\verify-ac7d12cf80c7\tests\test-all-20261106-090611-9eef8167\PocketShop.Tests\PocketShop.Tests-30020a93f516.trx
+
+Passed!  - Failed:     0, Passed:    64, Skipped:     0, Total:    64, Duration: 62 ms - PocketShop.Tests.dll (net6.0)
+--- PocketShop.Tests: PASSED (64/64 passed, 0 failed, 64 executed) (1,9s) ---
+=== PoliceTestMode.Tests (xunit) ===
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  PoliceTestMode.Tests -> C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-0b9c6fa73435\checkout\Source\Tests\PoliceTestMode.Tests\bin\Release\net6.0\PoliceTestMode.Tests.dll
+Test run for C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-0b9c6fa73435\checkout\Source\Tests\PoliceTestMode.Tests\bin\Release\net6.0\PoliceTestMode.Tests.dll (.NETCoreApp,Version=v6.0)
+A total of 1 test files matched the specified pattern.
+Results File: C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-0b9c6fa73435\checks\verify-ac7d12cf80c7\tests\test-all-20261106-090611-9eef8167\PoliceTestMode.Tests\PoliceTestMode.Tests-d5a60e665610.trx
+
+Passed!  - Failed:     0, Passed:    36, Skipped:     0, Total:    36, Duration: 1 s - PoliceTestMode.Tests.dll (net6.0)
+--- PoliceTestMode.Tests: PASSED (36/36 passed, 0 failed, 36 executed) (3,5s) ---
+=== PropertyLEDs.Tests (xunit) ===
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  PropertyLEDs.Tests -> C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-0b9c6fa73435\checkout\Source\Tests\PropertyLEDs.Tests\bin\Release\net6.0\PropertyLEDs.Tests.dll
+Test run for C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-0b9c6fa73435\checkout\Source\Tests\PropertyLEDs.Tests\bin\Release\net6.0\PropertyLEDs.Tests.dll (.NETCoreApp,Version=v6.0)
+A total of 1 test files matched the specified pattern.
+Results File: C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-0b9c6fa73435\checks\verify-ac7d12cf80c7\tests\test-all-20261106-090611-9eef8167\PropertyLEDs.Tests\PropertyLEDs.Tests-de67552085d9.trx
+
+Passed!  - Failed:     0, Passed:   122, Skipped:     0, Total:   122, Duration: 93 ms - PropertyLEDs.Tests.dll (net6.0)
+--- PropertyLEDs.Tests: PASSED (122/122 passed, 0 failed, 122 executed) (2,0s) ---
+=== S1MCP.Tests (xunit) ===
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  S1MCP.Tests -> C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-0b9c6fa73435\checkout\Source\Tests\S1MCP.Tests\bin\Release\net6.0\S1MCP.Tests.dll
+Test run for C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-0b9c6fa73435\checkout\Source\Tests\S1MCP.Tests\bin\Release\net6.0\S1MCP.Tests.dll (.NETCoreApp,Version=v6.0)
+A total of 1 test files matched the specified pattern.
+Results File: C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-0b9c6fa73435\checks\verify-ac7d12cf80c7\tests\test-all-20261106-090611-9eef8167\S1MCP.Tests\S1MCP.Tests-26b9ba85d859.trx
+
+Passed!  - Failed:     0, Passed:    62, Skipped:     0, Total:    62, Duration: 274 ms - S1MCP.Tests.dll (net6.0)
+--- S1MCP.Tests: PASSED (62/62 passed, 0 failed, 62 executed) (2,1s) ---
+=== StorageScanner.Tests (xunit) ===
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  StorageScanner.Tests -> C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-0b9c6fa73435\checkout\Source\Tests\StorageScanner.Tests\bin\Release\net6.0\StorageScanner.Tests.dll
+Test run for C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-0b9c6fa73435\checkout\Source\Tests\StorageScanner.Tests\bin\Release\net6.0\StorageScanner.Tests.dll (.NETCoreApp,Version=v6.0)
+A total of 1 test files matched the specified pattern.
+Results File: C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-0b9c6fa73435\checks\verify-ac7d12cf80c7\tests\test-all-20261106-090611-9eef8167\StorageScanner.Tests\StorageScanner.Tests-f2138df584e1.trx
+
+Passed!  - Failed:     0, Passed:    37, Skipped:     0, Total:    37, Duration: 59 ms - StorageScanner.Tests.dll (net6.0)
+--- StorageScanner.Tests: PASSED (37/37 passed, 0 failed, 37 executed) (1,9s) ---
+=== TaxiDriver.Tests (xunit) ===
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  TaxiDriver.Tests -> C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-0b9c6fa73435\checkout\Source\Tests\TaxiDriver.Tests\bin\Release\net6.0\TaxiDriver.Tests.dll
+Test run for C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-0b9c6fa73435\checkout\Source\Tests\TaxiDriver.Tests\bin\Release\net6.0\TaxiDriver.Tests.dll (.NETCoreApp,Version=v6.0)
+A total of 1 test files matched the specified pattern.
+Results File: C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-0b9c6fa73435\checks\verify-ac7d12cf80c7\tests\test-all-20261106-090611-9eef8167\TaxiDriver.Tests\TaxiDriver.Tests-c8c682dfc094.trx
+
+Passed!  - Failed:     0, Passed:  1402, Skipped:     0, Total:  1402, Duration: 2 s - TaxiDriver.Tests.dll (net6.0)
+--- TaxiDriver.Tests: PASSED (1402/1402 passed, 0 failed, 1402 executed) (5,7s) ---
+=== TownHallInterior.Tests (xunit) ===
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  TownHallInterior.Tests -> C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-0b9c6fa73435\checkout\Source\Tests\TownHallInterior.Tests\bin\Release\net6.0\TownHallInterior.Tests.dll
+Test run for C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-0b9c6fa73435\checkout\Source\Tests\TownHallInterior.Tests\bin\Release\net6.0\TownHallInterior.Tests.dll (.NETCoreApp,Version=v6.0)
+A total of 1 test files matched the specified pattern.
+Results File: C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-0b9c6fa73435\checks\verify-ac7d12cf80c7\tests\test-all-20261106-090611-9eef8167\TownHallInterior.Tests\TownHallInterior.Tests-0cd2223e5438.trx
+
+Passed!  - Failed:     0, Passed:   884, Skipped:     0, Total:   884, Duration: 1 s - TownHallInterior.Tests.dll (net6.0)
+--- TownHallInterior.Tests: PASSED (884/884 passed, 0 failed, 884 executed) (3,7s) ---
+=== WaterShader.Tests (xunit) ===
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  WaterShader.Tests -> C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-0b9c6fa73435\checkout\Source\Tests\WaterShader.Tests\bin\Release\net6.0\WaterShader.Tests.dll
+Test run for C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-0b9c6fa73435\checkout\Source\Tests\WaterShader.Tests\bin\Release\net6.0\WaterShader.Tests.dll (.NETCoreApp,Version=v6.0)
+A total of 1 test files matched the specified pattern.
+Results File: C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-0b9c6fa73435\checks\verify-ac7d12cf80c7\tests\test-all-20261106-090611-9eef8167\WaterShader.Tests\WaterShader.Tests-a489025f8002.trx
+
+Passed!  - Failed:     0, Passed:  1231, Skipped:     0, Total:  1231, Duration: 227 ms - WaterShader.Tests.dll (net6.0)
+--- WaterShader.Tests: PASSED (1231/1231 passed, 0 failed, 1231 executed) (2,7s) ---
+=== WorldLook.Tests (xunit) ===
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  WorldLook.Tests -> C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-0b9c6fa73435\checkout\Source\Tests\WorldLook.Tests\bin\Release\net6.0\WorldLook.Tests.dll
+Test run for C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-0b9c6fa73435\checkout\Source\Tests\WorldLook.Tests\bin\Release\net6.0\WorldLook.Tests.dll (.NETCoreApp,Version=v6.0)
+A total of 1 test files matched the specified pattern.
+Results File: C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-0b9c6fa73435\checks\verify-ac7d12cf80c7\tests\test-all-20261106-090611-9eef8167\WorldLook.Tests\WorldLook.Tests-1ea4920d1f94.trx
+
+Passed!  - Failed:     0, Passed:    46, Skipped:     0, Total:    46, Duration: 72 ms - WorldLook.Tests.dll (net6.0)
+--- WorldLook.Tests: PASSED (46/46 passed, 0 failed, 46 executed) (1,9s) ---
+
+===== RESULTS =====
+  PASSED  AutoPackagingStation.Tests       xunit              2,0s  66/66 passed, 0 failed, 66 executed
+  PASSED  BankApp.Tests                    xunit              2,0s  103/103 passed, 0 failed, 103 executed
+  PASSED  BusinessIncome.ConfigIo.Tests    xunit              2,0s  17/17 passed, 0 failed, 17 executed
+  PASSED  BusinessIncome.Tests             xunit              2,0s  228/228 passed, 0 failed, 228 executed
+  PASSED  CalculatorApp.Tests              xunit              1,9s  18/18 passed, 0 failed, 18 executed
+  PASSED  GoldenHour.Tests                 xunit              2,0s  104/104 passed, 0 failed, 104 executed
+  PASSED  HitmanPhone.Tests                xunit              2,0s  148/148 passed, 0 failed, 148 executed
+  PASSED  LightControl.Tests               console            1,6s  265/265 passed, 0 failed
+  PASSED  MessagesPlus.Tests               xunit              1,9s  25/25 passed, 0 failed, 25 executed
+  PASSED  Minimap.Tests                    xunit              2,0s  222/222 passed, 0 failed, 222 executed
+  PASSED  PocketShop.Tests                 xunit              1,9s  64/64 passed, 0 failed, 64 executed
+  PASSED  PoliceTestMode.Tests             xunit              3,5s  36/36 passed, 0 failed, 36 executed
+  PASSED  PropertyLEDs.Tests               xunit              2,0s  122/122 passed, 0 failed, 122 executed
+  PASSED  S1MCP.Tests                      xunit              2,1s  62/62 passed, 0 failed, 62 executed
+  SKIPPED Shared.Tests                     game-required         -  -
+  PASSED  StorageScanner.Tests             xunit              1,9s  37/37 passed, 0 failed, 37 executed
+  PASSED  TaxiDriver.Tests                 xunit              5,7s  1402/1402 passed, 0 failed, 1402 executed
+  PASSED  TownHallInterior.Tests           xunit              3,7s  884/884 passed, 0 failed, 884 executed
+  PASSED  WaterShader.Tests                xunit              2,7s  1231/1231 passed, 0 failed, 1231 executed
+  PASSED  WorldLook.Tests                  xunit              1,9s  46/46 passed, 0 failed, 46 executed
+
+Projects: 20 | Executed: 19 | Passed: 19 | Failed: 0 | Skipped: 1 | Elapsed: 44,9s
+Artifacts: C:\Users\pc\.cache\Schedule1Tools\clean-checkouts\clean-checkout-0b9c6fa73435\checks\verify-ac7d12cf80c7\tests\test-all-20261106-090611-9eef8167
+Skipped projects are game-required. Use -Selection all on a machine with the game installed.
+All selected test projects passed.

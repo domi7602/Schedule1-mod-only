@@ -1,0 +1,49 @@
+; ScheduleOne.Property.Business::OnDestroy/0, token 0x0600139D, RVA 0x54CCA0, next-pointer window 0xD0 bytes
+; No target execution. Parser-pointer window can contain padding/cold fragments and is not exact/full function, EH or transitive coverage. Shared direct aliases are truncated to eight names.
+0x54CCA0     40 53                           push rbx
+0x54CCA2     48 83 EC 20                     sub rsp,20h
+0x54CCA6     80 3D 74 E8 6A 03 00            cmp byte ptr [183BFB521h],0
+0x54CCAD     48 8B D9                        mov rbx,rcx
+0x54CCB0     75 1F                           jne short 000000018054CCD1h
+0x54CCB2     48 8D 0D BF B0 49 03            lea rcx,[1839E7D78h] ; TypeInfo: ScheduleOne.Property.Business
+0x54CCB9     E8 E2 AB DC FF                  call 00000001803178A0h
+0x54CCBE     48 8D 0D 9B B8 46 03            lea rcx,[1839B8560h] ; MethodRef: System.Boolean System.Collections.Generic.List`1<ScheduleOne.Property.Business>.Remove
+0x54CCC5     E8 D6 AB DC FF                  call 00000001803178A0h
+0x54CCCA     C6 05 50 E8 6A 03 01            mov byte ptr [183BFB521h],1
+0x54CCD1     48 8B 05 A0 B0 49 03            mov rax,[1839E7D78h] ; TypeInfo: ScheduleOne.Property.Business
+0x54CCD8     83 B8 E0 00 00 00 00            cmp dword ptr [rax+0E0h],0
+0x54CCDF     75 0F                           jne short 000000018054CCF0h
+0x54CCE1     48 8B C8                        mov rcx,rax
+0x54CCE4     E8 47 AF DC FF                  call 0000000180317C30h
+0x54CCE9     48 8B 05 88 B0 49 03            mov rax,[1839E7D78h] ; TypeInfo: ScheduleOne.Property.Business
+0x54CCF0     48 8B 80 B8 00 00 00            mov rax,[rax+0B8h]
+0x54CCF7     48 8B 08                        mov rcx,[rax]
+0x54CCFA     48 85 C9                        test rcx,rcx
+0x54CCFD     74 6A                           je short 000000018054CD69h
+0x54CCFF     4C 8B 05 5A B8 46 03            mov r8,[1839B8560h] ; MethodRef: System.Boolean System.Collections.Generic.List`1<ScheduleOne.Property.Business>.Remove
+0x54CD06     48 8B D3                        mov rdx,rbx
+0x54CD09     E8 92 B6 38 01                  call 00000001818D83A0h
+0x54CD0E     48 8B 05 63 B0 49 03            mov rax,[1839E7D78h] ; TypeInfo: ScheduleOne.Property.Business
+0x54CD15     48 8B 88 B8 00 00 00            mov rcx,[rax+0B8h]
+0x54CD1C     48 8B 49 08                     mov rcx,[rcx+8]
+0x54CD20     48 85 C9                        test rcx,rcx
+0x54CD23     74 44                           je short 000000018054CD69h
+0x54CD25     4C 8B 05 34 B8 46 03            mov r8,[1839B8560h] ; MethodRef: System.Boolean System.Collections.Generic.List`1<ScheduleOne.Property.Business>.Remove
+0x54CD2C     48 8B D3                        mov rdx,rbx
+0x54CD2F     E8 6C B6 38 01                  call 00000001818D83A0h
+0x54CD34     48 8B 05 3D B0 49 03            mov rax,[1839E7D78h] ; TypeInfo: ScheduleOne.Property.Business
+0x54CD3B     48 8B 88 B8 00 00 00            mov rcx,[rax+0B8h]
+0x54CD42     48 8B 49 10                     mov rcx,[rcx+10h]
+0x54CD46     48 85 C9                        test rcx,rcx
+0x54CD49     74 1E                           je short 000000018054CD69h
+0x54CD4B     4C 8B 05 0E B8 46 03            mov r8,[1839B8560h] ; MethodRef: System.Boolean System.Collections.Generic.List`1<ScheduleOne.Property.Business>.Remove
+0x54CD52     48 8B D3                        mov rdx,rbx
+0x54CD55     E8 46 B6 38 01                  call 00000001818D83A0h
+0x54CD5A     33 D2                           xor edx,edx
+0x54CD5C     48 8B CB                        mov rcx,rbx
+0x54CD5F     48 83 C4 20                     add rsp,20h
+0x54CD63     5B                              pop rbx
+0x54CD64     E9 27 87 00 00                  jmp near ptr 0000000180555490h ; ScheduleOne.Property.Property::OnDestroy/0
+0x54CD69     E8 12 AE DC FF                  call 0000000180317B80h
+0x54CD6E     CC                              int 3
+0x54CD6F     CC                              int 3

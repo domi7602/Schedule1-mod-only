@@ -1,0 +1,103 @@
+; ScheduleOne.GameTime.TimeManager::.ctor/0, token 0x06000BFC, RVA 0x9CBE00, next-pointer window 0x1C0 bytes
+; No target execution. Parser-pointer window can contain padding/cold fragments and is not exact/full function, EH or transitive coverage. Shared direct aliases are truncated to eight names.
+0x9CBE00     48 89 5C 24 08                  mov [rsp+8],rbx
+0x9CBE05     57                              push rdi
+0x9CBE06     48 83 EC 20                     sub rsp,20h
+0x9CBE0A     80 3D BD 1A 23 03 00            cmp byte ptr [183BFD8CEh],0
+0x9CBE11     48 8B F9                        mov rdi,rcx
+0x9CBE14     75 43                           jne short 00000001809CBE59h
+0x9CBE16     48 8D 0D FB 5F 00 03            lea rcx,[1839D1E18h] ; TypeInfo: ActionList
+0x9CBE1D     E8 7E BA 94 FF                  call 00000001803178A0h
+0x9CBE22     48 8D 0D 6F 53 FF 02            lea rcx,[1839C1198h] ; MethodRef: System.Void System.Collections.Generic.List`1<System.String>..ctor
+0x9CBE29     E8 72 BA 94 FF                  call 00000001803178A0h
+0x9CBE2E     48 8D 0D 4B EF 03 03            lea rcx,[183A0AD80h] ; TypeInfo: System.Collections.Generic.List`1<System.String>
+0x9CBE35     E8 66 BA 94 FF                  call 00000001803178A0h
+0x9CBE3A     48 8D 0D FF AF FD 02            lea rcx,[1839A6E40h] ; MethodRef: System.Void ScheduleOne.DevUtilities.NetworkSingleton`1<ScheduleOne.GameTime.TimeManager>..ctor
+0x9CBE41     E8 5A BA 94 FF                  call 00000001803178A0h
+0x9CBE46     48 8D 0D D3 E0 FD 02            lea rcx,[1839A9F20h] ; TypeInfo: ScheduleOne.Persistence.Loaders.TimeLoader
+0x9CBE4D     E8 4E BA 94 FF                  call 00000001803178A0h
+0x9CBE52     C6 05 75 1A 23 03 01            mov byte ptr [183BFD8CEh],1
+0x9CBE59     C7 87 20 01 00 00 84 03 00 00   mov dword ptr [rdi+120h],384h
+0x9CBE63     C7 87 34 01 00 00 00 00 80 3F   mov dword ptr [rdi+134h],3F800000h
+0x9CBE6D     48 8B 0D A4 5F 00 03            mov rcx,[1839D1E18h] ; TypeInfo: ActionList
+0x9CBE74     E8 A7 BC 94 FF                  call 0000000180317B20h
+0x9CBE79     45 33 C0                        xor r8d,r8d
+0x9CBE7C     33 D2                           xor edx,edx
+0x9CBE7E     48 8B C8                        mov rcx,rax
+0x9CBE81     48 8B D8                        mov rbx,rax
+0x9CBE84     E8 E7 DF B4 FF                  call 0000000180519E70h ; ActionList::.ctor/1
+0x9CBE89     48 8D 8F 58 01 00 00            lea rcx,[rdi+158h]
+0x9CBE90     48 89 9F 58 01 00 00            mov [rdi+158h],rbx
+0x9CBE97     48 8B D3                        mov rdx,rbx
+0x9CBE9A     E8 11 AC 94 FF                  call 0000000180316AB0h
+0x9CBE9F     48 8B 0D 72 5F 00 03            mov rcx,[1839D1E18h] ; TypeInfo: ActionList
+0x9CBEA6     E8 75 BC 94 FF                  call 0000000180317B20h
+0x9CBEAB     45 33 C0                        xor r8d,r8d
+0x9CBEAE     33 D2                           xor edx,edx
+0x9CBEB0     48 8B C8                        mov rcx,rax
+0x9CBEB3     48 8B D8                        mov rbx,rax
+0x9CBEB6     E8 B5 DF B4 FF                  call 0000000180519E70h ; ActionList::.ctor/1
+0x9CBEBB     48 8D 8F 60 01 00 00            lea rcx,[rdi+160h]
+0x9CBEC2     48 89 9F 60 01 00 00            mov [rdi+160h],rbx
+0x9CBEC9     48 8B D3                        mov rdx,rbx
+0x9CBECC     E8 DF AB 94 FF                  call 0000000180316AB0h
+0x9CBED1     48 8B 0D 40 5F 00 03            mov rcx,[1839D1E18h] ; TypeInfo: ActionList
+0x9CBED8     E8 43 BC 94 FF                  call 0000000180317B20h
+0x9CBEDD     45 33 C0                        xor r8d,r8d
+0x9CBEE0     B2 01                           mov dl,1
+0x9CBEE2     48 8B C8                        mov rcx,rax
+0x9CBEE5     48 8B D8                        mov rbx,rax
+0x9CBEE8     E8 83 DF B4 FF                  call 0000000180519E70h ; ActionList::.ctor/1
+0x9CBEED     48 8D 8F 68 01 00 00            lea rcx,[rdi+168h]
+0x9CBEF4     48 89 9F 68 01 00 00            mov [rdi+168h],rbx
+0x9CBEFB     48 8B D3                        mov rdx,rbx
+0x9CBEFE     E8 AD AB 94 FF                  call 0000000180316AB0h
+0x9CBF03     48 8B 0D 16 E0 FD 02            mov rcx,[1839A9F20h] ; TypeInfo: ScheduleOne.Persistence.Loaders.TimeLoader
+0x9CBF0A     E8 11 BC 94 FF                  call 0000000180317B20h
+0x9CBF0F     33 D2                           xor edx,edx
+0x9CBF11     48 8B C8                        mov rcx,rax
+0x9CBF14     48 8B D8                        mov rbx,rax
+0x9CBF17     E8 64 16 A5 FF                  call 000000018041D580h ; DeveloperManager::OnStartServer/0 | DeveloperManager+LiveFloatVariable::.ctor/0 | DeveloperManager+LiveStringVariable::.ctor/0 | DeveloperManager+<>c__DisplayClass11_0::.ctor/0 | DeveloperManager+<>c__DisplayClass15_0::.ctor/0 | DeveloperManager+<>c__DisplayClass16_0::.ctor/0 | DeveloperSettings+Item::.ctor/0 | InvertMouseSetter+<>c::.ctor/0 | ... SHARED TARGET: 2614 aliases
+0x9CBF1C     48 8D 8F B0 01 00 00            lea rcx,[rdi+1B0h]
+0x9CBF23     48 89 9F B0 01 00 00            mov [rdi+1B0h],rbx
+0x9CBF2A     48 8B D3                        mov rdx,rbx
+0x9CBF2D     E8 7E AB 94 FF                  call 0000000180316AB0h
+0x9CBF32     48 8B 0D 47 EE 03 03            mov rcx,[183A0AD80h] ; TypeInfo: System.Collections.Generic.List`1<System.String>
+0x9CBF39     E8 E2 BB 94 FF                  call 0000000180317B20h
+0x9CBF3E     48 8B 15 53 52 FF 02            mov rdx,[1839C1198h] ; MethodRef: System.Void System.Collections.Generic.List`1<System.String>..ctor
+0x9CBF45     48 8B C8                        mov rcx,rax
+0x9CBF48     48 8B D8                        mov rbx,rax
+0x9CBF4B     E8 E0 7E 5E 00                  call 0000000180FB3E30h ; System.Collections.Generic.List`1::.ctor/0 | System.Collections.Generic.LowLevelList`1::.ctor/0
+0x9CBF50     48 8D 8F B8 01 00 00            lea rcx,[rdi+1B8h]
+0x9CBF57     48 89 9F B8 01 00 00            mov [rdi+1B8h],rbx
+0x9CBF5E     48 8B D3                        mov rdx,rbx
+0x9CBF61     E8 4A AB 94 FF                  call 0000000180316AB0h
+0x9CBF66     48 8B 0D 13 EE 03 03            mov rcx,[183A0AD80h] ; TypeInfo: System.Collections.Generic.List`1<System.String>
+0x9CBF6D     E8 AE BB 94 FF                  call 0000000180317B20h
+0x9CBF72     48 8B 15 1F 52 FF 02            mov rdx,[1839C1198h] ; MethodRef: System.Void System.Collections.Generic.List`1<System.String>..ctor
+0x9CBF79     48 8B C8                        mov rcx,rax
+0x9CBF7C     48 8B D8                        mov rbx,rax
+0x9CBF7F     E8 AC 7E 5E 00                  call 0000000180FB3E30h ; System.Collections.Generic.List`1::.ctor/0 | System.Collections.Generic.LowLevelList`1::.ctor/0
+0x9CBF84     48 8D 8F C0 01 00 00            lea rcx,[rdi+1C0h]
+0x9CBF8B     48 89 9F C0 01 00 00            mov [rdi+1C0h],rbx
+0x9CBF92     48 8B D3                        mov rdx,rbx
+0x9CBF95     E8 16 AB 94 FF                  call 0000000180316AB0h
+0x9CBF9A     48 8B 15 9F AE FD 02            mov rdx,[1839A6E40h] ; MethodRef: System.Void ScheduleOne.DevUtilities.NetworkSingleton`1<ScheduleOne.GameTime.TimeManager>..ctor
+0x9CBFA1     48 8B CF                        mov rcx,rdi
+0x9CBFA4     48 8B 5C 24 30                  mov rbx,[rsp+30h]
+0x9CBFA9     48 83 C4 20                     add rsp,20h
+0x9CBFAD     5F                              pop rdi
+0x9CBFAE     E9 8D 65 C2 FF                  jmp near ptr 00000001805F2540h ; ScheduleOne.Vehicles.VehicleInitializer::.ctor/0 | ScheduleOne.Management.ConfigurationReplicator::.ctor/0 | ScheduleOne.DevUtilities.NetworkSingleton`1::.ctor/0 | ScheduleOne.DevUtilities.PropertyTestTool::.ctor/0 | ScheduleOne.Configuration.ConfigurationServiceNetworker::.ctor/0 | ScheduleOne.Casino.CasinoGameController::.ctor/0 | ScheduleOne.Equipping.EquippedItemHandler::.ctor/0 | ScheduleOne.ObjectScripts.Bed::.ctor/0 | ... SHARED TARGET: 11 aliases
+0x9CBFB3     CC                              int 3
+0x9CBFB4     CC                              int 3
+0x9CBFB5     CC                              int 3
+0x9CBFB6     CC                              int 3
+0x9CBFB7     CC                              int 3
+0x9CBFB8     CC                              int 3
+0x9CBFB9     CC                              int 3
+0x9CBFBA     CC                              int 3
+0x9CBFBB     CC                              int 3
+0x9CBFBC     CC                              int 3
+0x9CBFBD     CC                              int 3
+0x9CBFBE     CC                              int 3
+0x9CBFBF     CC                              int 3

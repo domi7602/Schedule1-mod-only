@@ -1,0 +1,77 @@
+; FishNet.Object.NetworkObject::.ctor/0, token 0x06000757, RVA 0xCCFCF0, .pdata primary extent 0x17B bytes
+; Raw native bytes decoded without invoking the game. .pdata primary extent is not a proof of full transitive/exception-path coverage.
+0xCCFCF0     48 89 5C 24 08                  mov [rsp+8],rbx
+0xCCFCF5     57                              push rdi
+0xCCFCF6     48 83 EC 20                     sub rsp,20h
+0xCCFCFA     80 3D 8D 0F F3 02 00            cmp byte ptr [183C00C8Eh],0
+0xCCFD01     48 8B F9                        mov rdi,rcx
+0xCCFD04     75 4F                           jne short 0000000180CCFD55h
+0xCCFD06     48 8D 0D 03 04 CD 02            lea rcx,[1839A0110h] ; TypeInfo: FishNet.Component.Observing.HashGrid
+0xCCFD0D     E8 8E 7B 64 FF                  call 00000001803178A0h
+0xCCFD12     48 8D 0D AF CF D3 02            lea rcx,[183A0CCC8h]
+0xCCFD19     E8 82 7B 64 FF                  call 00000001803178A0h
+0xCCFD1E     48 8D 0D 5B 59 D0 02            lea rcx,[1839D5680h] ; TypeInfo: System.Collections.Generic.HashSet`1<FishNet.Connection.NetworkConnection>
+0xCCFD25     E8 76 7B 64 FF                  call 00000001803178A0h
+0xCCFD2A     48 8D 0D 1F D8 CB 02            lea rcx,[18398D550h]
+0xCCFD31     E8 6A 7B 64 FF                  call 00000001803178A0h
+0xCCFD36     48 8D 0D 63 23 D3 02            lea rcx,[183A020A0h] ; TypeInfo: System.Collections.Generic.List`1<FishNet.Object.NetworkObject>
+0xCCFD3D     E8 5E 7B 64 FF                  call 00000001803178A0h
+0xCCFD42     48 8D 0D F7 C6 D1 02            lea rcx,[1839EC440h] ; TypeInfo: FishNet.Managing.NetworkManager
+0xCCFD49     E8 52 7B 64 FF                  call 00000001803178A0h
+0xCCFD4E     C6 05 39 0F F3 02 01            mov byte ptr [183C00C8Eh],1
+0xCCFD55     48 8B 0D E4 C6 D1 02            mov rcx,[1839EC440h] ; TypeInfo: FishNet.Managing.NetworkManager
+0xCCFD5C     83 B9 E0 00 00 00 00            cmp dword ptr [rcx+0E0h],0
+0xCCFD63     75 05                           jne short 0000000180CCFD6Ah
+0xCCFD65     E8 C6 7E 64 FF                  call 0000000180317C30h
+0xCCFD6A     80 3D 28 BC F2 02 00            cmp byte ptr [183BFB999h],0
+0xCCFD71     75 13                           jne short 0000000180CCFD86h
+0xCCFD73     48 8D 0D C6 C6 D1 02            lea rcx,[1839EC440h] ; TypeInfo: FishNet.Managing.NetworkManager
+0xCCFD7A     E8 21 7B 64 FF                  call 00000001803178A0h
+0xCCFD7F     C6 05 13 BC F2 02 01            mov byte ptr [183BFB999h],1
+0xCCFD86     48 8B 0D B3 C6 D1 02            mov rcx,[1839EC440h] ; TypeInfo: FishNet.Managing.NetworkManager
+0xCCFD8D     83 B9 E0 00 00 00 00            cmp dword ptr [rcx+0E0h],0
+0xCCFD94     75 05                           jne short 0000000180CCFD9Bh
+0xCCFD96     E8 95 7E 64 FF                  call 0000000180317C30h
+0xCCFD9B     48 8B 05 9E C6 D1 02            mov rax,[1839EC440h] ; TypeInfo: FishNet.Managing.NetworkManager
+0xCCFDA2     48 8B 88 B8 00 00 00            mov rcx,[rax+0B8h]
+0xCCFDA9     48 8B 51 08                     mov rdx,[rcx+8]
+0xCCFDAD     48 8D 4F 28                     lea rcx,[rdi+28h]
+0xCCFDB1     48 89 57 28                     mov [rdi+28h],rdx
+0xCCFDB5     E8 F6 6C 64 FF                  call 0000000180316AB0h
+0xCCFDBA     C6 47 38 01                     mov byte ptr [rdi+38h],1
+0xCCFDBE     48 8B 0D DB 22 D3 02            mov rcx,[183A020A0h] ; TypeInfo: System.Collections.Generic.List`1<FishNet.Object.NetworkObject>
+0xCCFDC5     E8 56 7D 64 FF                  call 0000000180317B20h
+0xCCFDCA     48 8B 15 7F D7 CB 02            mov rdx,[18398D550h]
+0xCCFDD1     48 8B C8                        mov rcx,rax
+0xCCFDD4     48 8B D8                        mov rbx,rax
+0xCCFDD7     E8 54 40 2E 00                  call 0000000180FB3E30h ; System.Collections.Generic.List`1::.ctor/0 | System.Collections.Generic.LowLevelList`1::.ctor/0
+0xCCFDDC     48 8D 4F 58                     lea rcx,[rdi+58h]
+0xCCFDE0     48 89 5F 58                     mov [rdi+58h],rbx
+0xCCFDE4     48 8B D3                        mov rdx,rbx
+0xCCFDE7     E8 C4 6C 64 FF                  call 0000000180316AB0h
+0xCCFDEC     C6 87 A1 00 00 00 01            mov byte ptr [rdi+0A1h],1
+0xCCFDF3     48 8B 0D 86 58 D0 02            mov rcx,[1839D5680h] ; TypeInfo: System.Collections.Generic.HashSet`1<FishNet.Connection.NetworkConnection>
+0xCCFDFA     E8 21 7D 64 FF                  call 0000000180317B20h
+0xCCFDFF     48 8B 15 C2 CE D3 02            mov rdx,[183A0CCC8h]
+0xCCFE06     48 8B C8                        mov rcx,rax
+0xCCFE09     48 8B D8                        mov rbx,rax
+0xCCFE0C     E8 8F 7A AC 00                  call 00000001817978A0h
+0xCCFE11     48 8D 8F C0 00 00 00            lea rcx,[rdi+0C0h]
+0xCCFE18     48 89 9F C0 00 00 00            mov [rdi+0C0h],rbx
+0xCCFE1F     48 8B D3                        mov rdx,rbx
+0xCCFE22     E8 89 6C 64 FF                  call 0000000180316AB0h
+0xCCFE27     48 8B 05 E2 02 CD 02            mov rax,[1839A0110h] ; TypeInfo: FishNet.Component.Observing.HashGrid
+0xCCFE2E     83 B8 E0 00 00 00 00            cmp dword ptr [rax+0E0h],0
+0xCCFE35     75 0F                           jne short 0000000180CCFE46h
+0xCCFE37     48 8B C8                        mov rcx,rax
+0xCCFE3A     E8 F1 7D 64 FF                  call 0000000180317C30h
+0xCCFE3F     48 8B 05 CA 02 CD 02            mov rax,[1839A0110h] ; TypeInfo: FishNet.Component.Observing.HashGrid
+0xCCFE46     48 8B 80 B8 00 00 00            mov rax,[rax+0B8h]
+0xCCFE4D     33 D2                           xor edx,edx
+0xCCFE4F     48 8B 08                        mov rcx,[rax]
+0xCCFE52     48 89 8F F8 00 00 00            mov [rdi+0F8h],rcx
+0xCCFE59     48 8B CF                        mov rcx,rdi
+0xCCFE5C     48 8B 5C 24 30                  mov rbx,[rsp+30h]
+0xCCFE61     48 83 C4 20                     add rsp,20h
+0xCCFE65     5F                              pop rdi
+0xCCFE66     E9 55 3C EA 01                  jmp near ptr 0000000182B73AC0h ; UnityEngine.Behaviour::.ctor/0 | UnityEngine.Component::.ctor/0 | UnityEngine.MonoBehaviour::.ctor/0 | UnityEngine.RectTransform::.ctor/0 | UnityEngine.Transform::.ctor/0 | UnityEngine.U2D.Light2DBase::.ctor/0

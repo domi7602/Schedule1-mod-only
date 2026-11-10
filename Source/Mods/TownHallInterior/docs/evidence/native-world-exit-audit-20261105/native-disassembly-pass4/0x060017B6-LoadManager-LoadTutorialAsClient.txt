@@ -1,0 +1,69 @@
+; ScheduleOne.Persistence.LoadManager::LoadTutorialAsClient/0, token 0x060017B6, RVA 0x587B90, next-pointer window 0xF0 bytes
+; No target execution. Parser-pointer window can contain padding/cold fragments and is not exact/full function, EH or transitive coverage. Shared direct aliases are truncated to eight names.
+0x587B90     48 89 5C 24 08                  mov [rsp+8],rbx
+0x587B95     57                              push rdi
+0x587B96     48 83 EC 30                     sub rsp,30h
+0x587B9A     80 3D 78 3B 67 03 00            cmp byte ptr [183BFB719h],0
+0x587BA1     48 8B F9                        mov rdi,rcx
+0x587BA4     75 2B                           jne short 0000000180587BD1h
+0x587BA6     48 8D 0D BB 21 47 03            lea rcx,[1839F9D68h] ; TypeInfo: ScheduleOne.Console
+0x587BAD     E8 EE FC D8 FF                  call 00000001803178A0h
+0x587BB2     48 8D 0D 8F C8 41 03            lea rcx,[1839A4448h] ; TypeInfo: ScheduleOne.Persistence.LoadManager+<>c__DisplayClass75_0
+0x587BB9     E8 E2 FC D8 FF                  call 00000001803178A0h
+0x587BBE     48 8D 0D 0B 09 45 03            lea rcx,[1839D84D0h] ; StringLiteral: Game already loaded, exiting
+0x587BC5     E8 D6 FC D8 FF                  call 00000001803178A0h
+0x587BCA     C6 05 48 3B 67 03 01            mov byte ptr [183BFB719h],1
+0x587BD1     48 8B 0D 70 C8 41 03            mov rcx,[1839A4448h] ; TypeInfo: ScheduleOne.Persistence.LoadManager+<>c__DisplayClass75_0
+0x587BD8     E8 43 FF D8 FF                  call 0000000180317B20h
+0x587BDD     33 D2                           xor edx,edx
+0x587BDF     48 8B C8                        mov rcx,rax
+0x587BE2     48 8B D8                        mov rbx,rax
+0x587BE5     E8 96 59 E9 FF                  call 000000018041D580h ; DeveloperManager::OnStartServer/0 | DeveloperManager+LiveFloatVariable::.ctor/0 | DeveloperManager+LiveStringVariable::.ctor/0 | DeveloperManager+<>c__DisplayClass11_0::.ctor/0 | DeveloperManager+<>c__DisplayClass15_0::.ctor/0 | DeveloperManager+<>c__DisplayClass16_0::.ctor/0 | DeveloperSettings+Item::.ctor/0 | InvertMouseSetter+<>c::.ctor/0 | ... SHARED TARGET: 2614 aliases
+0x587BEA     48 85 DB                        test rbx,rbx
+0x587BED     74 7F                           je short 0000000180587C6Eh
+0x587BEF     48 8D 4B 18                     lea rcx,[rbx+18h]
+0x587BF3     48 89 7B 18                     mov [rbx+18h],rdi
+0x587BF7     48 8B D7                        mov rdx,rdi
+0x587BFA     E8 B1 EE D8 FF                  call 0000000180316AB0h
+0x587BFF     C6 43 10 00                     mov byte ptr [rbx+10h],0
+0x587C03     80 7F 28 00                     cmp byte ptr [rdi+28h],0
+0x587C07     74 43                           je short 0000000180587C4Ch
+0x587C09     48 8B 0D 58 21 47 03            mov rcx,[1839F9D68h] ; TypeInfo: ScheduleOne.Console
+0x587C10     83 B9 E0 00 00 00 00            cmp dword ptr [rcx+0E0h],0
+0x587C17     75 05                           jne short 0000000180587C1Eh
+0x587C19     E8 12 00 D9 FF                  call 0000000180317C30h
+0x587C1E     48 8B 0D AB 08 45 03            mov rcx,[1839D84D0h] ; StringLiteral: Game already loaded, exiting
+0x587C25     45 33 C0                        xor r8d,r8d
+0x587C28     33 D2                           xor edx,edx
+0x587C2A     E8 11 0F 32 00                  call 00000001808A8B40h ; ScheduleOne.Console::LogWarning/2
+0x587C2F     45 33 C9                        xor r9d,r9d
+0x587C32     C6 43 10 01                     mov byte ptr [rbx+10h],1
+0x587C36     45 33 C0                        xor r8d,r8d
+0x587C39     48 C7 44 24 20 00 00 00 00      mov qword ptr [rsp+20h],0
+0x587C42     33 D2                           xor edx,edx
+0x587C44     48 8B CF                        mov rcx,rdi
+0x587C47     E8 A4 EC FF FF                  call 00000001805868F0h ; ScheduleOne.Persistence.LoadManager::ExitToMenu/3
+0x587C4C     33 D2                           xor edx,edx
+0x587C4E     48 8B CB                        mov rcx,rbx
+0x587C51     E8 6A B9 02 00                  call 00000001805B35C0h ; ScheduleOne.Persistence.LoadManager+<>c__DisplayClass75_0::<LoadTutorialAsClient>g__LoadRoutine|0/0
+0x587C56     45 33 C0                        xor r8d,r8d
+0x587C59     48 8B D0                        mov rdx,rax
+0x587C5C     48 8B CF                        mov rcx,rdi
+0x587C5F     48 8B 5C 24 40                  mov rbx,[rsp+40h]
+0x587C64     48 83 C4 30                     add rsp,30h
+0x587C68     5F                              pop rdi
+0x587C69     E9 A2 1B 5F 02                  jmp near ptr 0000000182B79810h ; UnityEngine.MonoBehaviour::StartCoroutine/1 | UnityEngine.MonoBehaviour::StartCoroutine_Auto/1
+0x587C6E     E8 0D FF D8 FF                  call 0000000180317B80h
+0x587C73     CC                              int 3
+0x587C74     CC                              int 3
+0x587C75     CC                              int 3
+0x587C76     CC                              int 3
+0x587C77     CC                              int 3
+0x587C78     CC                              int 3
+0x587C79     CC                              int 3
+0x587C7A     CC                              int 3
+0x587C7B     CC                              int 3
+0x587C7C     CC                              int 3
+0x587C7D     CC                              int 3
+0x587C7E     CC                              int 3
+0x587C7F     CC                              int 3

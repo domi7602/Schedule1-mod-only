@@ -1,0 +1,182 @@
+{
+  "schema": 1,
+  "checkedUtc": "2026-11-05T18:24:28.7271903Z",
+  "scope": "Independent probes of frozen synthetic V2 source; no native calls or IO in model",
+  "passed": 33,
+  "failed": 0,
+  "total": 33,
+  "raceTrials": 200,
+  "raceAdmitted": 12,
+  "raceSuppressed": 188,
+  "nativeSaveWriteAllowed": false,
+  "referenceProof": "unknown",
+  "nativeWriteProof": "unknown",
+  "modDataProof": "unknown",
+  "results": [
+    {
+      "name": "late failure after confirmed return: TypeRegistration",
+      "kind": "public-api",
+      "status": "passed"
+    },
+    {
+      "name": "failed readback before return retained: TypeRegistration",
+      "kind": "public-api",
+      "status": "passed"
+    },
+    {
+      "name": "late failure after confirmed return: Construction",
+      "kind": "public-api",
+      "status": "passed"
+    },
+    {
+      "name": "failed readback before return retained: Construction",
+      "kind": "public-api",
+      "status": "passed"
+    },
+    {
+      "name": "late failure after confirmed return: Registration",
+      "kind": "public-api",
+      "status": "passed"
+    },
+    {
+      "name": "failed readback before return retained: Registration",
+      "kind": "public-api",
+      "status": "passed"
+    },
+    {
+      "name": "late failure after confirmed return: Save",
+      "kind": "public-api",
+      "status": "passed"
+    },
+    {
+      "name": "failed readback before return retained: Save",
+      "kind": "public-api",
+      "status": "passed"
+    },
+    {
+      "name": "late failure after confirmed return: Removal",
+      "kind": "public-api",
+      "status": "passed"
+    },
+    {
+      "name": "failed readback before return retained: Removal",
+      "kind": "public-api",
+      "status": "passed"
+    },
+    {
+      "name": "late failure after confirmed return: Destroy",
+      "kind": "public-api",
+      "status": "passed"
+    },
+    {
+      "name": "failed readback before return retained: Destroy",
+      "kind": "public-api",
+      "status": "passed"
+    },
+    {
+      "name": "64th diagnostic fits, 65th intent is not admitted",
+      "kind": "public-api",
+      "status": "passed"
+    },
+    {
+      "name": "late returned outcome remains recorded at ring overflow",
+      "kind": "public-api",
+      "status": "passed"
+    },
+    {
+      "name": "maximum message sequence suppresses an otherwise eligible intent",
+      "kind": "public-api",
+      "status": "passed"
+    },
+    {
+      "name": "maximum message sequence still retains a late return",
+      "kind": "public-api",
+      "status": "passed"
+    },
+    {
+      "name": "ticket exhaustion never wraps and final ticket can exit",
+      "kind": "white-box-counter-injection; not a reachable-duration claim",
+      "status": "passed"
+    },
+    {
+      "name": "diagnostic sequence exhaustion never wraps or recursively logs",
+      "kind": "white-box-counter-injection; not a reachable-duration claim",
+      "status": "passed"
+    },
+    {
+      "name": "off-thread bind on an existing facade cannot bind later",
+      "kind": "public-api",
+      "status": "passed"
+    },
+    {
+      "name": "off-thread callback exit cannot remove the live ticket",
+      "kind": "public-api",
+      "status": "passed"
+    },
+    {
+      "name": "unbound exit quarantines before any binding slot",
+      "kind": "public-api",
+      "status": "passed"
+    },
+    {
+      "name": "invalid callback entry and exit leave tickets intact: null",
+      "kind": "public-api",
+      "status": "passed"
+    },
+    {
+      "name": "invalid callback entry and exit leave tickets intact: sequence",
+      "kind": "public-api",
+      "status": "passed"
+    },
+    {
+      "name": "invalid callback entry and exit leave tickets intact: clock",
+      "kind": "public-api",
+      "status": "passed"
+    },
+    {
+      "name": "invalid callback entry and exit leave tickets intact: binding",
+      "kind": "public-api",
+      "status": "passed"
+    },
+    {
+      "name": "undefined negative/extreme effect values: -1",
+      "kind": "public-api",
+      "status": "passed"
+    },
+    {
+      "name": "undefined negative/extreme effect values: -2147483648",
+      "kind": "public-api",
+      "status": "passed"
+    },
+    {
+      "name": "undefined negative/extreme effect values: 2147483647",
+      "kind": "public-api",
+      "status": "passed"
+    },
+    {
+      "name": "canonical stamp aliases accepted without rebinding identity labels",
+      "kind": "public-api",
+      "status": "passed"
+    },
+    {
+      "name": "controls in paths are denied, controls in bounded diagnostics are sanitized",
+      "kind": "public-api",
+      "status": "passed"
+    },
+    {
+      "name": "huge finite clock is timeout-only and late readback remains data",
+      "kind": "public-api",
+      "status": "passed"
+    },
+    {
+      "name": "snapshot copies cannot mutate live data or computed native proofs",
+      "kind": "public-api",
+      "status": "passed"
+    },
+    {
+      "name": "concurrent revoke versus main-thread intent is linearizable in 200 synthetic trials",
+      "kind": "managed-model stress; not native entry synchronization",
+      "status": "passed"
+    }
+  ]
+}

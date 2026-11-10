@@ -1,0 +1,39 @@
+{
+  "schema": 1,
+  "recordedDate": "2026-11-05",
+  "project": "schedule1-mod-only",
+  "sourceRevision": "b2c6c7e6c6ecc778da9624cdb68a6578b9db471a",
+  "sourceWorktree": "dirty",
+  "kind": "Parent disposition of optional design-review suggestions; original draft and review unchanged",
+  "draftV1Sha256": "cd9517772af6c65a21968f812bed7d371420a1f13b674196663f4503287a58cb",
+  "originalReviewSha256": "a4f6292cac3a03c8f066fba5e7c1b36bdcc1e13a40ec93a3902df33371652f5e",
+  "finalDesignSha256": "985642354836f8a8eb6b4109277261e42b196c4ab2f3f7641407b2347b954549",
+  "reviewVerdictsUnchanged": {"accepted": 9, "limited": 1, "needs-correction": 0},
+  "requiredCorrections": 0,
+  "dispositions": [
+    {
+      "id": "ODR-OPT-01",
+      "status": "accepted-as-contract-precision-not-synchronization-proof",
+      "change": "Explicitly order revocation and each future effect admission: revoke first suppresses the effect; an already admitted entry retains possible partial effect. Returning never clears revocation. A separate bool check is not an atomic-entry proof.",
+      "location": "business-save-operation-owner.md, end of Zustände und monotone Wirkung; additional ordering countercase",
+      "remainingLimit": "No concrete synchronization mechanism selected, implemented or proven. The original ODR-04 limited verdict remains limited; no native admission follows."
+    },
+    {
+      "id": "ODR-OPT-02",
+      "status": "accepted-as-explicit-future-countercase-coverage",
+      "change": "Add synthetic constructor callback before owner binding and new owner instance after process tombstone. Neither creates binding/permission or resets the occupied process slot.",
+      "location": "business-save-operation-owner.md, Gegenfälle für spätere Prüfungen",
+      "remainingLimit": "Synthetic scenario requirements only. No AddComponent/native call, executable model implementation or testsuite."
+    }
+  ],
+  "plannedCountercasesInFinalDesign": 15,
+  "countercasesExecuted": 0,
+  "originalEvidenceRewritten": false,
+  "newIndependentSemanticReviewOfAdditions": false,
+  "designCoherenceOnly": true,
+  "implementationPerformed": false,
+  "implementationAuthorizedByReview": false,
+  "nativeSaveWriteAllowed": false,
+  "safeNativeUnregistrationOrDestroyEstablished": false,
+  "nativeWriteSuccessOrSidecarConsistencyEstablished": false
+}

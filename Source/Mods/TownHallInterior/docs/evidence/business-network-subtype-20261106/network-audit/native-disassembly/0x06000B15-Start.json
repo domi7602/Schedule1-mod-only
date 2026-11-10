@@ -1,0 +1,98 @@
+{
+  "Method": {
+    "Type": "FishNet.Managing.NetworkManager",
+    "Name": "Start",
+    "Token": "0x06000B15",
+    "ParameterCount": 0,
+    "Va": "0x180CF8600",
+    "Rva": "0xCF8600",
+    "NativePointerPresent": true
+  },
+  "Bounds": {
+    "BeginRva": 13600256,
+    "EndRva": 13600278,
+    "UnwindRva": 57295320
+  },
+  "RawOffset": "0xCF7800",
+  "ByteLength": 22,
+  "BytesSha256": "a2f17176fbf8bc00fb3adce976c681ab836dbca75a505bb2f49e50186db0b33b",
+  "Instructions": [
+    {
+      "Va": "0x180CF8600",
+      "Rva": "0xCF8600",
+      "Bytes": "48 83 EC 28",
+      "Text": "sub rsp,28h",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CF8604",
+      "Rva": "0xCF8604",
+      "Bytes": "48 83 79 30 00",
+      "Text": "cmp qword ptr [rcx+30h],0",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CF8609",
+      "Rva": "0xCF8609",
+      "Bytes": "74 05",
+      "Text": "je short 0000000180CF8610h",
+      "FlowControl": "ConditionalBranch",
+      "DirectTarget": "0x180CF8610",
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CF860B",
+      "Rva": "0xCF860B",
+      "Bytes": "48 83 C4 28",
+      "Text": "add rsp,28h",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CF860F",
+      "Rva": "0xCF860F",
+      "Bytes": "C3",
+      "Text": "ret",
+      "FlowControl": "Return",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CF8610",
+      "Rva": "0xCF8610",
+      "Bytes": "E8 6B F5 61 FF",
+      "Text": "call 0000000180317B80h",
+      "FlowControl": "Call",
+      "DirectTarget": "0x180317B80",
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x180CF8615",
+      "Rva": "0xCF8615",
+      "Bytes": "CC",
+      "Text": "int 3",
+      "FlowControl": "Interrupt",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    }
+  ]
+}

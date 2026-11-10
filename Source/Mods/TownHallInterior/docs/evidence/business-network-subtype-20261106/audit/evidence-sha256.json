@@ -1,0 +1,947 @@
+[
+  {
+    "path": "input-manifest.json",
+    "bytes": 4188,
+    "sha256": "51d140cc767e424d0a1dce6fb8d8b605321be12f0e4bfbf6b1f66e1811df43a7"
+  },
+  {
+    "path": "map-business-init.ps1",
+    "bytes": 15441,
+    "sha256": "743b2181b1c5cd77fd755dd8a0326fb12cf7227d22251ff9b875da39b3400cf4"
+  },
+  {
+    "path": "native-init-findings.json",
+    "bytes": 11660,
+    "sha256": "fe80b80a602a4e6cf2f36e482531edb7f97b0f9a43b62582a5103d74cea7b8f1"
+  },
+  {
+    "path": "native-map-init.json",
+    "bytes": 62671,
+    "sha256": "ac073132afa8314a4590ea634765b1eef801555560409aabbf8dbcf5f1044eba"
+  },
+  {
+    "path": "native-map-init2.json",
+    "bytes": 196485,
+    "sha256": "afc83b3bdfbc19e9c89ca3a2b3998c465856b02de900404f76dbd7a58d5ecffd"
+  },
+  {
+    "path": "references.json",
+    "bytes": 20,
+    "sha256": "9c5c2cbe56724eb1e122bac45812374ab6d21dbf3217ef9b22e8ece627accf93"
+  },
+  {
+    "path": "S1API.BusinessManager.fresh.cs.txt",
+    "bytes": 1374,
+    "sha256": "a8274141e2dd3a6bee6afb1df3b0707a825dc35c35b33b0707039fe7df192771"
+  },
+  {
+    "path": "S1API.BusinessWrapper.fresh.cs.txt",
+    "bytes": 8420,
+    "sha256": "d15c0258c0c9e9c0d6bbdfdd8fce1646cf9b22790f32fabd7e2e32c90b66f64c"
+  },
+  {
+    "path": "S1API.PropertyWrapper.fresh.cs.txt",
+    "bytes": 10244,
+    "sha256": "e7a07dbc1dc492c31664d385c129e0e7598b308c9ca167cb68a2ad76f4022088"
+  },
+  {
+    "path": "native-disassembly-init/0x0600139B-Business-Awake.json",
+    "bytes": 6635,
+    "sha256": "2a0e56f471bdc41fe45fe823861d6b6055a37f5078b4af60259d9dd7bf14e23e"
+  },
+  {
+    "path": "native-disassembly-init/0x0600139B-Business-Awake.txt",
+    "bytes": 1526,
+    "sha256": "ee3a067d0590c5fbfb27f0c4f85009e26dea69395b99823fb6bcbc549231e7fe"
+  },
+  {
+    "path": "native-disassembly-init/0x0600139C-Business-Start.json",
+    "bytes": 45589,
+    "sha256": "270d7370a29e5ee1701642b111abd579f8887e36b84da0983b27329c498fc94c"
+  },
+  {
+    "path": "native-disassembly-init/0x0600139C-Business-Start.txt",
+    "bytes": 10522,
+    "sha256": "c8357663933dde0a76d070e285e44220c06ef54a9b76de19d73b0ceecbd5357e"
+  },
+  {
+    "path": "native-disassembly-init/0x0600139D-Business-OnDestroy.json",
+    "bytes": 16766,
+    "sha256": "e9484983f5dc29569c1011824abeab00bb799d765d71857639c49b45de198139"
+  },
+  {
+    "path": "native-disassembly-init/0x0600139D-Business-OnDestroy.txt",
+    "bytes": 3998,
+    "sha256": "92298120b32391a3deee6b08ba4b9438563a7e3d4b08c889737f11a442516690"
+  },
+  {
+    "path": "native-disassembly-init/0x060013A4-Business-Load.json",
+    "bytes": 25053,
+    "sha256": "a04c3b100f197d26ed9ff9b97bb2547e78e9d11b87ef35855960b6c316075f14"
+  },
+  {
+    "path": "native-disassembly-init/0x060013A4-Business-Load.txt",
+    "bytes": 5476,
+    "sha256": "98beff3b5bfe684e9223558c0d004f8353a814a534fa74688fd357830f24d1ad"
+  },
+  {
+    "path": "native-disassembly-init/0x060013AA-Business-_ctor.json",
+    "bytes": 20841,
+    "sha256": "944523b5bb6c19070aa6cab624a48b7b1627374287ff576945a78cb61a1b9ddd"
+  },
+  {
+    "path": "native-disassembly-init/0x060013AA-Business-_ctor.txt",
+    "bytes": 5098,
+    "sha256": "a0d1bbec264e382189de0ff5fd1dee7f6ad08bf134b1566f9e5a7d4196804227"
+  },
+  {
+    "path": "native-disassembly-init/0x060013AC-Business-NetworkInitialize___Early.json",
+    "bytes": 25760,
+    "sha256": "1397a48e4b2787221c36767c8679b247fda52e260b5fe461241a0b28e53b6e63"
+  },
+  {
+    "path": "native-disassembly-init/0x060013AC-Business-NetworkInitialize___Early.txt",
+    "bytes": 6171,
+    "sha256": "aab32b4f932fda832b48d05c5a770566dda3304510cf7b99e82212147c848a78"
+  },
+  {
+    "path": "native-disassembly-init/0x060013AD-Business-NetworkInitialize__Late.json",
+    "bytes": 7326,
+    "sha256": "a93634c3ba290d799b3fc4e870639d508000ee27a53505e10b26ce6608767d89"
+  },
+  {
+    "path": "native-disassembly-init/0x060013AD-Business-NetworkInitialize__Late.txt",
+    "bytes": 1582,
+    "sha256": "275097ff3ed94b8d9f123fea6f32e8492cc3452cd4f997d751527de9e98e82c2"
+  },
+  {
+    "path": "native-disassembly-init/0x060013AE-Business-NetworkInitializeIfDisabled.json",
+    "bytes": 8560,
+    "sha256": "824af21ce2e29f433803a4ce6f747dbd65ac8038864e906d2358389843bbf25c"
+  },
+  {
+    "path": "native-disassembly-init/0x060013AE-Business-NetworkInitializeIfDisabled.txt",
+    "bytes": 1782,
+    "sha256": "4aefb1ce5e60099a34d1a905aa469a34fa3a1c137fd32ab716953e28c58a1bc7"
+  },
+  {
+    "path": "native-disassembly-init/0x060013B7-Business-Awake_UserLogic_ScheduleOne_Property_Busin.json",
+    "bytes": 34423,
+    "sha256": "1a7bcc4cb4853913188086ce7a9fbfa43037aa9c9221ca264b30591132a0b28d"
+  },
+  {
+    "path": "native-disassembly-init/0x060013B7-Business-Awake_UserLogic_ScheduleOne_Property_Busin.txt",
+    "bytes": 7774,
+    "sha256": "deb520b9c3b34497c3f91b48013e0b0cef8f27d93fdb44b67b2511abdea1091b"
+  },
+  {
+    "path": "native-disassembly-init/0x0600141F-Property-Awake.json",
+    "bytes": 6635,
+    "sha256": "69ee802b7744e9b789f6ed40e13ef4d4ddb19d93cf4e9a1211daaee6c86f1dec"
+  },
+  {
+    "path": "native-disassembly-init/0x0600141F-Property-Awake.txt",
+    "bytes": 1526,
+    "sha256": "9059267e765cffeb4a4313c0a51c3912e3b45bfecca7420f91553b6666288528"
+  },
+  {
+    "path": "native-disassembly-init/0x06001420-Property-InitializeSaveable.json",
+    "bytes": 15079,
+    "sha256": "a594cd14b3dc3c0e515d0fe15a3c57b1d1e723779ed96243120d3190460d32e5"
+  },
+  {
+    "path": "native-disassembly-init/0x06001420-Property-InitializeSaveable.txt",
+    "bytes": 3321,
+    "sha256": "aa208452d273a07d1d827d8647ba269e9731c44fb0ebddf66787fa4438dcc0cd"
+  },
+  {
+    "path": "native-disassembly-init/0x06001421-Property-Start.json",
+    "bytes": 31232,
+    "sha256": "cdebe3e955b99e75e7a629c549405303685db8b9d1ce65290da2374695b3b397"
+  },
+  {
+    "path": "native-disassembly-init/0x06001421-Property-Start.txt",
+    "bytes": 7118,
+    "sha256": "db12b4e5860806064885ab579223ab061bc0924b35201e65ef91a113a676d18f"
+  },
+  {
+    "path": "native-disassembly-init/0x06001427-Property-OnDestroy.json",
+    "bytes": 42332,
+    "sha256": "59ec03efc202a54c80637fcdf2ca527a458cf126c9f1e75416e724e3ea9ea6b8"
+  },
+  {
+    "path": "native-disassembly-init/0x06001427-Property-OnDestroy.txt",
+    "bytes": 10106,
+    "sha256": "d12f6840073a1955c2e42699ff8e2aec5e2c625b82596c91c85a19edd5315998"
+  },
+  {
+    "path": "native-disassembly-init/0x0600143D-Property-Load.json",
+    "bytes": 33317,
+    "sha256": "bb5c026232f65bd2c3c505dbaaa541f780dd513566cfd0c6d7a53dd9fd3be214"
+  },
+  {
+    "path": "native-disassembly-init/0x0600143D-Property-Load.txt",
+    "bytes": 7587,
+    "sha256": "bb84187ddfd8e5f5849035859a5d6cb3c6fe088a3ae57dc314c9931b787755a9"
+  },
+  {
+    "path": "native-disassembly-init/0x06001444-Property-_ctor.json",
+    "bytes": 56156,
+    "sha256": "46ad8dd3272d2b80ffe2232182cb036765788733654b49cba5fce05901039466"
+  },
+  {
+    "path": "native-disassembly-init/0x06001444-Property-_ctor.txt",
+    "bytes": 14170,
+    "sha256": "d619fe9b81cec878602570550ba30985aa275a012a00511b5180348528cd60f1"
+  },
+  {
+    "path": "native-disassembly-init/0x06001446-Property-_Awake_b__98_0.json",
+    "bytes": 3597,
+    "sha256": "c271076e685c3608c09b058606a1edeedefb34a017517918ab9a4d3dc93a807d"
+  },
+  {
+    "path": "native-disassembly-init/0x06001446-Property-_Awake_b__98_0.txt",
+    "bytes": 845,
+    "sha256": "cb1d59607d74e9d1a32df2a9db87c7dbc72792f093fc69de7b3fb884137e63ef"
+  },
+  {
+    "path": "native-disassembly-init/0x06001449-Property-NetworkInitialize___Early.json",
+    "bytes": 37198,
+    "sha256": "e90b417a405baa8f7e1027b683ce25b5e4e53df224f1cecc76e75f45772d0e01"
+  },
+  {
+    "path": "native-disassembly-init/0x06001449-Property-NetworkInitialize___Early.txt",
+    "bytes": 8798,
+    "sha256": "a3e7439a1dee86f1b071fbacd23764c5ea35b35cb5960910290c103d561d0ba1"
+  },
+  {
+    "path": "native-disassembly-init/0x0600144A-Property-NetworkInitialize__Late.json",
+    "bytes": 6333,
+    "sha256": "4d7df9c0170092683f16a475832f6b37647c8236b60f1995906bf44616dd7b5a"
+  },
+  {
+    "path": "native-disassembly-init/0x0600144A-Property-NetworkInitialize__Late.txt",
+    "bytes": 1364,
+    "sha256": "a757b75a137348006e606f033c1adaac1d224fbc9dfa8dd07c22d5c1a0432685"
+  },
+  {
+    "path": "native-disassembly-init/0x0600144B-Property-NetworkInitializeIfDisabled.json",
+    "bytes": 8560,
+    "sha256": "dcdc0aa64a713bce782269ecf32edd43903b2ad399fd9d107c0da4d43f783e19"
+  },
+  {
+    "path": "native-disassembly-init/0x0600144B-Property-NetworkInitializeIfDisabled.txt",
+    "bytes": 1782,
+    "sha256": "7419935075bc5f4c1a65bce8a782b5faa23aa6a23f3635a79f1354a6df7f0b6f"
+  },
+  {
+    "path": "native-disassembly-init/0x0600145A-Property-Awake_UserLogic_ScheduleOne_Property_Prope.json",
+    "bytes": 246393,
+    "sha256": "ee97a5daa3db75f055fb1fd201665909bd4476ffbf6f028c02ced8cf8b45c9b4"
+  },
+  {
+    "path": "native-disassembly-init/0x0600145A-Property-Awake_UserLogic_ScheduleOne_Property_Prope.txt",
+    "bytes": 58087,
+    "sha256": "e329c71418edfb200ad7fd420a593ef92d6811eb248d7b75f5584314bfca73da"
+  },
+  {
+    "path": "native-disassembly-init/0x06001475-PropertyContentsContainer-SetProperty.json",
+    "bytes": 18882,
+    "sha256": "20491d5141f8595b7435ef2efb18c92588587ee889f072950bd785af5bd66ef8"
+  },
+  {
+    "path": "native-disassembly-init/0x06001475-PropertyContentsContainer-SetProperty.txt",
+    "bytes": 4125,
+    "sha256": "61b0659370dfbe51d878aced491cd49a537c01f4d2544fea5505fac9314f9b0e"
+  },
+  {
+    "path": "native-disassembly-init/0x06001476-PropertyContentsContainer-_ctor.json",
+    "bytes": 4211,
+    "sha256": "9aa6abd5c5a39884c00612c9280a382a890e4d389048847e8d5204bcb6d9804d"
+  },
+  {
+    "path": "native-disassembly-init/0x06001476-PropertyContentsContainer-_ctor.txt",
+    "bytes": 1130,
+    "sha256": "7c3c18d15e602edf4f7a9fe4efdc61d508aa177613f87ab1bc2cbc52658357a2"
+  },
+  {
+    "path": "native-disassembly-init/0x06001860-BusinessesLoader-_ctor.json",
+    "bytes": 4466,
+    "sha256": "b1a31403093ac6c302a5340d8968501d15022d4373a8c48c710a0201d560dd84"
+  },
+  {
+    "path": "native-disassembly-init/0x06001860-BusinessesLoader-_ctor.txt",
+    "bytes": 1396,
+    "sha256": "7946b799123959cf69e525e5c60de91147d2736c32b1f821eda386cd29fc4c03"
+  },
+  {
+    "path": "native-disassembly-init/0x06001861-BusinessesLoader-Load.json",
+    "bytes": 123785,
+    "sha256": "0788655169c5ffcae1aee9a6cbcd70b830ba373d6a575a1ac2f57aaf75da6708"
+  },
+  {
+    "path": "native-disassembly-init/0x06001861-BusinessesLoader-Load.txt",
+    "bytes": 30572,
+    "sha256": "8d81ad35afebe7fae930cb8a275305d5a052cc685fee545ff0d8918f8d6bbead"
+  },
+  {
+    "path": "native-disassembly-init/0x06001862-BusinessLoader-_ctor.json",
+    "bytes": 4464,
+    "sha256": "726393a4186c79ffce44965813da42d3f00c57c31751088cec4f127ae619e528"
+  },
+  {
+    "path": "native-disassembly-init/0x06001862-BusinessLoader-_ctor.txt",
+    "bytes": 1394,
+    "sha256": "94a685a4d6d66f4a5f6f842cb155b37da4741194721e879b234734d1a6713132"
+  },
+  {
+    "path": "native-disassembly-init/0x06001863-BusinessLoader-Load.json",
+    "bytes": 44328,
+    "sha256": "62023e469954b86efca0b2ab4f8c055a5ecc22f18458fdaf1ed07468c571269b"
+  },
+  {
+    "path": "native-disassembly-init/0x06001863-BusinessLoader-Load.txt",
+    "bytes": 9641,
+    "sha256": "a8d411a504cac3b80ee640508da9e20f0528fc7e38fd577ad3b9e0cf56cdb7bb"
+  },
+  {
+    "path": "native-disassembly-init2/0x0600064A-NetworkBehaviour-NetworkInitializeIfDisabled.json",
+    "bytes": 4764,
+    "sha256": "1f3b17f4da09b72bd7e19f8e1ab002e4ac540060bc48df56b8b64d022dba2dc7"
+  },
+  {
+    "path": "native-disassembly-init2/0x0600064A-NetworkBehaviour-NetworkInitializeIfDisabled.txt",
+    "bytes": 1050,
+    "sha256": "376e94cfeb84c3038bbcfee1fe00edfb818d514e66d7d815c874656ec6c2d166"
+  },
+  {
+    "path": "native-disassembly-init2/0x060006B3-NetworkBehaviour-_ctor.json",
+    "bytes": 61674,
+    "sha256": "edf9b688269ee0e0da840865a7be7cbdf028fc4cd2ddfda9358a82b95d591f5b"
+  },
+  {
+    "path": "native-disassembly-init2/0x060006B3-NetworkBehaviour-_ctor.txt",
+    "bytes": 16285,
+    "sha256": "3acbd52aa849e50f8265e11312d1d2f57fd9d1f86abe05125c09fb64427b7f99"
+  },
+  {
+    "path": "native-disassembly-init2/0x06000BD8-TimeManager-Awake.json",
+    "bytes": 23601,
+    "sha256": "e4e08a65ecff4cda2bfbbd72f96cd10f14c1d1d9976e2c645b32f8910e28b793"
+  },
+  {
+    "path": "native-disassembly-init2/0x06000BD8-TimeManager-Awake.txt",
+    "bytes": 5790,
+    "sha256": "6bbd28c8468e4a210aa61faf7c4b933c4e6532164b2732bb8d269e30ab90ff97"
+  },
+  {
+    "path": "native-disassembly-init2/0x06000BD9-TimeManager-Start.json",
+    "bytes": 27090,
+    "sha256": "3bfe925a4e0518e25b7b530b1358cdd3f1d96d8aab114b6741134f6799591c36"
+  },
+  {
+    "path": "native-disassembly-init2/0x06000BD9-TimeManager-Start.txt",
+    "bytes": 6634,
+    "sha256": "bfbc275ef0c95e150231823570954204ef366fc303673680f603a3ca4720d7d2"
+  },
+  {
+    "path": "native-disassembly-init2/0x06000BDA-TimeManager-InitializeSaveable.json",
+    "bytes": 15084,
+    "sha256": "82a0196fd91b15dc3c1ce66cd05bf25841b11e0211a565e40243825aeaea2221"
+  },
+  {
+    "path": "native-disassembly-init2/0x06000BDA-TimeManager-InitializeSaveable.txt",
+    "bytes": 3324,
+    "sha256": "4f42c916ce03d442e9792b40d36e095f4aa158bda978e4b9bd9231f944219a66"
+  },
+  {
+    "path": "native-disassembly-init2/0x06000BFA-TimeManager-GetSaveString.json",
+    "bytes": 15797,
+    "sha256": "b40be07d58c848d3a50a8cd7a14445caaf08527f92d0f905c4b6876672bdcc74"
+  },
+  {
+    "path": "native-disassembly-init2/0x06000BFA-TimeManager-GetSaveString.txt",
+    "bytes": 3363,
+    "sha256": "f39e719f414e047694bdb17a7d1c75ca6e30b73a4fcdabbabc159fb9f53dd594"
+  },
+  {
+    "path": "native-disassembly-init2/0x06000BFB-TimeManager-Load.json",
+    "bytes": 10186,
+    "sha256": "f72c3cb0a3f25ebd11750221da845a66d701864a1578383f82beeac8e2925b6b"
+  },
+  {
+    "path": "native-disassembly-init2/0x06000BFB-TimeManager-Load.txt",
+    "bytes": 2158,
+    "sha256": "a8a5cfa84db7c3fc1510944b947ddc931018946bf14699341ac033416ff51fd0"
+  },
+  {
+    "path": "native-disassembly-init2/0x06000BFC-TimeManager-_ctor.json",
+    "bytes": 35352,
+    "sha256": "23fe5936a0229460f57d97778d36d7d2e09be0d16acb0ca703a61e8b9db0d50d"
+  },
+  {
+    "path": "native-disassembly-init2/0x06000BFC-TimeManager-_ctor.txt",
+    "bytes": 8599,
+    "sha256": "f523d9fe7005d4f44f00f9d6f7ec9a1c36694150b74f3d8fd6147d1c7658ac57"
+  },
+  {
+    "path": "native-disassembly-init2/0x06000BFF-TimeManager-NetworkInitialize___Early.json",
+    "bytes": 30065,
+    "sha256": "011e4b28ffecb44b3f09c8bbaee83115569f73ded7b9a4e318ce0242118785a5"
+  },
+  {
+    "path": "native-disassembly-init2/0x06000BFF-TimeManager-NetworkInitialize___Early.txt",
+    "bytes": 7656,
+    "sha256": "c8b687d82a165e863a04cb40a31a1278bad3f389c95a12c08827a167eb9fb7b0"
+  },
+  {
+    "path": "native-disassembly-init2/0x06000C00-TimeManager-NetworkInitialize__Late.json",
+    "bytes": 7474,
+    "sha256": "8f8acf3def2d3498c2198af2c22a8ff41bc9deb87cbe02afd6dda9e6a85b5c22"
+  },
+  {
+    "path": "native-disassembly-init2/0x06000C00-TimeManager-NetworkInitialize__Late.txt",
+    "bytes": 1921,
+    "sha256": "9ddd15879683a85ce92dbc75012a91389ceb0a5547b347032f78b034fbe62050"
+  },
+  {
+    "path": "native-disassembly-init2/0x06000C01-TimeManager-NetworkInitializeIfDisabled.json",
+    "bytes": 8563,
+    "sha256": "1acbecbe4bc9847b18919677c818969e6c2867583f374add13927c58002d70ce"
+  },
+  {
+    "path": "native-disassembly-init2/0x06000C01-TimeManager-NetworkInitializeIfDisabled.txt",
+    "bytes": 1785,
+    "sha256": "62dc729b3ff062d71e5d234d468ed5b9fd418f13d1defacd0dc4aed394322d07"
+  },
+  {
+    "path": "native-disassembly-init2/0x06000C0D-TimeManager-Awake_UserLogic_ScheduleOne_GameTime_TimeM.json",
+    "bytes": 22645,
+    "sha256": "6f2f3e3d9b5e53ffe96236277aeb41c997aa614316a59dd8b6399fa409228eb9"
+  },
+  {
+    "path": "native-disassembly-init2/0x06000C0D-TimeManager-Awake_UserLogic_ScheduleOne_GameTime_TimeM.txt",
+    "bytes": 5618,
+    "sha256": "0d3ad14247d98259e48fcfa6bd6954a9cd5c6e827a8a5599b9ecea5a1e0615de"
+  },
+  {
+    "path": "native-disassembly-init2/0x06001398-Business-get_currentLaunderTotal.json",
+    "bytes": 23565,
+    "sha256": "bc56407490059d3cbadca0e5b6c9e6d747fcd82b8e9d355613d2c13ca301470f"
+  },
+  {
+    "path": "native-disassembly-init2/0x06001398-Business-get_currentLaunderTotal.txt",
+    "bytes": 5418,
+    "sha256": "e38df3815c2f923f1a483157c9714aba0876a1b1f0c68e42589dc91f0a684f25"
+  },
+  {
+    "path": "native-disassembly-init2/0x06001399-Business-get_appliedLaunderLimit.json",
+    "bytes": 5964,
+    "sha256": "2b42de5815e54de3438defcef749c57538c647e6e4351f0f9598965634d2b188"
+  },
+  {
+    "path": "native-disassembly-init2/0x06001399-Business-get_appliedLaunderLimit.txt",
+    "bytes": 1371,
+    "sha256": "cec9cbd378e58b07380cf2142e4b0e268297f3811cbf83d31698318d3aafb413"
+  },
+  {
+    "path": "native-disassembly-init2/0x0600139B-Business-Awake.json",
+    "bytes": 6635,
+    "sha256": "2a0e56f471bdc41fe45fe823861d6b6055a37f5078b4af60259d9dd7bf14e23e"
+  },
+  {
+    "path": "native-disassembly-init2/0x0600139B-Business-Awake.txt",
+    "bytes": 1526,
+    "sha256": "ee3a067d0590c5fbfb27f0c4f85009e26dea69395b99823fb6bcbc549231e7fe"
+  },
+  {
+    "path": "native-disassembly-init2/0x0600139C-Business-Start.json",
+    "bytes": 45589,
+    "sha256": "270d7370a29e5ee1701642b111abd579f8887e36b84da0983b27329c498fc94c"
+  },
+  {
+    "path": "native-disassembly-init2/0x0600139C-Business-Start.txt",
+    "bytes": 10522,
+    "sha256": "c8357663933dde0a76d070e285e44220c06ef54a9b76de19d73b0ceecbd5357e"
+  },
+  {
+    "path": "native-disassembly-init2/0x0600139D-Business-OnDestroy.json",
+    "bytes": 16766,
+    "sha256": "e9484983f5dc29569c1011824abeab00bb799d765d71857639c49b45de198139"
+  },
+  {
+    "path": "native-disassembly-init2/0x0600139D-Business-OnDestroy.txt",
+    "bytes": 3998,
+    "sha256": "92298120b32391a3deee6b08ba4b9438563a7e3d4b08c889737f11a442516690"
+  },
+  {
+    "path": "native-disassembly-init2/0x060013A3-Business-GetSaveString.json",
+    "bytes": 77811,
+    "sha256": "656eedcc8b5f7c67cb46b15aacc66697e9936a6586b190ef9ce291edb9f87c43"
+  },
+  {
+    "path": "native-disassembly-init2/0x060013A3-Business-GetSaveString.txt",
+    "bytes": 17438,
+    "sha256": "297f81b778760e549dd9b0b3c3b46361f9e1e60c3b00fb46ca1fd3e8df755ecf"
+  },
+  {
+    "path": "native-disassembly-init2/0x060013A4-Business-Load.json",
+    "bytes": 25053,
+    "sha256": "a04c3b100f197d26ed9ff9b97bb2547e78e9d11b87ef35855960b6c316075f14"
+  },
+  {
+    "path": "native-disassembly-init2/0x060013A4-Business-Load.txt",
+    "bytes": 5476,
+    "sha256": "98beff3b5bfe684e9223558c0d004f8353a814a534fa74688fd357830f24d1ad"
+  },
+  {
+    "path": "native-disassembly-init2/0x060013AA-Business-_ctor.json",
+    "bytes": 20841,
+    "sha256": "944523b5bb6c19070aa6cab624a48b7b1627374287ff576945a78cb61a1b9ddd"
+  },
+  {
+    "path": "native-disassembly-init2/0x060013AA-Business-_ctor.txt",
+    "bytes": 5098,
+    "sha256": "a0d1bbec264e382189de0ff5fd1dee7f6ad08bf134b1566f9e5a7d4196804227"
+  },
+  {
+    "path": "native-disassembly-init2/0x060013AC-Business-NetworkInitialize___Early.json",
+    "bytes": 25760,
+    "sha256": "1397a48e4b2787221c36767c8679b247fda52e260b5fe461241a0b28e53b6e63"
+  },
+  {
+    "path": "native-disassembly-init2/0x060013AC-Business-NetworkInitialize___Early.txt",
+    "bytes": 6171,
+    "sha256": "aab32b4f932fda832b48d05c5a770566dda3304510cf7b99e82212147c848a78"
+  },
+  {
+    "path": "native-disassembly-init2/0x060013AD-Business-NetworkInitialize__Late.json",
+    "bytes": 7326,
+    "sha256": "a93634c3ba290d799b3fc4e870639d508000ee27a53505e10b26ce6608767d89"
+  },
+  {
+    "path": "native-disassembly-init2/0x060013AD-Business-NetworkInitialize__Late.txt",
+    "bytes": 1582,
+    "sha256": "275097ff3ed94b8d9f123fea6f32e8492cc3452cd4f997d751527de9e98e82c2"
+  },
+  {
+    "path": "native-disassembly-init2/0x060013AE-Business-NetworkInitializeIfDisabled.json",
+    "bytes": 8560,
+    "sha256": "824af21ce2e29f433803a4ce6f747dbd65ac8038864e906d2358389843bbf25c"
+  },
+  {
+    "path": "native-disassembly-init2/0x060013AE-Business-NetworkInitializeIfDisabled.txt",
+    "bytes": 1782,
+    "sha256": "4aefb1ce5e60099a34d1a905aa469a34fa3a1c137fd32ab716953e28c58a1bc7"
+  },
+  {
+    "path": "native-disassembly-init2/0x060013B7-Business-Awake_UserLogic_ScheduleOne_Property_Busin.json",
+    "bytes": 34423,
+    "sha256": "1a7bcc4cb4853913188086ce7a9fbfa43037aa9c9221ca264b30591132a0b28d"
+  },
+  {
+    "path": "native-disassembly-init2/0x060013B7-Business-Awake_UserLogic_ScheduleOne_Property_Busin.txt",
+    "bytes": 7774,
+    "sha256": "deb520b9c3b34497c3f91b48013e0b0cef8f27d93fdb44b67b2511abdea1091b"
+  },
+  {
+    "path": "native-disassembly-init2/0x060013C6-BusinessManager-Awake.json",
+    "bytes": 7341,
+    "sha256": "988e43b7f30a14d05d33d4255fa1f6e4c85d897254534b9d7abdd2914e847fb3"
+  },
+  {
+    "path": "native-disassembly-init2/0x060013C6-BusinessManager-Awake.txt",
+    "bytes": 1810,
+    "sha256": "0b2b28d0ddd0ee941ef77462d2210dd4784e522ce4afb2be3801d7f08867b931"
+  },
+  {
+    "path": "native-disassembly-init2/0x060013C7-BusinessManager-InitializeSaveable.json",
+    "bytes": 15086,
+    "sha256": "d98c0ace3905fc6303e1c975f4ff662c3d1976c92bddf5dea0674da62e758a78"
+  },
+  {
+    "path": "native-disassembly-init2/0x060013C7-BusinessManager-InitializeSaveable.txt",
+    "bytes": 3328,
+    "sha256": "6c116a79875718baa75a4fcf77de595bc85281e7afab758409e970812bfb25f9"
+  },
+  {
+    "path": "native-disassembly-init2/0x060013C8-BusinessManager-GetSaveString.json",
+    "bytes": 7321,
+    "sha256": "010d57295dbe12b4de2d3ed3e7b5f1c5406f6492addaa6ca9368fa7a85ba0199"
+  },
+  {
+    "path": "native-disassembly-init2/0x060013C8-BusinessManager-GetSaveString.txt",
+    "bytes": 1601,
+    "sha256": "5adef322ef2f133ed0e22aadd1972ed9085dadfb6308a9643b5e35faa426428d"
+  },
+  {
+    "path": "native-disassembly-init2/0x060013CB-BusinessManager-LoadBusiness.json",
+    "bytes": 42854,
+    "sha256": "bd592e75913cc0d2b4a86d8fc51b8d9f81de8db9780bd91fb210264a272e3462"
+  },
+  {
+    "path": "native-disassembly-init2/0x060013CB-BusinessManager-LoadBusiness.txt",
+    "bytes": 10009,
+    "sha256": "8e046298cdc7994b073a3f6414fc4f99faedcc7a35cbc69ab131b09e065eaaf4"
+  },
+  {
+    "path": "native-disassembly-init2/0x060013CC-BusinessManager-_ctor.json",
+    "bytes": 19761,
+    "sha256": "11bd0a66efc3456406493473188d8ff4765f204857e4493473e04727c9907b82"
+  },
+  {
+    "path": "native-disassembly-init2/0x060013CC-BusinessManager-_ctor.txt",
+    "bytes": 5322,
+    "sha256": "e0d59ca485a7b0eabf612a74d9d9023f1da09996d704a8e26490e9a733a3e56d"
+  },
+  {
+    "path": "native-disassembly-init2/0x0600141F-Property-Awake.json",
+    "bytes": 6635,
+    "sha256": "69ee802b7744e9b789f6ed40e13ef4d4ddb19d93cf4e9a1211daaee6c86f1dec"
+  },
+  {
+    "path": "native-disassembly-init2/0x0600141F-Property-Awake.txt",
+    "bytes": 1526,
+    "sha256": "9059267e765cffeb4a4313c0a51c3912e3b45bfecca7420f91553b6666288528"
+  },
+  {
+    "path": "native-disassembly-init2/0x06001420-Property-InitializeSaveable.json",
+    "bytes": 15079,
+    "sha256": "a594cd14b3dc3c0e515d0fe15a3c57b1d1e723779ed96243120d3190460d32e5"
+  },
+  {
+    "path": "native-disassembly-init2/0x06001420-Property-InitializeSaveable.txt",
+    "bytes": 3321,
+    "sha256": "aa208452d273a07d1d827d8647ba269e9731c44fb0ebddf66787fa4438dcc0cd"
+  },
+  {
+    "path": "native-disassembly-init2/0x06001421-Property-Start.json",
+    "bytes": 31232,
+    "sha256": "cdebe3e955b99e75e7a629c549405303685db8b9d1ce65290da2374695b3b397"
+  },
+  {
+    "path": "native-disassembly-init2/0x06001421-Property-Start.txt",
+    "bytes": 7118,
+    "sha256": "db12b4e5860806064885ab579223ab061bc0924b35201e65ef91a113a676d18f"
+  },
+  {
+    "path": "native-disassembly-init2/0x06001427-Property-OnDestroy.json",
+    "bytes": 42332,
+    "sha256": "59ec03efc202a54c80637fcdf2ca527a458cf126c9f1e75416e724e3ea9ea6b8"
+  },
+  {
+    "path": "native-disassembly-init2/0x06001427-Property-OnDestroy.txt",
+    "bytes": 10106,
+    "sha256": "d12f6840073a1955c2e42699ff8e2aec5e2c625b82596c91c85a19edd5315998"
+  },
+  {
+    "path": "native-disassembly-init2/0x06001438-Property-GetSaveString.json",
+    "bytes": 62461,
+    "sha256": "ee88d969ebc4a99e86e3b55c48d517ea4bf3687d388cf158212a5bd94edac4c3"
+  },
+  {
+    "path": "native-disassembly-init2/0x06001438-Property-GetSaveString.txt",
+    "bytes": 14098,
+    "sha256": "b193af0b350bf44da3f4613164a1e44213b97c4d54205b2a0789228db3e4fd00"
+  },
+  {
+    "path": "native-disassembly-init2/0x0600143D-Property-Load.json",
+    "bytes": 33317,
+    "sha256": "bb5c026232f65bd2c3c505dbaaa541f780dd513566cfd0c6d7a53dd9fd3be214"
+  },
+  {
+    "path": "native-disassembly-init2/0x0600143D-Property-Load.txt",
+    "bytes": 7587,
+    "sha256": "bb84187ddfd8e5f5849035859a5d6cb3c6fe088a3ae57dc314c9931b787755a9"
+  },
+  {
+    "path": "native-disassembly-init2/0x0600143E-Property-DoBoundsContainPoint.json",
+    "bytes": 21418,
+    "sha256": "8d1ed7f39b9baa841c9b6eb3a524fd40dcd80cb210f44a238ba5dc01a51e6989"
+  },
+  {
+    "path": "native-disassembly-init2/0x0600143E-Property-DoBoundsContainPoint.txt",
+    "bytes": 4592,
+    "sha256": "bfcc3750a91c43101d2d27220f232221abd44a90a359c56e2e385a9cded5b6d3"
+  },
+  {
+    "path": "native-disassembly-init2/0x0600143F-Property-IsPointInsideBox.json",
+    "bytes": 37021,
+    "sha256": "0c52d34c5e8bf3b682ceeea211ac585fc56d2ad177a3dc9b4067caa263ca957f"
+  },
+  {
+    "path": "native-disassembly-init2/0x0600143F-Property-IsPointInsideBox.txt",
+    "bytes": 7937,
+    "sha256": "b376cdba113f2e00dcc8a6e4a25e2ffd7392d11c06a29703d39fb665f16a2795"
+  },
+  {
+    "path": "native-disassembly-init2/0x06001444-Property-_ctor.json",
+    "bytes": 56156,
+    "sha256": "46ad8dd3272d2b80ffe2232182cb036765788733654b49cba5fce05901039466"
+  },
+  {
+    "path": "native-disassembly-init2/0x06001444-Property-_ctor.txt",
+    "bytes": 14170,
+    "sha256": "d619fe9b81cec878602570550ba30985aa275a012a00511b5180348528cd60f1"
+  },
+  {
+    "path": "native-disassembly-init2/0x06001446-Property-_Awake_b__98_0.json",
+    "bytes": 3597,
+    "sha256": "c271076e685c3608c09b058606a1edeedefb34a017517918ab9a4d3dc93a807d"
+  },
+  {
+    "path": "native-disassembly-init2/0x06001446-Property-_Awake_b__98_0.txt",
+    "bytes": 845,
+    "sha256": "cb1d59607d74e9d1a32df2a9db87c7dbc72792f093fc69de7b3fb884137e63ef"
+  },
+  {
+    "path": "native-disassembly-init2/0x06001449-Property-NetworkInitialize___Early.json",
+    "bytes": 37198,
+    "sha256": "e90b417a405baa8f7e1027b683ce25b5e4e53df224f1cecc76e75f45772d0e01"
+  },
+  {
+    "path": "native-disassembly-init2/0x06001449-Property-NetworkInitialize___Early.txt",
+    "bytes": 8798,
+    "sha256": "a3e7439a1dee86f1b071fbacd23764c5ea35b35cb5960910290c103d561d0ba1"
+  },
+  {
+    "path": "native-disassembly-init2/0x0600144A-Property-NetworkInitialize__Late.json",
+    "bytes": 6333,
+    "sha256": "4d7df9c0170092683f16a475832f6b37647c8236b60f1995906bf44616dd7b5a"
+  },
+  {
+    "path": "native-disassembly-init2/0x0600144A-Property-NetworkInitialize__Late.txt",
+    "bytes": 1364,
+    "sha256": "a757b75a137348006e606f033c1adaac1d224fbc9dfa8dd07c22d5c1a0432685"
+  },
+  {
+    "path": "native-disassembly-init2/0x0600144B-Property-NetworkInitializeIfDisabled.json",
+    "bytes": 8560,
+    "sha256": "dcdc0aa64a713bce782269ecf32edd43903b2ad399fd9d107c0da4d43f783e19"
+  },
+  {
+    "path": "native-disassembly-init2/0x0600144B-Property-NetworkInitializeIfDisabled.txt",
+    "bytes": 1782,
+    "sha256": "7419935075bc5f4c1a65bce8a782b5faa23aa6a23f3635a79f1354a6df7f0b6f"
+  },
+  {
+    "path": "native-disassembly-init2/0x0600145A-Property-Awake_UserLogic_ScheduleOne_Property_Prope.json",
+    "bytes": 246393,
+    "sha256": "ee97a5daa3db75f055fb1fd201665909bd4476ffbf6f028c02ced8cf8b45c9b4"
+  },
+  {
+    "path": "native-disassembly-init2/0x0600145A-Property-Awake_UserLogic_ScheduleOne_Property_Prope.txt",
+    "bytes": 58087,
+    "sha256": "e329c71418edfb200ad7fd420a593ef92d6811eb248d7b75f5584314bfca73da"
+  },
+  {
+    "path": "native-disassembly-init2/0x06001475-PropertyContentsContainer-SetProperty.json",
+    "bytes": 18882,
+    "sha256": "20491d5141f8595b7435ef2efb18c92588587ee889f072950bd785af5bd66ef8"
+  },
+  {
+    "path": "native-disassembly-init2/0x06001475-PropertyContentsContainer-SetProperty.txt",
+    "bytes": 4125,
+    "sha256": "61b0659370dfbe51d878aced491cd49a537c01f4d2544fea5505fac9314f9b0e"
+  },
+  {
+    "path": "native-disassembly-init2/0x06001476-PropertyContentsContainer-_ctor.json",
+    "bytes": 4211,
+    "sha256": "9aa6abd5c5a39884c00612c9280a382a890e4d389048847e8d5204bcb6d9804d"
+  },
+  {
+    "path": "native-disassembly-init2/0x06001476-PropertyContentsContainer-_ctor.txt",
+    "bytes": 1130,
+    "sha256": "7c3c18d15e602edf4f7a9fe4efdc61d508aa177613f87ab1bc2cbc52658357a2"
+  },
+  {
+    "path": "native-disassembly-init2/0x06001483-PropertyManager-Awake.json",
+    "bytes": 7341,
+    "sha256": "c88a2a11c842da35c9d4b8f00a559109aaadcf232c30157eb0d8d0a7176a92b6"
+  },
+  {
+    "path": "native-disassembly-init2/0x06001483-PropertyManager-Awake.txt",
+    "bytes": 1810,
+    "sha256": "7b42601a5b054590767997585f769f8eacc108c142863749cc36d2de2fe402b3"
+  },
+  {
+    "path": "native-disassembly-init2/0x06001484-PropertyManager-InitializeSaveable.json",
+    "bytes": 15086,
+    "sha256": "e310efb925de4a3366aaf117f184f8cfa8f3256223dc6ae78c4f0d464d312768"
+  },
+  {
+    "path": "native-disassembly-init2/0x06001484-PropertyManager-InitializeSaveable.txt",
+    "bytes": 3328,
+    "sha256": "1459e3dbfd0166cf9cfe5ae4f1f5c0fc2f0186f07fa46ce4a6375dcbb7cb9a28"
+  },
+  {
+    "path": "native-disassembly-init2/0x06001485-PropertyManager-GetSaveString.json",
+    "bytes": 7321,
+    "sha256": "4d51632efb2f88564a45aa9ee34a3be71f374b9817fb1c6ed034103e15fd003c"
+  },
+  {
+    "path": "native-disassembly-init2/0x06001485-PropertyManager-GetSaveString.txt",
+    "bytes": 1601,
+    "sha256": "4e6b08bf259dd3b67170ba7cab12ea227712561e2f1cb8ecf58a4dd629c0c496"
+  },
+  {
+    "path": "native-disassembly-init2/0x0600148B-PropertyManager-_ctor.json",
+    "bytes": 19761,
+    "sha256": "e40ab062bd5b6864eadbadb9a91e594f2dac4f3eed20b64d748fdb27e1cfe380"
+  },
+  {
+    "path": "native-disassembly-init2/0x0600148B-PropertyManager-_ctor.txt",
+    "bytes": 5322,
+    "sha256": "5d0fa8adc2d0ee8635cf5dc09c2dc0f0579f7b43695b32aa87811c6d92f2e94c"
+  },
+  {
+    "path": "native-disassembly-init2/0x06001860-BusinessesLoader-_ctor.json",
+    "bytes": 4466,
+    "sha256": "b1a31403093ac6c302a5340d8968501d15022d4373a8c48c710a0201d560dd84"
+  },
+  {
+    "path": "native-disassembly-init2/0x06001860-BusinessesLoader-_ctor.txt",
+    "bytes": 1396,
+    "sha256": "7946b799123959cf69e525e5c60de91147d2736c32b1f821eda386cd29fc4c03"
+  },
+  {
+    "path": "native-disassembly-init2/0x06001861-BusinessesLoader-Load.json",
+    "bytes": 123785,
+    "sha256": "0788655169c5ffcae1aee9a6cbcd70b830ba373d6a575a1ac2f57aaf75da6708"
+  },
+  {
+    "path": "native-disassembly-init2/0x06001861-BusinessesLoader-Load.txt",
+    "bytes": 30572,
+    "sha256": "8d81ad35afebe7fae930cb8a275305d5a052cc685fee545ff0d8918f8d6bbead"
+  },
+  {
+    "path": "native-disassembly-init2/0x06001862-BusinessLoader-_ctor.json",
+    "bytes": 4464,
+    "sha256": "726393a4186c79ffce44965813da42d3f00c57c31751088cec4f127ae619e528"
+  },
+  {
+    "path": "native-disassembly-init2/0x06001862-BusinessLoader-_ctor.txt",
+    "bytes": 1394,
+    "sha256": "94a685a4d6d66f4a5f6f842cb155b37da4741194721e879b234734d1a6713132"
+  },
+  {
+    "path": "native-disassembly-init2/0x06001863-BusinessLoader-Load.json",
+    "bytes": 44328,
+    "sha256": "62023e469954b86efca0b2ab4f8c055a5ecc22f18458fdaf1ed07468c571269b"
+  },
+  {
+    "path": "native-disassembly-init2/0x06001863-BusinessLoader-Load.txt",
+    "bytes": 9641,
+    "sha256": "a8d411a504cac3b80ee640508da9e20f0528fc7e38fd577ad3b9e0cf56cdb7bb"
+  },
+  {
+    "path": "native-disassembly-init2/0x06001CAE-MoneyManager-Awake.json",
+    "bytes": 8679,
+    "sha256": "99e4e7210ed646e72bacbc689ec95cae32d107387dec02f70509039ad5b065bb"
+  },
+  {
+    "path": "native-disassembly-init2/0x06001CAE-MoneyManager-Awake.txt",
+    "bytes": 2109,
+    "sha256": "209c994bb77f1c43181f49aa9fe74c6995944d7ece5cdbddb943df10e7a6af55"
+  },
+  {
+    "path": "native-disassembly-init2/0x06001CAF-MoneyManager-InitializeSaveable.json",
+    "bytes": 15080,
+    "sha256": "30375cc1ed320d9f4f1423a1b89af611e456643ab56b80bdf8c9849547fbb7bf"
+  },
+  {
+    "path": "native-disassembly-init2/0x06001CAF-MoneyManager-InitializeSaveable.txt",
+    "bytes": 3322,
+    "sha256": "ec63ed901377dcb822a4949eb2e7d6f3314db76388351a4742b1f52d676a8a37"
+  },
+  {
+    "path": "native-disassembly-init2/0x06001CB0-MoneyManager-Start.json",
+    "bytes": 65128,
+    "sha256": "650f989138f157a4c798f50f0d2b0f260199eb94a6c0a3b7e57e343dbcd7fc63"
+  },
+  {
+    "path": "native-disassembly-init2/0x06001CB0-MoneyManager-Start.txt",
+    "bytes": 15818,
+    "sha256": "4db8e0b3bf52a846e90de14d857233bc09ae8e18ebdfedb42f652fc2575eba0d"
+  },
+  {
+    "path": "native-disassembly-init2/0x06001CB3-MoneyManager-OnDestroy.json",
+    "bytes": 63424,
+    "sha256": "02b9a06bf8c7228d3e1c1529230c77a8b41206d69c2fc2e4b703c6aed4bf3978"
+  },
+  {
+    "path": "native-disassembly-init2/0x06001CB3-MoneyManager-OnDestroy.txt",
+    "bytes": 15378,
+    "sha256": "a56b29a9f166aadf4c3f2df0b25d9df0407d178b6d9009dfc312f2362da1eb02"
+  },
+  {
+    "path": "native-disassembly-init2/0x06001CC0-MoneyManager-GetSaveString.json",
+    "bytes": 31093,
+    "sha256": "0b0802a4d6991e36ab5039b5fa681d811dc666d8c0b557ba800506063a373163"
+  },
+  {
+    "path": "native-disassembly-init2/0x06001CC0-MoneyManager-GetSaveString.txt",
+    "bytes": 7084,
+    "sha256": "a8f9683a0bde9e30e07f7be15d7c2adf48e637ab523456bd5f2fafca8554ff30"
+  },
+  {
+    "path": "native-disassembly-init2/0x06001CC1-MoneyManager-Load.json",
+    "bytes": 44762,
+    "sha256": "fc6d42c759ed15da014d2f1f3ac308a21cc550ebada795800bfad0e1b2ca53ee"
+  },
+  {
+    "path": "native-disassembly-init2/0x06001CC1-MoneyManager-Load.txt",
+    "bytes": 9960,
+    "sha256": "84272e6a3945b17c0fe97c9707719f7cae323388055a0a526b6033cd0eef2864"
+  },
+  {
+    "path": "native-disassembly-init2/0x06001CC4-MoneyManager-_ctor.json",
+    "bytes": 26615,
+    "sha256": "960a7168247b651675de88b4515597d301265d80f40801a420ff5058fec8323a"
+  },
+  {
+    "path": "native-disassembly-init2/0x06001CC4-MoneyManager-_ctor.txt",
+    "bytes": 7114,
+    "sha256": "43a03c55b981a9ee4b94a16b831915f52c7f9e087dc2c23563a8e089ef04b8d3"
+  },
+  {
+    "path": "native-disassembly-init2/0x06001CC6-MoneyManager-NetworkInitialize___Early.json",
+    "bytes": 58378,
+    "sha256": "815d49f91de7ea1f01784d6bb01a509c154991d52089f52b5725b8b2f0cab3ba"
+  },
+  {
+    "path": "native-disassembly-init2/0x06001CC6-MoneyManager-NetworkInitialize___Early.txt",
+    "bytes": 13847,
+    "sha256": "9c151c347c158a2c5453c8ee9580ec41dca81903cc0024dbaa0dbad455c3293e"
+  },
+  {
+    "path": "native-disassembly-init2/0x06001CC7-MoneyManager-NetworkInitialize__Late.json",
+    "bytes": 12202,
+    "sha256": "55065866502f7ba483393e30975fefad526033b3365f5209653a227e9de4e1cc"
+  },
+  {
+    "path": "native-disassembly-init2/0x06001CC7-MoneyManager-NetworkInitialize__Late.txt",
+    "bytes": 2867,
+    "sha256": "494819b5b345b93d8a3e6edf1fa698f9e66e230069d119b50616806045378da0"
+  },
+  {
+    "path": "native-disassembly-init2/0x06001CC8-MoneyManager-NetworkInitializeIfDisabled.json",
+    "bytes": 8561,
+    "sha256": "83b0ae01cea77b6a8ce3b4b75c57af49dc6b22f0752c9f15bf1d377f2e35f599"
+  },
+  {
+    "path": "native-disassembly-init2/0x06001CC8-MoneyManager-NetworkInitializeIfDisabled.txt",
+    "bytes": 1783,
+    "sha256": "7927c3870c3db9f9080ec6656fea8de3875b8714aed56dbc712c5fbda50b7df7"
+  },
+  {
+    "path": "native-disassembly-init2/0x06001CD7-MoneyManager-Awake_UserLogic_ScheduleOne_Money_MoneyMan.json",
+    "bytes": 7406,
+    "sha256": "351d09d82b38258ab791e72193ecd0caeeaa13f3dee2124914e72a40e807d55a"
+  },
+  {
+    "path": "native-disassembly-init2/0x06001CD7-MoneyManager-Awake_UserLogic_ScheduleOne_Money_MoneyMan.txt",
+    "bytes": 1874,
+    "sha256": "58c0e4fc98a27192055aa286bcb9e55de3e446949e080e9f9748a42329dc3a5a"
+  }
+]

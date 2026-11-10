@@ -1,0 +1,26 @@
+; ScheduleOne.Networking.Lobby::LeaveLobby/0, token 0x06001AD2, RVA 0x5C0BF0, next-pointer window 0x50 bytes
+; No target execution. Parser-pointer window can contain padding/cold fragments and is not exact/full function, EH or transitive coverage. Shared direct aliases are truncated to eight names.
+0x5C0BF0     40 53                           push rbx
+0x5C0BF2     48 83 EC 20                     sub rsp,20h
+0x5C0BF6     80 3D 8D AC 63 03 00            cmp byte ptr [183BFB88Ah],0
+0x5C0BFD     48 8B D9                        mov rbx,rcx
+0x5C0C00     75 13                           jne short 00000001805C0C15h
+0x5C0C02     48 8D 0D FF E7 3E 03            lea rcx,[1839AF408h] ; TypeInfo: ScheduleOne.Networking.ILobbyService
+0x5C0C09     E8 92 6C D5 FF                  call 00000001803178A0h
+0x5C0C0E     C6 05 75 AC 63 03 01            mov byte ptr [183BFB88Ah],1
+0x5C0C15     4C 8B 43 38                     mov r8,[rbx+38h]
+0x5C0C19     4D 85 C0                        test r8,r8
+0x5C0C1C     74 16                           je short 00000001805C0C34h
+0x5C0C1E     48 8B 15 E3 E7 3E 03            mov rdx,[1839AF408h] ; TypeInfo: ScheduleOne.Networking.ILobbyService
+0x5C0C25     B9 0A 00 00 00                  mov ecx,0Ah
+0x5C0C2A     48 83 C4 20                     add rsp,20h
+0x5C0C2E     5B                              pop rbx
+0x5C0C2F     E9 AC 20 A4 FF                  jmp near ptr 0000000180002CE0h
+0x5C0C34     E8 47 6F D5 FF                  call 0000000180317B80h
+0x5C0C39     CC                              int 3
+0x5C0C3A     CC                              int 3
+0x5C0C3B     CC                              int 3
+0x5C0C3C     CC                              int 3
+0x5C0C3D     CC                              int 3
+0x5C0C3E     CC                              int 3
+0x5C0C3F     CC                              int 3

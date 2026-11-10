@@ -1,0 +1,343 @@
+{
+  "schema": 1,
+  "audit_kind": "independent-read-only-static-binary-review",
+  "reviewer": "OpenCode / GPT-6.1 Sol, delegierter Artefaktprüfer",
+  "date": "2026-11-05",
+  "artifact_recheck_utc": "2026-11-05T06:25:51.4811538Z",
+  "repository": {
+    "path": "C:/Users/pc/Schedule1-mod-only",
+    "head": "b2c6c7e6c6ecc778da9624cdb68a6578b9db471a",
+    "worktree": "dirty; fremde Änderungen unverändert belassen"
+  },
+  "scope": {
+    "game_started_or_controlled": false,
+    "game_assembly_executed_or_reflection_loaded": false,
+    "save_invoked": false,
+    "native_save_directories_read_or_backed_up": false,
+    "build_or_test_run": false,
+    "deployment_installation_or_deactivation": false,
+    "dotnet_root_changed": false,
+    "dotnet_root_observed": null,
+    "other_mod_configuration_read": false,
+    "only_authored_file": ".scratch/townhall-launch-prep-20261105/binary-review.json",
+    "game_process_cloud_and_backup_checks": "Nicht Gegenstand dieses Teilauftrags; Parent prüft unabhängig."
+  },
+  "verdict": {
+    "classification": "legacy-slot1-double-save-probe-wired",
+    "normal_interior_build_without_active_business_probe_wiring": false,
+    "legacy_slot1_save_route_present": true,
+    "static_launch_blocker": true,
+    "gameplay_approval": false,
+    "summary": "Die installierte DLL enthält und verdrahtet die alte Save-Probe für Dominik / SaveGame_1. Mod.OnInitializeMelon startet BusinessSubtypeRuntime; Mod.OnUpdate pumpt dessen Tick. Der installierte Tick übergibt probeSave=true an BusinessSubtypeTrial.Run. Dessen tatsächlich implementierter SaveRegistered-Pfad registriert ein inaktives Objekt, ruft SaveManager.Save auf, entfernt den Eintrag sofort im finally und ruft bei zurückgekehrtem erstem Save und !IsSaving erneut SaveManager.Save auf. Die neue TownHallTest-/Abschlussvertrag-Sperre aus den heutigen Builds ist in dieser DLL nicht enthalten.",
+    "action_taken": "Keine Änderung an Installation oder Spielzustand. Blocker an Parent gemeldet.",
+    "inference_limit": "Statische Erreichbarkeit unter den implementierten Gates, keine Beobachtung eines tatsächlichen Probeversuchs oder Save-Effekts. Ein Start oder Slot-Load wurde nicht ausgeführt."
+  },
+  "game_directory": {
+    "path": "C:/Program Files (x86)/Steam/steamapps/common/Schedule I",
+    "resolution": "SCHEDULE1_PATH war leer/nicht gesetzt; Default aus AGENTS.md, Zeilen 76-79.",
+    "deployment_layout_source": "AGENTS.md, Zeilen 194-209; Tools/README.md, Zeilen 40-53."
+  },
+  "tools": {
+    "ilspycmd_path": "C:/Users/pc/.dotnet/tools/ilspycmd.exe",
+    "help_checked_before_decompilation": true,
+    "ilspycmd_version": "8.2.0.7535",
+    "decompiler_version": "8.2.0.7535",
+    "powershell_version": "7.6.8",
+    "metadata_reader": "System.Reflection.Metadata / PEReader, ausschließlich Datei-/Metadatenzugriff",
+    "invocation_patterns": [
+      "ilspycmd.exe --help",
+      "ilspycmd.exe --disable-updatecheck --list c <DLL>",
+      "ilspycmd.exe --disable-updatecheck --type <vollständiger Typname> <DLL>",
+      "ilspycmd.exe --disable-updatecheck --ilcode <DLL>"
+    ],
+    "output_mode": "Dekompilation ausschließlich nach stdout; kein -o, -p oder -genpdb, keine Dekompilationsdateien erzeugt.",
+    "decompiler_limit": "C#-Ausgabe von NativeSubtypePort und BusinessBindingProbe enthält lokale Hinweise 'Unknown result type (might be due to invalid IL or missing references)' / 'Expected O, but got Unknown'. Die entscheidenden Entry-Point-, Argument- und Save-Aufrufstellen wurden zusätzlich im vollständigen IL geprüft. Die Hinweise werden nicht als Laufzeitaussage interpretiert."
+  },
+  "installed": {
+    "dll": {
+      "path": "C:/Program Files (x86)/Steam/steamapps/common/Schedule I/Mods/TownHallInterior.dll",
+      "sha256": "cff67a85c0d922ea0aec7bd8ffc0affcf9fbb23a1576d1cd57c908fda165fa6a",
+      "matches_previously_reported_sha256": true,
+      "length": 1832960,
+      "last_write_utc": "2026-11-04T07:15:53.8431233Z",
+      "assembly_name": "TownHallInterior",
+      "assembly_version": "1.0.0.0",
+      "file_version": "1.0.0.0",
+      "product_version": "1.0.0+bcd54e9ace58dbe1a615b44f319f96efd7902fc5",
+      "mvid": "1fe6094d-3ed4-49ae-8162-69a7c5213203",
+      "type_definition_count_including_module_and_generated_types": 162,
+      "codeview_guid": "5143008b-e2c3-40d8-a20f-2fb642f66256",
+      "codeview_age": 1,
+      "codeview_stamp": 3202356098,
+      "codeview_pdb_path": "C:/Users/pc/Schedule1-mod-only/Source/Mods/TownHallInterior/src/obj/Release/net6.0/TownHallInterior.pdb"
+    },
+    "pdb": {
+      "path": "C:/Program Files (x86)/Steam/steamapps/common/Schedule I/UserData/TownHallInterior/TownHallInterior.pdb",
+      "sha256": "c1a78e0dc07ee23897738c5fc8603387359d483f61a122b615be83638f206a99",
+      "length": 69104,
+      "last_write_utc": "2026-11-04T07:15:53.8155844Z",
+      "portable_pdb_id_hex": "8b004351c3e2d840a20f2fb642f662568213e0be",
+      "guid": "5143008b-e2c3-40d8-a20f-2fb642f66256",
+      "stamp": 3202356098,
+      "guid_and_stamp_match_dll_codeview": true
+    },
+    "metadata": {
+      "path": "C:/Program Files (x86)/Steam/steamapps/common/Schedule I/UserData/TownHallInterior/mod.json",
+      "sha256": "65938002b7273ef77dedbadf9092a186e6742f1e40fe404ef91576d3e4f81660",
+      "length": 395,
+      "last_write_utc": "2026-10-29T07:57:05.4223492Z",
+      "name": "TownHallInterior",
+      "declared_version": "0.1.0",
+      "source": "mod.json, Zeilen 2-5",
+      "limit": "Die Beschreibung nennt 'No ... business', bezeichnet aber keinen verlässlichen Probe-/Buildmodus. Metadatenversion 0.1.0 und Assembly-/FileVersion 1.0.0.0 werden getrennt ausgewiesen; die reale Verdrahtung folgt aus dem DLL-Code."
+    },
+    "repeated_hash_readback": "DLL, PDB und mod.json bei unabhängiger Wiederholung unverändert; beide passenden Receiptdateien ebenfalls hashgleich zurückgelesen."
+  },
+  "deployment_provenance": {
+    "receipt_directory": "C:/Program Files (x86)/Steam/steamapps/common/Schedule I/UserData/.deploy/receipts",
+    "filter": "TownHallInterior*.json",
+    "townhall_receipt_files_examined": 37,
+    "files_matching_installed_dll_hash": 2,
+    "latest_receipt": "C:/Program Files (x86)/Steam/steamapps/common/Schedule I/UserData/.deploy/receipts/TownHallInterior.json",
+    "attempt_receipt": "C:/Program Files (x86)/Steam/steamapps/common/Schedule I/UserData/.deploy/receipts/TownHallInterior.20261104T071609112Z-cb66074eb842.json",
+    "both_receipt_sha256": "c9cdbde939290e073f4e9062a3b02d8a64ab744896afaace5b18ccabc7c6209f",
+    "status": "Deployed",
+    "configuration": "Release",
+    "attempt_id": "20261104T071609112Z-cb66074eb842",
+    "deployed_at_utc": "2026-11-04T07:16:09.3163340Z",
+    "git_revision_claimed_by_receipt": "bcd54e9ace58dbe1a615b44f319f96efd7902fc5",
+    "git_dirty_claimed_by_receipt": true,
+    "receipt_findings": [
+      "Zeilen 2-10: Projekt TownHallInterior, Deployed, Release, Datum und dirty Basisrevision.",
+      "Zeilen 23-31: DLL Copied, Quell- und Zielhash entsprechen der erneut gelesenen Installation.",
+      "Zeilen 33-41: PDB Copied, Quell- und Zielhash entsprechen der erneut gelesenen Installation.",
+      "Zeilen 43-51: mod.json Unchanged; aufgezeichnete Quell- und Zielhashes entsprechen beiden heute gelesenen Dateien."
+    ],
+    "source_candidate": {
+      "dll_path": "C:/Users/pc/Schedule1-mod-only/.scratch/townhall-slot1-dominik/save-candidate/TownHallInterior.dll",
+      "dll_sha256": "cff67a85c0d922ea0aec7bd8ffc0affcf9fbb23a1576d1cd57c908fda165fa6a",
+      "mvid": "1fe6094d-3ed4-49ae-8162-69a7c5213203",
+      "pdb_path": "C:/Users/pc/Schedule1-mod-only/.scratch/townhall-slot1-dominik/save-candidate/TownHallInterior.pdb",
+      "pdb_sha256": "c1a78e0dc07ee23897738c5fc8603387359d483f61a122b615be83638f206a99",
+      "pdb_id_hex": "8b004351c3e2d840a20f2fb642f662568213e0be",
+      "dll_and_pdb_bytes_identical_to_installation": true,
+      "mvid_and_pdb_identity_independently_checked": true
+    },
+    "conclusion": "Die Artefaktkette von regulärer Deployment-Quittung über den noch vorhandenen save-candidate zur Installation ist durch passende Hashes und MVID/PDB-ID belegt. Dies ersetzt keinen Nachweis des vollständigen damaligen dirty Quellstands, der Buildparameter oder der damaligen Laufzeitwirkung."
+  },
+  "source_alignment": {
+    "pdb_document_hash_algorithm": "SHA-256; GUID 8829d00f-11b8-4213-878b-770e8597ac16",
+    "business_construction": {
+      "path": "Source/Mods/TownHallInterior/src/BusinessConstruction.cs",
+      "installed_pdb_document_sha256": "d64c25f4d47f608f238280d3fa1144fd61167c1dc48861c3e718b8fdb50d5522",
+      "current_source_sha256": "8964512eeb94ae63acadbe5cd47caa7c36a325e10cd75af73cc5c1091c4db5d2",
+      "matches_current_source": false,
+      "both_comparison_build_pdb_document_sha256": "8964512eeb94ae63acadbe5cd47caa7c36a325e10cd75af73cc5c1091c4db5d2"
+    },
+    "mod": {
+      "path": "Source/Mods/TownHallInterior/src/Mod.cs",
+      "installed_and_comparison_pdb_document_and_current_source_sha256": "82323dd725b033b124c0f5edd6252730676f3f1910bdd402441945f0fe4e9385",
+      "limit": "Identischer Quelldateihash bedeutet wegen bedingter Kompilierung nicht identische Probeverdrahtung. Deshalb wurden die kompilierten Mod-Methoden selbst geprüft."
+    },
+    "metadata_source": {
+      "path": "Source/Mods/TownHallInterior/docs/mod.json",
+      "sha256": "65938002b7273ef77dedbadf9092a186e6742f1e40fe404ef91576d3e4f81660",
+      "matches_installed_metadata_and_receipt": true
+    },
+    "full_original_source_reconstruction": "Offen/nicht vorgenommen; keine Gleichsetzung der Installation mit HEAD oder dem heutigen Arbeitsbaum."
+  },
+  "runtime_type_inventory": {
+    "method": "Exakte Typdefinitionen aus PE-Metadaten, zusätzlich ilspycmd --list c.",
+    "installed_present": [
+      "TownHallInterior.BusinessBindingProbe",
+      "TownHallInterior.BusinessSubtypeRuntime",
+      "TownHallInterior.NativeSubtypePort",
+      "TownHallInterior.ProbeBusinessSubtype"
+    ],
+    "installed_business_manager_save_trial_present": false,
+    "normal_build_has_none_of_these_four_runtime_types": true,
+    "normal_build_business_manager_save_trial_present": true,
+    "manager_build_has_all_four_runtime_types_and_business_manager_save_trial": true,
+    "interpretation": "Die heutigen Builds enthalten zusätzlich das reine Save-Zustandsmodell. Das Modell ist nicht mit einem nativen Save-Adapter gleichzusetzen."
+  },
+  "installed_control_flow_evidence": [
+    {
+      "member": "TownHallInterior.Mod.OnInitializeMelon",
+      "method_token": "0x06000473",
+      "rva": 92225,
+      "installed_pdb_source_span": "Mod.cs:15-30 (Dokumenthash siehe source_alignment)",
+      "il": [
+        "IL_000f: call void TownHallInterior.BusinessBindingProbe::Start()",
+        "IL_0020: call void TownHallInterior.BusinessSubtypeRuntime::Start(System.Func<bool>)"
+      ],
+      "finding": "Beide Probe-Startmethoden sind echte Entry-Point-Aufrufe, nicht lediglich vorhandene Namen oder Literale."
+    },
+    {
+      "member": "TownHallInterior.Mod.OnUpdate",
+      "method_token": "0x06000475",
+      "rva": 92436,
+      "installed_pdb_source_span": "Mod.cs:51-62",
+      "il": [
+        "IL_0016: call void TownHallInterior.BusinessBindingProbe::Tick()",
+        "IL_001b: call void TownHallInterior.BusinessSubtypeRuntime::Tick()"
+      ],
+      "finding": "Der Update-Pump führt neben dem Interior-Tick beide Proben weiter."
+    },
+    {
+      "member": "TownHallInterior.BusinessSubtypeRuntime.Start / Loaded / Tick",
+      "method_tokens": { "Start": "0x060002DE", "Loaded": "0x060002DF", "Tick": "0x060002E1" },
+      "rvas": { "Start": 54312, "Loaded": 54784, "Tick": 54872 },
+      "installed_pdb_source_spans": { "Start": "BusinessConstruction.cs:1709-1730", "Loaded": "BusinessConstruction.cs:1733-1735", "Tick": "BusinessConstruction.cs:1739-1782" },
+      "compiled_constants": {
+        "ProbeInterface": false,
+        "ProbeManager": false,
+        "ProbeSave": true,
+        "ExpectedOrganisation": "Dominik",
+        "ExpectedSlot": "SaveGame_1",
+        "ProbeMode": "inactive-saveable-save"
+      },
+      "il_anchors": [
+        "Start IL_0134: GameLifecycle.add_OnLoadComplete(Loaded)",
+        "Start IL_0154 / IL_0174: GameLifecycle.add_OnPreSceneChange(Leaving) / add_OnPreLoad(Leaving)",
+        "Loaded IL_0027-IL_0032: _due = Time.realtimeSinceStartup + 6f",
+        "Tick IL_0137 / IL_013c / IL_0141: 'Dominik', 'SaveGame_1', ConstructionGate.Check(context, organisation, slot)",
+        "Tick IL_0164 / IL_0165: false / false (probeInterface / probeManager)",
+        "Tick IL_0166 / IL_016b / IL_0170 / IL_0171: 'Dominik', 'SaveGame_1', true, BusinessSubtypeTrial.Run(...)"
+      ],
+      "finding": "Nach erfolgreichem Start und LoadComplete wird ein Versuch mit sechs Sekunden Verzögerung vorbereitet; Tick übergibt ausdrücklich die Slot-1-Identität und probeSave=true. Leaving/Stop setzen den Kontext zurück bzw. entfernen die Eventabonnements."
+    },
+    {
+      "member": "TownHallInterior.ConstructionGate.Check",
+      "method_token": "0x0600023F",
+      "rva": 44680,
+      "finding": "Prüft LoadComplete, Singleplayer, HallReady, DependenciesMatch, Organisation sowie identische absolute ActiveSavePath-/LoadedSavePath-Werte und deren Slot-Dateinamen. Die Parameterdefaults TownHallTest/SaveGame_2 verhindern die Route nicht: Der installierte Runtime-Aufrufer übergibt explizit Dominik/SaveGame_1. Kein CheckSave/Abschlussvertrag-Gate in der installierten Fassung."
+    },
+    {
+      "member": "TownHallInterior.BusinessSubtypeTrial.Run",
+      "method_token": "0x060001DD",
+      "rva": 38028,
+      "installed_pdb_source_span": "BusinessConstruction.cs:136-222",
+      "il_anchors": [
+        "IL_003f: ConstructionGate.Check(context, organisation, slot)",
+        "IL_027e: callvirt TownHallInterior.IBusinessManagerPort::SaveRegistered()"
+      ],
+      "finding": "Nach Kontext-/Einmalversuchsgate, Typregistrierung, inaktivem Aufbau und Dispatch-Prüfungen verzweigt probeSave=true tatsächlich nach SaveRegistered. Es fehlt die heute vorhandene frühe Rückgabe blocked/native-save-completion-contract-unverified."
+    },
+    {
+      "member": "TownHallInterior.NativeSubtypePort.SaveRegistered",
+      "method_token": "0x0600030B",
+      "rva": 64892,
+      "installed_pdb_source_span": "BusinessConstruction.cs:2295-2322; historische PDB-Fassung, nicht heutige Zeilennummern",
+      "il_anchors": [
+        "IL_00cc: callvirt SaveManager::RegisterSaveable(ISaveable)",
+        "IL_00e5: callvirt SaveManager::Save()",
+        "finally IL_00ef-IL_010a, insbesondere IL_0104: RemovePointer<ISaveable>(Saveables, ownPointer)",
+        "IL_011b / IL_0120: get_IsSaving(); brtrue.s IL_0128",
+        "IL_0123: callvirt SaveManager::Save()"
+      ],
+      "finding": "Ein Registeraufruf, erster Save-Aufruf, sofortige Entfernung des eigenen Listeneintrags im finally; zweiter Save-Aufruf nur, wenn der erste regulär zurückgekehrt ist und IsSaving danach false ist. Kein frameübergreifendes Warten auf einen belegten nativen Abschluss. Das sind zwei konkrete IL-Aufrufstellen, keine bloße Log-/Stringbehauptung."
+    },
+    {
+      "member": "TownHallInterior.ProbeBusinessSubtype.ShouldSave / GetSaveString / WriteData / DeleteUnapprovedFiles",
+      "method_tokens": { "ShouldSave": "0x060002CF", "GetSaveString": "0x060002D6", "WriteData": "0x060002D7", "DeleteUnapprovedFiles": "0x060002D8" },
+      "finding": "Eigene Overrides zählen Aufrufe, liefern false, leeren String bzw. leere Liste oder führen keine weitere Aktion aus; kein Aufruf der jeweiligen Basismethode. Das begrenzt die eigenen Callbackkörper, isoliert aber nicht den nativen SaveManager.Save-Aufruf von anderen Speicherobjekten."
+    },
+    {
+      "member": "TownHallInterior.BusinessBindingProbe.StartCore / Hook",
+      "method_tokens": { "StartCore": "0x060000A9", "Hook": "0x060000AA" },
+      "finding": "Zusätzlich verdrahteter Beobachter: Harmony-Prefix/Postfix-Hooks auf LoadManager.QueueLoadRequest, PropertiesLoader.Load, BusinessesLoader.Load, BusinessLoader.Load, PropertyLoader.Load und Business.Load sowie Lifecycle-/Berichtsausgabe. Kein Normalbuild ohne Business-Proben. Dieser Befund beruht auf Methodenkörperprüfung, nicht auf vorhandenen Reportordnernamen."
+    }
+  ],
+  "full_il_callsite_inventory": {
+    "coverage": "Vollständige --ilcode-Ausgabe jeder der drei DLLs; konkrete call/callvirt-Instruktionen für Save, SaveRegistered und RegisterSaveable den umschließenden Methoden zugeordnet. Relevante Methodenkörper zusätzlich im C# und/oder IL gelesen.",
+    "installed_il_lines": 70760,
+    "installed_calls": [
+      "BusinessSubtypeTrial.Run IL_027e -> IBusinessManagerPort.SaveRegistered()",
+      "NativeSubtypePort.RegisterOnce IL_0094 -> SaveManager.RegisterSaveable(ISaveable)",
+      "NativeSubtypePort.SaveRegistered IL_00cc -> SaveManager.RegisterSaveable(ISaveable)",
+      "NativeSubtypePort.SaveRegistered IL_00e5 -> SaveManager.Save()",
+      "NativeSubtypePort.SaveRegistered IL_0123 -> SaveManager.Save()"
+    ],
+    "register_once_limit": "RegisterOnce ist ebenfalls enthalten, im installierten aktuellen Probeaufruf ist probeManager=false; der gewählte Pfad ist SaveRegistered.",
+    "normal_il_lines": 56415,
+    "normal_calls": ["BusinessManagerSaveTrial.Begin IL_01ba -> IBusinessSavePort.RegisterSaveable()"],
+    "manager_il_lines": 74484,
+    "manager_calls": [
+      "BusinessManagerSaveTrial.Begin IL_01ba -> IBusinessSavePort.RegisterSaveable()",
+      "NativeSubtypePort.RegisterOnce IL_0094 -> SaveManager.RegisterSaveable(ISaveable)"
+    ],
+    "normal_and_manager_direct_save_manager_save_calls": 0,
+    "limit": "Statische verwaltete Aufrufstellen dieser Artefakte, kein vollständiger nativer Callgraph und kein Laufzeitnachweis. Der IBusinessSavePort-Aufruf gehört zum reinen Zustandsmodell und ist kein belegter nativer Save-Adapter."
+  },
+  "installed_dependency_hash_observations": {
+    "method": "Nur Get-FileHash auf benannten installierten Abhängigkeitsdateien; keine Assembly geladen/ausgeführt.",
+    "files": [
+      { "game_relative_path": "MelonLoader/Il2CppAssemblies/Assembly-CSharp.dll", "sha256": "346205306273805a78b01a917f14b94518498af1361595c4c417baa0b32b4bd8" },
+      { "game_relative_path": "MelonLoader/Il2CppAssemblies/Il2CppFishNet.Runtime.dll", "sha256": "0acb5c70078f5be6e88574be17b675657fc50898eb3dd264a3b98a54545e24ec" },
+      { "game_relative_path": "Mods/S1API.Il2Cpp.MelonLoader.dll", "sha256": "d751a3cb66003f7a616eb9f8054daf34da0d9d7f23416a5005a586738a680852" },
+      { "game_relative_path": "MelonLoader/net6/Il2CppInterop.Runtime.dll", "sha256": "3878ce0ba0c60385f76f2ba37e07ad0ee3649d019703aec8695db3402abeedd7" },
+      { "game_relative_path": "MelonLoader/net6/0Harmony.dll", "sha256": "6c898933b52149e8bcf6722305c7e4d94add47c9e53b364096f91721624c0877" }
+    ],
+    "all_observed_hashes_match_installed_runtime_start_constants": true,
+    "interpretation": "Die gelesenen Dateien liefern keinen belegten Dependency-Hash-Mismatch, auf den man sich als Deaktivierung der Probe verlassen könnte. Tatsächliche Loaderauflösung, HallReady, Singleplayerstatus, Slotidentität und nativer Dispatch wurden nicht ausgeführt oder überprüft."
+  },
+  "comparison_builds": [
+    {
+      "name": "build-normal",
+      "dll_path": ".scratch/townhall-save-step1-20261105/final/build-normal/bin/TownHallInterior/release/TownHallInterior.dll",
+      "dll_sha256": "614b81fd584040d4cebe7a18929bca09eabae478a6487ec6d846ea01d6062003",
+      "dll_length": 1760768,
+      "mvid": "acc54537-3980-4782-b2bb-f8a10fc9ec5b",
+      "pdb_path": ".scratch/townhall-save-step1-20261105/final/build-normal/bin/TownHallInterior/release/TownHallInterior.pdb",
+      "pdb_sha256": "8126ae65f5c12f6e8261af0a1734e622d8c0ab5522a91e6653c7b1ffd7d8c497",
+      "pdb_length": 58828,
+      "pdb_id_hex": "b7e3e5a3b50d5f4bbdada7020f4a04cf2fd9a58f",
+      "codeview_and_pdb_guid": "a3e5e3b7-0db5-4b5f-bdad-a7020f4a04cf",
+      "codeview_and_pdb_stamp": 2410010927,
+      "pdb_matches_dll": true,
+      "identical_to_installed": false,
+      "mod_on_initialize_token": "0x060003C5",
+      "mod_on_update_token": "0x060003C7",
+      "static_finding": "Dekompiliertes OnInitializeMelon enthält Warnung und DoorHook.Install, aber keinen Business-Probestart. OnUpdate ruft nur den Hall-Tick auf. Die vier nativen Probe-Runtime-Typen fehlen in den exakten Typdefinitionen. Reine Save-Modelltypen sind vorhanden, aber keine native SaveManager.Save-Aufrufstelle. Nicht installiert, nicht neu gebaut und keine Gameplay-Freigabe daraus abgeleitet."
+    },
+    {
+      "name": "build-manager",
+      "dll_path": ".scratch/townhall-save-step1-20261105/final/build-manager/bin/TownHallInterior/release/TownHallInterior.dll",
+      "dll_sha256": "1ae2999d02991ea74aeb636c426e4f3a3781e80e67f79f10c5e9f8c52c122279",
+      "dll_length": 1845760,
+      "mvid": "3f852a35-b679-4a10-8741-990ee9817891",
+      "pdb_path": ".scratch/townhall-save-step1-20261105/final/build-manager/bin/TownHallInterior/release/TownHallInterior.pdb",
+      "pdb_sha256": "0b9f9cf967d6cbf2a6ccba5d93ec511d086dba301b47eb276cfa6d50b042b511",
+      "pdb_length": 71176,
+      "pdb_id_hex": "843f1960be46794d97ceb86f25e2e4fb72a1e983",
+      "codeview_and_pdb_guid": "60193f84-46be-4d79-97ce-b86f25e2e4fb",
+      "codeview_and_pdb_stamp": 2213126514,
+      "pdb_matches_dll": true,
+      "identical_to_installed": false,
+      "runtime_start_token": "0x06000336",
+      "runtime_tick_token": "0x06000339",
+      "trial_run_token": "0x06000234",
+      "static_finding": "BusinessSubtypeRuntime und BusinessSubtypeTrial.Run dekompiliert: Ziel TownHallTest / SaveGame_2; bei probeSave und gültigem CheckSave-Kontext frühe Rückgabe blocked mit native-save-completion-contract-unverified vor Registrierung. NativeSubtypePort.SaveRegistered fehlt. Vollständiges IL enthält keine SaveManager.Save-Aufrufstelle. Die verbliebene RegisterOnce-Methode und das reine Zustandsmodell sind nicht mit einem freigegebenen nativen Save-Pfad gleichzusetzen. Nicht installiert, nicht neu gebaut und keine Gameplay-Freigabe."
+    }
+  ],
+  "checks": {
+    "passed_static": [
+      "Installierte DLL erneut mit dem erwarteten cff67a85...-SHA-256 identifiziert.",
+      "DLL/PDB-CodeView-/Portable-PDB-Identität einschließlich GUID und Stamp geprüft.",
+      "Metadatenhash gegen Installation, Receipt und benannte Repositorydatei geprüft.",
+      "Reguläre TownHall-Receipts gezielt geprüft; passende Quittung und Source-Candidate-Artefakte unabhängig hash-/MVID-/PDB-ID-geprüft.",
+      "Typdefinitionen, tatsächliche Mod-Entry-Points, Lifecycle-Wiring, Probeparameter, Gates und SaveRegistered-Methodenkörper geprüft.",
+      "Save-/Registrierungsaufrufstellen im vollständigen IL aller drei benannten DLLs verglichen.",
+      "Vorhandene Normal-/Manager-Builds und passende PDBs nur statisch verglichen.",
+      "Installations- und passende Receipthashes bei Wiederholung unverändert."
+    ],
+    "not_run": [
+      "Spielstart, Spielsteuerung, Slot-Load, Probeversuch oder irgendein Save-Aufruf.",
+      "Build, Test, Installation, Deaktivierung oder Deployment.",
+      "Native Save-/Cloud-/Backup-Prüfung durch diesen Subagenten.",
+      "Laufzeit-/Gameplay-Freigabe oder Nachweis eines nativen Abschluss-/Freigabevertrags.",
+      "Vollständige Rekonstruktion des historischen dirty Quellstands."
+    ],
+    "remaining_blocker": "Die tatsächlich installierte DLL ist die Slot-1-/Doppel-Save-Probe, nicht der heutige Normalbuild und nicht der heutige gesperrte Managerbuild. Vorbereitung darf diesen Unterschied nicht als sichere Interior-Installation oder Startfreigabe behandeln. Im vorliegenden Nur-Vorbereiten-Auftrag wurde nichts ersetzt oder deaktiviert."
+  }
+}

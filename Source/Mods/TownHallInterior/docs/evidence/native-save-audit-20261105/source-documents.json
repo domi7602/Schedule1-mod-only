@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "capturedUtc": "2026-11-05T09:10:59.628565+00:00",
+  "project": "schedule1-mod-only",
+  "sourceRevision": "b2c6c7e6c6ecc778da9624cdb68a6578b9db471a",
+  "sourceWorktree": "dirty",
+  "kind": "Final documentation identities after the native audit; hashes are not build or runtime evidence",
+  "earlierReviewScope": "Managed and V2 review documents retain earlier source hashes; subsequent authorized documentation edits are intentionally newer",
+  "productionAndTestFreeze": "input-manifest.json / 41 protectedSources; final byte/hash readback in native-integrity-final-20261105.json",
+  "processObservation": {
+    "checkedUtc": "2026-11-05T09:01:15.6198707Z",
+    "gameProcessCount": 0,
+    "kind": "Read-only process-name query; no game control"
+  },
+  "files": [
+    {
+      "path": "Source/Mods/TownHallInterior/docs/native-save-completion-audit.md",
+      "bytes": 19773,
+      "sha256": "168abd65c1d313d897ba85ef22d6f3dd9ce814c7b29c0036ab65de85c679bd93"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/docs/business-manager-save-probe.md",
+      "bytes": 12086,
+      "sha256": "bca79d26c7a914ac1f5a8b01403e7a5b25ac25451f59fd786a780c9449d07b2c"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/docs/business-completion-plan.md",
+      "bytes": 22377,
+      "sha256": "4bb589626e28c26ee8ee02a0cc3c712f95dcd764477174bda4e329353c725a5c"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/docs/README.md",
+      "bytes": 28453,
+      "sha256": "131b044540d78a93f54fb33bf770472e549da2d931fdb9647032a1bdc9e8c022"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/docs/CHANGELOG.md",
+      "bytes": 25166,
+      "sha256": "8e206853888d48b3dda0d2eba852b77a30a2f3d98d71edb6b09d5f3b90b9ddd2"
+    },
+    {
+      "path": "docs/compatibility.md",
+      "bytes": 31427,
+      "sha256": "bea6cde1bcce1a9121d7e29c0e8b3374a6c1b4d9cd4a8e31e509539736dd879b"
+    }
+  ],
+  "productionCodeChanges": false,
+  "buildsTestsDeploymentRuntime": false,
+  "nativeSaveWriteAllowed": false
+}

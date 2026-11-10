@@ -1,0 +1,206 @@
+{
+  "schema": 1,
+  "checkedUtc": "2026-11-06T14:15:26.818Z",
+  "sourceRevision": "b2c6c7e6c6ecc778da9624cdb68a6578b9db471a",
+  "sourceWorktree": "dirty",
+  "scope": "Correction of the native minute-list listener snapshot after the failed Slot-2 data trial; offline source, build, test and formatting checks only; no installation, game launch or save access",
+  "priorFailedTrial": {
+    "candidateSha256": "2e519ccfdc58053281dc67ffd91e2c1b53d523aa2941657e7b8e1fcd7dd81357",
+    "report": "20261106T131816973Z.json",
+    "capturedUtc": "2026-11-06T13:18:16.973Z",
+    "target": "TownHallTest / SaveGame_2",
+    "status": "quarantined",
+    "failure": "data-minute-list-over-budget",
+    "exactCount": "not logged; only outside 0..512 is derivable",
+    "evidence": "Source/Mods/TownHallInterior/docs/evidence/business-data-live-20261106/"
+  },
+  "correction": {
+    "file": "Source/Mods/TownHallInterior/src/BusinessConstruction.cs",
+    "method": "CaptureDataListeners()",
+    "rootCause": "The old guard read List<Action>.Count through the generic IL2CPP getter. Its return was outside 0..512; the exact value was not logged. Decompiled ActionList and field metadata expose _items, _size and _version as directly readable fields. The generic getter remains the bounded probable cause, not a proven exclusive one.",
+    "behavior": [
+      "Fingerprint, 512-entry guard and capacity check read _size, _version and _items directly.",
+      "The Count getter is still invoked inside try/catch and recorded as countProperty or unreadable:<type>:<message>.",
+      "Guard errors include the actual size: data-minute-list-over-budget:<size>.",
+      "Unreadable items and invalid capacity have distinct errors.",
+      "New DataListenerDiagnostics[\"minute-list\"] record contains list pointer, class, size, capacity, items pointer, version, countProperty and countPropertyMatchesSize.",
+      "DataListenerDiagnostics is part of the Native details and therefore survives a failed listener capture."
+    ],
+    "guardChanged": false,
+    "guardLimit": 512,
+    "capacityLimit": 4096
+  },
+  "sourceHashes": {
+    "Source/Mods/TownHallInterior/src/BusinessConstruction.cs": "d54ab55edfa7dd369e0711855885288a019e8e0b41f1581afb75fe75c520c979",
+    "Source/Mods/TownHallInterior/src/TownHallInterior.csproj": "9ca3fa493371986cad141d9096d2d1751630586417943b1673f70136c8ec0132",
+    "Source/Tests/TownHallInterior.Tests/BusinessDataTests.cs": "93b64e5730232dc9c62e8546c241fd8a418339e799682de46a5d0941b60e2854",
+    "Source/Mods/TownHallInterior/docs/README.md": "aef02d98945933f02ecc35ba04cf516e0b664135ef717279e16f6efcd4050d8a",
+    "Source/Mods/TownHallInterior/docs/CHANGELOG.md": "7cd747b991b8f7f16eaa111df9712c80f2384f02a8612658b130554a70acb768",
+    "Source/Mods/TownHallInterior/docs/business-completion-plan.md": "83209f0a8d62ef7c2937b0e113fbba225d4c10c5d9cceb33357bc319e01fae5d",
+    "Source/Mods/TownHallInterior/docs/business-data-probe.md": "240d98fbeb250c34cf8e045c6d602be8acbe3948ddd31e424fdd0c00020e15df",
+    "docs/compatibility.md": "76951fe1abd4fe033b029fd36badac2724b2f33395d2e427ead4a24578ebfffd"
+  },
+  "sourceHashesNote": "Code and test hashes are from the offline check; documentation hashes were refreshed after the later status edits.",
+  "sourceHashBeforeCorrection": {
+    "Source/Mods/TownHallInterior/src/BusinessConstruction.cs": "2ce4f35fe695fe7bec8a8524a00744ae49edfa4b4edd41b69b0835a658af2873"
+  },
+  "testChange": {
+    "newTestsAdded": 0,
+    "note": "The listener reader is native-only and not exercised by the fake-port suite. The existing suite was rerun; no independent native observation is claimed."
+  },
+  "townHallTests": {
+    "total": 1166,
+    "passed": 1166,
+    "failed": 0,
+    "skipped": 0,
+    "trx": "townhall-listener-fix.trx"
+  },
+  "builds": [
+    {
+      "mode": "Normal",
+      "exitCode": 0,
+      "dllSha256": "d7b15756d6dbd73b6a3370ed53a4efe60d4bb41292dc1fe194a1abb1ca8ee86d",
+      "pdbSha256": "c61c054863655d8509a2f3701e1f187902be70ddbe5453529ffceb73b4faf295",
+      "noDeploy": true
+    },
+    {
+      "mode": "Subtype",
+      "exitCode": 0,
+      "dllSha256": "6fce8e419f757aeb50886f5547e80575b38ca4c019c672da4c44ca5d2125a457",
+      "pdbSha256": "098d508a4b9da77b4b84b266305eb79c35957f463ba77933fb9c62a1ed52c43b",
+      "noDeploy": true
+    },
+    {
+      "mode": "Interface",
+      "exitCode": 0,
+      "dllSha256": "19bb0e4e72112cc0150a7fdf5ca1b085e30aa5a2f5c24296800fc7af918645fb",
+      "pdbSha256": "309b0084f90701ac8f9a83623d1b0b1d044881db764f595df5d7b1b06af4e293",
+      "noDeploy": true
+    },
+    {
+      "mode": "Manager",
+      "exitCode": 0,
+      "dllSha256": "bdb648bbe8bdfa44a88d056c809c1a846dea8f3eca08c247bd9c7084d4ed2583",
+      "pdbSha256": "e8d35d48a49e57567e6dc190aa25dafaf0bb8cc5ad35f150046d692d321a7532",
+      "noDeploy": true
+    },
+    {
+      "mode": "ActiveSubtype",
+      "exitCode": 0,
+      "dllSha256": "52f355f7c8b410d0484a12a9ba5ecc154a89e3923e9d33c945f38546a433ac97",
+      "pdbSha256": "3ceafbd595196e88fbb0e919948b1f50075728807f4aecfac00f2ac3be0d9cdd",
+      "noDeploy": true
+    },
+    {
+      "mode": "NetworkSubtype",
+      "exitCode": 0,
+      "dllSha256": "0e64246e7f209c035823d781ba3cec7bc1a6ae53d6ebce830733155ff73cbb0a",
+      "pdbSha256": "ed52cb3d3c7d8b1135e7f5cc9d79f5596dbb988f3e6b1628f1cd43d87231e98c",
+      "noDeploy": true
+    },
+    {
+      "mode": "Data",
+      "exitCode": 0,
+      "dllSha256": "4ae6509a2d8501176ee8b9dca7e3c8b6481382d0f6f30fa73857506c9cf304f6",
+      "pdbSha256": "47592f81d0471844256ae91cd521a715f76a96c9fe27f7ffdc2bfa5567bc0a3d",
+      "noDeploy": true
+    }
+  ],
+  "allBuildsWarnings": 0,
+  "allBuildsErrors": 0,
+  "expectedRejectedBuilds": [
+    {
+      "mode": "LegacyActivation",
+      "exitCode": 1,
+      "error": "CS1029"
+    },
+    {
+      "mode": "NetworkManager",
+      "exitCode": 1,
+      "error": "CS1029"
+    },
+    {
+      "mode": "NetworkActive",
+      "exitCode": 1,
+      "error": "CS1029"
+    },
+    {
+      "mode": "DataSubtype",
+      "exitCode": 1,
+      "error": "CS1029"
+    },
+    {
+      "mode": "DataInterface",
+      "exitCode": 1,
+      "error": "CS1029"
+    },
+    {
+      "mode": "DataManager",
+      "exitCode": 1,
+      "error": "CS1029"
+    },
+    {
+      "mode": "DataActiveSubtype",
+      "exitCode": 1,
+      "error": "CS1029"
+    },
+    {
+      "mode": "DataNetworkSubtype",
+      "exitCode": 1,
+      "error": "CS1029"
+    },
+    {
+      "mode": "DataConstruction",
+      "exitCode": 1,
+      "error": "CS1029"
+    }
+  ],
+  "scopedWhitespaceCheck": "passed; Formatted 0 of 21 files",
+  "independentCodeReview": "not performed for this correction; the predecessor review covered the pre-fix listener code",
+  "candidateRelativePath": ".backups/townhall-business-data-prepared/20261106T141106231Z",
+  "candidateCreatedUtc": "2026-11-06T14:11:06.231Z",
+  "candidateSha256": "4ae6509a2d8501176ee8b9dca7e3c8b6481382d0f6f30fa73857506c9cf304f6",
+  "candidatePdbSha256": "47592f81d0471844256ae91cd521a715f76a96c9fe27f7ffdc2bfa5567bc0a3d",
+  "installedHashesBeforeAndAfter": {
+    "Mods/TownHallInterior.dll": "614b81fd584040d4cebe7a18929bca09eabae478a6487ec6d846ea01d6062003",
+    "UserData/TownHallInterior/TownHallInterior.pdb": "8126ae65f5c12f6e8261af0a1734e622d8c0ab5522a91e6653c7b1ffd7d8c497",
+    "UserData/TownHallInterior/mod.json": "65938002b7273ef77dedbadf9092a186e6742f1e40fe404ef91576d3e4f81660",
+    "UserData/.deploy/receipts/TownHallInterior.json": "680f7beb07c29ab5225842a6864415719146b463f9840deb3c0d0ea1e8abec64"
+  },
+  "installationUnchanged": true,
+  "gameLaunched": false,
+  "nativeSaveFilesAccessed": false,
+  "deployed": false,
+  "committed": false,
+  "pushed": false,
+  "laterDeployment": {
+    "deployedAtUtc": "2026-11-06T14:23:34.7943602Z",
+    "attemptId": "20261106T142334591Z-19dacae3daeb",
+    "evidence": "evidence/business-data-listener-fix-deployment-20261106/deployment-verification.json",
+    "note": "Installation occurred after this offline check; see the deployment evidence."
+  },
+  "laterLiveObservation": {
+    "report": "evidence/business-data-listener-count-live-20261106/live-report.json",
+    "capturedUtc": "2026-11-06T14:28:53.3982313Z",
+    "size": 889,
+    "capacity": 1024,
+    "countProperty": 889,
+    "countPropertyMatchesSize": true,
+    "note": "The generic getter read correctly; the fixed 512-entry guard was too low."
+  },
+  "laterCapacityCorrection": "evidence/business-data-listener-capacity-20261106/verification.json",
+  "evidenceArtifacts": {
+    "build-results.json": "158406cea9c4a947486fd9697b98cc74592648f605bbd3283d3d0b7f039bc08c",
+    "build-guards.json": "ed6b2719fbfccce1ea3bef7ed0303f272f842519abf59f74c3c0ae9b7ac200ed",
+    "townhall-listener-fix.trx": "1c13b0e0d122acc8dcc6414056a0b23d6b487aafab78b270b34b804049e6b9e7",
+    "townhall-tests.log.txt": "a3c6b26830ae79a00af9205648befe8c0f6ffd1ca36ba82c616e0c7940b00edf",
+    "format.log.txt": "d55d91bae1321c0d123c7aed0b37ea07b76ee038e3c1798bfb7daede771c77bf"
+  },
+  "limits": [
+    "The exact old Count return was never logged; the generic getter is the bounded probable cause, not a proven exclusive one.",
+    "No live observation of the corrected reader; field values and getter behavior remain unverified until the next Slot-2 trial.",
+    "The 512-entry guard and 4096-capacity ceiling remain; this is not a claim that the observed list is small or that all delegate contents are captured.",
+    "A clean offline build and test run does not prove native runtime behavior, cleanup, or unchanged foreign state."
+  ],
+  "nextStep": "The candidate was installed at 2026-11-06T14:23:34.7943602Z. Load TownHallTest / SaveGame_2, inspect Native.DataListenerDiagnostics[\"minute-list\"] and the data-query results in a fresh report, then close the game normally, compare the 39 native test files, and restore normal build 614b81fd..."
+}

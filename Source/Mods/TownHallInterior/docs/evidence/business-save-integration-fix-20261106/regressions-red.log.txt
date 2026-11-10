@@ -1,0 +1,133 @@
+  Determining projects to restore...
+  Restored C:\Users\pc\Schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\TownHallSaveRed.Tests.csproj (in 421 ms).
+  TownHallSaveRed.Tests -> C:\Users\pc\Schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\bin\Release\net6.0\TownHallSaveRed.Tests.dll
+Test run for C:\Users\pc\Schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\bin\Release\net6.0\TownHallSaveRed.Tests.dll (.NETCoreApp,Version=v6.0)
+VSTest version 17.11.1 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.25]     TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Uncertain_preflight_retains_object_without_registration_or_save(failure: "first-read-throws") [FAIL]
+[xUnit.net 00:00:00.27]     TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Uncertain_preflight_retains_object_without_registration_or_save(failure: "second-read-throws") [FAIL]
+[xUnit.net 00:00:00.27]     TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Uncertain_preflight_retains_object_without_registration_or_save(failure: "busy") [FAIL]
+[xUnit.net 00:00:00.27]     TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Uncertain_preflight_retains_object_without_registration_or_save(failure: "active-callback") [FAIL]
+[xUnit.net 00:00:00.27]     TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Uncertain_preflight_retains_object_without_registration_or_save(failure: "started-before-probe") [FAIL]
+[xUnit.net 00:00:00.27]     TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Uncertain_preflight_retains_object_without_registration_or_save(failure: "pending-request") [FAIL]
+[xUnit.net 00:00:00.27]     TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Uncertain_preflight_retains_object_without_registration_or_save(failure: "completed-before-probe") [FAIL]
+[xUnit.net 00:00:00.27]     TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Uncertain_preflight_retains_object_without_registration_or_save(failure: "own-reference") [FAIL]
+[xUnit.net 00:00:00.27]     TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Possible_manager_effect_retains_participant_until_removal_is_confirmed(failure: "save-throws", saves: 1, removals: 0) [FAIL]
+  Failed TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Uncertain_preflight_retains_object_without_registration_or_save(failure: "first-read-throws") [15 ms]
+  Error Message:
+   Assert.False() Failure
+Expected: False
+Actual:   True
+  Stack Trace:
+     at TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Uncertain_preflight_retains_object_without_registration_or_save(String failure) in C:\Users\pc\Schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\BusinessSaveIntegrationRegressionTests.cs:line 113
+  Failed TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Uncertain_preflight_retains_object_without_registration_or_save(failure: "second-read-throws") [1 ms]
+  Error Message:
+   Assert.False() Failure
+Expected: False
+Actual:   True
+  Stack Trace:
+     at TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Uncertain_preflight_retains_object_without_registration_or_save(String failure) in C:\Users\pc\Schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\BusinessSaveIntegrationRegressionTests.cs:line 113
+  Failed TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Uncertain_preflight_retains_object_without_registration_or_save(failure: "busy") [< 1 ms]
+  Error Message:
+   Assert.False() Failure
+Expected: False
+Actual:   True
+  Stack Trace:
+     at TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Uncertain_preflight_retains_object_without_registration_or_save(String failure) in C:\Users\pc\Schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\BusinessSaveIntegrationRegressionTests.cs:line 113
+  Failed TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Uncertain_preflight_retains_object_without_registration_or_save(failure: "active-callback") [< 1 ms]
+  Error Message:
+   Assert.False() Failure
+Expected: False
+Actual:   True
+  Stack Trace:
+     at TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Uncertain_preflight_retains_object_without_registration_or_save(String failure) in C:\Users\pc\Schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\BusinessSaveIntegrationRegressionTests.cs:line 113
+  Failed TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Uncertain_preflight_retains_object_without_registration_or_save(failure: "started-before-probe") [< 1 ms]
+  Error Message:
+   Assert.False() Failure
+Expected: False
+Actual:   True
+  Stack Trace:
+     at TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Uncertain_preflight_retains_object_without_registration_or_save(String failure) in C:\Users\pc\Schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\BusinessSaveIntegrationRegressionTests.cs:line 113
+  Failed TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Uncertain_preflight_retains_object_without_registration_or_save(failure: "pending-request") [< 1 ms]
+  Error Message:
+   Assert.False() Failure
+Expected: False
+Actual:   True
+  Stack Trace:
+     at TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Uncertain_preflight_retains_object_without_registration_or_save(String failure) in C:\Users\pc\Schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\BusinessSaveIntegrationRegressionTests.cs:line 113
+  Failed TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Uncertain_preflight_retains_object_without_registration_or_save(failure: "completed-before-probe") [< 1 ms]
+  Error Message:
+   Assert.False() Failure
+Expected: False
+Actual:   True
+  Stack Trace:
+     at TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Uncertain_preflight_retains_object_without_registration_or_save(String failure) in C:\Users\pc\Schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\BusinessSaveIntegrationRegressionTests.cs:line 113
+  Failed TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Uncertain_preflight_retains_object_without_registration_or_save(failure: "own-reference") [< 1 ms]
+  Error Message:
+   Assert.False() Failure
+Expected: False
+Actual:   True
+  Stack Trace:
+     at TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Uncertain_preflight_retains_object_without_registration_or_save(String failure) in C:\Users\pc\Schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\BusinessSaveIntegrationRegressionTests.cs:line 113
+  Failed TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Possible_manager_effect_retains_participant_until_removal_is_confirmed(failure: "save-throws", saves: 1, removals: 0) [1 ms]
+  Error Message:
+   Assert.False() Failure
+Expected: False
+Actual:   True
+  Stack Trace:
+     at TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Possible_manager_effect_retains_participant_until_removal_is_confirmed(String failure, Int32 saves, Int32 removals) in C:\Users\pc\Schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\BusinessSaveIntegrationRegressionTests.cs:line 65
+[xUnit.net 00:00:00.29]     TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Possible_manager_effect_retains_participant_until_removal_is_confirmed(failure: "context-loss", saves: 1, removals: 0) [FAIL]
+[xUnit.net 00:00:00.29]     TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Possible_manager_effect_retains_participant_until_removal_is_confirmed(failure: "registration-throws", saves: 0, removals: 0) [FAIL]
+[xUnit.net 00:00:00.29]     TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Possible_manager_effect_retains_participant_until_removal_is_confirmed(failure: "removal-readback", saves: 1, removals: 1) [FAIL]
+[xUnit.net 00:00:00.29]     TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Possible_manager_effect_retains_participant_until_removal_is_confirmed(failure: "removal-throws", saves: 1, removals: 1) [FAIL]
+[xUnit.net 00:00:00.29]     TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Possible_manager_effect_retains_participant_until_removal_is_confirmed(failure: "completion-missing", saves: 1, removals: 0) [FAIL]
+[xUnit.net 00:00:00.29]     TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Context_change_after_confirmed_removal_still_prevents_native_cleanup [FAIL]
+  Failed TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Possible_manager_effect_retains_participant_until_removal_is_confirmed(failure: "context-loss", saves: 1, removals: 0) [< 1 ms]
+  Error Message:
+   Assert.False() Failure
+Expected: False
+Actual:   True
+  Stack Trace:
+     at TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Possible_manager_effect_retains_participant_until_removal_is_confirmed(String failure, Int32 saves, Int32 removals) in C:\Users\pc\Schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\BusinessSaveIntegrationRegressionTests.cs:line 65
+  Failed TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Possible_manager_effect_retains_participant_until_removal_is_confirmed(failure: "registration-throws", saves: 0, removals: 0) [< 1 ms]
+  Error Message:
+   Assert.False() Failure
+Expected: False
+Actual:   True
+  Stack Trace:
+     at TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Possible_manager_effect_retains_participant_until_removal_is_confirmed(String failure, Int32 saves, Int32 removals) in C:\Users\pc\Schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\BusinessSaveIntegrationRegressionTests.cs:line 65
+  Failed TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Possible_manager_effect_retains_participant_until_removal_is_confirmed(failure: "removal-readback", saves: 1, removals: 1) [< 1 ms]
+  Error Message:
+   Assert.False() Failure
+Expected: False
+Actual:   True
+  Stack Trace:
+     at TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Possible_manager_effect_retains_participant_until_removal_is_confirmed(String failure, Int32 saves, Int32 removals) in C:\Users\pc\Schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\BusinessSaveIntegrationRegressionTests.cs:line 65
+  Failed TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Possible_manager_effect_retains_participant_until_removal_is_confirmed(failure: "removal-throws", saves: 1, removals: 1) [< 1 ms]
+  Error Message:
+   Assert.False() Failure
+Expected: False
+Actual:   True
+  Stack Trace:
+     at TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Possible_manager_effect_retains_participant_until_removal_is_confirmed(String failure, Int32 saves, Int32 removals) in C:\Users\pc\Schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\BusinessSaveIntegrationRegressionTests.cs:line 65
+  Failed TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Possible_manager_effect_retains_participant_until_removal_is_confirmed(failure: "completion-missing", saves: 1, removals: 0) [< 1 ms]
+  Error Message:
+   Assert.False() Failure
+Expected: False
+Actual:   True
+  Stack Trace:
+     at TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Possible_manager_effect_retains_participant_until_removal_is_confirmed(String failure, Int32 saves, Int32 removals) in C:\Users\pc\Schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\BusinessSaveIntegrationRegressionTests.cs:line 65
+  Failed TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Context_change_after_confirmed_removal_still_prevents_native_cleanup [1 ms]
+  Error Message:
+   Assert.Equal() Failure: Strings differ
+           ↓ (pos 0)
+Expected: "failed"
+Actual:   "observed"
+           ↑ (pos 0)
+  Stack Trace:
+     at TownHallInterior.Tests.BusinessSaveIntegrationRegressionTests.Context_change_after_confirmed_removal_still_prevents_native_cleanup() in C:\Users\pc\Schedule1-mod-only\.scratch\townhall-save-fix-20261106\red\BusinessSaveIntegrationRegressionTests.cs:line 129
+Results File: C:\Users\pc\Schedule1-mod-only\.scratch\townhall-save-fix-20261106\tests\regressions-red.trx
+
+Failed!  - Failed:    15, Passed:     3, Skipped:     0, Total:    18, Duration: 77 ms - TownHallSaveRed.Tests.dll (net6.0)

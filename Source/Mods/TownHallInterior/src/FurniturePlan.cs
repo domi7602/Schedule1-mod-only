@@ -60,7 +60,9 @@ public static class FurniturePlan
         void Add(string name, string key, float x, float y, float z, float yaw,
             bool solid = true, float scale = 1f) =>
             p.Add(new FurniturePlacement(name, key, x, y, z, yaw, solid, scale));
-        for (int i = 0; i < 2; i++)
+        // Der eingangsnahe Arbeitsplatz (i = 0, z 33.8) entfällt auf Wunsch des Eigentümers;
+        // nur der hintere Empfangsplatz bleibt, damit der Weg hinter der Tür frei ist.
+        for (int i = 1; i < 2; i++)
         {
             float z = 33.8f + i * 2.2f;
             Add("reception-desk-" + i, "desk", 60f, floor, z, 0);      // knee space faces the staff side (+X)
@@ -79,44 +81,36 @@ public static class FurniturePlan
         Add("forms-chair-b", "chair", 57.3f, floor, 38f, 270);
         Add("forms-plant", "plant", 56.3f, desktop, 39.4f, 0, false);
         Add("waiting-bin", "bin", 56f, floor, 28.8f, 0);
-        Add("reception-bin", "bin", 61.8f, floor, 32.5f, 0);
         // ---- Obergeschoss: Büros, Besprechung, Archiv -------------------------------------
         float upper = RoomPlan.Upper;                                  // 4.75, design coordinate
         float upperDesktop = upper + (float)document.Assets.Single(a => a.Key == "desk").BoundsMax[1];
 
-        // Drei Büroarbeitsplätze an der Westwand. Das Pult ist 1 m breit und 2 m tief; seine
-        // offene Sitzseite liegt lokal bei +X, bei yaw 0 also nach Osten in den Raum.
-        for (int i = 0; i < 3; i++)
-        {
-            float z = 30.6f + i * 2.6f;
-            Add("office-desk-" + i, "desk", 56.4f, upper, z, 0);
-            Add("office-chair-" + i, "chair", 57.9f, upper, z, 180);   // faces -X, into the knee space
-            Add("office-computer-" + i, "computer", 56.4f, upperDesktop, z - 0.35f, 0, false);
-            Add("office-plant-" + i, "plant", 56.4f, upperDesktop, z + 0.55f, 0, false);
-        }
+        // Chef- / Verwaltungsarbeitsplatz an der Westwand (Terminal für Rathaus-Eigentümer).
+        // Das Pult ist 1 m breit und 2 m tief; seine offene Sitzseite liegt lokal bei +X.
+        Add("office-desk-0", "desk", 56.4f, upper, 30.6f, 0);
+        Add("office-chair-0", "chair", 57.9f, upper, 30.6f, 180);   // faces -X, into the knee space
+        Add("office-computer-0", "computer", 56.4f, upperDesktop, 30.6f - 0.35f, 0, false);
+        Add("office-plant-0", "plant", 56.4f, upperDesktop, 30.6f + 0.55f, 0, false);
 
-        // Besprechungstisch aus zwei gespiegelten Pulten, je ein Stuhl auf der offenen Seite.
-        Add("meeting-desk-a", "desk", 59.2f, upper, 36.4f, 0);
-        Add("meeting-desk-b", "desk", 59.2f, upper, 38.4f, 180); // mirrored, knee space faces -X
-        Add("meeting-chair-b", "chair", 58.1f, upper, 38.4f, 0);    // faces +X into b's knee space
-        Add("meeting-chair-c", "chair", 60.3f, upper, 36.4f, 180);  // faces -X into a's knee space
+        // Der dekorative Besprechungstisch (zwei Pulte und zwei Stühle) entfällt auf Wunsch des Eigentümers.
 
-        // Archiv an der Ostwand, nördlich des Treppenlochs.
+        // Aktenschrank-Asset: 0,745 m tief (lokal X), 0,6 m breit (lokal Z); die Schubladenfronten
+        // zeigen auf lokal +X. Gelesene Blickrichtung ist (cos yaw, -sin yaw).
+        // Archiv an der Ostwand: Rücken an der Wand (Haut bei x 63,13), Front nach -X in den Raum.
+        // Die Reihe beginnt am nördlichen Wandende und läuft nach Süden, damit der Platz neben
+        // dem Treppenloch frei bleibt.
         for (int i = 0; i < 5; i++)
-            Add("archive-cabinet-" + i, "cabinet", 62.6f, upper, 31.6f + i * 1.05f, 270);
+            Add("archive-cabinet-" + i, "cabinet", 62.74f, upper, 40.96f - i * 0.62f, 180);
 
-        // Südgruppe: Schrankzeile an der Südwand, zwei Stühle, Pflanzen, Papierkorb.
+        // Südgruppe: Schrankzeile an der Südwand (Haut bei z 20,72), Front nach +Z in den Raum,
+        // zwei Stühle, Pflanzen, Papierkorb.
         for (int i = 0; i < 4; i++)
-            Add("south-cabinet-" + i, "cabinet", 56.3f + i * 0.95f, upper, 21.05f, 0);
+            Add("south-cabinet-" + i, "cabinet", 56.3f + i * 0.95f, upper, 21.12f, 270);
         Add("south-chair-a", "chair", 60.15f, upper, 21.9f, 270);   // faces +Z, into the room
         Add("south-chair-b", "chair", 61.15f, upper, 21.9f, 270);
         Add("south-bin", "bin", 61.9f, upper, 22.3f, 0);
         Add("south-plant-a", "plant", 55.15f, upper, 21.15f, 0, false, 1.6f);
         Add("south-plant-b", "plant", 62.50f, upper, 21.15f, 0, false, 1.6f);
-
-        // Zweiter Monitor-Satz für den Besprechungstisch.
-        Add("meeting-computer-a", "computer", 59.2f, upperDesktop, 36.4f, 0, false);
-        Add("meeting-computer-b", "computer", 59.2f, upperDesktop, 38.4f, 0, false);
 
         Add("upper-plant-north", "plant", 55.15f, upper, 40.5f, 0, false, 1.6f);
         Add("upper-bin", "bin", 55.15f, upper, 30.0f, 0);

@@ -1,0 +1,94 @@
+{
+  "schema": 1,
+  "checkedUtc": "2026-11-06T09:21:44.130823+00:00",
+  "reviewer": "active_business_audit",
+  "mode": "Read-only metadata and decompiler audit; no builds, live method calls, deployment, or save access. Only this audit directory written.",
+  "artifacts": [
+    {
+      "relativeToGame": "MelonLoader/net6/Il2CppInterop.Runtime.dll",
+      "sha256": "3878ce0ba0c60385f76f2ba37e07ad0ee3649d019703aec8695db3402abeedd7",
+      "freshHashConfirmed": true
+    },
+    {
+      "relativeToGame": "MelonLoader/Il2CppAssemblies/Il2CppFishNet.Runtime.dll",
+      "sha256": "0acb5c70078f5be6e88574be17b675657fc50898eb3dd264a3b98a54545e24ec",
+      "freshHashConfirmed": true
+    }
+  ],
+  "freshDecompiler": "C:/Users/pc/.dotnet/tools/ilspycmd.exe",
+  "decompiles": [
+    {
+      "file": "ClassInjector.fresh.cs.txt",
+      "sha256": "5dfe7d77474af4d432711fb317f6759fd854fd823696abe9a52149dc6ded95d9",
+      "freshFromInstalledAssembly": true
+    },
+    {
+      "file": "NetworkBehaviour.fresh.cs.txt",
+      "sha256": "00b9187eda9bc05bbaa517253f170bb2e4f9dfd69ac2286c2b716aa4641bba0b",
+      "freshFromInstalledAssembly": true
+    },
+    {
+      "file": "INativeMethodInfoStruct.fresh.cs.txt",
+      "sha256": "83d54700dcf196195d0a6d350bede5d660c69f7d09cfeebdf0b527f8f4669129",
+      "freshFromInstalledAssembly": true
+    }
+  ],
+  "claims": [
+    {
+      "id": "AS-01",
+      "claim": "ClassInjector selects eligible DeclaredOnly instance methods and inserts them into a new own native method table.",
+      "source": "ClassInjector.fresh.cs.txt",
+      "lines": "261-282",
+      "status": "source-confirmed"
+    },
+    {
+      "id": "AS-02",
+      "claim": "Copied base VTable slots are replaced when the own declared method name and parameter types match.",
+      "source": "ClassInjector.fresh.cs.txt",
+      "lines": "296-328",
+      "status": "source-confirmed"
+    },
+    {
+      "id": "AS-03",
+      "claim": "For nongeneric nonabstract methods ConvertMethodInfo assigns an InvokerMethod, MethodPointer and identical VirtualMethodPointer; native MethodInfo.Slot is ushort.MaxValue.",
+      "source": "ClassInjector.fresh.cs.txt",
+      "lines": "622-628",
+      "status": "source-confirmed"
+    },
+    {
+      "id": "AS-04",
+      "claim": "Root NetworkBehaviour proxy declares virtual Reset and OnValidate, but no Awake/Start/OnEnable/OnDisable/OnDestroy/Update/LateUpdate/FixedUpdate methods. Nested SyncTypeWriter.Reset is a different owner.",
+      "source": "NetworkBehaviour.fresh.cs.txt",
+      "lines": "2466-2485; whole decompiled type searched by declaration",
+      "status": "bounded-metadata-negative"
+    },
+    {
+      "id": "AS-05",
+      "claim": "A VTable match does not itself prove the Unity message-name lookup/invoker route. Before activation check exact own method-table name, class, void return, zero arguments, nonstatic status, nonzero invoker/method/virtual pointers; actual Unity callback delivery still requires a later live run.",
+      "source": "ClassInjector.fresh.cs.txt",
+      "lines": "261-282,622-628",
+      "status": "design-inference"
+    },
+    {
+      "id": "AS-06",
+      "claim": "INativeMethodInfoStruct exposes ref IntPtr MethodPointer, VirtualMethodPointer and InvokerMethod for the exact installed wrapper; no raw native offset needed.",
+      "source": "INativeMethodInfoStruct.fresh.cs.txt",
+      "lines": "13-21",
+      "status": "fresh-decompiled-signature-confirmed"
+    }
+  ],
+  "initialRepoObservation": {
+    "source": "Source/Mods/TownHallInterior/src/BusinessConstruction.cs",
+    "initialReadHashKnownFromPriorEvidence": "159f7cbdc6c7c01db1a34c93cfe2c02c8df095c2f709678afb2bf13256b9e868",
+    "hashAtAuditWrite": "159f7cbdc6c7c01db1a34c93cfe2c02c8df095c2f709678afb2bf13256b9e868",
+    "scope": "Initial audit examined no-base callbacks at2480+, runtime2591+, native preparation2909+, cleanup3136+; a concurrent coder may now change this file. Review final source independently."
+  },
+  "recommendation": "Separate active-subtype Begin/Tick/Retire route, no NetworkObject, no registry publication, no save, actual Unity frameCount, own lifecycle checks, bounded cleanup and fail-closed future attempts. Preserve legacy ACTIVATION #error.",
+  "limits": [
+    "IL2CPP proxy bodies are bindings, not native implementation bodies.",
+    "Negative method-surface findings do not prove absence of external callbacks or game scans.",
+    "No claim that Unity message dispatch or safe active cleanup has been observed.",
+    "No active native Business initialization, world publication, persistence, purchase, FishNet spawn or shutdown last-use acceptance.",
+    "Existing historical ClassInjector decompile was initially consulted; primary evidence above was freshly regenerated from hash-matching installed DLLs."
+  ]
+}

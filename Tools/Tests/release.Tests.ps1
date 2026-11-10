@@ -45,6 +45,48 @@ function Rewrite-Manifest {
 }
 
 try {
+    $packagingRoot = Join-Path $fixture.Path 'packaging'
+    $fixtureTools = Join-Path $packagingRoot 'Tools'
+    $null = New-Item -ItemType Directory -Path $fixtureTools -Force
+    $toolsRoot = Split-Path -Parent $PSScriptRoot
+    foreach ($scriptName in @('package-release.ps1', 'release-manifest.ps1', 'release-mod.ps1')) {
+        Copy-Item -LiteralPath (Join-Path $toolsRoot $scriptName) -Destination $fixtureTools
+    }
+    $packager = Join-Path $fixtureTools 'package-release.ps1'
+    $publisher = Join-Path $fixtureTools 'release-mod.ps1'
+
+    Check 'Explicit TownHall packaging and publication are refused before prerequisites' {
+        $originalGamePath = $env:SCHEDULE1_PATH
+        try {
+            $env:SCHEDULE1_PATH = Join-Path $packagingRoot 'absent-game'
+            Reject { & $packager -Mod 'townhallinterior' } 'local-only'
+            Reject { & $publisher -Mod 'TownHallInterior' -DryRun } 'local-only'
+            Require (-not (Test-Path -LiteralPath (Join-Path $packagingRoot 'Release'))) 'Rejection created a release output directory.'
+        } finally { $env:SCHEDULE1_PATH = $originalGamePath }
+    }
+    Check 'All skips local-only TownHall and still validates other mods' {
+        # Both projects have missing metadata. Only the eligible one should reach validation.
+        foreach ($name in @('TownHallInterior', 'ZReleaseFixture')) {
+            $modSource = Join-Path $packagingRoot "Source/Mods/$name/src"
+            $null = New-Item -ItemType Directory -Path $modSource -Force
+            [IO.File]::WriteAllText((Join-Path $modSource "$name.csproj"), '<Project />')
+        }
+        $fakeGame = Join-Path $packagingRoot 'game'
+        $fakeAssemblies = Join-Path $fakeGame 'MelonLoader/Il2CppAssemblies'
+        $null = New-Item -ItemType Directory -Path $fakeAssemblies -Force
+        [IO.File]::WriteAllText((Join-Path $fakeAssemblies 'Assembly-CSharp.dll'), 'fixture')
+        function Get-Process {
+            [CmdletBinding()]
+            param([string]$Name)
+            Require ($Name -eq 'Schedule I') 'Unexpected fixture process probe.'
+        }
+        $originalGamePath = $env:SCHEDULE1_PATH
+        try {
+            $env:SCHEDULE1_PATH = $fakeGame
+            Reject { & $packager -Mod All } 'metadata is missing:.*ZReleaseFixture'
+            Require (-not (Test-Path -LiteralPath (Join-Path $packagingRoot 'Release'))) 'Validation created a release output directory.'
+        } finally { $env:SCHEDULE1_PATH = $originalGamePath }
+    }
     Check 'Valid archive verifies every payload and clean source' {
         $payload = New-Payload
         $null = Write-S1ReleaseManifest $payload Fixture $source

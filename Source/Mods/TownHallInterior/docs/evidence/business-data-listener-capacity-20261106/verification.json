@@ -1,0 +1,202 @@
+{
+  "schema": 1,
+  "checkedUtc": "2026-11-06T14:37:42.476Z",
+  "sourceRevision": "b2c6c7e6c6ecc778da9624cdb68a6578b9db471a",
+  "sourceWorktree": "dirty",
+  "scope": "Capacity-based correction of the native minute-list listener snapshot after the live count observation; offline source, build, test and formatting checks only; no installation, game launch or save access",
+  "basisLiveObservation": {
+    "report": "Source/Mods/TownHallInterior/docs/evidence/business-data-listener-count-live-20261106/live-report.json",
+    "capturedUtc": "2026-11-06T14:28:53.3982313Z",
+    "candidateSha256": "4ae6509a2d8501176ee8b9dca7e3c8b6481382d0f6f30fa73857506c9cf304f6",
+    "status": "quarantined",
+    "failure": "data-minute-list-over-budget:889",
+    "size": 889,
+    "capacity": 1024,
+    "version": 891,
+    "countProperty": 889,
+    "countPropertyMatchesSize": true,
+    "interpretation": "The generic Count getter read correctly; the fixed 512-entry guard was too low for a valid 889-entry list."
+  },
+  "codeChange": {
+    "file": "Source/Mods/TownHallInterior/src/BusinessConstruction.cs",
+    "method": "CaptureDataListeners()",
+    "entryBound": "size >= 0, size <= capacity, capacity <= 4096; the arbitrary fixed 512-entry limit is removed",
+    "graphBound": "node limit raised from 4096 to 16384",
+    "diagnostics": "nodes and maxChildren are written to Native.DataListenerDiagnostics[\"minute-list\"] on success and on graph failure",
+    "unchanged": "per-multicast child array limit remains 512",
+    "reason": "The observed list has 889 of 1024 slots; its own capacity is the justified entry bound. The 4096 capacity ceiling and 16384 node ceiling remain hard bounds."
+  },
+  "sourceHashes": {
+    "Source/Mods/TownHallInterior/src/BusinessConstruction.cs": "266cbe3fa9a275cc3f254998858c53d3e02a6091900a0bc74171bae035e96c24",
+    "Source/Mods/TownHallInterior/src/TownHallInterior.csproj": "9ca3fa493371986cad141d9096d2d1751630586417943b1673f70136c8ec0132",
+    "Source/Tests/TownHallInterior.Tests/BusinessDataTests.cs": "93b64e5730232dc9c62e8546c241fd8a418339e799682de46a5d0941b60e2854",
+    "Source/Mods/TownHallInterior/docs/README.md": "ac1258ec9d890148016159e3e579feb9e5908a19ad918b0888f6a54ee4e4b8e3",
+    "Source/Mods/TownHallInterior/docs/CHANGELOG.md": "514508c1693cfaa91a50007c556960ed40c5eec8480a8948322b2f0996c76a85",
+    "Source/Mods/TownHallInterior/docs/business-completion-plan.md": "36cc73272572cfab192486d746411437bf2ac83b40c170f43ca841c4dd287129",
+    "Source/Mods/TownHallInterior/docs/business-data-probe.md": "061bcc9de84a2d3f5b3ef3015e87b8c3795d6ab5d20622127ace4d71eb83b466",
+    "docs/compatibility.md": "76e345179e7492c04f28d40d146ad9e365eb04ade09e54db7ad8f811d15e7ddb"
+  },
+  "sourceHashBeforeCorrection": {
+    "Source/Mods/TownHallInterior/src/BusinessConstruction.cs": "d54ab55edfa7dd369e0711855885288a019e8e0b41f1581afb75fe75c520c979"
+  },
+  "townHallTests": {
+    "total": 1166,
+    "passed": 1166,
+    "failed": 0,
+    "skipped": 0,
+    "trx": "townhall-capacity.trx"
+  },
+  "builds": [
+    {
+      "mode": "Normal",
+      "exitCode": 0,
+      "dllSha256": "658491056d689053a7a58da99007480bc4243c758655a44581bec7c5af2c5663",
+      "pdbSha256": "509f37f69f55786eaf45e81f8d79d4a8fa258bae5673bed0f769c0c6f6133567",
+      "noDeploy": true
+    },
+    {
+      "mode": "Subtype",
+      "exitCode": 0,
+      "dllSha256": "c49698edd666e18bd4b349c35353031db580613293dc30f7783bc5c4743bf6b1",
+      "pdbSha256": "437f6e780eb093cd7eda9f7165dbbc5b3cf0eefc836063218679f1b77a3ce08e",
+      "noDeploy": true
+    },
+    {
+      "mode": "Interface",
+      "exitCode": 0,
+      "dllSha256": "6346ad351b05b0d8e7876b08bca9b8a58950008e0102260217938c2c057b08fa",
+      "pdbSha256": "28984fbda35723871338b2d75071ea747ebed0c311b869d38c48b5877d14a1f6",
+      "noDeploy": true
+    },
+    {
+      "mode": "Manager",
+      "exitCode": 0,
+      "dllSha256": "ff38d81c341beadab1e6e7d24f4524ccc8da4d883f90809afb3f951268bc8ae2",
+      "pdbSha256": "046ebeb343d5168967715f65635c8326221bdfa161a064d38d4741ac22c029f9",
+      "noDeploy": true
+    },
+    {
+      "mode": "ActiveSubtype",
+      "exitCode": 0,
+      "dllSha256": "3fe78284d56353bf5ff13ffeccb13f00f51eb7d025e095b7190c2cd3b0551f6e",
+      "pdbSha256": "c1174947ad7930c3a66d13e268f266f8e9953521e54d614b5ec414c855b9a4ea",
+      "noDeploy": true
+    },
+    {
+      "mode": "NetworkSubtype",
+      "exitCode": 0,
+      "dllSha256": "9eef574dc152c59f8096ff2851c25e6fbac863d908ed5aff570200c3dec8b0fe",
+      "pdbSha256": "1bcd99a7638dbf60e82451808cccb9c3ff990a04f42d4ee754f110f0d6f5b21d",
+      "noDeploy": true
+    },
+    {
+      "mode": "Data",
+      "exitCode": 0,
+      "dllSha256": "b449c1c18062edff3729483b020eca578c7483ad958ef3d7c3ad72a57f9cce01",
+      "pdbSha256": "943b9176dadc0e72690a0b2861b442649fc8b0e099b4a6ea6b7a6beec142078a",
+      "noDeploy": true
+    }
+  ],
+  "allBuildsWarnings": 0,
+  "allBuildsErrors": 0,
+  "expectedRejectedBuilds": [
+    {
+      "mode": "LegacyActivation",
+      "exitCode": 1,
+      "error": "CS1029"
+    },
+    {
+      "mode": "NetworkManager",
+      "exitCode": 1,
+      "error": "CS1029"
+    },
+    {
+      "mode": "NetworkActive",
+      "exitCode": 1,
+      "error": "CS1029"
+    },
+    {
+      "mode": "DataSubtype",
+      "exitCode": 1,
+      "error": "CS1029"
+    },
+    {
+      "mode": "DataInterface",
+      "exitCode": 1,
+      "error": "CS1029"
+    },
+    {
+      "mode": "DataManager",
+      "exitCode": 1,
+      "error": "CS1029"
+    },
+    {
+      "mode": "DataActiveSubtype",
+      "exitCode": 1,
+      "error": "CS1029"
+    },
+    {
+      "mode": "DataNetworkSubtype",
+      "exitCode": 1,
+      "error": "CS1029"
+    },
+    {
+      "mode": "DataConstruction",
+      "exitCode": 1,
+      "error": "CS1029"
+    }
+  ],
+  "scopedWhitespaceCheck": "passed; Formatted 0 of 21 files",
+  "independentCodeReview": "not performed for this correction",
+  "candidateRelativePath": ".backups/townhall-business-data-prepared/20261106T143520573Z",
+  "candidateCreatedUtc": "2026-11-06T14:35:20.573Z",
+  "candidateSha256": "b449c1c18062edff3729483b020eca578c7483ad958ef3d7c3ad72a57f9cce01",
+  "candidatePdbSha256": "943b9176dadc0e72690a0b2861b442649fc8b0e099b4a6ea6b7a6beec142078a",
+  "installedHashesBeforeAndAfter": {
+    "Mods/TownHallInterior.dll": "614b81fd584040d4cebe7a18929bca09eabae478a6487ec6d846ea01d6062003",
+    "UserData/TownHallInterior/TownHallInterior.pdb": "8126ae65f5c12f6e8261af0a1734e622d8c0ab5522a91e6653c7b1ffd7d8c497",
+    "UserData/TownHallInterior/mod.json": "65938002b7273ef77dedbadf9092a186e6742f1e40fe404ef91576d3e4f81660",
+    "UserData/.deploy/receipts/TownHallInterior.json": "303afa10146cf51a0ba4e32f7536655ad9ceef2defa2aed0e3de6eae3f94f4a7"
+  },
+  "installationUnchanged": true,
+  "gameLaunched": false,
+  "nativeSaveFilesAccessed": false,
+  "deployed": false,
+  "committed": false,
+  "pushed": false,
+  "laterDeployment": {
+    "deployedAtUtc": "2026-11-06T14:43:53.2991901Z",
+    "attemptId": "20261106T144353094Z-698bae441291",
+    "evidence": "evidence/business-data-listener-capacity-deployment-20261106/deployment-verification.json",
+    "note": "Installation occurred after this offline check; see the deployment evidence."
+  },
+  "laterLiveObservation": {
+    "report": "evidence/business-data-capacity-live-20261106/live-report.json",
+    "capturedUtc": "2026-11-06T14:49:12.409Z",
+    "status": "observed",
+    "findings": [],
+    "size": 889,
+    "capacity": 1024,
+    "nodes": 889,
+    "maxChildren": 0,
+    "dataQueries": "0/0/true/false",
+    "cleanupVerified": true,
+    "snapshotsEqual": true,
+    "note": "The capacity-based capture passed; the data/query probe reached cleanup."
+  },
+  "laterRollback": "evidence/business-data-capacity-live-20261106/rollback-verification.json",
+  "evidenceArtifacts": {
+    "build-results.json": "1f19da31565a79b1e5a8c4ccb6ff1a51871c689c2f0c401ece91227bcaf12515",
+    "build-guards.json": "ed6b2719fbfccce1ea3bef7ed0303f272f842519abf59f74c3c0ae9b7ac200ed",
+    "townhall-capacity.trx": "c9195064acfa23239f80b105a83e28249ae3e6f50aac93bc12ba8ba292c1efa6",
+    "townhall-tests.log.txt": "eb8f477469fed0384333daa2525c8f1187d86b16ac27fec37fdd4e7ae4727c00",
+    "format.log.txt": "f0b1bb86ecdae34fcba147ee02b25b154106bb62e0a2e0fb9d3bf60521a3def7"
+  },
+  "limits": [
+    "No live observation of the capacity-based reader yet; the 889-entry list has not been walked to completion in a live process.",
+    "The 4096 capacity ceiling and 16384 node ceiling are hard bounds, not observed maxima.",
+    "The per-multicast child array limit remains 512 and may become the next bound.",
+    "A clean offline build and test run does not prove native runtime behavior, cleanup, or unchanged foreign state."
+  ],
+  "nextStep": "The candidate was installed at 2026-11-06T14:43:53.2991901Z. Load TownHallTest / SaveGame_2, inspect Native.DataListenerDiagnostics[\"minute-list\"] and the data-query results, then close the game normally, compare the 39 native test files, and restore normal build 614b81fd..."
+}

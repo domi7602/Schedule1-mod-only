@@ -1,0 +1,14 @@
+=== Doc-Pfad-Check (325 Markdown-Dateien, 1503 Quelle/Ziel-Paare) ===
+  ~ .opencode/taxi-supervisor-fix-20261031/verifier/audit.md (gitignored - lokale Voraussetzung)
+  ~ GameReferences/decompiled (dokumentierte lokale Voraussetzung / Allow)
+  ~ GameReferences/decompiled/Assembly-CSharp (dokumentierte lokale Voraussetzung / Allow)
+  ~ GameReferences/decompiled/Assembly-CSharp/Il2CppScheduleOne.EntityFramework/BuildableItem.cs (dokumentierte lokale Voraussetzung / Allow)
+  ~ GameReferences/decompiled/Assembly-CSharp/Il2CppScheduleOne.Misc/ToggleableLight.cs (dokumentierte lokale Voraussetzung / Allow)
+  ~ GameReferences/decompiled/Assembly-CSharp/Il2CppScheduleOne/AvatarFramework (dokumentierte lokale Voraussetzung / Allow)
+  ~ GameReferences/decompiled/Assembly-CSharp/Il2CppScheduleOne/Tiles (dokumentierte lokale Voraussetzung / Allow)
+  ~ Source/Mods/HitmanPhone/src/bin/Release/net6.0/HitmanPhone.dll (gitignored - lokale Voraussetzung)
+  ~ Source/Mods/WorldLook/build/logs/20261023-041153-490-d22f14f5 (gitignored - lokale Voraussetzung)
+  ~ Source/Tests/GraphicsProbe.Tests/TestResults/GraphicsProbe-final.trx (gitignored - lokale Voraussetzung)
+  ~ ThirdParty/S1API/local.build.props (dokumentierte lokale Voraussetzung / Allow)
+  ~ ThirdParty/S1MAPI/local.build.props (dokumentierte lokale Voraussetzung / Allow)
+Doc-Pfad-Check OK (Dateipfade; Anker nicht geprueft).

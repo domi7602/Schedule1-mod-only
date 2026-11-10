@@ -1,0 +1,1227 @@
+{
+  "Method": {
+    "Type": "ScheduleOne.Persistence.SaveManager",
+    "Name": ".ctor",
+    "Token": "0x06001837",
+    "ParameterCount": 0,
+    "Va": "0x1805AAEE0",
+    "Rva": "0x5AAEE0",
+    "NativePointerPresent": true
+  },
+  "Bounds": {
+    "BeginRva": 5943008,
+    "EndRva": 5943515,
+    "UnwindRva": 57295560
+  },
+  "RawOffset": "0x5AA0E0",
+  "ByteLength": 507,
+  "BytesSha256": "6b58762ff29ce9f536841c6f5b0db8d4023dca4bb8fd6d03d58261f4e6272d7b",
+  "Instructions": [
+    {
+      "Va": "0x1805AAEE0",
+      "Rva": "0x5AAEE0",
+      "Bytes": "48 89 5C 24 08",
+      "Text": "mov [rsp+8],rbx",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AAEE5",
+      "Rva": "0x5AAEE5",
+      "Bytes": "57",
+      "Text": "push rdi",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AAEE6",
+      "Rva": "0x5AAEE6",
+      "Bytes": "48 83 EC 20",
+      "Text": "sub rsp,20h",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AAEEA",
+      "Rva": "0x5AAEEA",
+      "Bytes": "80 3D 6B 08 65 03 00",
+      "Text": "cmp byte ptr [183BFB75Ch],0",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": "0x183BFB75C",
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AAEF1",
+      "Rva": "0x5AAEF1",
+      "Bytes": "48 8B F9",
+      "Text": "mov rdi,rcx",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AAEF4",
+      "Rva": "0x5AAEF4",
+      "Bytes": "0F 85 8B 00 00 00",
+      "Text": "jne near ptr 00000001805AAF85h",
+      "FlowControl": "ConditionalBranch",
+      "DirectTarget": "0x1805AAF85",
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AAEFA",
+      "Rva": "0x5AAEFA",
+      "Bytes": "48 8D 0D 37 AF 44 03",
+      "Text": "lea rcx,[1839F5E38h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": "0x1839F5E38",
+      "MetadataGlobal": {
+        "ResolutionError": "Exception calling \"AsMethod\" with \"0\" argument(s): \"Cannot cast metadata usage of kind MethodRef to a Method Def\""
+      }
+    },
+    {
+      "Va": "0x1805AAF01",
+      "Rva": "0x5AAF01",
+      "Bytes": "E8 9A C9 D6 FF",
+      "Text": "call 00000001803178A0h",
+      "FlowControl": "Call",
+      "DirectTarget": "0x1803178A0",
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AAF06",
+      "Rva": "0x5AAF06",
+      "Bytes": "48 8D 0D AB 41 40 03",
+      "Text": "lea rcx,[1839AF0B8h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": "0x1839AF0B8",
+      "MetadataGlobal": {
+        "ResolutionError": "Exception calling \"AsMethod\" with \"0\" argument(s): \"Cannot cast metadata usage of kind MethodRef to a Method Def\""
+      }
+    },
+    {
+      "Va": "0x1805AAF0D",
+      "Rva": "0x5AAF0D",
+      "Bytes": "E8 8E C9 D6 FF",
+      "Text": "call 00000001803178A0h",
+      "FlowControl": "Call",
+      "DirectTarget": "0x1803178A0",
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AAF12",
+      "Rva": "0x5AAF12",
+      "Bytes": "48 8D 0D 7F 62 41 03",
+      "Text": "lea rcx,[1839C1198h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": "0x1839C1198",
+      "MetadataGlobal": {
+        "ResolutionError": "Exception calling \"AsMethod\" with \"0\" argument(s): \"Cannot cast metadata usage of kind MethodRef to a Method Def\""
+      }
+    },
+    {
+      "Va": "0x1805AAF19",
+      "Rva": "0x5AAF19",
+      "Bytes": "E8 82 C9 D6 FF",
+      "Text": "call 00000001803178A0h",
+      "FlowControl": "Call",
+      "DirectTarget": "0x1803178A0",
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AAF1E",
+      "Rva": "0x5AAF1E",
+      "Bytes": "48 8D 0D CB 54 44 03",
+      "Text": "lea rcx,[1839F03F0h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": "0x1839F03F0",
+      "MetadataGlobal": {
+        "ResolutionError": "Exception calling \"AsMethod\" with \"0\" argument(s): \"Cannot cast metadata usage of kind MethodRef to a Method Def\""
+      }
+    },
+    {
+      "Va": "0x1805AAF25",
+      "Rva": "0x5AAF25",
+      "Bytes": "E8 76 C9 D6 FF",
+      "Text": "call 00000001803178A0h",
+      "FlowControl": "Call",
+      "DirectTarget": "0x1803178A0",
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AAF2A",
+      "Rva": "0x5AAF2A",
+      "Bytes": "48 8D 0D 17 CF 45 03",
+      "Text": "lea rcx,[183A07E48h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": "0x183A07E48",
+      "MetadataGlobal": {
+        "Kind": "TypeInfo",
+        "Value": "System.Collections.Generic.List`1<ScheduleOne.Persistence.SaveRequest>"
+      }
+    },
+    {
+      "Va": "0x1805AAF31",
+      "Rva": "0x5AAF31",
+      "Bytes": "E8 6A C9 D6 FF",
+      "Text": "call 00000001803178A0h",
+      "FlowControl": "Call",
+      "DirectTarget": "0x1803178A0",
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AAF36",
+      "Rva": "0x5AAF36",
+      "Bytes": "48 8D 0D 43 F1 44 03",
+      "Text": "lea rcx,[1839FA080h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": "0x1839FA080",
+      "MetadataGlobal": {
+        "Kind": "TypeInfo",
+        "Value": "System.Collections.Generic.List`1<ScheduleOne.Persistence.IBaseSaveable>"
+      }
+    },
+    {
+      "Va": "0x1805AAF3D",
+      "Rva": "0x5AAF3D",
+      "Bytes": "E8 5E C9 D6 FF",
+      "Text": "call 00000001803178A0h",
+      "FlowControl": "Call",
+      "DirectTarget": "0x1803178A0",
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AAF42",
+      "Rva": "0x5AAF42",
+      "Bytes": "48 8D 0D C7 03 45 03",
+      "Text": "lea rcx,[1839FB310h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": "0x1839FB310",
+      "MetadataGlobal": {
+        "Kind": "TypeInfo",
+        "Value": "System.Collections.Generic.List`1<ScheduleOne.Persistence.ISaveable>"
+      }
+    },
+    {
+      "Va": "0x1805AAF49",
+      "Rva": "0x5AAF49",
+      "Bytes": "E8 52 C9 D6 FF",
+      "Text": "call 00000001803178A0h",
+      "FlowControl": "Call",
+      "DirectTarget": "0x1803178A0",
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AAF4E",
+      "Rva": "0x5AAF4E",
+      "Bytes": "48 8D 0D 2B FE 45 03",
+      "Text": "lea rcx,[183A0AD80h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": "0x183A0AD80",
+      "MetadataGlobal": {
+        "Kind": "TypeInfo",
+        "Value": "System.Collections.Generic.List`1<System.String>"
+      }
+    },
+    {
+      "Va": "0x1805AAF55",
+      "Rva": "0x5AAF55",
+      "Bytes": "E8 46 C9 D6 FF",
+      "Text": "call 00000001803178A0h",
+      "FlowControl": "Call",
+      "DirectTarget": "0x1803178A0",
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AAF5A",
+      "Rva": "0x5AAF5A",
+      "Bytes": "48 8D 0D 07 3B 41 03",
+      "Text": "lea rcx,[1839BEA68h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": "0x1839BEA68",
+      "MetadataGlobal": {
+        "ResolutionError": "Exception calling \"AsMethod\" with \"0\" argument(s): \"Cannot cast metadata usage of kind MethodRef to a Method Def\""
+      }
+    },
+    {
+      "Va": "0x1805AAF61",
+      "Rva": "0x5AAF61",
+      "Bytes": "E8 3A C9 D6 FF",
+      "Text": "call 00000001803178A0h",
+      "FlowControl": "Call",
+      "DirectTarget": "0x1803178A0",
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AAF66",
+      "Rva": "0x5AAF66",
+      "Bytes": "48 8D 0D 73 FF 3E 03",
+      "Text": "lea rcx,[18399AEE0h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": "0x18399AEE0",
+      "MetadataGlobal": {
+        "Kind": "TypeInfo",
+        "Value": "System.String"
+      }
+    },
+    {
+      "Va": "0x1805AAF6D",
+      "Rva": "0x5AAF6D",
+      "Bytes": "E8 2E C9 D6 FF",
+      "Text": "call 00000001803178A0h",
+      "FlowControl": "Call",
+      "DirectTarget": "0x1803178A0",
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AAF72",
+      "Rva": "0x5AAF72",
+      "Bytes": "48 8D 0D 07 2B 3E 03",
+      "Text": "lea rcx,[18398DA80h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": "0x18398DA80",
+      "MetadataGlobal": {
+        "Kind": "StringLiteral",
+        "Value": "DevSave"
+      }
+    },
+    {
+      "Va": "0x1805AAF79",
+      "Rva": "0x5AAF79",
+      "Bytes": "E8 22 C9 D6 FF",
+      "Text": "call 00000001803178A0h",
+      "FlowControl": "Call",
+      "DirectTarget": "0x1803178A0",
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AAF7E",
+      "Rva": "0x5AAF7E",
+      "Bytes": "C6 05 D7 07 65 03 01",
+      "Text": "mov byte ptr [183BFB75Ch],1",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": "0x183BFB75C",
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AAF85",
+      "Rva": "0x5AAF85",
+      "Bytes": "48 8B 05 54 FF 3E 03",
+      "Text": "mov rax,[18399AEE0h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": "0x18399AEE0",
+      "MetadataGlobal": {
+        "Kind": "TypeInfo",
+        "Value": "System.String"
+      }
+    },
+    {
+      "Va": "0x1805AAF8C",
+      "Rva": "0x5AAF8C",
+      "Bytes": "48 8B 88 B8 00 00 00",
+      "Text": "mov rcx,[rax+0B8h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AAF93",
+      "Rva": "0x5AAF93",
+      "Bytes": "48 8B 11",
+      "Text": "mov rdx,[rcx]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AAF96",
+      "Rva": "0x5AAF96",
+      "Bytes": "48 8D 4F 30",
+      "Text": "lea rcx,[rdi+30h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AAF9A",
+      "Rva": "0x5AAF9A",
+      "Bytes": "48 89 57 30",
+      "Text": "mov [rdi+30h],rdx",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AAF9E",
+      "Rva": "0x5AAF9E",
+      "Bytes": "E8 0D BB D6 FF",
+      "Text": "call 0000000180316AB0h",
+      "FlowControl": "Call",
+      "DirectTarget": "0x180316AB0",
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AAFA3",
+      "Rva": "0x5AAFA3",
+      "Bytes": "48 8B 05 36 FF 3E 03",
+      "Text": "mov rax,[18399AEE0h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": "0x18399AEE0",
+      "MetadataGlobal": {
+        "Kind": "TypeInfo",
+        "Value": "System.String"
+      }
+    },
+    {
+      "Va": "0x1805AAFAA",
+      "Rva": "0x5AAFAA",
+      "Bytes": "48 8B 88 B8 00 00 00",
+      "Text": "mov rcx,[rax+0B8h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AAFB1",
+      "Rva": "0x5AAFB1",
+      "Bytes": "48 8B 11",
+      "Text": "mov rdx,[rcx]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AAFB4",
+      "Rva": "0x5AAFB4",
+      "Bytes": "48 8D 4F 38",
+      "Text": "lea rcx,[rdi+38h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AAFB8",
+      "Rva": "0x5AAFB8",
+      "Bytes": "48 89 57 38",
+      "Text": "mov [rdi+38h],rdx",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AAFBC",
+      "Rva": "0x5AAFBC",
+      "Bytes": "E8 EF BA D6 FF",
+      "Text": "call 0000000180316AB0h",
+      "FlowControl": "Call",
+      "DirectTarget": "0x180316AB0",
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AAFC1",
+      "Rva": "0x5AAFC1",
+      "Bytes": "48 8B 05 B8 2A 3E 03",
+      "Text": "mov rax,[18398DA80h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": "0x18398DA80",
+      "MetadataGlobal": {
+        "Kind": "StringLiteral",
+        "Value": "DevSave"
+      }
+    },
+    {
+      "Va": "0x1805AAFC8",
+      "Rva": "0x5AAFC8",
+      "Bytes": "48 8D 4F 40",
+      "Text": "lea rcx,[rdi+40h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AAFCC",
+      "Rva": "0x5AAFCC",
+      "Bytes": "48 89 47 40",
+      "Text": "mov [rdi+40h],rax",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AAFD0",
+      "Rva": "0x5AAFD0",
+      "Bytes": "48 8B 15 A9 2A 3E 03",
+      "Text": "mov rdx,[18398DA80h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": "0x18398DA80",
+      "MetadataGlobal": {
+        "Kind": "StringLiteral",
+        "Value": "DevSave"
+      }
+    },
+    {
+      "Va": "0x1805AAFD7",
+      "Rva": "0x5AAFD7",
+      "Bytes": "E8 D4 BA D6 FF",
+      "Text": "call 0000000180316AB0h",
+      "FlowControl": "Call",
+      "DirectTarget": "0x180316AB0",
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AAFDC",
+      "Rva": "0x5AAFDC",
+      "Bytes": "48 8B 0D 2D 03 45 03",
+      "Text": "mov rcx,[1839FB310h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": "0x1839FB310",
+      "MetadataGlobal": {
+        "Kind": "TypeInfo",
+        "Value": "System.Collections.Generic.List`1<ScheduleOne.Persistence.ISaveable>"
+      }
+    },
+    {
+      "Va": "0x1805AAFE3",
+      "Rva": "0x5AAFE3",
+      "Bytes": "E8 38 CB D6 FF",
+      "Text": "call 0000000180317B20h",
+      "FlowControl": "Call",
+      "DirectTarget": "0x180317B20",
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AAFE8",
+      "Rva": "0x5AAFE8",
+      "Bytes": "48 8B 15 49 AE 44 03",
+      "Text": "mov rdx,[1839F5E38h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": "0x1839F5E38",
+      "MetadataGlobal": {
+        "ResolutionError": "Exception calling \"AsMethod\" with \"0\" argument(s): \"Cannot cast metadata usage of kind MethodRef to a Method Def\""
+      }
+    },
+    {
+      "Va": "0x1805AAFEF",
+      "Rva": "0x5AAFEF",
+      "Bytes": "48 8B C8",
+      "Text": "mov rcx,rax",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AAFF2",
+      "Rva": "0x5AAFF2",
+      "Bytes": "48 8B D8",
+      "Text": "mov rbx,rax",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AAFF5",
+      "Rva": "0x5AAFF5",
+      "Bytes": "E8 36 8E A0 00",
+      "Text": "call 0000000180FB3E30h",
+      "FlowControl": "Call",
+      "DirectTarget": "0x180FB3E30",
+      "TargetMethods": [
+        "System.Collections.Generic.List`1::.ctor/0",
+        "System.Collections.Generic.LowLevelList`1::.ctor/0"
+      ],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AAFFA",
+      "Rva": "0x5AAFFA",
+      "Bytes": "48 8D 4F 48",
+      "Text": "lea rcx,[rdi+48h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AAFFE",
+      "Rva": "0x5AAFFE",
+      "Bytes": "48 89 5F 48",
+      "Text": "mov [rdi+48h],rbx",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AB002",
+      "Rva": "0x5AB002",
+      "Bytes": "48 8B D3",
+      "Text": "mov rdx,rbx",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AB005",
+      "Rva": "0x5AB005",
+      "Bytes": "E8 A6 BA D6 FF",
+      "Text": "call 0000000180316AB0h",
+      "FlowControl": "Call",
+      "DirectTarget": "0x180316AB0",
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AB00A",
+      "Rva": "0x5AB00A",
+      "Bytes": "48 8B 0D 6F F0 44 03",
+      "Text": "mov rcx,[1839FA080h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": "0x1839FA080",
+      "MetadataGlobal": {
+        "Kind": "TypeInfo",
+        "Value": "System.Collections.Generic.List`1<ScheduleOne.Persistence.IBaseSaveable>"
+      }
+    },
+    {
+      "Va": "0x1805AB011",
+      "Rva": "0x5AB011",
+      "Bytes": "E8 0A CB D6 FF",
+      "Text": "call 0000000180317B20h",
+      "FlowControl": "Call",
+      "DirectTarget": "0x180317B20",
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AB016",
+      "Rva": "0x5AB016",
+      "Bytes": "48 8B 15 D3 53 44 03",
+      "Text": "mov rdx,[1839F03F0h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": "0x1839F03F0",
+      "MetadataGlobal": {
+        "ResolutionError": "Exception calling \"AsMethod\" with \"0\" argument(s): \"Cannot cast metadata usage of kind MethodRef to a Method Def\""
+      }
+    },
+    {
+      "Va": "0x1805AB01D",
+      "Rva": "0x5AB01D",
+      "Bytes": "48 8B C8",
+      "Text": "mov rcx,rax",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AB020",
+      "Rva": "0x5AB020",
+      "Bytes": "48 8B D8",
+      "Text": "mov rbx,rax",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AB023",
+      "Rva": "0x5AB023",
+      "Bytes": "E8 08 8E A0 00",
+      "Text": "call 0000000180FB3E30h",
+      "FlowControl": "Call",
+      "DirectTarget": "0x180FB3E30",
+      "TargetMethods": [
+        "System.Collections.Generic.List`1::.ctor/0",
+        "System.Collections.Generic.LowLevelList`1::.ctor/0"
+      ],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AB028",
+      "Rva": "0x5AB028",
+      "Bytes": "48 8D 4F 50",
+      "Text": "lea rcx,[rdi+50h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AB02C",
+      "Rva": "0x5AB02C",
+      "Bytes": "48 89 5F 50",
+      "Text": "mov [rdi+50h],rbx",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AB030",
+      "Rva": "0x5AB030",
+      "Bytes": "48 8B D3",
+      "Text": "mov rdx,rbx",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AB033",
+      "Rva": "0x5AB033",
+      "Bytes": "E8 78 BA D6 FF",
+      "Text": "call 0000000180316AB0h",
+      "FlowControl": "Call",
+      "DirectTarget": "0x180316AB0",
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AB038",
+      "Rva": "0x5AB038",
+      "Bytes": "48 8B 0D 41 FD 45 03",
+      "Text": "mov rcx,[183A0AD80h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": "0x183A0AD80",
+      "MetadataGlobal": {
+        "Kind": "TypeInfo",
+        "Value": "System.Collections.Generic.List`1<System.String>"
+      }
+    },
+    {
+      "Va": "0x1805AB03F",
+      "Rva": "0x5AB03F",
+      "Bytes": "E8 DC CA D6 FF",
+      "Text": "call 0000000180317B20h",
+      "FlowControl": "Call",
+      "DirectTarget": "0x180317B20",
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AB044",
+      "Rva": "0x5AB044",
+      "Bytes": "48 8B 15 4D 61 41 03",
+      "Text": "mov rdx,[1839C1198h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": "0x1839C1198",
+      "MetadataGlobal": {
+        "ResolutionError": "Exception calling \"AsMethod\" with \"0\" argument(s): \"Cannot cast metadata usage of kind MethodRef to a Method Def\""
+      }
+    },
+    {
+      "Va": "0x1805AB04B",
+      "Rva": "0x5AB04B",
+      "Bytes": "48 8B C8",
+      "Text": "mov rcx,rax",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AB04E",
+      "Rva": "0x5AB04E",
+      "Bytes": "48 8B D8",
+      "Text": "mov rbx,rax",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AB051",
+      "Rva": "0x5AB051",
+      "Bytes": "E8 DA 8D A0 00",
+      "Text": "call 0000000180FB3E30h",
+      "FlowControl": "Call",
+      "DirectTarget": "0x180FB3E30",
+      "TargetMethods": [
+        "System.Collections.Generic.List`1::.ctor/0",
+        "System.Collections.Generic.LowLevelList`1::.ctor/0"
+      ],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AB056",
+      "Rva": "0x5AB056",
+      "Bytes": "48 8D 4F 58",
+      "Text": "lea rcx,[rdi+58h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AB05A",
+      "Rva": "0x5AB05A",
+      "Bytes": "48 89 5F 58",
+      "Text": "mov [rdi+58h],rbx",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AB05E",
+      "Rva": "0x5AB05E",
+      "Bytes": "48 8B D3",
+      "Text": "mov rdx,rbx",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AB061",
+      "Rva": "0x5AB061",
+      "Bytes": "E8 4A BA D6 FF",
+      "Text": "call 0000000180316AB0h",
+      "FlowControl": "Call",
+      "DirectTarget": "0x180316AB0",
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AB066",
+      "Rva": "0x5AB066",
+      "Bytes": "48 8B 0D A3 02 45 03",
+      "Text": "mov rcx,[1839FB310h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": "0x1839FB310",
+      "MetadataGlobal": {
+        "Kind": "TypeInfo",
+        "Value": "System.Collections.Generic.List`1<ScheduleOne.Persistence.ISaveable>"
+      }
+    },
+    {
+      "Va": "0x1805AB06D",
+      "Rva": "0x5AB06D",
+      "Bytes": "E8 AE CA D6 FF",
+      "Text": "call 0000000180317B20h",
+      "FlowControl": "Call",
+      "DirectTarget": "0x180317B20",
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AB072",
+      "Rva": "0x5AB072",
+      "Bytes": "48 8B 15 BF AD 44 03",
+      "Text": "mov rdx,[1839F5E38h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": "0x1839F5E38",
+      "MetadataGlobal": {
+        "ResolutionError": "Exception calling \"AsMethod\" with \"0\" argument(s): \"Cannot cast metadata usage of kind MethodRef to a Method Def\""
+      }
+    },
+    {
+      "Va": "0x1805AB079",
+      "Rva": "0x5AB079",
+      "Bytes": "48 8B C8",
+      "Text": "mov rcx,rax",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AB07C",
+      "Rva": "0x5AB07C",
+      "Bytes": "48 8B D8",
+      "Text": "mov rbx,rax",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AB07F",
+      "Rva": "0x5AB07F",
+      "Bytes": "E8 AC 8D A0 00",
+      "Text": "call 0000000180FB3E30h",
+      "FlowControl": "Call",
+      "DirectTarget": "0x180FB3E30",
+      "TargetMethods": [
+        "System.Collections.Generic.List`1::.ctor/0",
+        "System.Collections.Generic.LowLevelList`1::.ctor/0"
+      ],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AB084",
+      "Rva": "0x5AB084",
+      "Bytes": "48 8D 4F 60",
+      "Text": "lea rcx,[rdi+60h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AB088",
+      "Rva": "0x5AB088",
+      "Bytes": "48 89 5F 60",
+      "Text": "mov [rdi+60h],rbx",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AB08C",
+      "Rva": "0x5AB08C",
+      "Bytes": "48 8B D3",
+      "Text": "mov rdx,rbx",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AB08F",
+      "Rva": "0x5AB08F",
+      "Bytes": "E8 1C BA D6 FF",
+      "Text": "call 0000000180316AB0h",
+      "FlowControl": "Call",
+      "DirectTarget": "0x180316AB0",
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AB094",
+      "Rva": "0x5AB094",
+      "Bytes": "48 8B 0D AD CD 45 03",
+      "Text": "mov rcx,[183A07E48h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": "0x183A07E48",
+      "MetadataGlobal": {
+        "Kind": "TypeInfo",
+        "Value": "System.Collections.Generic.List`1<ScheduleOne.Persistence.SaveRequest>"
+      }
+    },
+    {
+      "Va": "0x1805AB09B",
+      "Rva": "0x5AB09B",
+      "Bytes": "E8 80 CA D6 FF",
+      "Text": "call 0000000180317B20h",
+      "FlowControl": "Call",
+      "DirectTarget": "0x180317B20",
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AB0A0",
+      "Rva": "0x5AB0A0",
+      "Bytes": "48 8B 15 11 40 40 03",
+      "Text": "mov rdx,[1839AF0B8h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": "0x1839AF0B8",
+      "MetadataGlobal": {
+        "ResolutionError": "Exception calling \"AsMethod\" with \"0\" argument(s): \"Cannot cast metadata usage of kind MethodRef to a Method Def\""
+      }
+    },
+    {
+      "Va": "0x1805AB0A7",
+      "Rva": "0x5AB0A7",
+      "Bytes": "48 8B C8",
+      "Text": "mov rcx,rax",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AB0AA",
+      "Rva": "0x5AB0AA",
+      "Bytes": "48 8B D8",
+      "Text": "mov rbx,rax",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AB0AD",
+      "Rva": "0x5AB0AD",
+      "Bytes": "E8 7E 8D A0 00",
+      "Text": "call 0000000180FB3E30h",
+      "FlowControl": "Call",
+      "DirectTarget": "0x180FB3E30",
+      "TargetMethods": [
+        "System.Collections.Generic.List`1::.ctor/0",
+        "System.Collections.Generic.LowLevelList`1::.ctor/0"
+      ],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AB0B2",
+      "Rva": "0x5AB0B2",
+      "Bytes": "48 8D 4F 68",
+      "Text": "lea rcx,[rdi+68h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AB0B6",
+      "Rva": "0x5AB0B6",
+      "Bytes": "48 89 5F 68",
+      "Text": "mov [rdi+68h],rbx",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AB0BA",
+      "Rva": "0x5AB0BA",
+      "Bytes": "48 8B D3",
+      "Text": "mov rdx,rbx",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AB0BD",
+      "Rva": "0x5AB0BD",
+      "Bytes": "E8 EE B9 D6 FF",
+      "Text": "call 0000000180316AB0h",
+      "FlowControl": "Call",
+      "DirectTarget": "0x180316AB0",
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AB0C2",
+      "Rva": "0x5AB0C2",
+      "Bytes": "48 8B 15 9F 39 41 03",
+      "Text": "mov rdx,[1839BEA68h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": "0x1839BEA68",
+      "MetadataGlobal": {
+        "ResolutionError": "Exception calling \"AsMethod\" with \"0\" argument(s): \"Cannot cast metadata usage of kind MethodRef to a Method Def\""
+      }
+    },
+    {
+      "Va": "0x1805AB0C9",
+      "Rva": "0x5AB0C9",
+      "Bytes": "48 8B CF",
+      "Text": "mov rcx,rdi",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AB0CC",
+      "Rva": "0x5AB0CC",
+      "Bytes": "48 8B 5C 24 30",
+      "Text": "mov rbx,[rsp+30h]",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AB0D1",
+      "Rva": "0x5AB0D1",
+      "Bytes": "48 83 C4 20",
+      "Text": "add rsp,20h",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AB0D5",
+      "Rva": "0x5AB0D5",
+      "Bytes": "5F",
+      "Text": "pop rdi",
+      "FlowControl": "Next",
+      "DirectTarget": null,
+      "TargetMethods": [],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    },
+    {
+      "Va": "0x1805AB0D6",
+      "Rva": "0x5AB0D6",
+      "Bytes": "E9 85 59 AC 00",
+      "Text": "jmp near ptr 0000000181070A60h",
+      "FlowControl": "UnconditionalBranch",
+      "DirectTarget": "0x181070A60",
+      "TargetMethods": [
+        "ScheduleOne.DevUtilities.PersistentSingleton`1::.ctor/0"
+      ],
+      "RipAddress": null,
+      "MetadataGlobal": null
+    }
+  ]
+}

@@ -1,0 +1,78 @@
+{
+  "checkedUtc": "2026-11-06T13:12:30.0220300Z",
+  "reviewer": "/root/data_install_review",
+  "stage": "prepared-candidate-only",
+  "sourceChecks": [
+    {
+      "path": "Source/Mods/TownHallInterior/src/BusinessConstruction.cs",
+      "expected": "2ce4f35fe695fe7bec8a8524a00744ae49edfa4b4edd41b69b0835a658af2873",
+      "actual": "2ce4f35fe695fe7bec8a8524a00744ae49edfa4b4edd41b69b0835a658af2873",
+      "matches": true
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/TownHallInterior.csproj",
+      "expected": "9ca3fa493371986cad141d9096d2d1751630586417943b1673f70136c8ec0132",
+      "actual": "9ca3fa493371986cad141d9096d2d1751630586417943b1673f70136c8ec0132",
+      "matches": true
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/BusinessBindingProbe.cs",
+      "expected": "228e290ed3a9f32594ba1a3c2d237f571bf85f46da149fe5735e453380d90347",
+      "actual": "228e290ed3a9f32594ba1a3c2d237f571bf85f46da149fe5735e453380d90347",
+      "matches": true
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/docs/README.md",
+      "expected": "db63c572884561f2c0f9218f4554b00389732304a2f97b2277ce36914899c903",
+      "actual": "db63c572884561f2c0f9218f4554b00389732304a2f97b2277ce36914899c903",
+      "matches": true
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/docs/CHANGELOG.md",
+      "expected": "fc18aeb7cb37ed9cb9ee6e818a3056d1a2e927fe4a520f8ecd660df2e2b56a95",
+      "actual": "fc18aeb7cb37ed9cb9ee6e818a3056d1a2e927fe4a520f8ecd660df2e2b56a95",
+      "matches": true
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/docs/business-completion-plan.md",
+      "expected": "7e1c0854d09d8470eeb3dbe81e1a6c7879f40d21a4c1767200984e7c5130f6f6",
+      "actual": "7e1c0854d09d8470eeb3dbe81e1a6c7879f40d21a4c1767200984e7c5130f6f6",
+      "matches": true
+    },
+    {
+      "path": "docs/compatibility.md",
+      "expected": "9769a2e000846f3811afc24763c20c69e9f7c912b07f1607cc9dd29f9b3f0646",
+      "actual": "9769a2e000846f3811afc24763c20c69e9f7c912b07f1607cc9dd29f9b3f0646",
+      "matches": true
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/BusinessDataTests.cs",
+      "expected": "93b64e5730232dc9c62e8546c241fd8a418339e799682de46a5d0941b60e2854",
+      "actual": "93b64e5730232dc9c62e8546c241fd8a418339e799682de46a5d0941b60e2854",
+      "matches": true
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/docs/business-data-probe.md",
+      "expected": "d1bc7783bc49e6842f8b8ebf6044240c132d6c8b0dd51eb2f14b13ba4fcb932c",
+      "actual": "d1bc7783bc49e6842f8b8ebf6044240c132d6c8b0dd51eb2f14b13ba4fcb932c",
+      "matches": true
+    }
+  ],
+  "candidateChecks": [
+    {
+      "file": "TownHallInterior.dll",
+      "expected": "2e519ccfdc58053281dc67ffd91e2c1b53d523aa2941657e7b8e1fcd7dd81357",
+      "actual": "2e519ccfdc58053281dc67ffd91e2c1b53d523aa2941657e7b8e1fcd7dd81357"
+    },
+    {
+      "file": "TownHallInterior.pdb",
+      "expected": "724340a903ac5719dbd333c33d8eab1f8fbffa1b92c3eb1415261f83e0a40f49",
+      "actual": "724340a903ac5719dbd333c33d8eab1f8fbffa1b92c3eb1415261f83e0a40f49"
+    }
+  ],
+  "modMetadataSha256": "65938002b7273ef77dedbadf9092a186e6742f1e40fe404ef91576d3e4f81660",
+  "gameAndSaveFilesRead": false,
+  "buildsPerformed": false,
+  "deployed": false,
+  "status": "passed"
+}

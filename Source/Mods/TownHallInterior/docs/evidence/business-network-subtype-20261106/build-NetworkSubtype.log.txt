@@ -1,0 +1,8 @@
+  Shared -> C:\Users\pc\Schedule1-mod-only\Source\Mods\Shared\src\bin\Release\net6.0\Shared.dll
+  TownHallInterior -> C:\Users\pc\Schedule1-mod-only\Source\Mods\TownHallInterior\src\bin\Release\net6.0\TownHallInterior.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:01.44

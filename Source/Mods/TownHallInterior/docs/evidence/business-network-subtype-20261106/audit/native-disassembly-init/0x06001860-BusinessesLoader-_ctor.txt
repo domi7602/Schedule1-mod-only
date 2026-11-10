@@ -1,0 +1,13 @@
+; ScheduleOne.Persistence.Loaders.BusinessesLoader::.ctor/0, token 0x06001860, RVA 0x41D580, next-pointer window 0x10 bytes
+; No target execution. Parser-pointer window can contain padding/cold fragments and is not exact/full function, EH or transitive coverage. Shared direct aliases are truncated to eight names.
+0x41D580     33 D2                           xor edx,edx
+0x41D582     E9 39 29 02 00                  jmp near ptr 000000018043FEC0h ; VFXRainPass::Dispose/0 | LightningLightController+<DoStrikeRoutine>d__7::System.IDisposable.Dispose/0 | ActionList+<<InvokeAllStaggered>g__StaggeredInvoke|6_0>d::System.IDisposable.Dispose/0 | CameraCaptureToPNG+<CaptureCameraView>d__5::System.IDisposable.Dispose/0 | DeveloperManager+<DoDeveloperRoutine>d__9::System.IDisposable.Dispose/0 | UnityServicesManager::Start/0 | UnityServicesManager::Update/0 | EntityConfigurationData::Start/0 | ... SHARED TARGET: 1731 aliases
+0x41D587     CC                              int 3
+0x41D588     CC                              int 3
+0x41D589     CC                              int 3
+0x41D58A     CC                              int 3
+0x41D58B     CC                              int 3
+0x41D58C     CC                              int 3
+0x41D58D     CC                              int 3
+0x41D58E     CC                              int 3
+0x41D58F     CC                              int 3

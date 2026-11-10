@@ -1,0 +1,20 @@
+{
+  "Schema": 1,
+  "Project": "TownHallInterior",
+  "GameDir": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Schedule I",
+  "CreatedUtc": "2026-11-05T07:02:47.7716453Z",
+  "Entries": [
+    {
+      "DestinationRelative": "Mods\\TownHallInterior.dll",
+      "Destination": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Schedule I\\Mods\\TownHallInterior.dll",
+      "Backup": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Schedule I\\UserData\\.deploy\\backups\\20261105T070247752Z-TownHallInterior-41bf1114\\000-TownHallInterior.dll",
+      "Sha256": "CFF67A85C0D922EA0AEC7BD8FFC0AFFCF9FBB23A1576D1CD57C908FDA165FA6A"
+    },
+    {
+      "DestinationRelative": "UserData\\TownHallInterior\\TownHallInterior.pdb",
+      "Destination": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Schedule I\\UserData\\TownHallInterior\\TownHallInterior.pdb",
+      "Backup": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Schedule I\\UserData\\.deploy\\backups\\20261105T070247752Z-TownHallInterior-41bf1114\\001-TownHallInterior.pdb",
+      "Sha256": "C1A78E0DC07EE23897738C5FC8603387359D483F61A122B615BE83638F206A99"
+    }
+  ]
+}

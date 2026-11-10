@@ -54,6 +54,28 @@ public sealed class FurniturePlanTests
     }
 
     [Fact]
+    public void UpperCabinetsFaceIntoTheRoomAndTheArchiveStartsAtTheNorthWallEnd()
+    {
+        // Cabinet asset: drawer fronts on local +X; the facing is (cos yaw, -sin yaw).
+        var rows = System.Text.Json.JsonSerializer.SerializeToElement(FurniturePlan.Create(Native()))
+            .EnumerateArray().Where(r => r.GetProperty("Key").GetString() == "cabinet"
+                && r.GetProperty("Y").GetDouble() > 4).ToArray();
+        Assert.Equal(9, rows.Length);
+        foreach (var r in rows)
+        {
+            string name = r.GetProperty("Name").GetString()!;
+            double yaw = r.GetProperty("Yaw").GetDouble() * Math.PI / 180;
+            double fx = Math.Cos(yaw), fz = -Math.Sin(yaw);
+            if (name.StartsWith("archive-")) { Assert.True(fx < -.99, name + " must face -X, away from the east wall"); }
+            else { Assert.True(fz > .99, name + " must face +Z, away from the south wall"); }
+        }
+        var archive = rows.Where(r => r.GetProperty("Name").GetString()!.StartsWith("archive-"))
+            .Select(r => r.GetProperty("Z").GetDouble()).ToArray();
+        Assert.True(archive.Max() > 40.5, "Archive row begins at the north wall end");
+        Assert.True(archive.Min() > 37.5, "Stairwell side of the east wall stays free");
+    }
+
+    [Fact]
     public void EveryChairSitsInAKneeSpaceAndFacesThatDesk()
     {
         // Desk asset: 1.0 x 2.0 m, closed modesty panel on local -X, open knee space on local +X
@@ -115,9 +137,9 @@ public sealed class FurniturePlanTests
         Assert.NotNull(create);
         var plan = create.Invoke(null, new object[] { doc });
         var rows = System.Text.Json.JsonSerializer.SerializeToElement(plan).EnumerateArray().ToArray();
-        Assert.Equal(55, rows.Length); // 20 earth storey + 35 upper storey
+        Assert.Equal(36, rows.Length); // 15 earth storey + 21 upper storey
         Assert.Equal(rows.Length, rows.Select(r => r.GetProperty("Name").GetString()).Distinct().Count());
-        Assert.Equal(11, rows.Count(r => r.GetProperty("Key").GetString() == "chair"));
+        Assert.Equal(6, rows.Count(r => r.GetProperty("Key").GetString() == "chair"));
         // Waiting zone: benches replace the eight loose chairs; two scaled plants frame the corners.
         Assert.Equal(5, rows.Count(r => r.GetProperty("Key").GetString() == "plant" && r.GetProperty("Scale").GetDouble() != 1d));
         var placed = new List<(string Name, string Key, bool Solid, double[] Min, double[] Max)>();

@@ -1,0 +1,54 @@
+; FishNet.Object.NetworkObject::SetChildDespawnedState/0, token 0x060006EF, RVA 0xCCE4A0, .pdata primary extent 0xB4 bytes
+; Raw native bytes decoded without invoking the game. .pdata primary extent is not a proof of full transitive/exception-path coverage.
+0xCCE4A0     48 89 5C 24 10                  mov [rsp+10h],rbx
+0xCCE4A5     56                              push rsi
+0xCCE4A6     48 83 EC 20                     sub rsp,20h
+0xCCE4AA     80 3D C0 27 F3 02 00            cmp byte ptr [183C00C71h],0
+0xCCE4B1     48 8B F1                        mov rsi,rcx
+0xCCE4B4     75 1F                           jne short 0000000180CCE4D5h
+0xCCE4B6     48 8D 0D 03 F9 CB 02            lea rcx,[18398DDC0h]
+0xCCE4BD     E8 DE 93 64 FF                  call 00000001803178A0h
+0xCCE4C2     48 8D 0D CF F9 CB 02            lea rcx,[18398DE98h]
+0xCCE4C9     E8 D2 93 64 FF                  call 00000001803178A0h
+0xCCE4CE     C6 05 9C 27 F3 02 01            mov byte ptr [183C00C71h],1
+0xCCE4D5     48 8B 46 58                     mov rax,[rsi+58h]
+0xCCE4D9     33 DB                           xor ebx,ebx
+0xCCE4DB     33 D2                           xor edx,edx
+0xCCE4DD     48 89 7C 24 30                  mov [rsp+30h],rdi
+0xCCE4E2     48 85 C0                        test rax,rax
+0xCCE4E5     74 67                           je short 0000000180CCE54Eh
+0xCCE4E7     3B 50 18                        cmp edx,[rax+18h]
+0xCCE4EA     7D 52                           jge short 0000000180CCE53Eh
+0xCCE4EC     48 8B 4E 58                     mov rcx,[rsi+58h]
+0xCCE4F0     48 85 C9                        test rcx,rcx
+0xCCE4F3     74 59                           je short 0000000180CCE54Eh
+0xCCE4F5     4C 8B 05 9C F9 CB 02            mov r8,[18398DE98h]
+0xCCE4FC     8B D3                           mov edx,ebx
+0xCCE4FE     E8 2D 87 B8 00                  call 0000000181856C30h
+0xCCE503     48 8B F8                        mov rdi,rax
+0xCCE506     48 85 C0                        test rax,rax
+0xCCE509     74 43                           je short 0000000180CCE54Eh
+0xCCE50B     33 D2                           xor edx,edx
+0xCCE50D     48 8B C8                        mov rcx,rax
+0xCCE510     E8 9B 5E EA 01                  call 0000000182B743B0h ; UnityEngine.Component::get_gameObject/0
+0xCCE515     48 85 C0                        test rax,rax
+0xCCE518     74 34                           je short 0000000180CCE54Eh
+0xCCE51A     33 D2                           xor edx,edx
+0xCCE51C     48 8B C8                        mov rcx,rax
+0xCCE51F     E8 1C A4 EA 01                  call 0000000182B78940h ; UnityEngine.GameObject::get_activeSelf/0
+0xCCE524     84 C0                           test al,al
+0xCCE526     75 07                           jne short 0000000180CCE52Fh
+0xCCE528     C6 87 A0 00 00 00 02            mov byte ptr [rdi+0A0h],2
+0xCCE52F     48 8B 46 58                     mov rax,[rsi+58h]
+0xCCE533     FF C3                           inc ebx
+0xCCE535     8B D3                           mov edx,ebx
+0xCCE537     48 85 C0                        test rax,rax
+0xCCE53A     74 12                           je short 0000000180CCE54Eh
+0xCCE53C     EB A9                           jmp short 0000000180CCE4E7h
+0xCCE53E     48 8B 7C 24 30                  mov rdi,[rsp+30h]
+0xCCE543     48 8B 5C 24 38                  mov rbx,[rsp+38h]
+0xCCE548     48 83 C4 20                     add rsp,20h
+0xCCE54C     5E                              pop rsi
+0xCCE54D     C3                              ret
+0xCCE54E     E8 2D 96 64 FF                  call 0000000180317B80h
+0xCCE553     CC                              int 3

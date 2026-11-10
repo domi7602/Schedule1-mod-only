@@ -1,0 +1,528 @@
+{
+  "schema": 1,
+  "checkedUtc": "2026-11-05T09:01:15.660208+00:00",
+  "kind": "Read-only byte/hash/control-transfer check, not a second full decoder or semantic proof",
+  "sourceRevision": "b2c6c7e6c6ecc778da9624cdb68a6578b9db471a",
+  "sourceWorktree": "dirty",
+  "inputs": [
+    {
+      "path": "GameAssembly.dll",
+      "sha256": "61829050e56ca180d67be592e4bfe61ec97d2e9573f720d90a54e318a7e4381d",
+      "unchanged": true
+    },
+    {
+      "path": "Schedule I_Data/il2cpp_data/Metadata/global-metadata.dat",
+      "sha256": "e775c97da277da8eb1a90265478f3b65c9c3d6464aff4f7255d45280a1d1181f",
+      "unchanged": true
+    },
+    {
+      "path": "MelonLoader/Il2CppAssemblies/Assembly-CSharp.dll",
+      "sha256": "346205306273805a78b01a917f14b94518498af1361595c4c417baa0b32b4bd8",
+      "unchanged": true
+    },
+    {
+      "path": "MelonLoader/Dependencies/Il2CppAssemblyGenerator/Cpp2IL/Cpp2IL.exe",
+      "sha256": "663fb432433b4371fd1ee0ebc321a8fff2a9aac5ac4230c843f9e03ddee4e04c",
+      "unchanged": true
+    },
+    {
+      "path": "MelonLoader/Dependencies/Il2CppAssemblyGenerator/Cpp2IL/cpp2il_out/Assembly-CSharp.dll",
+      "sha256": "1aec8c918c39ff75f0e4d8e2c38bd11752c593119701d7e524a4ee82fdc30f21",
+      "unchanged": true
+    },
+    {
+      "path": "Mods/TownHallInterior.dll",
+      "sha256": "614b81fd584040d4cebe7a18929bca09eabae478a6487ec6d846ea01d6062003",
+      "unchanged": true
+    },
+    {
+      "path": "UserData/TownHallInterior/TownHallInterior.pdb",
+      "sha256": "8126ae65f5c12f6e8261af0a1734e622d8c0ab5522a91e6653c7b1ffd7d8c497",
+      "unchanged": true
+    },
+    {
+      "path": "UserData/TownHallInterior/mod.json",
+      "sha256": "65938002b7273ef77dedbadf9092a186e6742f1e40fe404ef91576d3e4f81660",
+      "unchanged": true
+    }
+  ],
+  "protectedSources": [
+    {
+      "path": "Source/Mods/TownHallInterior/src/BusinessBindingProbe.cs",
+      "sha256": "fb82cfafbee2f92b7c52d76edc9a3fe417cb905ad7f20a90a082ce681efa7fa1",
+      "unchanged": true
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/BusinessConstruction.cs",
+      "sha256": "8964512eeb94ae63acadbe5cd47caa7c36a325e10cd75af73cc5c1091c4db5d2",
+      "unchanged": true
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/BusinessProbeEvidence.cs",
+      "sha256": "37ce332858d00368ebde93c3f13af3b20482d0de15f07b559e34078597603458",
+      "unchanged": true
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/CleanupJournal.cs",
+      "sha256": "310955ae9d1f5115941ef5bf7920ed49f6ff47086d8187fe050f444f63f09b76",
+      "unchanged": true
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/DoorAdapter.cs",
+      "sha256": "6d5e638b3217b24d3d4a86ea768912e26bdf73449cef98196502586f036a6341",
+      "unchanged": true
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/DoorChoice.cs",
+      "sha256": "42093f9e71f5c4fe832dac0eff888654163389b86dac1d6be494f7f715943201",
+      "unchanged": true
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/DoorHook.cs",
+      "sha256": "10bfdd035b414e0727c01aef12a08b1fb0a33abbd897a6c3efc79e7da006934c",
+      "unchanged": true
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/FacadePortal.cs",
+      "sha256": "4b2cc05e14353fddccc2ddb404fed35b1859d950f5e80e6a6735a8d196cf2270",
+      "unchanged": true
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/FurniturePlan.cs",
+      "sha256": "17e8402738ff124a54f1e61a076618894a6ca5b3d3e6733242f71217a5a18e6b",
+      "unchanged": true
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/HallFittings.cs",
+      "sha256": "210301b0663b1a0b3fdbedbcb2231a007d62f2d0bb19828250c4ffd6fddc7492",
+      "unchanged": true
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/Mod.cs",
+      "sha256": "82323dd725b033b124c0f5edd6252730676f3f1910bdd402441945f0fe4e9385",
+      "unchanged": true
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/NativeFacadeSwap.cs",
+      "sha256": "58542a588017f540a7b546845b038174d96ef761acfacd7101c0004a5ceae5e3",
+      "unchanged": true
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/NativeSceneSwap.cs",
+      "sha256": "a526e26ffb62fbf08ad8e3725779c83dbc85558fcb22a1b34cb12dc061bed6aa",
+      "unchanged": true
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/PublicEntrance.cs",
+      "sha256": "4fdb304a13cd24a496e9368c211bf09f8aaf1da9041a8912fdb364f46ec9dd5f",
+      "unchanged": true
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/PublicHallHost.cs",
+      "sha256": "d85708f66705a1ac87aec2d1def1f4daff0cebabd78b459b93a589418be65bcc",
+      "unchanged": true
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/RoomBuilder.cs",
+      "sha256": "44b555668aecbb0055b902d204716861399ee59e439971f842d5f0b4a3a48f68",
+      "unchanged": true
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/RoomPlan.cs",
+      "sha256": "ebe89aa2620044c170f08c33382aa420bb1aa22e78d56ed74b97a4561f864233",
+      "unchanged": true
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/TownHallInterior.csproj",
+      "sha256": "c730506d8c85e9d9fb88def2c397920f408b7771576a59aacc2c4b183bcde9df",
+      "unchanged": true
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/UnityRoomSink.cs",
+      "sha256": "646b693e349e61126bc548c59e9bdf8e4f978787eeab1173a8535323f9588d17",
+      "unchanged": true
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/VanillaFurnishings.cs",
+      "sha256": "c434ab9c4b0055c531250b5a45b672703e266fbe962e3934ffa58f951cce98aa",
+      "unchanged": true
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/BusinessActivationTests.cs",
+      "sha256": "c43b5aa08c51a151d042f4a8e4a0c56cd79892ed98723e4fb883bba57b1b8a7f",
+      "unchanged": true
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/BusinessConstructionTests.cs",
+      "sha256": "43ac3184d66a64bfc6ae9b6ba6587df6a3eb333575d93cc187c291e45e7630b8",
+      "unchanged": true
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/BusinessInterfaceTests.cs",
+      "sha256": "d1b13f70314555a2702d732b078bafb9cef7e9b71eaea8249b74ae8736bd2abf",
+      "unchanged": true
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/BusinessManagerAuditTests.cs",
+      "sha256": "164eaeb014c1d63b776c47d0dd105f4f12bec79d4ffb02a135d3da5f5f82323d",
+      "unchanged": true
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/BusinessManagerSafetyTests.cs",
+      "sha256": "ead2dbe76be2679c8be006b114075c55d58b1cddfe08e292f8551c225f70a035",
+      "unchanged": true
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/BusinessManagerSaveTests.cs",
+      "sha256": "0d9fe4fe204e20a6850945b4a7c32c3285cc060942140b9837ac3aafc34aa963",
+      "unchanged": true
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/BusinessManagerTests.cs",
+      "sha256": "d62a8ad7a82e9cedd7554e7e489cba55fee62409dd3de347130575fb69524b1e",
+      "unchanged": true
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/BusinessProbeEvidenceTests.cs",
+      "sha256": "71797f12c5f96f633d44127a08cbdaf93dba26dc75a521c648d130f6b5b3d9de",
+      "unchanged": true
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/BusinessSubtypeTests.cs",
+      "sha256": "d58b1b960098861782725d71811fa17f27b0bf195d8e25ef37a5c586674f380a",
+      "unchanged": true
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/BusinessTypeResolutionTests.cs",
+      "sha256": "58325e28dc822ffe2cc493c1f426d1c3acf3147efa457edc32f93e317aa82c46",
+      "unchanged": true
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/CleanupJournalTests.cs",
+      "sha256": "1fc594bb24f1ac542d5ee8878ce88b54b7d295b132cce3112dc0d40c4708f1cb",
+      "unchanged": true
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/DoorAdapterTests.cs",
+      "sha256": "97e44aee74c74d5ba2f5672deec7319876eb3b1b2b8c71a12ca516f839ed907e",
+      "unchanged": true
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/DoorChoiceTests.cs",
+      "sha256": "6f9f493e814b8a6db340d916f3932d5b68b77a48b608c86e6bdaa6bb85d01946",
+      "unchanged": true
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/EnclosureTests.cs",
+      "sha256": "cc381927c62e5bdbb2f412bab72abd88a66ccd6780f5f260d26003caaa3814db",
+      "unchanged": true
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/FacadePortalTests.cs",
+      "sha256": "876eff42444821a38103b7b97173b30b4d2bb3c94aa8856b48510ff81f7bbced",
+      "unchanged": true
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/FurniturePlanTests.cs",
+      "sha256": "99f99db70533724fe939aa73b6b2bafac295d361d9280f92a42f6001eb4594aa",
+      "unchanged": true
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/HallFittingsTests.cs",
+      "sha256": "8d18df41130233be9543c38d419ef36273f2ae2d09bba520e6abfc57799a7209",
+      "unchanged": true
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/NativeSceneSwapTests.cs",
+      "sha256": "d77efe579cd909c42dc48245b427d30c59874955c1b0dcdb6652a110f441d37c",
+      "unchanged": true
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/PublicEntranceTests.cs",
+      "sha256": "1ab9d7d8825911ea4777ea56fd109bf2f7a4ef679f258108c98a42580e80d6c3",
+      "unchanged": true
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/RoomPlanTests.cs",
+      "sha256": "fdeb4a9c49d2e83b71e0edeb50ed3f0f5e68ce6508801198bedca997638a71a3",
+      "unchanged": true
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/TownHallInterior.Tests.csproj",
+      "sha256": "dc582cf6a85f3c98417c83cd67a65f28b8f8739bb1a1507fe665eaa52ceec26c",
+      "unchanged": true
+    }
+  ],
+  "nativeWindows": [
+    {
+      "file": "native-disassembly-v4/0x06001784-Save.json",
+      "token": "0x06001784",
+      "rva": "0x583a50",
+      "bytes": 352,
+      "instructions": 101,
+      "directTransfersChecked": 21,
+      "bytesSha256": "936660409f10f96cce813920a3a623e578a5aa84df9b28dda1adb53f95919d0f",
+      "primaryPdataMatches": true
+    },
+    {
+      "file": "native-disassembly-v4/0x06001785-WriteBaseData.json",
+      "token": "0x06001785",
+      "rva": "0x583e70",
+      "bytes": 912,
+      "instructions": 223,
+      "directTransfersChecked": 61,
+      "bytesSha256": "403722a870f8948f87ce1d43d6b409fdbb8617b5604984fb413a931a8977ba28",
+      "primaryPdataMatches": true
+    },
+    {
+      "file": "native-disassembly-v4/0x06001787-CompleteSave.json",
+      "token": "0x06001787",
+      "rva": "0x582f00",
+      "bytes": 2368,
+      "instructions": 565,
+      "directTransfersChecked": 137,
+      "bytesSha256": "8cd46f2fef9c1530e353f7fc3cd4f839f526555a04e924930520ee9b5773cb44",
+      "primaryPdataMatches": true
+    },
+    {
+      "file": "native-disassembly-v4/0x06001788-WriteData.json",
+      "token": "0x06001788",
+      "rva": "0x584200",
+      "bytes": 96,
+      "instructions": 30,
+      "directTransfersChecked": 5,
+      "bytesSha256": "43a46ee68a950225dedf5b73cb9294536b90573dca2d94d16cf7831b5f1bd3bd",
+      "primaryPdataMatches": true
+    },
+    {
+      "file": "native-disassembly-v4/0x0600178B-WriteSubfile.json",
+      "token": "0x0600178B",
+      "rva": "0x5846a0",
+      "bytes": 1104,
+      "instructions": 263,
+      "directTransfersChecked": 74,
+      "bytesSha256": "3698807d6e2347d8ec1c79658fcf801a5bc5ebc9920e8349c707d09d7b8dc7ae",
+      "primaryPdataMatches": true
+    },
+    {
+      "file": "native-disassembly-v4/0x0600178C-WriteFolder.json",
+      "token": "0x0600178C",
+      "rva": "0x584260",
+      "bytes": 1088,
+      "instructions": 252,
+      "directTransfersChecked": 74,
+      "bytesSha256": "1deed6e1b214b739de3e010202220af30cabd399376011ace0355975692ae03f",
+      "primaryPdataMatches": true
+    },
+    {
+      "file": "native-disassembly-v4/0x06001815-ReportSaveError.json",
+      "token": "0x06001815",
+      "rva": "0x5aa710",
+      "bytes": 64,
+      "instructions": 21,
+      "directTransfersChecked": 2,
+      "bytesSha256": "b98ac133af4fa29bfd9f70ac74a24fb77fa3c09634c0f5cbac8034d68eac35fa",
+      "primaryPdataMatches": true
+    },
+    {
+      "file": "native-disassembly-v4/0x06001823-Awake.json",
+      "token": "0x06001823",
+      "rva": "0x5a8f70",
+      "bytes": 704,
+      "instructions": 173,
+      "directTransfersChecked": 59,
+      "bytesSha256": "97820d9334a7d96d29504e0d73f6ac40865b85e4059014ba7044716c55eccb22",
+      "primaryPdataMatches": true
+    },
+    {
+      "file": "native-disassembly-v4/0x06001824-Start.json",
+      "token": "0x06001824",
+      "rva": "0x5aacb0",
+      "bytes": 272,
+      "instructions": 72,
+      "directTransfersChecked": 17,
+      "bytesSha256": "bc00755902a69fa83f77cb8a703ebc99e71a773a7ea7d451690cb7217d00c428",
+      "primaryPdataMatches": true
+    },
+    {
+      "file": "native-disassembly-v4/0x06001827-Update.json",
+      "token": "0x06001827",
+      "rva": "0x5aae30",
+      "bytes": 176,
+      "instructions": 48,
+      "directTransfersChecked": 10,
+      "bytesSha256": "f633b506d54a156adfdf44b8e5f4f086e65a9149fdcfab34683c5c62ae949da3",
+      "primaryPdataMatches": true
+    },
+    {
+      "file": "native-disassembly-v4/0x06001828-Save.json",
+      "token": "0x06001828",
+      "rva": "0x5aa800",
+      "bytes": 144,
+      "instructions": 42,
+      "directTransfersChecked": 9,
+      "bytesSha256": "cd31db5690fa89499b8945b55ed95175f2f812319d11289fef2098df428f5393",
+      "primaryPdataMatches": true
+    },
+    {
+      "file": "native-disassembly-v4/0x06001829-Save.json",
+      "token": "0x06001829",
+      "rva": "0x5aa890",
+      "bytes": 1056,
+      "instructions": 242,
+      "directTransfersChecked": 78,
+      "bytesSha256": "aebff4f5cd76c66940ff4a526ad16844b4769e2ff4c58ee06f260bffea5a40f3",
+      "primaryPdataMatches": true
+    },
+    {
+      "file": "native-disassembly-v4/0x0600182B-CompleteSaveable.json",
+      "token": "0x0600182B",
+      "rva": "0x5a9aa0",
+      "bytes": 208,
+      "instructions": 58,
+      "directTransfersChecked": 14,
+      "bytesSha256": "5a6d419e2dfad463ebe9e9d4116229c32e12b843ebbc4c1c2cbf2dffcc7faa76",
+      "primaryPdataMatches": true
+    },
+    {
+      "file": "native-disassembly-v4/0x0600182C-ClearCompletedSaveable.json",
+      "token": "0x0600182C",
+      "rva": "0x5a9a40",
+      "bytes": 96,
+      "instructions": 33,
+      "directTransfersChecked": 5,
+      "bytesSha256": "61ed64d4d2bf7abb68797e2fa02713b0cdc37c2c499d6cec0e8ead13ee5db9a2",
+      "primaryPdataMatches": true
+    },
+    {
+      "file": "native-disassembly-v4/0x0600182E-RegisterSaveable.json",
+      "token": "0x0600182E",
+      "rva": "0x5aa5c0",
+      "bytes": 336,
+      "instructions": 86,
+      "directTransfersChecked": 21,
+      "bytesSha256": "15eb61c6de90a2a89a3fea66ffe4686e19119394abd9d77ac665195446d967f7",
+      "primaryPdataMatches": true
+    },
+    {
+      "file": "native-disassembly-v4/0x0600182F-QueueSaveRequest.json",
+      "token": "0x0600182F",
+      "rva": "0x5aa510",
+      "bytes": 176,
+      "instructions": 50,
+      "directTransfersChecked": 10,
+      "bytesSha256": "7a0948bc8908503ecc609b37de39aa057b45e6103818c1e709b52a83856eccb7",
+      "primaryPdataMatches": true
+    },
+    {
+      "file": "native-disassembly-v4/0x06001830-DequeueSaveRequest.json",
+      "token": "0x06001830",
+      "rva": "0x5a9fa0",
+      "bytes": 96,
+      "instructions": 33,
+      "directTransfersChecked": 5,
+      "bytesSha256": "51161c61d4a1a4fcee6a7810b4772135c40c5e4427c7b82360bee79093a29857",
+      "primaryPdataMatches": true
+    },
+    {
+      "file": "native-disassembly-v4/0x06001834-Clean.json",
+      "token": "0x06001834",
+      "rva": "0x5a94e0",
+      "bytes": 160,
+      "instructions": 51,
+      "directTransfersChecked": 10,
+      "bytesSha256": "0af8f80860459954ee799b804ba303fdab88504ccc4c1677e78ec83e6f083444",
+      "primaryPdataMatches": true
+    },
+    {
+      "file": "native-disassembly-v4/0x06001837-_ctor.json",
+      "token": "0x06001837",
+      "rva": "0x5aaee0",
+      "bytes": 512,
+      "instructions": 107,
+      "directTransfersChecked": 31,
+      "bytesSha256": "2fe0bc04798612cf286e0947fe32b973e07c9166b18ae29deb039d64a66794b6",
+      "primaryPdataMatches": true
+    },
+    {
+      "file": "native-disassembly-v4/0x0600183A-_ctor.json",
+      "token": "0x0600183A",
+      "rva": "0x52d2b0",
+      "bytes": 48,
+      "instructions": 24,
+      "directTransfersChecked": 1,
+      "bytesSha256": "6502c119b9afe7e46a4babff4a83b65c81029c766464f8640075f26b0a11f277",
+      "primaryPdataMatches": true
+    },
+    {
+      "file": "native-disassembly-v4/0x0600183C-MoveNext.json",
+      "token": "0x0600183C",
+      "rva": "0x5b0c20",
+      "bytes": 2240,
+      "instructions": 516,
+      "directTransfersChecked": 153,
+      "bytesSha256": "cd6be8bf0c6c2f67131c4681a72f3658377c8c4142d5c9df9f0bb48cec903af7",
+      "primaryPdataMatches": true
+    },
+    {
+      "file": "native-disassembly-v4/0x0600184A-_ctor.json",
+      "token": "0x0600184A",
+      "rva": "0x5abbc0",
+      "bytes": 816,
+      "instructions": 209,
+      "directTransfersChecked": 47,
+      "bytesSha256": "8badad5c65c06fca04d04288a58086597c86df68cc67d6f6909c4188c292a16a",
+      "primaryPdataMatches": true
+    },
+    {
+      "file": "native-disassembly-v4/0x0600184B-Complete.json",
+      "token": "0x0600184B",
+      "rva": "0x5aba60",
+      "bytes": 352,
+      "instructions": 86,
+      "directTransfersChecked": 19,
+      "bytesSha256": "0dc7ca7a1685ce48e3d87e5890bda044c1811a03c7d04a2df588b6934fc8d06b",
+      "primaryPdataMatches": true
+    }
+  ],
+  "nativeWriteRouteAllowed": false,
+  "targetAssemblyLoadedOrInvoked": false,
+  "nativeSaveFilesRead": false,
+  "generatorBinding": {
+    "sha512Matches": true,
+    "nativeSha512": "872dfb646c9b866c53dae12d7a34e1f9df21a3e16fac6b7c6cd21bf5fc8e4b3f99932163c5de7e3798d37641712e82b914d46e1f023d56e77970be84fb74ec3a",
+    "configSha256": "09ab7b1947ba4f5aa8ae73b29004adae1175119afdefc12c1ac2765d68e4c7b7"
+  },
+  "mapping": {
+    "selectedMethods": 70,
+    "globalMetadataMethods": 149349,
+    "metadataParserVersion": 31.1,
+    "dummyAddressTokensCrossChecked": 50,
+    "focusedFieldOffsetsChecked": 10,
+    "interfaceSlotsChecked": {
+      "WriteBaseData": 13,
+      "CompleteSave": 15
+    }
+  },
+  "s1apiRecheck": {
+    "sha256": "d751a3cb66003f7a616eb9f8054daf34da0d9d7f23416a5005a586738a680852",
+    "unchanged": true
+  },
+  "counts": {
+    "TypeInfo": 145,
+    "instructions": 3285,
+    "directTransfers": 863,
+    "rawBytes": 13376,
+    "StringLiteral": 86,
+    "MethodRef": 109,
+    "MethodDef": 2
+  },
+  "resolutionErrors": 0,
+  "status": "pass-bounded-integrity-checks-no-save-or-release-approval",
+  "limits": [
+    "Instruction bytes and relative branch targets are checked independently of the PowerShell exporter; x64 mnemonics are not decoded a second time.",
+    "Metadata symbols/slots/offsets rely on the fresh LibCpp2IL map; hashes and selected dummy tokens bind inputs, not every semantic annotation.",
+    "Window ends at the next distinct managed-method pointer; padding/cold fragments are included, exact full function/exception/transitive coverage is not claimed.",
+    "No runtime observation, no last-use proof, no success/atomicity/durability proof, no save-file comparison."
+  ]
+}

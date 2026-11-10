@@ -1,4 +1,22 @@
 <Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup Condition="'$(S1TownHallBusinessData)' == 'true'">
+    <DefineConstants>$(DefineConstants);TOWNHALL_BUSINESS_PROBE;TOWNHALL_BUSINESS_SUBTYPE;TOWNHALL_BUSINESS_ACTIVE_SUBTYPE;TOWNHALL_BUSINESS_NETWORK_SUBTYPE;TOWNHALL_BUSINESS_DATA</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(S1TownHallBusinessData)' == 'true' And ('$(S1TownHallBusinessNetworkSubtype)' == 'true' Or '$(S1TownHallBusinessActiveSubtype)' == 'true' Or '$(S1TownHallBusinessManager)' == 'true' Or '$(S1TownHallBusinessInterface)' == 'true' Or '$(S1TownHallBusinessConstruction)' == 'true' Or '$(S1TownHallBusinessSubtype)' == 'true' Or '$(S1TownHallBusinessActivation)' == 'true' Or '$(S1TownHallBusinessProbe)' == 'true')">
+    <DefineConstants>$(DefineConstants);TOWNHALL_BUSINESS_DATA_CONFLICT</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(S1TownHallBusinessNetworkSubtype)' == 'true'">
+    <DefineConstants>$(DefineConstants);TOWNHALL_BUSINESS_PROBE;TOWNHALL_BUSINESS_SUBTYPE;TOWNHALL_BUSINESS_ACTIVE_SUBTYPE;TOWNHALL_BUSINESS_NETWORK_SUBTYPE</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(S1TownHallBusinessNetworkSubtype)' == 'true' And '$(S1TownHallBusinessActiveSubtype)' == 'true'">
+    <DefineConstants>$(DefineConstants);TOWNHALL_BUSINESS_NETWORK_CONFLICT</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(S1TownHallBusinessActiveSubtype)' == 'true'">
+    <DefineConstants>$(DefineConstants);TOWNHALL_BUSINESS_PROBE;TOWNHALL_BUSINESS_SUBTYPE;TOWNHALL_BUSINESS_ACTIVE_SUBTYPE</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(S1TownHallBusinessManager)' == 'true'">
     <DefineConstants>$(DefineConstants);TOWNHALL_BUSINESS_PROBE;TOWNHALL_BUSINESS_SUBTYPE;TOWNHALL_BUSINESS_MANAGER</DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -28,5 +46,6 @@
     <!-- Local, hash-pinned native slices; do not distribute this data or the DLL embedding it. -->
     <EmbeddedResource Include="../assets/native-facade.json" LogicalName="TownHallInterior.NativeFacade" />
     <EmbeddedResource Include="../assets/native-furniture.json" LogicalName="TownHallInterior.NativeFurniture" />
+    <EmbeddedResource Include="../assets/townhall_listing.png" LogicalName="TownHallInterior.TownHallListing" />
   </ItemGroup>
 </Project>
