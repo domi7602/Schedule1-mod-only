@@ -485,6 +485,7 @@ public class NavigationTargetExecutionTests
             /* COMMANDS */
         }
         public static class SpikeRunner {
+            private sealed class FinalRetreat { }
             /* FIELDS */
             /* RUNNER */
             private static bool PlayerDriver(LandVehicle v) => Native.PlayerDriver;

@@ -346,6 +346,7 @@ public class SupervisorArrivalRecoveryTests
             private static bool TryFreeSpotRescue(LandVehicle veh, VehicleAgent agent, string context) { SeenRescues++; return false; }
             private readonly struct StaticBlocker { }
             private sealed class DetourDrive { }
+            private sealed class FinalRetreat { }
             private static StaticBlocker? ObserveDetourBlocker(LandVehicle veh, VehicleAgent agent, Vector3 position) => null;
             private static bool TryStartDetour(LandVehicle veh, VehicleAgent agent, StaticBlocker blocker) => false;
             private static bool TryQueueDetourReverse(LandVehicle veh, VehicleAgent agent, StaticBlocker hit, float now) => false;

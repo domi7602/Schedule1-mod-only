@@ -1,5 +1,264 @@
 # Changelog
 
+## Local control without the pose fixture — 1.0.6 (2026-11-12)
+
+- Session 14 used unchanged Guard `7e5bc3e0…` after the temporary pose
+  fixture was removed with the game closed. A normal pickup and passenger
+  trip reached the regular Bungalow stop at 2.8 m with callback `Complete`
+  at 13:19:26.163. One recovery confirmed 2.8 m of directed reverse in the
+  existing 1.5-second window; road assistance recorded one nudge and no snaps.
+- The $49 fare has 49 separate $1 balance readbacks matching the charged
+  amounts, beyond the terminal payment-return summary alone. A subsequent
+  read-only player query showed $459,951 cash and $290,000 bank. All 79
+  native save files remained byte-identical after normal shutdown.
+- Together with the controlled session 13 pass below, this establishes
+  the repaired departure and a normal control on the final Guard. A natural
+  fourth recovery episode remains an additional unobserved test case; the
+  automated last-grant checks and earlier controlled fourth episode must
+  not be represented as that missing natural observation.
+
+## Local bounded retreat for the native departure connection — 1.0.6 (2026-11-12)
+
+- Controlled session 12 on Guard `a729cbd6…` stopped 255.4 m short after
+  two recovery episodes. Its root was only 0.01925 m outside the second
+  padded blocker, so the earlier trigger skipped retreat. Both via paths
+  were correctly rejected: the connection from the actual vehicle root
+  to the first native path point entered that blocker. A clear root point
+  therefore did not establish a clear native departure connection.
+- After the existing fresh different-static-blocker, halt and bounded
+  route checks, a failed supported placement now always uses the one
+  existing bounded retreat before the second street detour. It no longer
+  skips that retreat solely because the root is outside the bounds. Rear
+  clearance and proved directed motion remain required; an unsafe or
+  ineffective retreat ends the attempt without another fallback or grant.
+  The frozen search anchor, both clearances, full native route checks,
+  operation deadline and all time/distance limits remain unchanged.
+- Release Guard `7e5bc3e0…` (PDB `7aaf31ed…`) compiled without deployment
+  with zero warnings and errors; all 1,788 TaxiDriver tests passed. Four new
+  execution cases cover the narrow exterior gap, a larger exterior gap,
+  a blocked rear and absent motion. Existing second-detour tests now run
+  through the actual bounded-retreat ticks.
+- Controlled session 13 on this exact Guard reached the regular Bungalow
+  stop at 2.8 m with callback `Complete` after two recovery episodes
+  (2026-11-12, 13:14:34). From the matched archived direct-final pose,
+  episode 1 checked the final route; episode 2 confirmed a 10.9 m retreat,
+  retained the original search anchor and selected the fourth candidate
+  at the existing 12 m side offset, via `(55.9, 0.0, 12.5)`. Both blocker
+  bounds remained in the handoff. The first via actually selected the
+  checked native direct path (`directSelected=True`), confirmed its halt,
+  then completed the fully checked final route to the regular destination.
+- This is a controlled route pass, not a natural fourth-recovery witness
+  or broad reliability claim. Road assistance recorded three nudges and
+  one hard snap; no free-spot rescue placement occurred. The fare was $0
+  with zero moving in-game minutes, so this run adds no payment evidence.
+  The unexplained S10 pre-grant refusal remains recorded separately.
+
+## Local frozen search anchor after retreat — 1.0.6 (2026-11-12)
+
+- Controlled session 11 on Guard `c068005c…` reached the second recovery
+  grant and confirmed a 10.8 m directed retreat with a subsequent halt.
+  All four street probes then missed, ending 244.9 m short. The second
+  search had replaced the observed blocker position/heading with the
+  retreat-end pose before applying the existing 20 m rear offset, shifting
+  the search rearward a second time. The S10 refusal did not reproduce;
+  its exact cause remains open and the passive diagnostics stay enabled.
+- The second search now retains the original blocker observation, as the
+  first detour already does. Current halt, directed displacement, front
+  clearance, ownership and position outside both bounds are still checked.
+  The actual native path starts at the current vehicle pose and must clear
+  both blockers; reverse duration, search distances and budgets are unchanged.
+- Release Guard `a729cbd6…` (PDB `eeb21108…`) compiled without deployment
+  with zero warnings and errors; all 1,784 TaxiDriver tests passed. The new
+  extraction case moves the taxi 10.8 m and changes its heading while
+  verifying the frozen search points, then checks the actual native start
+  first clear and subsequently inside each blocker. Live arrival on this
+  candidate remains unverified; session 12 bypassed retreat and exposed the
+  native-departure trigger issue described above.
+
+## Local final-rescue refusal diagnostics — 1.0.6 (2026-11-12)
+
+- Controlled session 10 on Guard `c1c44ec6…` approved the direct final path
+  after one recovery, then stopped 242.7 m short, 2.6 seconds after dispatch.
+  The existing final-rescue gate refused before a second recovery grant;
+  neither the second detour nor the new bounded retreat was reached.
+  The last sample showed vehicle reverse false and agent reverse true.
+  Because the existing halt gate reads the vehicle flag, this alone does
+  not identify the failed gate or prove a halt-policy defect.
+- A single refusal record now names the failed gate and the preceding
+  successful checks, retaining the original short-circuit order and reads.
+  Cached speed, vehicle reverse, via distance and blocker identity are
+  distinguished from additional agent/sensor observations taken only after
+  the rejection decision. These extra reads and logging cannot prevent
+  the terminal stop or stop a superseding drive with the same order.
+  Navigation behavior, time limits, guards and recovery grants are unchanged.
+- Release Guard `c068005c…` (PDB `43cb52c0…`) compiled without deployment
+  with zero warnings and errors. All 1,783 TaxiDriver tests passed; 24 new
+  execution cases cover short-circuit reads, diagnostic failures and stale
+  ownership. Session 11 exercised this candidate and reached the bounded
+  retreat; it did not reproduce the earlier refusal (see above).
+
+## Local bounded retreat before a second detour — 1.0.6 (2026-11-12)
+
+- When the final-leg rescue has no supported placement and the halted taxi
+  remains inside a recorded blocker clearance, its existing recovery grant
+  can now request one supervised retreat before the second street detour.
+  It reuses the current three-second reverse window, continuous rear checks
+  and measured directed-motion proof. No additional grant, reserve reset,
+  wider placement search or further reverse/placement fallback is added.
+- The continuation retains the exact old drive, operation, generation,
+  order, vehicle, agent, destination and both blocker bounds. Native reverse
+  cleanup uses the checked stop transition. After at most five seconds for
+  halt confirmation, the current net retreat from the captured origin and
+  axis, front clearance and root outside both bounds are checked again.
+  Rolling forward after the stop cannot retain an earlier escape proof.
+  The subsequent via and final paths still require full native clearance.
+- Stop, reset, a new operation and shutdown discard the private continuation.
+  A superseding drive retains its own reverse and order fields, including a
+  replacement with identical operation/order numbers. Held detours continue
+  to block ordinary polling and road assistance; the existing actuator gives
+  a valid bounded reverse window priority without a new global permission.
+- Combined Release Guard `c1c44ec6…` (PDB `8a8b59ec…`) includes the reviewed
+  first-via direct preference below. It compiled without deployment with
+  zero warnings and errors; all 1,759 TaxiDriver tests passed. The 24 added
+  execution cases cover motion, both clearances, retreat after the last
+  grant, stale ownership, stop/search failures, lifecycle cleanup and the
+  actual actuator hook with an active or expired/revoked reverse window.
+  Session 10 exercised this combined candidate but ended before the new
+  retreat branch; its live outcome and diagnostic follow-up are above.
+
+## Local first-via direct preference — 1.0.6 (2026-11-12)
+
+- Controlled session 8 on Guard `c3366bbb…` first selected a 12 m candidate
+  (index 3). Its native via path cleared the blocker, but native reversing
+  and a stopped vehicle ended at the existing 25-second leg limit, 243.7 m
+  short after one recovery episode. The native calculation also produced a
+  complete 15.18 m direct candidate versus a 2.21 m entry plus 73.09 m road
+  route. The direct candidate's full clearance was not evaluated because
+  preference was restricted to a previously blocked alternate via.
+- Controlled session 9 on the same Guard reached the second-blocker street
+  handoff. Both via paths were refused at segment 0: the root's x-coordinate
+  was about 0.016 m inside the new padded clearance. The ride ended 255.4 m
+  short after two episodes. This confirms the handoff retained both blocker
+  checks and identifies a departure constraint; no clearance was relaxed.
+- A current first via can now prefer the game's complete direct candidate
+  under the same ownership, receipt, settings, callback and full-path checks.
+  The candidate must remain within 40 m and 64 points, end within 2 m of the
+  exact via, clear both blocker bounds, and be strictly shorter than a valid,
+  unambiguous entry-plus-road route. Bounded entry/road snapshots are compared
+  point by point before the decision, so an in-place route change cannot
+  retain a stale length advantage. The consumed native length comparison
+  records actual direct selection. Only that bound selected-direct result
+  receives the 2 m post-smoothing endpoint check; ordinary road-via and
+  final-arrival tolerances remain unchanged. No via-stall recovery, timeout
+  or operation-budget changes are included.
+- Explicit Release Guard `7932a5b1…` (PDB `28c3ecfd…`) compiled without
+  deployment with zero warnings and errors. All 1,735 TaxiDriver tests passed,
+  including 32 added execution cases for route comparison, both blocker
+  bounds, actual selection, stale/nested receipts and post-smoothing checks.
+  This candidate has not yet been exercised live.
+- Both sessions used controlled initial poses and assisted native boarding;
+  all 79 native save files remained byte-identical after each shutdown.
+  Evidence is retained in the shared vault under
+  `raw/attachments/taxi-goal-2026-11-12/session8-verification.json` and
+  `session9-verification.json`. Successful 12 m via travel, departure from the
+  second blocker and a natural fourth recovery episode remain open.
+
+## Local final-leg departure correction — 1.0.6 (2026-11-12)
+
+- Controlled session 6 on Guard `9db1ae65…` matched the historical
+  `direct-final` pose. All four street probes were rejected, including both
+  12 m candidates. The direct final path cleared the original blocker, then
+  recovery episode 2 found a physically free pose at `(66.6, 0.7, -4.1)`.
+  The next native path crossed the new blocker's clearance and was correctly
+  refused; the ride gave up 251.9 m from the regular Bungalow stop. This
+  observes the direct-final rescue branch, but does not pass that scenario.
+- Final-leg placement now also requires its connection and remaining route
+  to clear both padded blocker bounds. It captures 2–4,096 finite points from
+  the current destination route, retains the existing 10 m endpoint tolerance,
+  and revalidates route identity, every point, target and ownership before
+  placement. A free candidate before a blocking segment is skipped within
+  the existing search; the maximum 8 m search range, recovery budget and
+  subsequent native-path checks are unchanged.
+- Explicit Release Guard `db0095dd…` (PDB `86211fa4…`) compiled without
+  deployment with zero warnings and errors. All 1,685 TaxiDriver tests passed,
+  including 25 added cases covering remaining-route clearance, valid endpoint
+  offset, unavailable routes, snapshot changes and superseded ownership.
+- Controlled session 7 on that Guard rejected the earlier unsafe backward
+  placement and the other backward candidates whose remaining paths were
+  blocked. All forward candidates within 8 m failed the physical footprint
+  check against a parked car; the remaining backward candidate overlapped
+  the player capsule. No rescue placement occurred. The ride ended after
+  episode 2, 255.5 m short. This confirms the unsafe placement is prevented,
+  but does not establish a successful departure.
+- When no safe placement is available, the same recovery grant can now
+  attempt one ordinary street detour around the second blocker. The exact
+  previous drive, target and ownership remain bound until publication; a
+  fresh confirmed halt and unchanged route snapshot are required before the
+  handoff. The existing 16/12 m search and one alternate via are reused.
+  Both original and new blocker clearances are installed before the new
+  drive becomes active and checked on both native legs. No direct fallback
+  or further rescue chain is allowed. Search range and recovery budget are
+  unchanged. One handoff diagnostic records the root and both clearances.
+- Explicit Release Guard `c3366bbb…` (PDB `cc7e65bb…`) compiled without
+  deployment with zero warnings and errors. All 1,703 TaxiDriver tests passed,
+  including 18 new execution cases for this handoff, both blocker checks,
+  alternate paths, failed halt/search, superseded work and bounded chaining.
+- Sessions 6 and 7 used controlled taxi placement, RPC-assisted player
+  positioning and native boarding. After each, all 79 native save files
+  remained byte-identical.
+  Evidence is retained in the shared vault under
+  `raw/attachments/taxi-goal-2026-11-12/session6-verification.json` and
+  `session7-verification.json`.
+  These two runs did not select a 12 m via, complete a direct-final rescue or
+  reach a natural fourth recovery episode.
+
+## Local pickup approach and bounded diagnostics — 1.0.6 (2026-11-12)
+
+- Guard `3ef05c7f…` adds passive street-search diagnostics: each attempted
+  candidate records operation/order, probe index, side offset, raw point and
+  selected/rejected result. Indices 1–2 identify the existing 16 m candidates;
+  3–4 identify the 12 m fallback candidates. A search emits at most four of
+  these messages. Candidate selection, navigation and recovery budgets are
+  unchanged; a selected candidate alone does not establish a cleared path
+  or successful arrival.
+- A TownHallTest / SaveGame_2 pickup reported native `Complete` at
+  `(58.5, 0.7, 8.4)`, 18.08 km/h, while still requesting a 50 km/h base
+  target near `(60.0, 0.1, 6.0)`. It subsequently stopped outside the
+  pickup arrival radius. The approach-distance selector explicitly excluded
+  pickups even though the cruise hook also raised their base speed.
+- The existing approach cap now also uses an active, polled pickup's exact
+  navigation target when it matches the native target and no calculation is
+  pending. Passenger-trip, ownership, authority, current operation/order,
+  vehicle, reverse and native-override guards remain in place. The 10 m
+  arrival radius, 6 km/h approach cap and native braking are unchanged.
+- Explicit Release Guard `9db1ae65…` (PDB `7193793b…`) compiled without
+  deployment with zero warnings and errors. All 1,660 TaxiDriver tests passed,
+  including 26 new execution cases for the actual speed hook and approach
+  selector using substituted native state. The candidate was then installed.
+- Live session 4 on that Guard: native pickup `Complete` reported 2.09 km/h
+  with a 6 km/h base target, followed by a supervised arrival. The temporary
+  pose helper refused its placement because the player capsule overlapped
+  the candidate footprint; no taxi placement occurred. The subsequent ride
+  from the actual parked position reached the regular Bungalow stop at 2.8 m
+  with no recovery episode. This verifies the observed slower pickup and
+  successful ride, not a general arrival success rate.
+- Live session 5 used a controlled replay of the historical `missing-via`
+  parked pose. Production support/footprint checks accepted one placement;
+  readback reported `matched=True` at `(60.739002, 0.635135, 5.220896)` within
+  the fixture tolerances. Placement zeros velocities and updates artificial
+  progress markers; recovery attempts, deadline and the last-rescue reserve
+  are neither spent nor reset. The passenger ride used recovery episode 1,
+  selected search index 2 at 16 m (`via=(55.0, 0.0, 12.5)`), cleared both
+  native detour paths, and arrived at the regular Bungalow stop at 2.8 m.
+  This is a controlled initial condition, not a natural taxi departure.
+- Both sessions used RPC-assisted player positioning and native boarding.
+  After each shutdown, all 79 native save files matched the baseline.
+  Evidence is retained in the shared vault under
+  `raw/attachments/taxi-goal-2026-11-12/session4-verification.json` and
+  `session5-verification.json`. The 12 m fallback search, direct-final-leg
+  rescue and a natural fourth recovery episode remain unobserved in these
+  runs; successful arrivals do not close those evidence gaps.
+
 ## Local Rathaus departure follow-up — 1.0.6 (2026-11-12)
 
 - With Guard `0411e121…`, two natural Rathaus departures failed after the first

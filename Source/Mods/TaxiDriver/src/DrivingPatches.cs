@@ -30,8 +30,8 @@ namespace TaxiDriver
 
     /// <summary>
     /// f12 RVA AD0D1D: an Error/empty direct shortcut must not beat a valid road group
-    /// merely because its length is zero. A checked alternate taxi detour may instead
-    /// prefer a complete, clear direct leg. Observe is the default development build.
+    /// merely because its length is zero. A checked taxi detour via may instead
+    /// prefer a complete, clear, shorter direct leg. Observe is the default development build.
     /// Only the second, ordered native getter return in one bound MoveNext may change.
     /// </summary>
     internal static class NativeShortcutPatch
@@ -73,7 +73,8 @@ namespace TaxiDriver
             internal bool Closed;
         }
         private readonly record struct PathView(IntPtr Pointer, ushort Id, bool Error,
-            Il2CppPathfinding.PathCompleteState State, int Count, float Length, Vector3 Start, Vector3 End);
+            Il2CppPathfinding.PathCompleteState State, int Count, float Length, Vector3 Start, Vector3 End,
+            Vector3[]? Points);
         private sealed class Move
         {
             internal ShortcutComparison.Frame Frame = null!;
@@ -82,7 +83,7 @@ namespace TaxiDriver
             internal PathView Entry, Road, Direct;
             internal string NativeResult = "not-observed";
             internal string NativePath = "not-observed";
-            internal bool Diagnose, Finished, PreferDirect;
+            internal bool Diagnose, Finished, PreferDirect, DirectSelected;
         }
 
         internal static void Apply()
@@ -334,13 +335,14 @@ namespace TaxiDriver
                 call.Group = Ptr(group);
                 // All diagnostic getters execute while this frame is inert. They cannot
                 // advance the two unsuppressed native calls or count as hook-hit evidence.
-                call.Entry = Read(group?.startToEntryPath, measure: true);
-                call.Road = Read(group?.entryToExitPath, measure: true);
+                call.Entry = Read(group?.startToEntryPath, measure: true, capturePoints: true);
+                call.Road = Read(group?.entryToExitPath, measure: true, capturePoints: true);
                 call.Direct = Read(c.lastCalculatedPath, measure: true);
                 Log(r, $"state2-pre group={call.Group} entry=[{Show(call.Entry)}] road=[{Show(call.Road)}] direct=[{Show(call.Direct)}] start={c.startPosition} target={c.destination} ab=[{Coordinates(c.lastCalculatedPath)}]");
                 var agent = SpikeState.Vehicle?.Agent;
-                call.PreferDirect = !Observe && agent != null && Leg(call.Direct) &&
+                call.PreferDirect = !Observe && agent != null && Leg(call.Direct) && Leg(call.Entry) && Leg(call.Road) &&
                     call.Direct.Length <= MaxDirectDetourMeters &&
+                    (double)call.Direct.Length < (double)call.Entry.Length + call.Road.Length &&
                     SpikeRunner.CanPreferDirectDetourVia(agent, r.Target, c.lastCalculatedPath);
                 if (!ValidSnapshot(call, group)) return;
                 ShortcutComparison.Arm(call.Frame, call.Entry.Pointer.ToInt64(), call.Direct.Pointer.ToInt64(), Observe,
@@ -359,22 +361,24 @@ namespace TaxiDriver
                 Ptr(c.flags) == r.Flags && c.flags.UseRoads && c.navSettings.endAtRoad && c.navSettings.ensureProximityToGraph &&
                 !c.navSettings.teleportToGraphIfCalculationFails;
         }
-        private static PathView Read(NativePath? path, bool measure)
+        private static PathView Read(NativePath? path, bool measure, bool capturePoints = false)
         {
             if (Ptr(path) == IntPtr.Zero) return default;
             var points = path!.vectorPath;
             int count = points?.Count ?? -1;
             if (count > 4096) throw new InvalidOperationException("path observation bound exceeded");
             Vector3 start = default, end = default;
+            var snapshot = capturePoints && count >= 0 ? new Vector3[count] : null;
             for (int i = 0; i < count; i++)
             {
                 Vector3 p = points![i];
                 if (!Finite(p)) throw new InvalidOperationException("non-finite native path");
                 if (i == 0) start = p;
                 end = p;
+                if (snapshot != null) snapshot[i] = p;
             }
             return new PathView(Ptr(path), path.pathID, path.error, path.CompleteState, count,
-                measure ? path.GetTotalLength() : float.NaN, start, end);
+                measure ? path.GetTotalLength() : float.NaN, start, end, snapshot);
         }
         private static bool Leg(PathView v) => v.Pointer != IntPtr.Zero && !v.Error &&
             v.State == Il2CppPathfinding.PathCompleteState.Complete && v.Count >= 2 && float.IsFinite(v.Length) && v.Length > 0f;
@@ -383,8 +387,16 @@ namespace TaxiDriver
             call.Entry.Pointer != call.Road.Pointer && call.Direct.Pointer != call.Entry.Pointer && call.Direct.Pointer != call.Road.Pointer &&
             (call.PreferDirect || (call.Direct.Pointer != IntPtr.Zero && call.Direct.Error &&
                 call.Direct.State == Il2CppPathfinding.PathCompleteState.Error && call.Direct.Count == 0 && call.Direct.Length == 0f));
-        private static bool Same(PathView a, PathView b) => a.Pointer == b.Pointer && a.Id == b.Id &&
-            a.Error == b.Error && a.State == b.State && a.Count == b.Count && a.Start.Equals(b.Start) && a.End.Equals(b.End);
+        private static bool Same(PathView a, PathView b, bool fullGeometry = false) => a.Pointer == b.Pointer && a.Id == b.Id &&
+            a.Error == b.Error && a.State == b.State && a.Count == b.Count && a.Start.Equals(b.Start) && a.End.Equals(b.End) &&
+            (!fullGeometry || SamePoints(a.Points, b.Points));
+        private static bool SamePoints(Vector3[]? first, Vector3[]? second)
+        {
+            if (first == null || second == null || first.Length != second.Length) return false;
+            for (int i = 0; i < first.Length; i++)
+                if (first[i].x != second[i].x || first[i].y != second[i].y || first[i].z != second[i].z) return false;
+            return true;
+        }
         private static bool Revalidate(Move call, Routine routine)
         {
             if (call.Receipt is not { } r || !Bound(r, routine)) return false;
@@ -393,7 +405,8 @@ namespace TaxiDriver
             var agent = SpikeState.Vehicle?.Agent;
             // Do not reread state==2: the audited native entry immediately changes it to -1.
             return Ptr(group) == call.Group && Ptr(group.exitToDestinationPath) == IntPtr.Zero &&
-                Same(call.Entry, Read(group.startToEntryPath, false)) && Same(call.Road, Read(group.entryToExitPath, false)) &&
+                Same(call.Entry, Read(group.startToEntryPath, false, call.PreferDirect), call.PreferDirect) &&
+                Same(call.Road, Read(group.entryToExitPath, false, call.PreferDirect), call.PreferDirect) &&
                 Same(call.Direct, Read(c.lastCalculatedPath, false)) &&
                 Ptr(c.generalSeeker.GetCurrentPath()) == call.Direct.Pointer &&
                 (!call.PreferDirect || (agent != null && SpikeRunner.CanPreferDirectDetourVia(agent, r.Target, c.lastCalculatedPath))) &&
@@ -427,6 +440,14 @@ namespace TaxiDriver
             {
                 float original = __result;
                 bool changed = ShortcutComparison.After(__state, ref __result);
+                // Record the consumed native comparison before diagnostics can reenter.
+                // This includes a direct candidate that was already natively shorter.
+                if (__state is { Stage: 4 } selected && selected.Frame is { Stage: 5, Closed: false, Faulted: false } frame &&
+                    ReferenceEquals(ShortcutComparison.Current, frame) && frame.Epoch == ShortcutComparison.Epoch &&
+                    frame.Context is Move { PreferDirect: true } directCall && ReferenceEquals(directCall.Frame, frame) &&
+                    frame.DirectLength == directCall.Direct.Length && frame.DirectLength > 0f &&
+                    float.IsFinite(__result) && __result < frame.EntryLength)
+                    directCall.DirectSelected = true;
                 if (__state?.Frame.Faulted == true) Fault("getter validation/result protocol");
                 if (__state is { } token && token.Frame.Context is Move { Receipt: { } r })
                     Log(r, $"native-getter stage={token.Stage} path={token.Pointer} original={original} effective={__result} override={changed}");
@@ -438,13 +459,23 @@ namespace TaxiDriver
             if (__exception != null && __state.HasValue) { __state.Value.Frame.Cancel(); Fault("getter exception"); }
             return __exception;
         }
+        private static bool SelectedDirectViaCurrent(VehicleAgent agent)
+        {
+            if (ShortcutComparison.Current is not { Stage: 5, Closed: false, Faulted: false } frame ||
+                frame.Context is not Move { DirectSelected: true, Receipt: { } r } call ||
+                !ReferenceEquals(call.Frame, frame) || !ReferenceEquals(_receipt, r))
+                return false;
+            return Current(r, agent, calculating: true) && ManagedReceiptCurrent(r) &&
+                ReferenceEquals(ShortcutComparison.Current, frame) && !frame.Closed && !frame.Faulted &&
+                frame.Stage == 5 && frame.Epoch == ShortcutComparison.Epoch;
+        }
         private static void ResultPrefix(VehicleAgent __instance, ref NavigationUtility.ENavigationCalculationResult result,
             Il2CppScheduleOne.Math.PathSmoothingUtility.SmoothedPath _path)
         {
             try
             {
                 if (result == NavigationUtility.ENavigationCalculationResult.Success &&
-                    SpikeRunner.RejectDetourPath(__instance, _path))
+                    SpikeRunner.RejectDetourPath(__instance, _path, SelectedDirectViaCurrent(__instance)))
                     result = NavigationUtility.ENavigationCalculationResult.Failed;
                 if (ShortcutComparison.Current?.Context is not Move { Receipt: { } r } call || Ptr(__instance) != r.Agent) return;
                 call.NativeResult = result.ToString();
@@ -479,7 +510,7 @@ namespace TaxiDriver
                 if (call.Diagnose && call.Receipt is { } r)
                 {
                     var after = routine._finalGroup_5__2;
-                    Log(r, $"state2-post mode={(Observe ? "Observe" : "Guard")} override={call.Frame.Applied} groupBefore={call.Group} groupAfter={Ptr(after)} entryAfter=[{Show(Read(after?.startToEntryPath, true))}] roadAfter=[{Show(Read(after?.entryToExitPath, true))}] nativeResult={call.NativeResult} nativePath=[{call.NativePath}] preferDirectVia={call.PreferDirect}");
+                    Log(r, $"state2-post mode={(Observe ? "Observe" : "Guard")} override={call.Frame.Applied} groupBefore={call.Group} groupAfter={Ptr(after)} entryAfter=[{Show(Read(after?.startToEntryPath, true))}] roadAfter=[{Show(Read(after?.entryToExitPath, true))}] nativeResult={call.NativeResult} nativePath=[{call.NativePath}] preferDirectVia={call.PreferDirect} directSelected={call.DirectSelected}");
                     if (ReferenceEquals(_receipt, r)) _receipt = null;
                 }
             }
@@ -557,7 +588,7 @@ namespace TaxiDriver
                     postfix: new HarmonyMethod(typeof(CruiseSpeedPatch), nameof(UpdateSpeedPostfix)),
                     log: Mod.Log);
                 if (_enabled)
-                    Mod.Log.Info("[cruise] owned autonomous taxi forward base target=50 km/h with a cap near the exact passenger stop; native speed reductions remain enabled. Achieved speed requires gameplay verification.");
+                    Mod.Log.Info("[cruise] owned autonomous taxi forward base target=50 km/h with a cap near the exact pickup or passenger stop; native speed reductions remain enabled. Achieved speed requires gameplay verification.");
                 else
                     Mod.Log.Warn("[cruise] UpdateSpeed hook unavailable; native cruising speed retained.");
             }
@@ -609,7 +640,7 @@ namespace TaxiDriver
                 if (_loggedApproachOrder != order && NavigationArrivalPolicy.IsWithinArrival(approachDistance))
                 {
                     _loggedApproachOrder = order;
-                    Mod.Log.Info($"[cruise] order={order} passenger stop {approachDistance:0.0} m away; capped base={target:0.0} km/h actual={veh.Speed_Kmh:0.0} km/h.");
+                    Mod.Log.Info($"[cruise] order={order} {(SpikeState.NavToPlayer ? "pickup" : "passenger")} stop {approachDistance:0.0} m away; capped base={target:0.0} km/h actual={veh.Speed_Kmh:0.0} km/h.");
                 }
             }
             catch (Exception ex)
@@ -624,10 +655,27 @@ namespace TaxiDriver
 
         private static float GetApproachDistance(VehicleAgent agent, LandVehicle vehicle)
         {
-            if (!SpikeState.Operation.Active || !SpikeState.RideActive || SpikeState.NavToPlayer ||
-                SpikeState.RideAwaitingDestination || SpikeState.ActiveTripPoint is not { } stop ||
-                !stop.Equals(SpikeState.NavTarget) || agent.NavigationCalculationInProgress ||
-                !stop.Equals(agent.TargetLocation))
+            if (!SpikeState.Operation.Active || agent.NavigationCalculationInProgress)
+                return float.NaN;
+
+            Vector3 stop;
+            if (SpikeState.NavToPlayer)
+            {
+                // A pickup has no passenger trip point yet, but it still approaches
+                // an exact supervised stop and must not retain cruise speed there.
+                if (!SpikeState.PollingActive)
+                    return float.NaN;
+                stop = SpikeState.NavTarget;
+            }
+            else
+            {
+                if (!SpikeState.RideActive || SpikeState.RideAwaitingDestination ||
+                    SpikeState.ActiveTripPoint is not { } passengerStop ||
+                    !passengerStop.Equals(SpikeState.NavTarget))
+                    return float.NaN;
+                stop = passengerStop;
+            }
+            if (!stop.Equals(agent.TargetLocation))
                 return float.NaN;
 
             return Vector3.Distance(vehicle.transform.position, stop);

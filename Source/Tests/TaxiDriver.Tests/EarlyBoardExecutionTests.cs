@@ -176,6 +176,7 @@ public class EarlyBoardExecutionTests
         public static class Mod { public static Logger Log = new(); public static Lifecycle Lifecycle = new(); }
         public class Logger { public void Warn(string s) {} public void Error(string s) { if (Replay.IsFailure || Replay.Scenario == "duplicate-active" || Replay.Scenario == "provisional-driver-reactivated") Replay.Events.Add("error"); } public void Info(string s) {} }
         public static class SpikeRunner {
+            private static object _finalRetreat;
             /* STOP */
             public static bool PlayerDriver(LandVehicle v) => v.DriverPlayer != null;
             public static void ResetDrivingState() { Replay.Boundary(Replay.Events.Contains("seat") ? "stop" : "cancel"); SpikeState.NavToPlayer = false; }

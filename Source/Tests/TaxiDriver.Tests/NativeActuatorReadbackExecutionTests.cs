@@ -70,10 +70,23 @@ public class NativeActuatorReadbackExecutionTests
         Assert.DoesNotContain(result.Reads, r => r.Phase == "postfix-consumed");
     }
 
+    [Theory]
+    [InlineData("held-reverse-expired")]
+    [InlineData("held-reverse-revoked")]
+    public void HeldDetour_AllowsOnlyTheCurrentBoundedReverseAtTheActualConsumer(string scenario)
+    {
+        var result = Run(scenario);
+        Assert.True(result.Healthy);
+        Assert.Contains(result.Reads, r => r.Mode == "Reverse" && r.Phase == "prefix-consume" && r.Throttle < 0f);
+        Assert.Equal(1, result.BeforeExpiry);
+        Assert.Equal(result.BeforeExpiry, result.AfterExpiry);
+        Assert.NotEqual("Reverse", result.Reads[^1].Mode);
+    }
+
     private static Outcome Run(string scenario) => JsonSerializer.Deserialize<Outcome>(
         (string)Replay.Value.Invoke(null, new object[] { scenario })!)!;
 
-    private sealed record Read(string Mode, string Phase, bool Hand);
+    private sealed record Read(string Mode, string Phase, bool Hand, float Throttle);
     private sealed record Outcome(int Writes, bool Healthy, bool Hand, bool SameException,
         int BeforeExpiry, int AfterExpiry, int AfterNewOrder, Read[] Reads);
 
@@ -91,7 +104,8 @@ public class NativeActuatorReadbackExecutionTests
             .Select(f => f.ToFullString()));
         string state = patch.Members.OfType<ClassDeclarationSyntax>().Single(c => c.Identifier.Text == "CallState").ToFullString();
         var policyTree = CSharpSyntaxTree.ParseText(DriverSafetySourceContractTests.ReadSource("DrivingPolicies.cs")).GetRoot();
-        string[] types = { "NativeActuatorMode", "NativeActuatorPolicy", "NativeActuatorScope", "BrakeHoldPolicy", "ReversePedalPolicy" };
+        string[] types = { "NativeActuatorMode", "NativeActuatorPolicy", "NativeActuatorScope", "BrakeHoldPolicy", "ReversePedalPolicy",
+            "ReverseManoeuvrePolicy", "ReversePhase" };
         string policies = string.Join("\n", policyTree.DescendantNodes().OfType<BaseTypeDeclarationSyntax>()
             .Where(t => types.Contains(t.Identifier.Text)).Select(t => t.ToFullString()));
         string source = Harness.Replace("/* POLICIES */", policies).Replace("/* FIELDS */", fields)
@@ -111,6 +125,7 @@ public class NativeActuatorReadbackExecutionTests
         using System;
         using System.Collections.Generic;
         using System.Linq;
+        using System.Numerics;
         using System.Text.Json;
         namespace Replay {
         /* POLICIES */
@@ -127,10 +142,6 @@ public class NativeActuatorReadbackExecutionTests
             public bool handbrakeOverride { get => hand; set { hand = value; Writes++; } }
             public bool overrideControls { get => controls; set { controls = value; Writes++; } }
         }
-        public sealed class ReverseState {
-            public bool Active;
-            public bool IsCurrentFor(long operation, int order, float now) => Active;
-        }
         public sealed class OperationState { public bool Active = true; }
         public static class SpikeState {
             public static LandVehicle Vehicle;
@@ -138,7 +149,7 @@ public class NativeActuatorReadbackExecutionTests
             public static int NavOrder;
             public static bool PollingActive;
             public static float NavStartTime;
-            public static readonly ReverseState Reverse = new();
+            internal static readonly ReverseManoeuvrePolicy Reverse = new();
             public static readonly OperationState Operation = new();
         }
         public static class SpikeRunner { public static bool HasActuatorOrder; }
@@ -152,10 +163,10 @@ public class NativeActuatorReadbackExecutionTests
             internal static bool Healthy { get; private set; }
             /* STATE */
             /* METHODS */
-            public sealed record Read(string Mode, string Phase, bool Hand);
+            public sealed record Read(string Mode, string Phase, bool Hand, float Throttle);
             private static readonly List<Read> Reads = new();
             private static void Readback(LandVehicle vehicle, NativeActuatorMode mode, string phase) {
-                Reads.Add(new(mode.ToString(), phase, vehicle.HandbrakeApplied));
+                Reads.Add(new(mode.ToString(), phase, vehicle.HandbrakeApplied, vehicle.currentThrottle));
             }
             private static void Fail(Exception error) { Healthy = false; }
             private static void Consume(LandVehicle vehicle) {
@@ -173,7 +184,7 @@ public class NativeActuatorReadbackExecutionTests
                 Time.timeScale = 1; Time.unscaledTime = 99; Time.frameCount = 1;
                 SpikeState.OperationId = 3; SpikeState.NavOrder = 7; SpikeState.NavStartTime = 100;
                 SpikeState.PollingActive = SpikeState.Operation.Active = true;
-                SpikeState.Reverse.Active = false; SpikeRunner.HasActuatorOrder = false;
+                SpikeState.Reverse.End(); SpikeRunner.HasActuatorOrder = false;
                 var vehicle = new LandVehicle(); SpikeState.Vehicle = vehicle;
                 // Real park scope, followed by its input restoration and intent release.
                 _parkPointer = vehicle.Pointer;
@@ -184,7 +195,16 @@ public class NativeActuatorReadbackExecutionTests
                 vehicle.overrideControls = true; vehicle.handbrakeOverride = false; vehicle.currentThrottle = 1;
                 vehicle.Writes = 0;
                 int beforeExpiry = 0, afterExpiry = 0, afterNewOrder = 0; bool sameException = true;
-                if (scenario == "sampling") {
+                if (scenario.StartsWith("held-reverse-", StringComparison.Ordinal)) {
+                    SpikeRunner.HasActuatorOrder = false;
+                    SpikeState.Reverse.Begin(SpikeState.OperationId, SpikeState.NavOrder, Vector3.Zero, -Vector3.UnitX, 100f, 3f);
+                    Consume(vehicle);
+                    beforeExpiry = Reads.Count(r => r.Mode == "Reverse" && r.Phase == "postfix-consumed");
+                    if (scenario == "held-reverse-revoked") SpikeState.Reverse.End();
+                    else Time.unscaledTime = 103f;
+                    Consume(vehicle);
+                    afterExpiry = Reads.Count(r => r.Mode == "Reverse" && r.Phase == "postfix-consumed");
+                } else if (scenario == "sampling") {
                     for (int i = 0; i <= 30; i++) { Time.unscaledTime = 100 + i * .1f; Consume(vehicle); }
                     beforeExpiry = Count();
                     Time.unscaledTime = 104; Consume(vehicle); afterExpiry = Count();

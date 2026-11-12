@@ -106,9 +106,12 @@ runtimes **6.0.36 / 8.0.32** are global in `C:\Program Files\dotnet` (2026-10-24
 
 ## 2. Mod Inventory
 
-**TownHallInterior is under active development (🧪):** a local, non-distributable staging
-build whose in-game visual acceptance is still open. WorldLook was confirmed finished by
-Dominik on 2026-10-25, referring to the last session. ✅/🆕 mean feature-complete;
+**TownHallInterior was reported finished by Dominik on 2026-11-10.** The agreed cabinet
+and hall-storage repair was also owner-accepted after Save/menu reload that day
+([acceptance and limits](Source/Mods/TownHallInterior/docs/item-loss-fix-2026-11-10.md)).
+It remains a local, non-distributable build; historical probe checklists do not reopen
+accepted work. WorldLook was confirmed finished by Dominik on 2026-10-25, referring
+to the last session. ✅/🆕 mean feature-complete;
 🧪 means development, independently of gameplay verification. `Verified` is a recorded
 real-session or attributed owner-confirmation claim, not an assertion that a test artifact
 exists here. Owner acceptance without itemized actions does not prove each earlier checklist
@@ -139,14 +142,14 @@ Keep exactly one inventory row per mod and supported bold acceptance labels.
 | **MessagesPlus** | ✅ (v0.4.6, **Verified, owner-confirmed 2026-10-15**) | `Mods/MessagesPlus/` | `MessagesPlus.dll` | Popup/response repair; original test date not supplied |
 | **ProductAppQoL** | ✅ (v0.1.0, **Verified 2026-10-10**) | `Mods/ProductAppQoL/` | `ProductAppQoL.dll` | Mouse/touch asking-price buttons |
 | **PoliceTestMode** | ✅ (v0.1.0, default suppression/reload **Verified 2026-11-10**; console toggle/occupancy **Verified 2026-11-11**) | `Mods/PoliceTestMode/` | `PoliceTestMode.dll` | 43/43 hooks, 17 leases, curfew/officer suppression & menu/reload restore verified |
-| **TaxiDriver** | ✅ (v1.0.6, focused singleplayer live verification; prior v1.0.0 owner-confirmed 2026-10-24) | `Mods/TaxiDriver/` | `TaxiDriver.dll` + GLB folder | Local Guard `0411e121…`; Docks controls and the missing-via replay reached regular Bungalow, moving STOP and controlled fourth recovery verified on earlier local Guards on 2026-11-11 |
+| **TaxiDriver** | ✅ (v1.0.6, focused singleplayer live verification; prior v1.0.0 owner-confirmed 2026-10-24) | `Mods/TaxiDriver/` | `TaxiDriver.dll` + GLB folder | 2026-11-12 follow-up: pickup braking and both controlled historical departures reached Bungalow. Guard `7e5bc3e0…` confirmed the final-leg retreat, 12 m street selection and first-via direct choice through arrival at 2.8 m, using 2 recovery episodes plus regular RoadKeeper corrections. The normal control without the pose fixture also arrived at 2.8 m with 1 recovery and $49 paid. Natural episode 4 was not observed. Exact builds and limits are in the changelog |
 | **StorageScanner** | 🆕 (v0.2.0, **Verified 2026-10-11**) | `Mods/StorageScanner/` | `StorageScanner.dll` + icon | Read-only storage overview |
 | **S1MCP** | ✅ (v1.0.5, **Verified, owner-confirmed 2026-10-24**) | `ThirdParty/S1MCPServer-master/` | `S1MCPServer-IL2CPP.dll` | HHMM fix; read/no-op write observed, not every write form |
 | **LightControl** | ✅ (v0.1.1; 0.1.0 **Verified, owner-confirmed 2026-10-24**) | `Mods/LightControl/` | `LightControl.dll` | 0.1.1 deployed log-only Rainbow fix; prior acceptance not itemized |
 | **PropertyLEDs** | ✅ (v0.1.11, 35-room catalog/reload **Verified 2026-11-10**; missing-layout UI and unowned root check **Verified 2026-11-11** (prior v0.1.10: **Verified, owner-confirmed 2026-10-25**)) | `Mods/PropertyLEDs/` | `PropertyLEDs.dll` + icon | 35/35 verified rooms & reload verified; landscape phone, tighter insets |
 | **PhoneScrollFix** | ✅ (v2.0.0, hover look **Verified 2026-10-11**) | `Mods/PhoneScrollFix/` | `PhoneScrollFix.dll` | Clipped home-icon hover |
 | **WorldLook** | ✅ (v0.3.0-dev.5, **Verified, owner-confirmed 2026-10-25**) | `Mods/WorldLook/` | `WorldLook.dll` + embedded bundle | Owner-confirmed finished in the last session; actions not itemized; prior shader-reload evidence retained |
-| **TownHallInterior** | 🧪 (v0.1.0, **In-Game-Verify open**) | `Mods/TownHallInterior/` | `TownHallInterior.dll` | Public hall, geometric portal; hash-pinned local slices, not distributable |
+| **TownHallInterior** | ✅ (v0.1.0, **Verified, owner-confirmed 2026-11-10**) | `Mods/TownHallInterior/` | `TownHallInterior.dll` | Locally finished; cabinet and hall-storage Save/menu reload accepted. Hash-pinned local slices, not distributable; documented evidence limits retained |
 | **Shared** | ✅ workspace library | `Mods/Shared/` | `Shared.dll` | Reusable helpers; section 5 |
 | **S1API** | ✅ 3.2.2 stable (startup/load observed 2026-11-05) | — | `S1API.Il2Cpp.MelonLoader.dll` + `Plugins/S1APILoader.MelonLoader.dll` | Matching runtime/loader hashes and TownHallTest load observed; phone open/close owner-confirmed; no individual app or broad API/gameplay acceptance; section 1 |
 

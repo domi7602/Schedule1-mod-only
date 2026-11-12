@@ -369,6 +369,7 @@ public class NavigationSettingsExecutionTests
             /* COMMANDS */
         }
         public static class SpikeRunner {
+            private sealed class FinalRetreat { }
             /* FIELDS */
             /* RUNNER */
             private static bool PlayerDriver(LandVehicle v) => false;

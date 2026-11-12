@@ -1,6 +1,18 @@
 # Changelog
 
-## 0.1.0 (2026-11-10) — Lagerverlust: Kandidat installiert, Spielprüfung offen
+## 0.1.0 (2026-11-10) — Lokaler Abschluss und Eigentümerabnahme
+
+- Dominik hat TownHallInterior nach den Kauf-/Geldwäschearbeiten als soweit fertig
+  bezeichnet. Diese Eigentümerabnahme ergänzt die früheren datierten Probe- und
+  Offline-Nachweise; sie behauptet keine neue Einzelprüfung ihrer sämtlichen Grenzen.
+- Auch die anschließende Lagerkorrektur ist nach der Bestätigung von Cabinet- und
+  Hallenfach-Inhalt über Save/Menü-Reload abgeschlossen. [Abnahme und Prüfgrenzen](item-loss-fix-2026-11-10.md#eigentümerabnahme-und-prüfgrenzen).
+- Der lokale Abschluss ist keine öffentliche Releasefreigabe. Die hashgebundenen
+  nativen Ausschnitte bleiben nicht verteilbar; Paketierung und Veröffentlichung
+  bleiben gesperrt. Die dokumentierten Grenzen bei Spielabbruch während eines Saves
+  werden durch die Abschlussmeldung nicht als geprüft ausgegeben.
+
+## 0.1.0 (2026-11-10) — Lagerverlust: Korrektur installiert und eigentümerbestätigt
 
 - Hallen-Restore erst mit neuer Weltbindung; ungebundenes Platzieren und ungültige Record-Insertion dürfen kein Inventar verbrauchen.
 - Cabinet-Inhalte erhalten optionale Checkpoint-Records unter Schema 2; Hallenlager und Cabinets verwenden vollständige native ItemSet-Payloads statt nur Default-Items. Native Leerslots (`ID=""`, Menge 0) werden berücksichtigt.
@@ -32,7 +44,8 @@
 - Der Paketlauf lässt die lokale Rathaus-DLL aus. Das explizite Paketieren und
   Veröffentlichen sind gesperrt. Der Formatbefund im TownHall-Test ist behoben.
 - Der Release-Build und die Tests für Kauf, Geldwäsche, Save/Reload und
-  Paketwahl liefen offline. Die Ingame-Abnahme für diesen Stand steht aus.
+  Paketwahl liefen offline. Zum damaligen Stand vom 9. November stand die
+  Ingame-Abnahme noch aus; der spätere lokale Abschluss ist oben festgehalten.
   [Speichervertrag und Übernahme alter Daten](business-persistence-plan.md).
 
 ## 0.1.0 (2026-11-06) — Eigene Daten-/Abfrageprobe bestanden, Normalbuild wiederhergestellt

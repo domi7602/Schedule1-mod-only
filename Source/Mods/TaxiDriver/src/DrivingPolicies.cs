@@ -600,6 +600,40 @@ namespace TaxiDriver
     {
         internal static bool Finite(Vector3 value) => RoadProjectionPolicy.Finite(value);
 
+        /// <summary>A free pose is useful only if its connection and remaining route avoid both blockers.</summary>
+        internal static bool RemainingCorridorClears(System.Collections.Generic.IReadOnlyList<Vector3> points,
+            Vector3 candidate, Vector3 firstMin, Vector3 firstMax, Vector3 secondMin, Vector3 secondMax)
+        {
+            if (points.Count is < 2 or > 4096 || !Finite(candidate)) return false;
+            int segment = -1;
+            float nearest = float.PositiveInfinity;
+            Vector3 projection = default;
+            for (int i = 0; i < points.Count; i++)
+            {
+                if (!Finite(points[i])) return false;
+                if (i == 0 || !RoadProjectionPolicy.TryProject(points[i - 1], points[i], candidate,
+                        out Vector3 point, out _, out float lateral) || lateral >= nearest)
+                    continue;
+                nearest = lateral;
+                projection = point;
+                segment = i - 1;
+            }
+            // Supported route candidates retain their projected X/Z coordinates.
+            // Reject a different corridor rather than joining it across unknown ground.
+            if (segment < 0 || nearest > 0.1f) return false;
+            bool Clear(Vector3 from, Vector3 to) =>
+                !CrossesBlocker(from, to, firstMin, firstMax) &&
+                !CrossesBlocker(from, to, secondMin, secondMax);
+            if (!Clear(candidate, projection)) return false;
+            Vector3 previous = projection;
+            for (int i = segment + 1; i < points.Count; i++)
+            {
+                if (!Clear(previous, points[i])) return false;
+                previous = points[i];
+            }
+            return true;
+        }
+
         internal static bool CrossesBlocker(Vector3 from, Vector3 to, Vector3 min, Vector3 max)
         {
             if (!Finite(from) || !Finite(to) || !Finite(min) || !Finite(max) ||

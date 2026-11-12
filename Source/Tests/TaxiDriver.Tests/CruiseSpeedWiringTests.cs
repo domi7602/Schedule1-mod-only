@@ -56,7 +56,7 @@ public class CruiseSpeedWiringTests
     }
 
     [Fact]
-    public void ApproachCap_RequiresCurrentAuthorizedPassengerTarget()
+    public void ApproachCap_RequiresCurrentAuthorizedPickupOrPassengerTarget()
     {
         string source = DriverSafetySourceContractTests.ReadSource("CruiseSpeedPatch.cs");
         Assert.Contains("!SpikeState.Operation.Active", source);
