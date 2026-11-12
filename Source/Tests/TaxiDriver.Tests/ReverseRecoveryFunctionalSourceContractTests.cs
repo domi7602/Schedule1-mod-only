@@ -261,7 +261,9 @@ public class ReverseRecoveryFunctionalSourceContractTests
         string sup = Section("private static void TickReverseSupervision", "private static void RevokeReverse");
         // D2: bounded continuous rear clearance during the active reverse.
         Assert.Contains("ReverseSupervisionPolicy.ShouldCheckRear(_reverseRearCheckAt, now)", sup);
-        Assert.Contains("if (!RearIsClear(veh))", sup);
+        Assert.Contains("bool rearClear = RearIsClear(veh);", sup);
+        Assert.Contains("if (!CurrentReverse()) return;", sup);
+        Assert.Contains("if (!rearClear)", sup);
         // D5/D14: lifecycle/scene, authority, ownership, actuator health and the driver are
         // re-checked every tick and any failure revokes the managed reverse.
         Assert.Contains("!Mod.Lifecycle.AcceptingWork || !MainSceneLoaded()", sup);

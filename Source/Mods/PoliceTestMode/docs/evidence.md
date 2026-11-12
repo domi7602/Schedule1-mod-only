@@ -26,7 +26,7 @@ Observed installed SHA256:
 
 The S1API hash differs from the historical AGENTS.md baseline; no downgrade, replacement or
 claim of matching the historical artifact was made. Console discovery was inspected in local
-S1API source; its execution still needs the live acceptance check.
+S1API source at this stage. See the 2026-11-11 follow-up for live console execution.
 
 Verified CurfewManager backing flags: `_IsEnabled_k__BackingField`,
 `_IsCurrentlyActive_k__BackingField`, `_IsHardCurfewActive_k__BackingField`.
@@ -117,4 +117,27 @@ See README.md for exact GUI commands, expected log evidence and reversal limitat
     - `[20:20:10.376] [PoliceTestMode] status requested=True effective=True state='ACTIVE - police suppressed (TEST)' hooks=43 loaded=True singleplayer=True attempts=1/30 leases=17 officers=10 vehicles=0 playerOccupiedSkipped=0 unknownSkipped=0 checkpoints=4`
     - `[20:20:10.377] [PoliceTestMode] readback activeTargets=0/14 curfewRaw=False/False/False`
   - Native save integrity: all 39 files in `SaveGame_2` remained byte-identical before and after the session (`diffCount=0`).
-- **Remaining open boundaries:** interactive console toggling (`policetest off` -> `policetest on`) during active gameplay and live player-occupied police vehicle exemption (`playerOccupiedSkipped > 0`, as `vehicles=0` were active in `SaveGame_2` at load time).
+- The console toggle and occupied-vehicle exemption were exercised in the follow-up below.
+
+## Bounded live in-game verification (2026-11-11)
+
+- **Session** `TownHallTest` / `SaveGame_2` (slot 2), singleplayer, PID 5540. Installed
+  `Mods/PoliceTestMode.dll` SHA-256 `033DE3DF31A6C8FA21F917A0E2A04B70980B99DA5A476658096307C5DC05E740`.
+- **Console OFF and ON** were entered in the in-game developer console during gameplay.
+  In `MelonLoader/Latest.log`, at `05:59:46.622` CET restoration reported `pending=0`.
+  At `05:59:46.623`, OFF reported `requested=False effective=False leases=0`. At
+  `05:59:58.329`, ON reported `requested=True effective=True leases=17` and
+  `activeTargets=0/14 curfewRaw=False/False/False`.
+- **Player in police vehicle** was staged with S1MCP. With suppression OFF,
+  `PoliceStation.DeployVehicle()` at the downtown station returned `Shitbox_Police (2)`.
+  `LandVehicle.EnterVehicle()` seated the player. A readback confirmed
+  `LocalPlayerIsInVehicle=True` before issuing `policetest on` in the game console.
+  At `06:00:29.288` CET the log reported `PARTIAL - player-occupied police vehicle protected`,
+  `requested=True effective=True`, `playerOccupiedSkipped=1 unknownSkipped=0` and `leases=19`.
+  At `06:00:29.289`, the other `16` targets were inactive (`activeTargets=0/16`). S1MCP
+  independently confirmed `LocalPlayerIsInVehicle=True` and `is_active=True` for that car.
+- **After exit** via `LandVehicle.ExitVehicle()`, at `06:00:36.341` CET the log returned to
+  `ACTIVE - police suppressed (TEST)` with `playerOccupiedSkipped=0 unknownSkipped=0`,
+  `vehicles=3` and `leases=20`. At `06:00:36.342`, `activeTargets=0/17`. S1MCP confirmed
+  `LocalPlayerIsInVehicle=False` and `is_active=False` on the same vehicle. This covers one
+  player-occupied vehicle and its transition back into suppression.

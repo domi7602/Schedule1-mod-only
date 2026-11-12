@@ -47,6 +47,7 @@ namespace TaxiDriver
             internal bool Closed, Faulted, Applied, Observe, Validating;
             internal long Entry, Direct;
             internal float EntryLength, DirectLength;
+            internal float? PreferredDirectLength;
             internal int Stage; // 0=inert, 1=entry, 2=entry running, 3=direct, 4=direct running, 5=done
             internal System.Func<bool>? Validate;
             internal void Cancel() => Stage = 0;
@@ -63,13 +64,15 @@ namespace TaxiDriver
             _current = frame;
         }
 
-        internal static void Arm(Frame frame, long entry, long direct, bool observe, System.Func<bool> validate)
+        internal static void Arm(Frame frame, long entry, long direct, bool observe, System.Func<bool> validate,
+            float? preferredDirectLength = null)
         {
             if (!IsCurrent(frame) || entry == 0 || direct == 0 || entry == direct) return;
             if (frame.Validating) { frame.Faulted = true; frame.Cancel(); return; }
             frame.Entry = entry;
             frame.Direct = direct;
             frame.Observe = observe;
+            frame.PreferredDirectLength = preferredDirectLength;
             frame.Validate = validate;
             frame.Stage = 1;
         }
@@ -102,11 +105,20 @@ namespace TaxiDriver
             }
             frame.Stage = 5; // consume before any effect or diagnostic callback
             frame.DirectLength = result;
-            if (token.Stage != 4 || result != 0f || !float.IsFinite(frame.EntryLength) || frame.EntryLength <= result)
+            if (token.Stage != 4 || frame.Observe)
                 return false;
-            if (frame.Observe) return false;
+            if (frame.PreferredDirectLength is float expected)
+            {
+                if (result != expected || result <= 0f || result < frame.EntryLength) return false;
+                result = 0f; // choose the already validated positive-length direct path
+            }
+            else
+            {
+                if (result != 0f || !float.IsFinite(frame.EntryLength) || frame.EntryLength <= result)
+                    return false;
+                result = float.PositiveInfinity;
+            }
             frame.Applied = true;
-            result = float.PositiveInfinity;
             return true;
         }
 
@@ -582,6 +594,47 @@ namespace TaxiDriver
 
 namespace TaxiDriver
 {
+    using System.Numerics;
+
+    internal static class DetourClearancePolicy
+    {
+        internal static bool Finite(Vector3 value) => RoadProjectionPolicy.Finite(value);
+
+        internal static bool CrossesBlocker(Vector3 from, Vector3 to, Vector3 min, Vector3 max)
+        {
+            if (!Finite(from) || !Finite(to) || !Finite(min) || !Finite(max) ||
+                min.X > max.X || min.Y > max.Y || min.Z > max.Z)
+                return true;
+
+            double enter = 0;
+            double exit = 1;
+            return ClipAxis(from.X, to.X, min.X, max.X, ref enter, ref exit) &&
+                ClipAxis(from.Y, to.Y, min.Y, max.Y, ref enter, ref exit) &&
+                ClipAxis(from.Z, to.Z, min.Z, max.Z, ref enter, ref exit);
+        }
+
+        // Clip the shared segment interval to each slab. Doubles keep differences
+        // between finite float coordinates representable.
+        private static bool ClipAxis(double from, double to, double min, double max, ref double enter, ref double exit)
+        {
+            double delta = to - from;
+            if (delta == 0)
+                return from >= min && from <= max;
+
+            double start = (min - from) / delta;
+            double end = (max - from) / delta;
+            if (start > end)
+                (start, end) = (end, start);
+
+            enter = System.Math.Max(enter, start);
+            exit = System.Math.Min(exit, end);
+            return enter <= exit;
+        }
+    }
+}
+
+namespace TaxiDriver
+{
     // ==== TaxiDriver section: RoadSnapSafetyPolicy.cs ====
     using System;
     using System.Numerics;
@@ -665,14 +718,31 @@ namespace TaxiDriver
     internal static class CruiseSpeedPolicy
     {
         internal const float CruiseKmh = 50f;
+        private const float ApproachCrawlKmh = 6f;
+        private const float ApproachDecelerationMps2 = 1.5f;
+        private const float KmhPerMps = 3.6f;
 
         internal static float BaseTargetKmh(float nativeBaseKmh, bool ownedTaxi, bool activeOrder,
-            bool autoDriving, bool playerDriving, bool reversing, bool nativeOverride)
+            bool autoDriving, bool playerDriving, bool reversing, bool nativeOverride, float approachDistance = float.NaN)
         {
             if (!ownedTaxi || !activeOrder || !autoDriving || playerDriving || reversing || nativeOverride ||
                 !float.IsFinite(nativeBaseKmh) || nativeBaseKmh <= 0f)
                 return nativeBaseKmh;
-            return CruiseKmh;
+            return LimitApproachKmh(CruiseKmh, approachDistance);
+        }
+
+        internal static float LimitApproachKmh(float targetKmh, float distance)
+        {
+            if (!float.IsFinite(targetKmh) || targetKmh <= 0f ||
+                !float.IsFinite(distance) || distance < 0f)
+                return targetKmh;
+
+            // Aim for crawl speed by the supervised arrival radius. The
+            // native controller still performs its own speed reductions and braking.
+            float brakingMeters = System.MathF.Max(0f, distance - NavigationArrivalPolicy.ArrivalMeters);
+            float limitSquared = ApproachCrawlKmh * ApproachCrawlKmh +
+                2f * ApproachDecelerationMps2 * brakingMeters * KmhPerMps * KmhPerMps;
+            return System.MathF.Min(targetKmh, System.MathF.Sqrt(limitSquared));
         }
     }
     // ==== end TaxiDriver section: CruiseSpeedPolicy.cs ====

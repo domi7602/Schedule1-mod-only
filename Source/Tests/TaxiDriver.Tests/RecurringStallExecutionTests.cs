@@ -202,6 +202,11 @@ public class RecurringStallExecutionTests
             private static void LogSupervisorDecision(string trigger, string action, float distance, bool readable, float speed, bool recent, int before, int after) {}
             private static void CancelDeferredProbe() { _recurringProbeAt = 0f; }
             private static bool MainSceneLoaded() => true;
+            private readonly struct StaticBlocker { }
+            private static StaticBlocker? ObserveDetourBlocker(LandVehicle v, VehicleAgent a, Vector3 position) => null;
+            private static bool TryStartDetour(LandVehicle v, VehicleAgent a, StaticBlocker blocker) => false;
+            private static bool TryQueueDetourReverse(LandVehicle veh, VehicleAgent agent, StaticBlocker hit, float now) => false;
+            private static bool CancelFinalDetourOnStall(LandVehicle v, VehicleAgent a) => false;
             private static bool StopIfNavigationExpired(VehicleAgent a, LandVehicle v, float now) {
                 if (!SpikeState.NavigationRecovery.HasExpired(now)) return false;
                 GiveUpNavigation(a, v.transform.position, 201.6f, now);

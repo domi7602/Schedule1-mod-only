@@ -34,6 +34,29 @@ public class RoadPlacementBoundsTests
     }
 
     [Fact]
+    public void RootAlignedBoundsKeepTheMeasuredCenterAndExcludeEmptyDiagonalCorners()
+    {
+        var center = new Vector3(0.45f, 0.1f, -0.2f);
+        var current = Quaternion.CreateFromYawPitchRoll(0.3f, -0.2f, 0.4f);
+        var proposed = Quaternion.CreateFromAxisAngle(Vector3.UnitY, MathF.PI / 4f);
+        var corners = Corners();
+        for (int i = 0; i < corners.Length; i++)
+            corners[i] = Vector3.Transform(corners[i] + center, current);
+
+        Assert.True(RoadSnapSafetyPolicy.TryPlacementBounds(corners, current,
+            Quaternion.Identity, out var rootMin, out var rootMax));
+        var half = (rootMax - rootMin) * 0.5f;
+        Assert.True(Vector3.Distance(center, rootMin + half) < 0.0001f);
+        Assert.True(Vector3.Distance(new Vector3(1f, 0.6f, 2f), half) < 0.0001f);
+
+        Assert.True(RoadSnapSafetyPolicy.TryPlacementBounds(corners, current, proposed,
+            out _, out var worldMax));
+        var emptyWorldCorner = new Vector3(worldMax.X - 0.05f, center.Y, worldMax.Z - 0.05f);
+        var boxSpace = Vector3.Transform(emptyWorldCorner, Quaternion.Inverse(proposed)) - center;
+        Assert.True(Math.Abs(boxSpace.Z) > half.Z);
+    }
+
+    [Fact]
     public void MissingInvalidOrDegenerateBoundsAreRejected()
     {
         Assert.False(RoadSnapSafetyPolicy.TryPlacementBounds(Array.Empty<Vector3>(), Quaternion.Identity,

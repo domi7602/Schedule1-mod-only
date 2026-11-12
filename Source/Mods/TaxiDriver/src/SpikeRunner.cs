@@ -1,4 +1,7 @@
+extern alias il2cpp;
+
 using System;
+using Il2CppScheduleOne.Math;
 using Il2CppScheduleOne.Vehicles;
 using Il2CppScheduleOne.Vehicles.AI;
 using UnityEngine;
@@ -17,6 +20,522 @@ internal static class SpikeRunner
     private const float NavigationTimeoutSeconds = 90f;
     private const float AutoStepDelaySeconds = 1f;
     private const float AutoRideDistance = 40f;
+    private const float DetourLegTimeoutSeconds = 25f;
+    private const float DetourRearOffset = 20f;
+    private const float DetourSideOffset = 16f;
+    private const float DetourFallbackSideOffset = 12f;
+    private const float DetourAlternateAdvance = 5f;
+    private const float DetourNativeReverseWitnessKmh = 3f;
+
+    private readonly record struct StaticBlocker(int Id, Vector3 Position, Vector3 Forward, Bounds Bounds);
+
+    private sealed class DetourDrive
+    {
+        internal readonly long Operation = SpikeState.OperationId;
+        internal readonly long Generation = SpikeState.Operation.Generation;
+        internal readonly IntPtr Vehicle;
+        internal readonly IntPtr Agent;
+        internal readonly Vector3 Destination;
+        internal readonly bool HasVia;
+        internal readonly System.Numerics.Vector3 Min;
+        internal readonly System.Numerics.Vector3 Max;
+        internal readonly int BlockerId;
+        internal (System.Numerics.Vector3 Min, System.Numerics.Vector3 Max)? FinalBlocker;
+        internal int Order;
+        internal Vector3 Via;
+        internal Vector3? AlternateVia;
+        internal IntPtr Settings, Callback;
+        internal bool WaitingForHalt = true;
+        internal bool FinalLeg, PathApproved, ViaBlocked, CheckingAlternateVia, FinalRescueUsed;
+        internal float Started;
+        internal VehicleAgent.ENavigationResult? ViaResult;
+
+        internal DetourDrive(LandVehicle veh, VehicleAgent agent, Vector3 via, Vector3? alternateVia, Vector3 destination,
+            StaticBlocker blocker, bool hasVia = true)
+        {
+            Vehicle = veh.Pointer;
+            Agent = agent.Pointer;
+            Via = via;
+            AlternateVia = alternateVia;
+            Destination = destination;
+            HasVia = hasVia;
+            FinalLeg = !hasVia;
+            BlockerId = blocker.Id;
+            (Min, Max) = BlockerClearance(blocker.Bounds);
+        }
+
+        internal Vector3 Target => FinalLeg ? Destination : Via;
+        internal bool Hold => !PathApproved || ViaResult.HasValue;
+    }
+
+    private static long _detourUsedOperation = -1;
+    private static (StaticBlocker Blocker, long Operation, int Order)? _detourReverse;
+    private static DetourDrive? _detour;
+
+    private static bool DetourOrderCurrent(DetourDrive drive) =>
+        ReferenceEquals(_detour, drive) && Mod.Lifecycle.AcceptingWork && SpikeState.PollingActive &&
+        SpikeState.Operation.Active && drive.Operation == SpikeState.OperationId &&
+        drive.Generation == SpikeState.Operation.Generation && drive.Order == SpikeState.NavOrder &&
+        SpikeState.RideActive && !SpikeState.NavToPlayer;
+
+    private static bool DetourOwnsVehicle(DetourDrive drive, LandVehicle? vehicle, VehicleAgent? agent) =>
+        DetourOrderCurrent(drive) && vehicle != null && agent != null &&
+        vehicle.Pointer == drive.Vehicle && agent.Pointer == drive.Agent &&
+        SpikeCommands.HasAuthority() && SpikeCommands.IsOwnedTaxi(vehicle) && !PlayerDriver(vehicle);
+
+    internal static bool IsDetourTarget(Vector3 target) =>
+        _detour is { } drive && DetourOrderCurrent(drive) && SamePoint(target, drive.Target);
+
+    private static bool HoldingDetour => _detour is { Hold: true } drive && DetourOrderCurrent(drive);
+
+    private static bool SamePoint(Vector3 first, Vector3 second) =>
+        first.x == second.x && first.y == second.y && first.z == second.z;
+
+    // Reserve room for the taxi's turning envelope and chassis above the path.
+    private static (System.Numerics.Vector3 Min, System.Numerics.Vector3 Max) BlockerClearance(Bounds bounds) =>
+        (ToNumerics(bounds.min - new Vector3(2.5f, 1.6f, 2.5f)),
+            ToNumerics(bounds.max + new Vector3(2.5f, 0.75f, 2.5f)));
+
+    private static StaticBlocker? ObserveDetourBlocker(LandVehicle veh, VehicleAgent agent, Vector3 position)
+    {
+        if (!SpikeState.RideActive || SpikeState.NavToPlayer || _detourUsedOperation == SpikeState.OperationId ||
+            !CanTryDetour())
+            return null;
+        if (!TryReadSignedSpeed(veh, out float speed))
+            return null;
+        // Native obstacle handling can start backing away between the stall and
+        // the managed recovery tick. Keep the front witness during that slow retreat.
+        if (Math.Abs(speed) > NavigationArrivalPolicy.StandingKmh &&
+            !(speed < 0f && speed >= -DetourNativeReverseWitnessKmh && TryReadReversing(veh, out bool reversing) && reversing))
+            return null;
+        if (!RoadKeeper.TryReadStaticFrontBlocker(veh, agent, out int id, out Bounds bounds))
+            return null;
+        return new(id, position, veh.transform.forward, bounds);
+    }
+
+    private static bool CanTryDetour() => NativeShortcutPatch.CanValidateDetour && NativeActuatorPatch.Healthy &&
+        SpikeState.RideResolvedArrival is { } resolved && SamePoint(resolved, _operationProgressTarget);
+
+    private static bool TryQueueDetourReverse(LandVehicle veh, VehicleAgent agent, StaticBlocker blocker, float now)
+    {
+        if (!CanTryDetour() || !TryStartReverse(agent, veh, now, "clear static blocker for detour", blocker))
+            return false;
+        _recurringReverseUsed = true;
+        return true;
+    }
+
+    private static StaticBlocker? TakeDetourBlockerForReverse(int reversingOrder)
+    {
+        var pending = _detourReverse;
+        _detourReverse = null;
+        return pending is { } reverse && reverse.Operation == SpikeState.OperationId &&
+            reverse.Order == reversingOrder ? reverse.Blocker : null;
+    }
+
+    private static bool TryStartDetour(LandVehicle veh, VehicleAgent agent, StaticBlocker blocker, bool allowDirectWithoutVia = false)
+    {
+        long operation = SpikeState.OperationId;
+        long generation = SpikeState.Operation.Generation;
+        int order = SpikeState.NavOrder;
+        Vector3 destination = _operationProgressTarget;
+        IntPtr vehiclePointer = veh.Pointer;
+        IntPtr agentPointer = agent.Pointer;
+        bool SameOrder() => Mod.Lifecycle.AcceptingWork && SpikeState.PollingActive && SpikeState.Operation.Active &&
+            SpikeState.RideActive && !SpikeState.NavToPlayer && SpikeState.OperationId == operation &&
+            SpikeState.Operation.Generation == generation && SpikeState.NavOrder == order && SamePoint(_operationProgressTarget, destination) &&
+            ReferenceEquals(SpikeState.Vehicle, veh);
+        bool StillCurrent() => SameOrder() && vehiclePointer != IntPtr.Zero && agentPointer != IntPtr.Zero &&
+            veh.Pointer == vehiclePointer && veh.Agent?.Pointer == agentPointer &&
+            SpikeCommands.HasAuthority() && SpikeCommands.IsOwnedTaxi(veh) && !PlayerDriver(veh) && SameOrder();
+        bool available = CanTryDetour();
+        if (!StillCurrent()) return true; // The older recovery stack no longer owns a follow-up.
+        if (!available) return false;
+
+        Vector3 forward = new Vector3(blocker.Forward.x, 0f, blocker.Forward.z).normalized;
+        Vector3 side = new(-forward.z, 0f, forward.x);
+        if (Vector3.Dot(blocker.Bounds.center - blocker.Position, side) > 0f)
+            side = -side;
+        Vector3 rear = blocker.Position - forward * DetourRearOffset;
+        Vector3 probe = rear + side * DetourSideOffset;
+        bool found = RoadTarget.TryDetourPoint(probe, out Vector3 via);
+        if (!StillCurrent()) return true;
+        if (!found)
+        {
+            side = -side;
+            probe = rear + side * DetourSideOffset;
+            found = RoadTarget.TryDetourPoint(probe, out via);
+            if (!StillCurrent()) return true;
+        }
+        // When the wide search misses the street, try closer points on each
+        // side. These are still snapped and bounded by RoadTarget, and the
+        // returned native path is checked before movement.
+        if (!found)
+        {
+            side = -side;
+            probe = rear + side * DetourFallbackSideOffset;
+            found = RoadTarget.TryDetourPoint(probe, out via);
+            if (!StillCurrent()) return true;
+        }
+        if (!found)
+        {
+            side = -side;
+            probe = rear + side * DetourFallbackSideOffset;
+            found = RoadTarget.TryDetourPoint(probe, out via);
+            if (!StillCurrent()) return true;
+        }
+        if (!found && (!allowDirectWithoutVia || !CanTryDetour()))
+        {
+            Vector3 position = veh.transform.position;
+            if (!StillCurrent()) return true;
+            Mod.Log.Warn("[detour] no street point within the local search area.");
+            GiveUpNavigation(agent, position, Vector3.Distance(position, SpikeState.NavTarget),
+                Time.unscaledTime - SpikeState.NavStartTime);
+            return true;
+        }
+
+        Vector3? alternateVia = null;
+        // A nearby point on the same street can lead the native graph to a different
+        // entry. Give it one independent calculation if the first path is refused.
+        if (found && RoadTarget.TryDetourPoint(probe + forward * DetourAlternateAdvance, out Vector3 alternate) &&
+            Vector3.Distance(via, alternate) >= 2f)
+            alternateVia = alternate;
+        if (!StillCurrent()) return true;
+        var drive = new DetourDrive(veh, agent, via, alternateVia, destination, blocker, hasVia: found)
+        {
+            Started = Time.time
+        };
+        if (!StillCurrent()) return true;
+        drive.Order = SpikeState.NextNavOrder();
+        _detourUsedOperation = operation;
+        _detour = drive;
+        if (found)
+            Mod.Log.Info($"[detour] static blocker id={blocker.Id} stall={SpikeCommands.Fmt(blocker.Position)} " +
+                $"via={SpikeCommands.Fmt(via)} regular target={SpikeCommands.Fmt(drive.Destination)}.");
+        else
+            Mod.Log.Info($"[detour] no street point within the local search area after a confirmed retreat; " +
+                $"checking the regular target={SpikeCommands.Fmt(drive.Destination)} against blocker id={blocker.Id}.");
+        try
+        {
+            NativeActuatorPatch.RequestPark(veh);
+            if (DetourOwnsVehicle(drive, veh, agent)) agent.StopNavigating();
+        }
+        catch (Exception ex)
+        {
+            EndDetour(drive, veh, agent, $"could not stop before checking the route: {ex.Message}");
+        }
+        return true;
+    }
+
+    private static void DispatchDetourLeg(DetourDrive drive, LandVehicle veh, VehicleAgent agent)
+    {
+        if (!DetourOwnsVehicle(drive, veh, agent)) return;
+        drive.Order = SpikeState.NextNavOrder();
+        int order = drive.Order;
+        drive.PathApproved = false;
+        drive.ViaResult = null;
+        drive.Started = Time.time;
+        SpikeState.NavStartTime = Time.unscaledTime;
+        SpikeState.NavCallbackResult = null;
+        SpikeState.NavCallbackRecoveryPending = false;
+        ClearPendingArrival();
+
+        try
+        {
+            // Native Navigate can move to the vehicle graph before returning a path.
+            float graphDistance = agent.GetDistanceFromVehicleGraph();
+            if (!float.IsFinite(graphDistance) || graphDistance < 0f || graphDistance > 5f)
+            {
+                EndDetour(drive, veh, agent, "vehicle too far from the navigation graph");
+                return;
+            }
+            var settings = SpikeCommands.CreateNavigationSettings();
+            Action<VehicleAgent.ENavigationResult> action = drive.FinalLeg
+                ? NavigationCallbackFor(order)
+                : result => { if (drive.Order == order && DetourOrderCurrent(drive)) drive.ViaResult = result; };
+            VehicleAgent.NavigationCallback callback = action;
+            drive.Settings = settings.Pointer;
+            drive.Callback = callback.Pointer;
+            NativeActuatorPatch.RequestPark(veh);
+            if (!DetourOwnsVehicle(drive, veh, agent)) return;
+
+            if (drive.FinalLeg)
+            {
+                Vector3 position = veh.transform.position;
+                float distance = Vector3.Distance(position, drive.Destination);
+                float windowTime = Time.unscaledTime;
+                if (!DetourOwnsVehicle(drive, veh, agent)) return;
+                if (!SamePoint(SpikeState.NavTarget, drive.Destination))
+                {
+                    SpikeState.RideDropOff = "resolved stop (detour)";
+                    SpikeState.RideDropOffLot = string.Empty;
+                    SpikeState.RideStreetCandidate = null;
+                }
+                SpikeState.NavTarget = drive.Destination;
+                if (SpikeState.RideDestinationPicked) SpikeState.RideDestination = drive.Destination;
+                SpikeState.ActiveTripPoint = drive.Destination;
+                ArmProgressWindow(position, distance, windowTime);
+            }
+            if (!DetourOwnsVehicle(drive, veh, agent)) return;
+            agent.Navigate(drive.Target, settings, callback);
+        }
+        catch (Exception ex)
+        {
+            if (DetourOwnsVehicle(drive, veh, agent))
+                EndDetour(drive, veh, agent, $"dispatch failed: {ex.Message}");
+        }
+    }
+
+    // Called before the native calculation publishes its result or moves the car.
+    // Restrict refusal to the exact settings and delegate installed for this leg.
+    internal static bool RejectDetourPath(VehicleAgent agent, PathSmoothingUtility.SmoothedPath? path)
+    {
+        if (_detour is not { } drive || !DetourOrderCurrent(drive) || agent.Pointer != drive.Agent)
+            return false;
+        LandVehicle? veh = SpikeState.Vehicle;
+        if (!DetourCallbackCurrent(drive, veh, agent))
+            return false;
+
+        bool approved = false;
+        bool crossesBlocker = false;
+        string rejection = "missing path or wrong endpoint";
+        try
+        {
+            float endpointTolerance = drive.CheckingAlternateVia ? 2f : ArrivalThresholdMeters;
+            approved = DetourPathClears(drive, veh!, path?.vectorPath, endpointTolerance, out rejection, out crossesBlocker);
+        }
+        catch (Exception ex)
+        {
+            rejection = "path unreadable";
+            try { Mod.Log.Warn($"[detour] path unreadable: {ex.Message}"); }
+            catch { /* The native refusal must survive a logger failure. */ }
+        }
+        if (!DetourCallbackCurrent(drive, veh, agent)) return false;
+        drive.PathApproved = approved;
+        if (!drive.FinalLeg)
+        {
+            drive.ViaBlocked = crossesBlocker;
+            drive.CheckingAlternateVia = false;
+            if (approved) drive.AlternateVia = null;
+        }
+        try
+        {
+            Mod.Log.Info($"[detour] {(drive.FinalLeg ? "final" : "via")} leg path {(approved ? "clears blocker" : $"rejected: {rejection}")} " +
+                $"op={drive.Operation} order={drive.Order}.");
+        }
+        catch { /* Diagnostics cannot change the path verdict. */ }
+        return !approved;
+    }
+
+    // The alternate via may prefer the game's own short direct candidate. The
+    // result hook still checks the actual smoothed path before it can drive.
+    internal static bool CanPreferDirectDetourVia(VehicleAgent agent, Vector3 target, Il2CppPathfinding.Path? path)
+    {
+        if (_detour is not { CheckingAlternateVia: true, FinalLeg: false, PathApproved: false } drive ||
+            !SamePoint(target, drive.Via))
+            return false;
+        var veh = SpikeState.Vehicle;
+        try
+        {
+            if (!DetourCallbackCurrent(drive, veh, agent)) return false;
+            var points = path?.vectorPath;
+            return points != null && points.Count <= 64 && DetourPathClears(drive, veh!, points, 2f, out _, out _) &&
+                DetourCallbackCurrent(drive, veh, agent);
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+    }
+
+    private static bool DetourPathClears(DetourDrive drive, LandVehicle veh,
+        il2cpp::Il2CppSystem.Collections.Generic.List<Vector3>? points, float endpointTolerance, out string rejection, out bool crossesBlocker)
+    {
+        rejection = "missing path or wrong endpoint";
+        crossesBlocker = false;
+        int count = points?.Count ?? 0;
+        if (points == null || count is < 2 or > 4096 ||
+            !(Vector3.Distance(points[count - 1], drive.Target) <= endpointTolerance))
+            return false;
+
+        var previous = ToNumerics(veh.transform.position);
+        for (int i = 0; i < count; i++)
+        {
+            var next = ToNumerics(points[i]);
+            if (DetourClearancePolicy.CrossesBlocker(previous, next, drive.Min, drive.Max))
+            {
+                crossesBlocker = true;
+                rejection = $"segment {i} intersects blocker clearance ({previous} to {next})";
+                return false;
+            }
+            if (drive.FinalBlocker is { } final && DetourClearancePolicy.CrossesBlocker(previous, next, final.Min, final.Max))
+            {
+                rejection = $"segment {i} intersects final-leg blocker clearance ({previous} to {next})";
+                return false;
+            }
+            previous = next;
+        }
+        return true;
+    }
+
+    private static bool DetourCallbackCurrent(DetourDrive drive, LandVehicle? veh, VehicleAgent agent) =>
+        DetourOwnsVehicle(drive, veh, agent) && SamePoint(agent.TargetLocation, drive.Target) &&
+        agent.currentNavigationSettings?.Pointer == drive.Settings &&
+        agent.storedNavigationCallback?.Pointer == drive.Callback && DetourOrderCurrent(drive);
+
+    internal static void BeginDetourCalculation(VehicleAgent agent, Vector3 target, NavigationSettings? settings)
+    {
+        if (_detour is not { } drive || !DetourOrderCurrent(drive) ||
+            settings?.Pointer != drive.Settings || !SamePoint(target, drive.Target))
+            return;
+        var veh = SpikeState.Vehicle;
+        if (!DetourOwnsVehicle(drive, veh, agent)) return;
+        drive.PathApproved = false;
+        if (drive.FinalLeg) drive.Started = Time.time;
+        NativeActuatorPatch.RequestPark(veh!);
+    }
+
+    private static bool TryUseAlternateVia(DetourDrive drive, LandVehicle veh, VehicleAgent agent)
+    {
+        if (drive.FinalLeg || drive.PathApproved || drive.AlternateVia is not { } alternate ||
+            !DetourOwnsVehicle(drive, veh, agent))
+            return false;
+
+        drive.Order = SpikeState.NextNavOrder();
+        drive.AlternateVia = null;
+        drive.Via = alternate;
+        drive.CheckingAlternateVia = drive.ViaBlocked;
+        drive.WaitingForHalt = true;
+        drive.ViaResult = null;
+        drive.Started = Time.time;
+        Mod.Log.Info($"[detour] first calculation refused; checking alternate via={SpikeCommands.Fmt(alternate)}.");
+        return true;
+    }
+
+    private static bool TickDetour()
+    {
+        if (_detour is not { } drive) return false;
+        var veh = SpikeState.Vehicle;
+        var agent = veh?.Agent;
+        if (!DetourOwnsVehicle(drive, veh, agent))
+        {
+            _detour = null;
+            return false;
+        }
+        if (Time.timeScale == 0f) return true;
+        if (drive.FinalLeg && drive.PathApproved && !drive.WaitingForHalt) return false;
+        if (StopIfNavigationExpired(agent!, veh, Time.unscaledTime)) return true;
+
+        if (drive.WaitingForHalt)
+        {
+            bool readable = TryReadSignedSpeed(veh!, out float signedSpeed);
+            bool reversing = !TryReadReversing(veh!, out bool nativeReverse) || nativeReverse;
+            if (NavigationArrivalPolicy.IsConfirmedHalt(readable, signedSpeed, reversing))
+            {
+                Mod.Log.Info($"[detour] halt before path calculation confirmed at {SpikeCommands.Fmt(veh!.transform.position)}.");
+                drive.WaitingForHalt = false;
+                DispatchDetourLeg(drive, veh, agent!);
+            }
+            else if (Time.time - drive.Started >= 5f || !NativeActuatorPatch.Healthy)
+                EndDetour(drive, veh!, agent!, "halt before route calculation could not be confirmed");
+            return true;
+        }
+
+        bool calculationEndedWithoutPath = !drive.PathApproved && !agent!.NavigationCalculationInProgress;
+        if (calculationEndedWithoutPath && NativeActuatorPatch.Healthy &&
+            Time.time - drive.Started < DetourLegTimeoutSeconds && TryUseAlternateVia(drive, veh!, agent!))
+            return true;
+        if (!NativeActuatorPatch.Healthy || Time.time - drive.Started >= DetourLegTimeoutSeconds ||
+            calculationEndedWithoutPath ||
+            (drive.ViaResult.HasValue && drive.ViaResult.Value != VehicleAgent.ENavigationResult.Complete))
+        {
+            EndDetour(drive, veh!, agent!, "no confirmed clear route to the next stop");
+            return true;
+        }
+        if (drive.ViaResult == VehicleAgent.ENavigationResult.Complete)
+        {
+            NativeActuatorPatch.RequestPark(veh!);
+            bool speedReadable = TryReadSignedSpeed(veh!, out float speed);
+            bool reversing = !TryReadReversing(veh!, out bool isReversing) || isReversing;
+            if (NavigationArrivalPolicy.IsConfirmedArrival(
+                Vector3.Distance(veh!.transform.position, drive.Via), speedReadable, speed, reversing))
+            {
+                Mod.Log.Info($"[detour] via halt confirmed at {SpikeCommands.Fmt(veh.transform.position)}; proceeding to the regular stop.");
+                drive.FinalLeg = true;
+                DispatchDetourLeg(drive, veh, agent!);
+            }
+        }
+        return true;
+    }
+
+    private static void EndDetour(DetourDrive drive, LandVehicle veh, VehicleAgent agent, string reason)
+    {
+        if (!DetourOwnsVehicle(drive, veh, agent)) return;
+        Vector3 position = Vector3.zero;
+        try { position = veh.transform.position; }
+        catch { /* Terminal stop still applies when the position is unreadable. */ }
+        if (!DetourOrderCurrent(drive)) return;
+        _detour = null;
+        Mod.Log.Warn($"[detour] stopped: {reason}.");
+        GiveUpNavigation(agent, position, Vector3.Distance(position, SpikeState.NavTarget),
+            Time.unscaledTime - SpikeState.NavStartTime);
+    }
+
+    private static bool CancelFinalDetourOnStall(LandVehicle veh, VehicleAgent agent)
+    {
+        if (_detour is not { FinalLeg: true } drive || !DetourOwnsVehicle(drive, veh, agent))
+            return false;
+        int rescueOrder = drive.Order;
+        bool RescueCurrent() => DetourOwnsVehicle(drive, veh, agent) && veh.Agent?.Pointer == drive.Agent &&
+            drive.Order == rescueOrder && DetourOrderCurrent(drive);
+        try
+        {
+            // A different local obstruction can prevent the final leg from making progress.
+            // At a via we require the confirmed via halt; a direct final leg has no via
+            // and requires a confirmed halt at its actual position instead.
+            if (drive.FinalRescueUsed || !drive.PathApproved || !NativeActuatorPatch.Healthy ||
+                !TryReadSignedSpeed(veh, out float speed) || !TryReadReversing(veh, out bool reversing) ||
+                !(drive.HasVia
+                    ? NavigationArrivalPolicy.IsConfirmedArrival(Vector3.Distance(veh.transform.position, drive.Via), true, speed, reversing)
+                    : NavigationArrivalPolicy.IsConfirmedHalt(true, speed, reversing)) ||
+                !RoadKeeper.TryReadStaticFrontBlocker(veh, agent, out int id, out Bounds bounds) || id == drive.BlockerId ||
+                !RescueCurrent() ||
+                !SpikeState.NavigationRecovery.TrySpend(Time.unscaledTime, TaxiAI.PathingFailureCap))
+            {
+                if (RescueCurrent()) EndDetour(drive, veh, agent, "no progress after the verified detour");
+                return true;
+            }
+
+            var final = BlockerClearance(bounds);
+            bool AllowPlacement(Vector3 spot)
+            {
+                var point = ToNumerics(spot);
+                return !DetourClearancePolicy.CrossesBlocker(point, point, drive.Min, drive.Max) &&
+                    !DetourClearancePolicy.CrossesBlocker(point, point, final.Min, final.Max);
+            }
+
+            drive.FinalRescueUsed = true;
+            drive.FinalBlocker = final;
+            rescueOrder = drive.Order = SpikeState.NextNavOrder();
+            drive.PathApproved = false;
+            drive.WaitingForHalt = true;
+            drive.Started = Time.time;
+            Mod.Log.Warn($"[detour] recovery episode={SpikeState.NavigationRecovery.Attempts} op={drive.Operation} " +
+                $"order={drive.Order}: checking a free road spot at the final-leg blocker id={id}.");
+            if (!RescueCurrent()) return true;
+            NativeActuatorPatch.RequestPark(veh);
+            if (!RescueCurrent()) return true;
+            // Use the current road corridor before StopNavigating clears it.
+            bool rescued = TryFreeSpotRescue(veh, agent, "final detour departure", AllowPlacement, RescueCurrent);
+            if (!RescueCurrent()) return true;
+            if (rescued) agent.StopNavigating();
+            else EndDetour(drive, veh, agent, "no supported departure past the final-leg blocker");
+        }
+        catch (Exception ex)
+        {
+            if (RescueCurrent()) EndDetour(drive, veh, agent, $"final-leg recovery failed: {ex.Message}");
+        }
+        return true;
+    }
 
     /// <summary>Fresh measurement window granted to the one-time startup retry (review M2).</summary>
     private const float RetryGraceSeconds = 6f;
@@ -568,7 +1087,7 @@ internal static class SpikeRunner
         if (!probeDue && TryCompleteBeforeRecovery(agent, veh, decisionPosition, decisionDistance, "recovery",
                 logDecision: _recurringProbeAt <= 0f))
             return false;
-        if (StopIfNavigationExpired(agent, veh, now)) return false;
+        if (StopIfNavigationExpired(agent, veh, now) || CancelFinalDetourOnStall(veh, agent)) return false;
         if (_recurringProbeAt > 0f)
         {
             if (now < _recurringProbeAt) return false;
@@ -612,6 +1131,7 @@ internal static class SpikeRunner
                     _supervisorSampleReadable, _supervisorSampleSpeed, false, budgetBefore, SpikeState.NavigationRecovery.Attempts);
                 return true;
             }
+            StaticBlocker? blocker = ObserveDetourBlocker(veh, agent, stall);
 
             // Same area, no new forward approach: do not repeat the reverse ladder.
             // Keep finite budgets; a refused rescue cannot justify an unchanged redispatch.
@@ -632,6 +1152,9 @@ internal static class SpikeRunner
                 if (!StillCurrent()) return false;
                 SpikeCommands.EnsureDriverSeat(veh);
                 if (!StillCurrent()) return false;
+                if (blocker is { } staticHit && TryQueueDetourReverse(veh, agent, staticHit, now))
+                    return false;
+                if (!StillCurrent()) return false;
                 bool rescued = TryFreeSpotRescue(veh, agent, "recurring stall");
                 // Native calls may have processed STOP, teardown or a replacement operation.
                 // Neither the success nor failure continuation may act on that newer state.
@@ -643,7 +1166,7 @@ internal static class SpikeRunner
                 // for a free spot and then gave up. One directed reverse per operation is
                 // the bounded last physical option before the checked re-probe.
                 bool reversed = false;
-                if (!rescued && !_recurringReverseUsed)
+                if (!rescued && !_recurringReverseUsed && blocker == null)
                 {
                     _recurringReverseUsed = true;
                     reversed = TryStartReverse(agent, veh, now, "recurring stall");
@@ -657,7 +1180,10 @@ internal static class SpikeRunner
                 }
 
                 if (rescued)
-                    ReDispatch(agent, SpikeState.NavTarget, "recurring stall (free-spot rescue)");
+                {
+                    if (blocker is not { } hit || !TryStartDetour(veh, agent, hit))
+                        ReDispatch(agent, SpikeState.NavTarget, "recurring stall (free-spot rescue)");
+                }
                 else if (reversed)
                 {
                     // The reverse owns the re-dispatch through NavReDispatchAt; no second dispatch.
@@ -781,6 +1307,8 @@ internal static class SpikeRunner
     /// <summary>Managed-only drive teardown, also safe after native taxi death.</summary>
     internal static void ResetDrivingState()
     {
+        _detour = null;
+        _detourReverse = null;
         _autoNavigationReceipt = null;
         _trafficWaiting = false;
         TrafficWait.Reset();
@@ -872,12 +1400,14 @@ internal static class SpikeRunner
             SpikeCommands.TickDestroyVerification();
             if (!MainSceneLoaded())
             {
+                SpikeCommands.CancelPendingStopExit();
                 // No scene, no safe native access: still clear any managed reverse (brief §7.3/D14).
                 if (SpikeState.Reverse.Active || SpikeState.NavReDispatchAt > 0f)
                     RevokeReverse("update: gameplay scene not loaded");
                 TickLotDump();
                 return;
             }
+            if (SpikeCommands.TickPendingStopExit()) return;
             TickPendingSpawn();
             TickLotDump();
 
@@ -896,27 +1426,23 @@ internal static class SpikeRunner
             // callback consumption can act on the old order in this frame.
             if (SpikeCommands.TickEarlyBoard()) return;
             TickAutoRun();
-            ObserveNavigationProgress();
-            // Supervise the bounded reverse independently of PollingActive and BEFORE ride
-            // finalization: a polling getter error or a lost handle must not leave the managed
-            // reverse request (or the meter verdict) stale (brief §7.3).
-            TickReverseSupervision();
-            // Drain a queued navigation callback BEFORE ride finalization (brief §8.1): all native
-            // work happens here on the normal Update path, never inside the native callback.
-            TickNavigationCallback();
-            // Confirm a pending arrival (brief §8.2): a current Complete is only evidence until a
-            // readable, confirmed halt inside the target radius is observed. Runs independently of
-            // PollingActive and BEFORE ride finalization so an accepted arrival completes the
-            // operation exactly once.
-            TickArrivalConfirmation();
+            bool detouring = TickDetour();
+            if (!detouring)
+            {
+                ObserveNavigationProgress();
+                // Reverse supervision and callback consumption run before ride finalization.
+                TickReverseSupervision();
+                TickNavigationCallback();
+                TickArrivalConfirmation();
+            }
             TickRide();
             // Visual-only: imported wheel nodes follow the native wheel state of the
             // tracked taxi. Never writes to physics; unresolvable links stay static.
             TaxiVisual.TickWheels();
             TickIdleGuard();
-            RoadKeeper.Tick();
+            if (!HoldingDetour) RoadKeeper.Tick();
             TickSettleLog();
-            TickNavigationPolling();
+            if (!detouring) TickNavigationPolling();
             TickHeartbeat();
 
             // Re-arm the one-shot error report: a healthy pass proves the previous
@@ -1086,7 +1612,8 @@ internal static class SpikeRunner
     /// <see cref="RoadKeeper.TryRescueStartup"/> checks the oriented box, ground and
     /// occupancy first.
     /// </summary>
-    private static bool TryFreeSpotRescue(LandVehicle veh, VehicleAgent agent, string context)
+    private static bool TryFreeSpotRescue(LandVehicle veh, VehicleAgent agent, string context,
+        Func<Vector3, bool>? allowPlacement = null, Func<bool>? revalidatePlacement = null)
     {
         if (TaxiAI.NavigationBlocked) return false;
         if (!SpikeState.PollingActive)
@@ -1104,7 +1631,8 @@ internal static class SpikeRunner
             return false;
         }
 
-        if (!RoadKeeper.TryRescueStartup(veh, agent, context))
+        if (!RoadKeeper.TryRescueStartup(veh, agent, context, allowPlacement, revalidatePlacement) ||
+            revalidatePlacement?.Invoke() == false)
             return false;
 
         _freeSpotRescues++;
@@ -1348,8 +1876,9 @@ internal static class SpikeRunner
     }
 
     // Final native inputs are selected at ApplyThrottle, never generic render Update.
-    internal static bool HasActuatorOrder => SpikeState.PollingActive || TaxiAI.Active ||
-        SpikeState.Reverse.Active || SpikeState.AutoRunning || _recoveryOwnsNavigation || _selfTestActive;
+    internal static bool HasActuatorOrder => !HoldingDetour &&
+        (SpikeState.PollingActive || TaxiAI.Active || SpikeState.Reverse.Active ||
+            SpikeState.AutoRunning || _recoveryOwnsNavigation || _selfTestActive);
 
     // -------------------------------------------------------- deferred spawn
 
@@ -1835,6 +2364,13 @@ internal static class SpikeRunner
 
         if (SpikeState.StuckRecoveries == 2 && SpikeState.RideActive && !SpikeState.NavToPlayer && SpikeState.RideGoal.HasValue)
         {
+            // A different destination cannot clear a local obstruction. Use this
+            // already-granted recovery to try the checked detour before switching lots.
+            StaticBlocker? blocker = ObserveDetourBlocker(veh, agent, position);
+            if (!StillCurrent()) return;
+            if (blocker is { } hit && TryQueueDetourReverse(veh, agent, hit, Time.unscaledTime)) return;
+            if (!StillCurrent()) return;
+
             // Unknown/cleared passenger goals and pickups cannot authorize an alternate drop-off.
             Vector3 goal = SpikeState.RideGoal.Value;
             bool found = TaxiDestinations.TryFallbackDropOff(goal, SpikeState.NavTarget, out Vector3 fallback, out string lot);
@@ -1880,9 +2416,17 @@ internal static class SpikeRunner
             rear: true, distance: ReverseClearanceMeters);
     }
 
-    private static bool TryStartReverse(VehicleAgent agent, LandVehicle veh, float now, string reason)
+    private static bool TryStartReverse(VehicleAgent agent, LandVehicle veh, float now, string reason, StaticBlocker? knownBlocker = null)
     {
         if (TaxiAI.NavigationBlocked) return false;
+        int order = SpikeState.NavOrder;
+        long operation = SpikeState.OperationId;
+        IntPtr pointer = veh.Pointer;
+        IntPtr agentPointer = agent.Pointer;
+        bool StillCurrent() => Mod.Lifecycle.AcceptingWork && SpikeState.PollingActive && SpikeState.Operation.Active &&
+            SpikeState.OperationId == operation && SpikeState.NavOrder == order && ReferenceEquals(SpikeState.Vehicle, veh) &&
+            pointer != IntPtr.Zero && veh.Pointer == pointer && agentPointer != IntPtr.Zero && veh.Agent?.Pointer == agentPointer &&
+            SpikeCommands.HasAuthority() && SpikeCommands.IsOwnedTaxi(veh) && !PlayerDriver(veh) && SpikeCommands.DriverAtWheel(veh);
         // Start conditions (brief §6.3): a current ACTIVE operation, live host authority, the exact
         // owned living taxi, a healthy consumer hook and no player at the wheel.
         if (!SpikeState.PollingActive || !SpikeState.Operation.Active || !SpikeCommands.HasAuthority() ||
@@ -1926,15 +2470,16 @@ internal static class SpikeRunner
             return false;
         }
 
+        Vector3 origin = veh.transform.position;
+        StaticBlocker? blocker = CanTryDetour() ? knownBlocker ?? ObserveDetourBlocker(veh, agent, origin) : null;
+        if (!StillCurrent()) return false;
+
         // Consume the attempt and capture operation/order/pointer/origin/direction BEFORE the
         // native call, so an error or a reentrant callback cannot buy a free retry (brief §6.2).
-        _reverseOrigin = veh.transform.position;
+        _reverseOrigin = origin;
         _reverseForward = veh.transform.forward;
         _reverseAttempt = Math.Min(_reverseAttempt + 1, 2);
-        float seconds = _reverseAttempt >= 2 ? ReverseSecondsLong : ReverseSeconds;
-        int order = SpikeState.NavOrder;
-        long operation = SpikeState.OperationId;
-        IntPtr pointer = veh.Pointer;
+        float seconds = blocker.HasValue || _reverseAttempt >= 2 ? ReverseSecondsLong : ReverseSeconds;
         Vector3 reverseDir = -veh.transform.forward;
 
         _recoveryOwnsNavigation = true;
@@ -1956,23 +2501,27 @@ internal static class SpikeRunner
 
             // Re-check AFTER the native call AND after any boarding side effect: the operation,
             // order, vehicle pointer, polling, lifecycle and driver must be unchanged (brief §6.3).
-            if (!SpikeState.Reverse.Matches(operation, order) || !SpikeState.PollingActive ||
-                !SpikeState.Operation.Active || !ReferenceEquals(SpikeState.Vehicle, veh) ||
-                veh.Pointer != pointer || PlayerDriver(veh) || !SpikeCommands.DriverAtWheel(veh))
+            if (!SpikeState.Reverse.Matches(operation, order) || !StillCurrent())
             {
                 Mod.Log.Warn($"[reverse] {reason}: native StartReverse was superseded by STOP/reroute/error/driver change — revoking.");
-                RevokeReverse("post-StartReverse superseded");
+                if (SpikeState.OperationId == operation && SpikeState.NavOrder == order)
+                    RevokeReverse("post-StartReverse superseded");
                 return false;
             }
+            _detourReverse = blocker is { } hit ? (hit, operation, order) : null;
+            string followup = blocker is { } staticHit
+                ? $"verify detour around static blocker id={staticHit.Id} at {SpikeCommands.Fmt(staticHit.Position)}"
+                : $"redispatch to {SpikeCommands.Fmt(SpikeState.NavTarget)}";
             Mod.Log.Warn(
-                $"[reverse] {reason}: requested {seconds:0.0}s (attempt {_reverseAttempt}, op {operation}, order {order}), rear clear; then redispatch to {SpikeCommands.Fmt(SpikeState.NavTarget)}" +
+                $"[reverse] {reason}: requested {seconds:0.0}s (attempt {_reverseAttempt}, op {operation}, order {order}), rear clear; then {followup}" +
                 $"{DescribeDriveState(veh, agent)}.");
             return true;
         }
         catch (Exception ex)
         {
             Mod.Log.Warn($"[reverse] {reason}: StartReverse failed: {ex.Message}");
-            RevokeReverse("StartReverse threw");
+            if (SpikeState.OperationId == operation && SpikeState.NavOrder == order)
+                RevokeReverse("StartReverse threw");
             return false;
         }
         finally
@@ -2177,21 +2726,44 @@ internal static class SpikeRunner
     }
 
     /// <summary>Finishes the reverse manoeuvre and re-dispatches the same route.</summary>
-    private static void TickReDispatch(VehicleAgent agent)
+    private static void TickReDispatch(VehicleAgent agent, bool reverseRetryAllowed = true)
     {
+        long operation = SpikeState.OperationId;
+        long generation = SpikeState.Operation.Generation;
+        int reversingOrder = SpikeState.NavOrder;
         Vector3 target = SpikeState.NavReDispatchTarget;
         LandVehicle? veh = SpikeState.Vehicle;
-        // Capture native reverse/steering/speed BEFORE our own cancellation.
-        string driveState = veh == null ? string.Empty : DescribeDriveState(veh, agent);
-        // Capture the DIRECTED measurement and the front clearance. The forward gate uses the
-        // CURRENT directed net, not a best-ever high-water mark a retrace could fake (brief §7.1).
-        float netReverse = veh == null ? 0f : SpikeState.Reverse.DirectedNetReverseMeters(ToNumerics(veh.transform.position));
-        bool moved = SpikeState.Reverse.MovedConfirmed;
-        bool frontBlocked = veh != null &&
-            RoadKeeper.HasObstacle(veh, veh.transform.position, veh.transform.rotation);
-        bool forwardOk = veh != null && SpikeState.Reverse.CanDispatchForward(netReverse, frontBlocked);
-        long operation = SpikeState.OperationId;
         IntPtr pointer = veh == null ? IntPtr.Zero : veh.Pointer;
+        IntPtr agentPointer = agent.Pointer;
+        var pendingDetour = _detourReverse;
+        bool SameHandoff() => ReferenceEquals(SpikeState.Vehicle, veh) && SpikeState.OperationId == operation &&
+            SpikeState.Operation.Generation == generation && SpikeState.NavOrder == reversingOrder &&
+            SpikeState.Reverse.Matches(operation, reversingOrder) && pendingDetour is { } pending &&
+            pending.Operation == operation && pending.Order == reversingOrder && Nullable.Equals(pendingDetour, _detourReverse);
+
+        string driveState;
+        float netReverse;
+        bool frontBlocked;
+        try
+        {
+            // Capture native drive state and the current directed motion before cancellation.
+            driveState = veh == null ? string.Empty : DescribeDriveState(veh, agent);
+            netReverse = veh == null ? 0f : SpikeState.Reverse.DirectedNetReverseMeters(ToNumerics(veh.transform.position));
+            frontBlocked = veh != null && RoadKeeper.HasObstacle(veh, veh.transform.position, veh.transform.rotation);
+            // A rear-clearance handoff makes a second front probe. It may complete the old
+            // reverse only if that probe left its order, vehicle and blocker witness current.
+            if (!reverseRetryAllowed && (veh == null || pointer == IntPtr.Zero || veh.Pointer != pointer ||
+                agentPointer == IntPtr.Zero || veh.Agent?.Pointer != agentPointer || !SameHandoff()))
+                return;
+        }
+        catch (Exception) when (!reverseRetryAllowed && !SameHandoff())
+        {
+            return;
+        }
+
+        bool moved = SpikeState.Reverse.MovedConfirmed;
+        bool forwardOk = veh != null && SpikeState.Reverse.CanDispatchForward(netReverse, frontBlocked);
+        StaticBlocker? blocker = TakeDetourBlockerForReverse(reversingOrder);
 
         // Revoke the managed reverse intent FIRST and enter the bounded transition (D15): the
         // consumer can no longer authorize reverse input while we stop natively (brief §7.4/§7.5).
@@ -2199,42 +2771,40 @@ internal static class SpikeRunner
         SpikeState.NavReDispatchAt = 0f;
         // Invalidate the old native callback identity BEFORE the native stop, so a synchronous
         // Stopped callback of the old order cannot act on the new transition (brief §7.4/§8.1).
-        SpikeState.NextNavOrder();
+        int transitionOrder = SpikeState.NextNavOrder();
+        bool SameTransition() => SpikeState.OperationId == operation && SpikeState.Operation.Generation == generation &&
+            SpikeState.NavOrder == transitionOrder && ReferenceEquals(SpikeState.Vehicle, veh);
+        bool StillCurrent() => SameTransition() && Mod.Lifecycle.AcceptingWork && SpikeState.PollingActive &&
+            SpikeState.Operation.Active && veh != null && pointer != IntPtr.Zero && veh.Pointer == pointer &&
+            agentPointer != IntPtr.Zero && veh.Agent?.Pointer == agentPointer &&
+            ReverseSupervisionPolicy.NativeCleanupPermitted(
+                SpikeCommands.HasAuthority(), SpikeCommands.IsOwnedTaxi(veh), PlayerDriver(veh));
 
         // Controlled end of the reverse (brief §7.4/§7.5): the managed intent is revoked FIRST
         // (above), then the native stop and the independent fallback cleanup run as isolated,
         // re-validated steps. A returned StopReversing is only AUTHORIZATION for the next checked
         // transition, never proof of a physical halt.
         LandVehicle? stopVeh = veh;
-        IntPtr stopPointer = pointer;
-        long stopOperation = operation;
         ReverseStopTransitionResult transition;
         try
         {
             transition = ReverseStopTransitionPolicy.Run(
-                stopPermitted: () => stopVeh != null && stopVeh.Pointer != IntPtr.Zero && stopPointer == stopVeh.Pointer &&
-                    ReverseSupervisionPolicy.NativeCleanupPermitted(
-                        SpikeCommands.HasAuthority(), SpikeCommands.IsOwnedTaxi(stopVeh), PlayerDriver(stopVeh)),
+                stopPermitted: StillCurrent,
                 // The captured, ownership-validated agent is the target of the stop.
                 stopNative: () => { agent.StopReversing(); },
-                stillCurrentAndPermitted: () =>
-                    SpikeState.OperationId == stopOperation && SpikeState.Operation.Active &&
-                    ReferenceEquals(SpikeState.Vehicle, stopVeh) &&
-                    stopVeh != null && stopVeh.Pointer == stopPointer &&
-                    ReverseSupervisionPolicy.NativeCleanupPermitted(
-                        SpikeCommands.HasAuthority(), SpikeCommands.IsOwnedTaxi(stopVeh), PlayerDriver(stopVeh)),
+                stillCurrentAndPermitted: StillCurrent,
                 fallbackStopNavigating: () => stopVeh!.Agent?.StopNavigating(),
                 fallbackPark: () => NativeActuatorPatch.RequestPark(stopVeh!),
                 onStepError: ex => SpikeCommands.ReportCleanupFailure("reverse stop transition", ex));
         }
         finally
         {
-            SpikeState.Reverse.End();
+            if (SameTransition()) SpikeState.Reverse.End();
         }
 
         // Recheck the captured OPERATION and vehicle after the native stop: STOP, a reroute or a
         // driver change may have replaced the manoeuvre (brief §6.3). No stale stack redispatch.
-        if (SpikeState.OperationId != operation || !ReferenceEquals(SpikeState.Vehicle, veh) ||
+        if (!SameTransition() ||
             (veh != null && veh.Pointer != pointer))
         {
             Mod.Log.Warn("[reverse] redispatch abandoned: the operation or vehicle was replaced during the native stop.");
@@ -2272,10 +2842,14 @@ internal static class SpikeRunner
                 $"[reverse] attempt {_reverseAttempt} produced no sustained directed reverse " +
                 $"(moved {TaxiDestinations.Num(displacement)} m in {TaxiDestinations.Num(reverseSeconds)} s 3D, " +
                 $"{TaxiDestinations.Num(netReverse)} m net along the reverse axis){driveState} — escalating, no forward dispatch.");
-            if (_reverseAttempt < 2 && TryStartReverse(agent, veh, Time.unscaledTime, "reverse ineffective"))
+            if (reverseRetryAllowed && _reverseAttempt < 2 && TryStartReverse(agent, veh, Time.unscaledTime, "reverse ineffective", blocker))
                 return;
-            if (TryFreeSpotRescue(veh, agent, "reverse ineffective"))
+            if (!StillCurrent()) return;
+            bool rescued = TryFreeSpotRescue(veh, agent, "reverse ineffective");
+            if (!StillCurrent()) return;
+            if (rescued)
             {
+                if (blocker is { } hit && TryStartDetour(veh, agent, hit)) return;
                 ReDispatch(agent, target, "post-reverse free-spot rescue");
                 return;
             }
@@ -2292,10 +2866,14 @@ internal static class SpikeRunner
             Mod.Log.Warn(
                 $"[reverse] backed {TaxiDestinations.Num(netReverse)} m but the front is still blocked — " +
                 $"escape is unproven; no unverified forward dispatch (bounded retry){driveState}.");
-            if (_reverseAttempt < 2 && TryStartReverse(agent, veh, Time.unscaledTime, "front still blocked"))
+            if (reverseRetryAllowed && _reverseAttempt < 2 && TryStartReverse(agent, veh, Time.unscaledTime, "front still blocked", blocker))
                 return;
-            if (TryFreeSpotRescue(veh, agent, "front still blocked"))
+            if (!StillCurrent()) return;
+            bool rescued = TryFreeSpotRescue(veh, agent, "front still blocked");
+            if (!StillCurrent()) return;
+            if (rescued)
             {
+                if (blocker is { } hit && TryStartDetour(veh, agent, hit)) return;
                 ReDispatch(agent, target, "post-reverse free-spot rescue (front blocked)");
                 return;
             }
@@ -2308,7 +2886,9 @@ internal static class SpikeRunner
         // new forward approach or a new operation proves recovery.
         Mod.Log.Info(
             $"[reverse] directed reverse {TaxiDestinations.Num(netReverse)} m confirmed in {TaxiDestinations.Num(reverseSeconds)} s, front clear" +
-            $"{driveState} — re-dispatching the route.");
+            $"{driveState}.");
+        if (!StillCurrent()) return;
+        if (blocker is { } staticHit && TryStartDetour(veh, agent, staticHit, allowDirectWithoutVia: true)) return;
         ReDispatch(agent, target, "post-reverse");
     }
 
@@ -3190,6 +3770,7 @@ internal static class SpikeRunner
     /// <summary>Scene transition hook: cancel queued pickup work before the active scene changes.</summary>
     internal static void OnPreSceneChange()
     {
+        SpikeCommands.CancelPendingStopExit();
         // A scene reset invalidates the GLB and every cached native wheel handle; sever
         // them now (managed-only, touches no Unity object) so no later tick can write to
         // a transform from the unloaded scene.
@@ -3203,6 +3784,7 @@ internal static class SpikeRunner
     /// <summary>Used by the mod teardown so a quit never leaves the runner half-alive.</summary>
     internal static void Shutdown()
     {
+        SpikeCommands.CancelPendingStopExit();
         TaxiVisual.ReleaseWheels();
         // Quiesce first: invalidate every live order, then every deferred dispatcher.
         // This method deliberately retains the vehicle, ownership, driver and fare proof.
@@ -3276,17 +3858,44 @@ internal static class SpikeRunner
             float now = Time.unscaledTime;
             if (SpikeState.Reverse.Active)
             {
+                long operation = SpikeState.OperationId;
+                int order = SpikeState.NavOrder;
+                LandVehicle currentVehicle = veh!;
+                IntPtr pointer = currentVehicle.Pointer;
+                IntPtr agentPointer = agent.Pointer;
+                bool CurrentReverse() => ReferenceEquals(SpikeState.Vehicle, currentVehicle) && currentVehicle.Pointer == pointer &&
+                    currentVehicle.Agent?.Pointer == agentPointer && SpikeState.OperationId == operation &&
+                    SpikeState.NavOrder == order && SpikeState.Reverse.Matches(operation, order);
                 bool readable = TryReadSignedSpeed(veh!, out float signedSpeed);
                 float forwardDot = ForwardDot(veh!);
-                SpikeState.Reverse.Observe(ToNumerics(veh!.transform.position), readable, signedSpeed, now, forwardDot);
+                Vector3 position = veh!.transform.position;
+                if (!CurrentReverse()) return;
+                SpikeState.Reverse.Observe(ToNumerics(position), readable, signedSpeed, now, forwardDot);
 
                 // Continuous rear clearance during the active reverse (D2): a newly arriving
                 // obstacle or an unreadable probe ends the grant promptly, at a bounded cadence.
                 if (ReverseSupervisionPolicy.ShouldCheckRear(_reverseRearCheckAt, now))
                 {
                     _reverseRearCheckAt = now;
-                    if (!RearIsClear(veh))
+                    bool rearClear = RearIsClear(veh);
+                    if (!CurrentReverse()) return;
+                    if (!rearClear)
                     {
+                        // A confirmed retreat can already have cleared the front. End the
+                        // reverse immediately through the checked stop, preserving its detour.
+                        bool canCheckDetour = _detourReverse is { } pending &&
+                            pending.Operation == operation && pending.Order == order &&
+                            SpikeState.Reverse.MovedConfirmed &&
+                            SpikeState.Reverse.CanDispatchForward(
+                                SpikeState.Reverse.DirectedNetReverseMeters(ToNumerics(position)),
+                                RoadKeeper.HasObstacle(currentVehicle, position, currentVehicle.transform.rotation));
+                        if (!CurrentReverse()) return;
+                        if (canCheckDetour)
+                        {
+                            Mod.Log.Warn("[reverse] rear clearance ended after a confirmed retreat; stopping now to check the detour.");
+                            TickReDispatch(agent, reverseRetryAllowed: false);
+                            return;
+                        }
                         Mod.Log.Warn("[reverse] the rear is no longer clear during the active reverse — revoking the request.");
                         RevokeReverse("rear blocked during reverse");
                         return;
@@ -3322,6 +3931,7 @@ internal static class SpikeRunner
     {
         bool hadReverse = SpikeState.Reverse.Active || SpikeState.NavReDispatchAt > 0f;
         // Managed intent first: revoke and invalidate the order so no later native step can re-arm it.
+        _detourReverse = null;
         SpikeState.Reverse.End();
         SpikeState.NavReDispatchAt = 0f;
         SpikeState.NextNavOrder();

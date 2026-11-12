@@ -157,13 +157,20 @@ public class NavigationSettingsExecutionTests
             .Select(file => CSharpSyntaxTree.ParseText(DriverSafetySourceContractTests.ReadSource(file)).GetRoot()).ToArray();
         var calls = roots.SelectMany(root => root.DescendantNodes().OfType<InvocationExpressionSyntax>())
             .Where(call => call.Expression is MemberAccessExpressionSyntax member && member.Name.Identifier.Text == "Navigate").ToArray();
-        Assert.Equal(4, calls.Length);
-        Assert.All(calls, call =>
+        static MethodDeclarationSyntax Caller(InvocationExpressionSyntax call) =>
+            call.Ancestors().OfType<MethodDeclarationSyntax>().First();
+        var detour = Assert.Single(calls, call => Caller(call).Identifier.Text == "DispatchDetourLeg");
+        var ordinary = calls.Where(call => call != detour).ToArray();
+        Assert.Equal(4, ordinary.Length);
+        Assert.All(ordinary, call =>
         {
             Assert.False(call.ArgumentList.Arguments[1].Expression.IsKind(SyntaxKind.NullLiteralExpression), call.ToString());
-            Assert.Contains(call.Ancestors().OfType<MethodDeclarationSyntax>().First().Identifier.Text,
-                new[] { "Go", "ReDispatch", "TickNavigationPolling" });
+            Assert.Contains(Caller(call).Identifier.Text, new[] { "Go", "ReDispatch", "TickNavigationPolling" });
         });
+        var detourSettings = Assert.IsType<IdentifierNameSyntax>(detour.ArgumentList.Arguments[1].Expression);
+        var settingsDeclaration = Assert.Single(Caller(detour).DescendantNodes().OfType<VariableDeclaratorSyntax>(),
+            variable => variable.Identifier.Text == detourSettings.Identifier.Text);
+        Assert.Equal("SpikeCommands.CreateNavigationSettings()", settingsDeclaration.Initializer?.Value.ToString());
         var go = roots[0].DescendantNodes().OfType<MethodDeclarationSyntax>().Single(m => m.Identifier.Text == "Go");
         Assert.DoesNotContain(go.ParameterList.Parameters, p => p.Identifier.Text == "useSettings");
     }
@@ -200,7 +207,8 @@ public class NavigationSettingsExecutionTests
     private static MethodInfo Compile()
     {
         var commands = CSharpSyntaxTree.ParseText(DriverSafetySourceContractTests.ReadSource("SpikeCommands.cs")).GetRoot();
-        var runner = CSharpSyntaxTree.ParseText(DriverSafetySourceContractTests.ReadSource("SpikeRunner.cs")).GetRoot();
+        var runner = CSharpSyntaxTree.ParseText(DriverSafetySourceContractTests.ReadSource("SpikeRunner.cs")).GetRoot()
+            .DescendantNodes().OfType<ClassDeclarationSyntax>().Single(c => c.Identifier.Text == "SpikeRunner");
         var policies = CSharpSyntaxTree.ParseText(DriverSafetySourceContractTests.ReadSource("DrivingPolicies.cs")).GetRoot();
         string[] runnerMethods = { "BeginNavigationOperation", "ObserveArtificialPlacement", "StopIfNavigationExpired",
             "TryBeginRecovery", "ArmStartupRecovery", "ArmPatrolSelfTest", "ArmProgressWindow", "NavigationCallbackFor",
@@ -215,9 +223,13 @@ public class NavigationSettingsExecutionTests
             // The baseline has no factory: still compile and execute its real failing dispatches, rather than fail for a missing helper.
             .Replace("/* COMMANDS */", string.Join("\n", commands.DescendantNodes().OfType<MethodDeclarationSyntax>()
                 .Where(m => m.Identifier.Text is "Go" or "CreateNavigationSettings").Select(m => m.ToFullString())))
-            .Replace("/* RUNNER */", string.Join("\n", runner.DescendantNodes().OfType<MethodDeclarationSyntax>()
+            .Replace("/* RUNNER */", string.Join("\n", runner.Members.OfType<MethodDeclarationSyntax>()
                 .Where(m => runnerMethods.Contains(m.Identifier.Text)).Select(m => m.ToFullString())))
-            .Replace("/* FIELDS */", string.Join("\n", runner.DescendantNodes().OfType<FieldDeclarationSyntax>().Select(f => f.ToFullString())))
+            // The replay retains ordinary recovery and substitutes the native detour seam below.
+            .Replace("/* FIELDS */", string.Join("\n", runner.Members.OfType<FieldDeclarationSyntax>()
+                .Where(f => !f.Declaration.Variables.Any(v => v.Identifier.Text is
+                    "_detourUsedOperation" or "_detourReverse" or "_detour"))
+                .Select(f => f.ToFullString())))
             .Replace("/* POLICIES */", string.Join("\n", policies.DescendantNodes().OfType<BaseTypeDeclarationSyntax>()
                 .Where(t => policyTypes.Contains(t.Identifier.Text)).Select(t => t.ToFullString())));
         var references = ((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!).Split(Path.PathSeparator)
@@ -365,6 +377,11 @@ public class NavigationSettingsExecutionTests
             private static void UpdateDriveStartProof(LandVehicle v, Vector3 p, float d, float now) {}
             private static bool EvaluateProgress(Vector3 p, float distance, float now) => Native.Progress;
             private static bool TickStartupRecovery(VehicleAgent a, LandVehicle v, Vector3 p, float d, bool c) => false;
+            private readonly record struct StaticBlocker;
+            private static StaticBlocker? ObserveDetourBlocker(LandVehicle v, VehicleAgent a, Vector3 p) => null;
+            private static bool TryStartDetour(LandVehicle v, VehicleAgent a, StaticBlocker blocker) => false;
+            private static bool TryQueueDetourReverse(LandVehicle veh, VehicleAgent agent, StaticBlocker hit, float now) => false;
+            private static bool CancelFinalDetourOnStall(LandVehicle v, VehicleAgent a) => false;
             private static bool TryFreeSpotRescue(LandVehicle v, VehicleAgent a, string why) => true;
             private static bool TryStartReverse(VehicleAgent a, LandVehicle v, float now, string why) => false;
             private static void TickReDispatch(VehicleAgent a) => throw new Exception("unexpected pending reverse");

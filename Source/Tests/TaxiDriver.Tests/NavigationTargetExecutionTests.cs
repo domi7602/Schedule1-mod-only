@@ -313,7 +313,8 @@ public class NavigationTargetExecutionTests
             string? root = Environment.GetEnvironmentVariable("TAXI_ENDPOINT_TEST_SOURCE_ROOT");
             return string.IsNullOrWhiteSpace(root) ? DriverSafetySourceContractTests.ReadSource(file) : File.ReadAllText(Path.Combine(root, file));
         }
-        var runner = CSharpSyntaxTree.ParseText(Read("SpikeRunner.cs")).GetRoot();
+        var runner = CSharpSyntaxTree.ParseText(Read("SpikeRunner.cs")).GetRoot().DescendantNodes()
+            .OfType<ClassDeclarationSyntax>().Single(c => c.Identifier.Text == "SpikeRunner");
         var commands = CSharpSyntaxTree.ParseText(Read("SpikeCommands.cs")).GetRoot();
         var policies = CSharpSyntaxTree.ParseText(DriverSafetySourceContractTests.ReadSource("DrivingPolicies.cs")).GetRoot();
         var selection = CSharpSyntaxTree.ParseText(DriverSafetySourceContractTests.ReadSource("DestinationSelectionPolicy.cs")).GetRoot();
@@ -324,11 +325,13 @@ public class NavigationTargetExecutionTests
             "RecoveryRecurrencePolicy", "NavigationOperationPolicy", "OperationPhase", "TrafficWaitBudget", "NavigationArrivalPolicy",
             "InitialDispatchRecoveryPolicy" };
         string source = Harness
-            .Replace("/* RUNNER */", string.Join("\n", runner.DescendantNodes().OfType<MethodDeclarationSyntax>()
+            .Replace("/* RUNNER */", string.Join("\n", runner.Members.OfType<MethodDeclarationSyntax>()
                 .Where(m => methods.Contains(m.Identifier.Text)).Select(m => m.ToFullString())))
-            .Replace("/* FIELDS */", string.Join("\n", runner.DescendantNodes().OfType<FieldDeclarationSyntax>()
-                .Where(f => !f.Declaration.Variables.Any(v => v.Identifier.Text is "_autoNavigationReceipt" or "_autoNavigationSerial"))
-                .Select(f => f.ToFullString()))) // this host never executes automatic pickup or its retained receipt
+            // This replay exercises ordinary navigation, without automatic pickup or native detour state.
+            .Replace("/* FIELDS */", string.Join("\n", runner.Members.OfType<FieldDeclarationSyntax>()
+                .Where(f => !f.Declaration.Variables.Any(v => v.Identifier.Text is "_autoNavigationReceipt" or "_autoNavigationSerial" or
+                    "_detourUsedOperation" or "_detourReverse" or "_detour"))
+                .Select(f => f.ToFullString())))
             .Replace("/* COMMANDS */", string.Join("\n", commands.DescendantNodes().OfType<MethodDeclarationSyntax>()
                 .Where(m => m.Identifier.Text is "CreateNavigationSettings" or "ToDestination" or "PickPoint").Select(m => m.ToFullString())))
             .Replace("/* POLICIES */", string.Join("\n", policies.DescendantNodes().OfType<BaseTypeDeclarationSyntax>()
@@ -490,6 +493,11 @@ public class NavigationTargetExecutionTests
             private static bool RecentForwardMotionUnjustifiesStall(bool readable, float speed, bool reversing) => false;
             private static void LogSupervisorDecision(string trigger, string action, float distance, bool readable, float speed, bool recent, int before, int after) {}
             private static void CancelDeferredProbe() {}
+            private readonly record struct StaticBlocker;
+            private static StaticBlocker? ObserveDetourBlocker(LandVehicle v, VehicleAgent a, Vector3 p) => null;
+            private static bool TryStartDetour(LandVehicle v, VehicleAgent a, StaticBlocker blocker) => false;
+            private static bool TryQueueDetourReverse(LandVehicle veh, VehicleAgent agent, StaticBlocker hit, float now) => false;
+            private static bool CancelFinalDetourOnStall(LandVehicle v, VehicleAgent a) => false;
             private static bool TryFreeSpotRescue(LandVehicle v, VehicleAgent a, string why) => false;
             private static bool TryStartReverse(VehicleAgent a, LandVehicle v, float now, string why) => false;
             private static bool TryTeleportRecovery(LandVehicle v, VehicleAgent a, Vector3 p, float distance) => false;

@@ -32,6 +32,62 @@ public class NativeShortcutExecutionTests
         Assert.Equal(0f, green.OutsideLength);
         Assert.Contains(green.Logs, l => l.Contains("nativeResult=Success"));
         Assert.True(green.Clean);
+        Assert.Equal(0, red.DetourChecks);
+        Assert.Equal(0, green.DetourChecks);
+    }
+
+    [Theory]
+    [InlineData(true, true)]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    [InlineData(false, false)]
+    public void BoundDetourCanRefuseASuccessfulNativeResultWithoutChangingThePathGroup(bool guard, bool allow)
+    {
+        var result = Run(allow ? "detour-approve" : "detour-reject", guard);
+        Assert.Equal(1, result.DetourBegins);
+        Assert.Equal(1, result.DetourChecks);
+        Assert.True(result.Preserved);
+        Assert.Equal(allow, result.Success);
+        Assert.Equal(allow ? 4 : 0, result.ResultPoints);
+        Assert.Equal(0, result.Overrides);
+        Assert.Contains(result.Logs, l => l.Contains(allow ? "nativeResult=Success" : "nativeResult=Failed"));
+        Assert.True(result.Clean);
+    }
+
+    [Fact]
+    public void NativeFailureDoesNotCallTheDetourPathGate()
+    {
+        var result = Run("detour-native-failed", guard: false);
+        Assert.Equal(1, result.DetourBegins);
+        Assert.Equal(0, result.DetourChecks);
+        Assert.False(result.Success);
+        Assert.Equal(0, result.ResultPoints);
+        Assert.True(result.Clean);
+    }
+
+    [Theory]
+    [InlineData("detour-direct-clear", true, false, true, 1)]
+    [InlineData("detour-direct-equal", true, false, true, 1)]
+    [InlineData("detour-direct-clear", false, true, true, 0)]
+    [InlineData("detour-direct-short", true, false, true, 0)]
+    [InlineData("detour-direct-pre-reject", true, true, true, 0)]
+    [InlineData("detour-direct-post-reject", true, false, false, 1)]
+    [InlineData("detour-direct-too-long", true, true, true, 0)]
+    [InlineData("detour-direct-stale", true, true, true, 0)]
+    [InlineData("detour-direct-geometry-changed", true, true, true, 0)]
+    [InlineData("detour-direct-length-changed", true, true, true, 0)]
+    public void DetourAlternate_OnlyPrefersAnEligibleDirectPathInGuard(
+        string scenario, bool guard, bool preserved, bool success, int overrides)
+    {
+        var result = Run(scenario, guard);
+
+        Assert.Equal(preserved, result.Preserved);
+        Assert.Equal(success, result.Success);
+        Assert.Equal(overrides, result.Overrides);
+        Assert.Equal(success ? (preserved ? 4 : 2) : 0, result.ResultPoints);
+        Assert.Equal(result.OutsideLength, result.RepeatedLength);
+        Assert.True(result.OutsideLength > 0f);
+        Assert.True(result.Clean);
     }
 
     [Theory]
@@ -295,7 +351,8 @@ public class NativeShortcutExecutionTests
         (string)(guard ? Guard : Observe).Value.Invoke(null, new object[] { scenario })!)!;
     private sealed record Outcome(bool Success, bool Preserved, int ResultPoints, int Overrides, bool DirectError,
         int DirectCount, float OutsideLength, float RepeatedLength, bool Clean, string Exception, int InstallCalls,
-        int OwnedPatches, string[] Logs, bool Injected, bool FeatureFaulted, bool ValidationExclusiveObserved);
+        int OwnedPatches, string[] Logs, bool Injected, bool FeatureFaulted, bool ValidationExclusiveObserved,
+        int DetourBegins, int DetourChecks);
 
     private static MethodInfo Compile(bool guard)
     {
@@ -413,11 +470,31 @@ namespace TaxiDriver {
  public static class SpikeCommands {public static bool HasAuthority()=>Fixture.Authority;public static bool IsOwnedTaxi(Il2CppScheduleOne.Vehicles.LandVehicle? v)=>Fixture.Owned&&v==SpikeState.Vehicle;}
  public static class TaxiAI {public static bool Active,NavigationBlocked;}
  public static class SpikeTrace {}
+ public static class SpikeRunner {
+  public static VehicleAgent? DetourAgent;
+  public static NavigationSettings? DetourSettings;
+  public static Vector3 DetourTarget=new(50,0,0);
+  public static bool Refuse;
+  public static int DetourBegins,DetourChecks;
+  public static bool IsDetourTarget(Vector3 target)=>DetourAgent!=null&&target.Equals(DetourTarget);
+  public static void BeginDetourCalculation(VehicleAgent agent,Vector3 target,NavigationSettings? settings){
+   if(ReferenceEquals(agent,DetourAgent)&&ReferenceEquals(settings,DetourSettings)&&IsDetourTarget(target))DetourBegins++;
+  }
+  public static bool CanPreferDirectDetourVia(VehicleAgent agent,Vector3 target,Path path)=>
+   ReferenceEquals(agent,DetourAgent)&&IsDetourTarget(target)&&ReferenceEquals(path,agent.generalSeeker.Current)&&Fixture.PermitDetourDirect(path);
+  public static bool RejectDetourPath(VehicleAgent agent,Il2CppScheduleOne.Math.PathSmoothingUtility.SmoothedPath? path){
+   if(DetourBegins==0||!ReferenceEquals(agent,DetourAgent))return false;
+   DetourChecks++;
+   if(path==null||!path.vectorPath.Last().Equals(DetourTarget))throw new Exception("wrong native path");
+   return Refuse;
+  }
+ }
  public static class Fixture {
   public static bool Compatible=true,Authority=true,Owned=true,Scene=true,FailRemove,Partial,ThrowLog;
   public static int InstallCalls,FailInstall=-1;public static List<string> Logs=new();
   static VehicleAgent agent=null!;static R routine=null!;static Path direct=null!;static string scenario="";
-  static bool comparison,recursing,changed;static float repeated;static Exception? thrown;static int overrides;
+  static bool comparison,recursing,changed,changedNativeLength;static float repeated;static Exception? thrown;static int overrides;
+  public static bool PermitDetourDirect(Path path)=>scenario.StartsWith("detour-direct-")&&scenario!="detour-direct-pre-reject"&&path.vectors!.All(point=>point.z==0);
   static readonly Type Guard=typeof(NativeShortcutPatch);
   static bool probeInjected,validationExclusiveObserved;
   static void ObserveValidation(){
@@ -466,16 +543,23 @@ namespace TaxiDriver {
    Guard.GetField("_logOperation",BindingFlags.NonPublic|BindingFlags.Static)!.SetValue(null,-1L);
    Guard.GetField("_lines",BindingFlags.NonPublic|BindingFlags.Static)!.SetValue(null,0);
    Compatible=Authority=Owned=Scene=true;FailRemove=Partial=ThrowLog=false;InstallCalls=0;FailInstall=-1;Logs.Clear();HarmonyLib.Harmony.Map.Clear();
+   SpikeRunner.DetourAgent=null;SpikeRunner.DetourSettings=null;SpikeRunner.DetourBegins=SpikeRunner.DetourChecks=0;SpikeRunner.Refuse=false;
    Mod.Lifecycle=new();SpikeState.Operation=new();SpikeState.Reverse=new();SpikeState.NavOrder=4;SpikeState.OperationId=2;SpikeState.NavTarget=new(100,0,0);SpikeState.PollingActive=true;
-   agent=new();SpikeState.Vehicle=new(){Agent=agent};agent.vehicle=SpikeState.Vehicle;comparison=recursing=changed=false;repeated=0;thrown=null;overrides=0;
+   agent=new();SpikeState.Vehicle=new(){Agent=agent};agent.vehicle=SpikeState.Vehicle;comparison=recursing=changed=changedNativeLength=false;repeated=0;thrown=null;overrides=0;
   }
   static Path P(float length,bool error=false)=>new ABPath {error=error,CompleteState=error?PathCompleteState.Error:PathCompleteState.Complete,vectors=new(){new(0,0,0),new(length,0,0)}};
   static void Initial(R r){var a=new object?[]{r,null};Invoke("MovePrefix",a);r.__1__state=1;Invoke("MovePostfix",r,a[1]);Invoke("MoveFinalizer",r,null,a[1]);}
   static R Dispatch(){
    var settings=new NavigationSettings();if(scenario=="defaults")settings.endAtRoad=false;
-   var a=new object?[]{agent,SpikeState.NavTarget,settings,null};Invoke("NavigatePrefix",a);
-   var r=new R {__4__this=new(){startPosition=new(1,0,0),destination=SpikeState.NavTarget,generalSeeker=agent.generalSeeker,roadSeeker=agent.roadSeeker,flags=agent.Flags,navSettings=settings}};
-   agent.currentNavigationSettings=settings;agent.TargetLocation=SpikeState.NavTarget;agent.AutoDriving=true;
+   var target=SpikeState.NavTarget;
+   if(scenario.StartsWith("detour-")){
+    SpikeRunner.DetourAgent=agent;SpikeRunner.DetourSettings=settings;
+    SpikeRunner.Refuse=scenario is "detour-reject" or "detour-direct-post-reject";
+    target=SpikeRunner.DetourTarget;
+   }
+   var a=new object?[]{agent,target,settings,null};Invoke("NavigatePrefix",a);
+   var r=new R {__4__this=new(){startPosition=new(1,0,0),destination=target,generalSeeker=agent.generalSeeker,roadSeeker=agent.roadSeeker,flags=agent.Flags,navSettings=settings}};
+   agent.currentNavigationSettings=settings;agent.TargetLocation=target;agent.AutoDriving=true;
    if(scenario!="no-initial-hit"&&scenario!="late-state0")Initial(r);
    if(scenario=="duplicate-initial-hit"){r.__1__state=0;Initial(r);}
    agent.navigationCalculationRoutine=new();Invoke("NavigatePostfix",agent,a[3]);Invoke("NavigateFinalizer",null,a[3]);
@@ -484,6 +568,8 @@ namespace TaxiDriver {
   }
   static void Change(){if(changed)return;changed=true;switch(scenario){
    case "after-first-order-change":SpikeState.NavOrder++;break;
+   case "detour-direct-stale":SpikeState.NavOrder++;break;
+   case "detour-direct-geometry-changed":direct.vectors![1]=new(40,0,8);break;
    case "after-first-nonce-change":var nonce=Guard.GetField("_nonce",BindingFlags.NonPublic|BindingFlags.Static)!;nonce.SetValue(null,(long)nonce.GetValue(null)!+1);break;
    case "after-first-authority-loss":Authority=false;break;
    case "after-first-epoch":NativeShortcutPatch.Invalidate();break;
@@ -499,8 +585,11 @@ namespace TaxiDriver {
    try{
     if(comparison&&scenario=="recursive-getter"&&!recursing){recursing=true;Length(p);}
     if(comparison&&scenario=="length-exception")throw new Exception("native-original");
-    value=comparison&&((scenario=="native-entry-nan"&&p!=direct)||(scenario=="native-direct-nan"&&p==direct))?float.NaN:p.Raw();var b=new object?[]{value,a[1]};Invoke("LengthPostfix",b);value=(float)b[0]!;
+    value=comparison&&((scenario=="native-entry-nan"&&p!=direct)||(scenario=="native-direct-nan"&&p==direct))?float.NaN:p.Raw();
+    if(comparison&&scenario=="detour-direct-length-changed"&&p==direct&&!changedNativeLength){value+=1;changedNativeLength=true;}
+    var b=new object?[]{value,a[1]};Invoke("LengthPostfix",b);value=(float)b[0]!;
     if(float.IsPositiveInfinity(value)&&p==direct&&direct.Raw()==0)overrides++;
+    if(value==0&&p==direct&&direct.Raw()>0)overrides++;
    }catch(Exception ex){error=ex;throw;}finally{Invoke("LengthFinalizer",error,a[1]);}
    return value;
   }
@@ -524,7 +613,7 @@ namespace TaxiDriver {
    direct=P(0,true);direct.vectors!.Clear();direct.pathID=130;routine.__4__this.lastCalculatedPath=direct;agent.generalSeeker.Current=direct;
    switch(input){
     case "valid-short":direct.vectors=new(){new(0,0,0),new(2,0,0)};direct.error=false;direct.CompleteState=PathCompleteState.Complete;break;
-    case "valid-long":direct.vectors=new(){new(0,0,0),new(20,0,0)};direct.error=false;direct.CompleteState=PathCompleteState.Complete;break;
+    case "valid-long":case "detour-approve":case "detour-reject":direct.vectors=new(){new(0,0,0),new(20,0,0)};direct.error=false;direct.CompleteState=PathCompleteState.Complete;break;
     case "valid-equal":direct.vectors=new(){new(0,0,0),new(10,0,0)};direct.error=false;direct.CompleteState=PathCompleteState.Complete;break;
     case "null-vector":direct.vectors=null;break;
     case "one-point-error":direct.vectors=new(){new(0,0,0)};break;
@@ -559,6 +648,11 @@ namespace TaxiDriver {
     case "capture-exception":original.startToEntryPath!.ThrowRead=true;break;
     case "log-exception":ThrowLog=true;break;
    }
+   if(input.StartsWith("detour-direct-")){
+    float length=input switch {"detour-direct-short"=>5,"detour-direct-equal"=>10,"detour-direct-too-long"=>41,_=>20};
+    direct.vectors=new(){new(50-length,0,0),new(50,0,0)};direct.error=false;direct.CompleteState=PathCompleteState.Complete;
+    if(input=="detour-direct-geometry-changed")direct.vectors.Insert(1,new(40,0,0));
+   }
    var args=new object?[]{routine,null};bool success=false;int count=0;Exception? exception=null;
    void RunMove(){
     Invoke("MovePrefix",args);comparison=true;routine.__1__state=-1;
@@ -570,10 +664,13 @@ namespace TaxiDriver {
      if(input=="wrong-second")Length(original.entryToExitPath!);
      float second=Length(direct);
      if(first>second)routine._finalGroup_5__2=new(){startToEntryPath=direct};
-     if(input=="repeat-direct")repeated=Length(direct);
+     if(input=="repeat-direct"||input.StartsWith("detour-direct-"))repeated=Length(direct);
      var g=routine._finalGroup_5__2!;count=(g.startToEntryPath?.vectors?.Count??0)+(g.entryToExitPath?.vectors?.Count??0)+(g.exitToDestinationPath?.vectors?.Count??0);
-     success=count>=2;var path=success?new Il2CppScheduleOne.Math.PathSmoothingUtility.SmoothedPath {vectorPath=new(){new(0,0,0),new(100,0,0)}}:null;
-     Invoke("ResultPrefix",agent,success?NavigationUtility.ENavigationCalculationResult.Success:NavigationUtility.ENavigationCalculationResult.Failed,path);
+     var path=count>=2?new Il2CppScheduleOne.Math.PathSmoothingUtility.SmoothedPath {vectorPath=new(){new(0,0,0),agent.TargetLocation}}:null;
+     var resultArgs=new object?[]{agent,path!=null?NavigationUtility.ENavigationCalculationResult.Success:NavigationUtility.ENavigationCalculationResult.Failed,path};
+     Invoke("ResultPrefix",resultArgs);
+     success=(NavigationUtility.ENavigationCalculationResult)resultArgs[1]! == NavigationUtility.ENavigationCalculationResult.Success;
+     if(!success)count=0;
      agent.navigationCalculationRoutine=null;
      if(input=="post-exception")routine._finalGroup_5__2!.startToEntryPath!.ThrowRead=true;
      comparison=false;Invoke("MovePostfix",routine,args[1]);
@@ -584,6 +681,7 @@ namespace TaxiDriver {
    return JsonSerializer.Serialize(new{Success=success,Preserved=ReferenceEquals(original,routine._finalGroup_5__2),ResultPoints=count,Overrides=overrides,
     DirectError=direct.error,DirectCount=direct.vectors?.Count??-1,OutsideLength=float.IsFinite(outside)?outside:-1,RepeatedLength=repeated,Clean=clean,
      Exception=exception?.Message??"",InstallCalls,Injected=probeInjected,ValidationExclusiveObserved=validationExclusiveObserved,
+     SpikeRunner.DetourBegins,SpikeRunner.DetourChecks,
      FeatureFaulted=(bool)Guard.GetField("_fault",BindingFlags.NonPublic|BindingFlags.Static)!.GetValue(null)!,
      OwnedPatches=HarmonyLib.Harmony.Map.Values.Sum(p=>p.Owners.Count(o=>o=="com.taxidriver.native-shortcut")),Logs=Logs.ToArray()});
   }

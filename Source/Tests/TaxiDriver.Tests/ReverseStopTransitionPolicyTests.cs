@@ -153,7 +153,7 @@ public class ReverseStopTransitionPolicyTests
         Assert.Contains("SpikeState.Operation.Terminate(", Redispatch);
         // The follow-up paths must be gated behind the transition result.
         int gate = Redispatch.IndexOf("FollowupAllowed", StringComparison.Ordinal);
-        int retry = Redispatch.IndexOf("TryStartReverse(agent, veh, Time.unscaledTime, \"reverse ineffective\")", StringComparison.Ordinal);
+        int retry = Redispatch.IndexOf("TryStartReverse(agent, veh, Time.unscaledTime, \"reverse ineffective\",", StringComparison.Ordinal);
         int forward = Redispatch.IndexOf("ReDispatch(agent, target, \"post-reverse\")", StringComparison.Ordinal);
         Assert.True(gate >= 0 && retry > gate, "the reverse retry must sit behind the checked transition");
         Assert.True(forward > gate, "the forward dispatch must sit behind the checked transition");

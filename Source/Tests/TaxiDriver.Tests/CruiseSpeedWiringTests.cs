@@ -54,4 +54,20 @@ public class CruiseSpeedWiringTests
         foreach (string token in forbidden)
             Assert.DoesNotContain(token, source);
     }
+
+    [Fact]
+    public void ApproachCap_RequiresCurrentAuthorizedPassengerTarget()
+    {
+        string source = DriverSafetySourceContractTests.ReadSource("CruiseSpeedPatch.cs");
+        Assert.Contains("!SpikeState.Operation.Active", source);
+        Assert.Contains("!SpikeState.RideActive", source);
+        Assert.Contains("SpikeState.NavToPlayer", source);
+        Assert.Contains("SpikeState.RideAwaitingDestination", source);
+        Assert.Contains("SpikeState.ActiveTripPoint", source);
+        Assert.Contains("SpikeState.NavTarget", source);
+        Assert.Contains("agent.TargetLocation", source);
+        Assert.Contains("order != SpikeState.NavOrder", source);
+        Assert.Contains("operation != SpikeState.OperationId", source);
+        Assert.Contains("approachDistance: approachDistance", source);
+    }
 }

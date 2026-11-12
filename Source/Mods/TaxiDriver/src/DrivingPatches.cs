@@ -30,7 +30,8 @@ namespace TaxiDriver
 
     /// <summary>
     /// f12 RVA AD0D1D: an Error/empty direct shortcut must not beat a valid road group
-    /// merely because its length is zero. Observe is the default development build.
+    /// merely because its length is zero. A checked alternate taxi detour may instead
+    /// prefer a complete, clear direct leg. Observe is the default development build.
     /// Only the second, ordered native getter return in one bound MoveNext may change.
     /// </summary>
     internal static class NativeShortcutPatch
@@ -52,6 +53,7 @@ namespace TaxiDriver
         private static long _logOperation = -1;
         private static int _lines;
         private const int LineLimit = 32;
+        private const float MaxDirectDetourMeters = 40f;
 
         private sealed record Hook(MethodInfo Target, string Prefix, string? Postfix = null, string? Finalizer = null);
         // Scalar lease only: no path, closure, coroutine, agent or Unity wrapper across yields.
@@ -80,7 +82,7 @@ namespace TaxiDriver
             internal PathView Entry, Road, Direct;
             internal string NativeResult = "not-observed";
             internal string NativePath = "not-observed";
-            internal bool Diagnose, Finished;
+            internal bool Diagnose, Finished, PreferDirect;
         }
 
         internal static void Apply()
@@ -217,6 +219,10 @@ namespace TaxiDriver
             Fault("patch-health readback");
             return false;
         }
+        internal static bool CanValidateDetour => Ready();
+
+        private static bool MatchesTarget(Vector3 target) =>
+            target.Equals(SpikeState.NavTarget) || SpikeRunner.IsDetourTarget(target);
         private static IntPtr Ptr(Il2CppObjectBase? value) => value == null || value.WasCollected ? IntPtr.Zero : value.Pointer;
         private static bool Finite(Vector3 p) => float.IsFinite(p.x) && float.IsFinite(p.y) && float.IsFinite(p.z);
         private static bool BaseCurrent(VehicleAgent agent) => Ready() && Mod.Lifecycle.AcceptingWork &&
@@ -231,7 +237,7 @@ namespace TaxiDriver
             r.Order == SpikeState.NavOrder && r.Operation == SpikeState.OperationId && r.Generation == SpikeState.Operation.Generation &&
             Ptr(agent) == r.Agent && Ptr(agent.vehicle) == r.Vehicle && Ptr(agent.generalSeeker) == r.General &&
             Ptr(agent.roadSeeker) == r.Road && Ptr(agent.Flags) == r.Flags &&
-            SpikeState.NavTarget.Equals(r.Target) && (!calculating ||
+            MatchesTarget(r.Target) && (!calculating ||
                 (agent.AutoDriving && agent.NavigationCalculationInProgress && agent.TargetLocation.Equals(r.Target) &&
                  Ptr(agent.currentNavigationSettings) == r.Settings && Ptr(agent.navigationCalculationRoutine) == r.Coroutine));
 
@@ -241,11 +247,12 @@ namespace TaxiDriver
             _dispatch = __state; // always mask an outer creation context, including foreign calls
             try
             {
+                SpikeRunner.BeginDetourCalculation(__instance, location, settings);
                 if (!BaseCurrent(__instance)) return;
                 _receipt = null;
                 long nonce = ++_nonce;
                 if (settings == null || !settings.endAtRoad || !settings.ensureProximityToGraph || settings.teleportToGraphIfCalculationFails ||
-                    !Finite(location) || !location.Equals(SpikeState.NavTarget) || !__instance.Flags.UseRoads) return;
+                    !Finite(location) || !MatchesTarget(location) || !__instance.Flags.UseRoads) return;
                 var r = new Receipt
                 {
                     Epoch = ShortcutComparison.Epoch,
@@ -331,9 +338,13 @@ namespace TaxiDriver
                 call.Road = Read(group?.entryToExitPath, measure: true);
                 call.Direct = Read(c.lastCalculatedPath, measure: true);
                 Log(r, $"state2-pre group={call.Group} entry=[{Show(call.Entry)}] road=[{Show(call.Road)}] direct=[{Show(call.Direct)}] start={c.startPosition} target={c.destination} ab=[{Coordinates(c.lastCalculatedPath)}]");
+                var agent = SpikeState.Vehicle?.Agent;
+                call.PreferDirect = !Observe && agent != null && Leg(call.Direct) &&
+                    call.Direct.Length <= MaxDirectDetourMeters &&
+                    SpikeRunner.CanPreferDirectDetourVia(agent, r.Target, c.lastCalculatedPath);
                 if (!ValidSnapshot(call, group)) return;
                 ShortcutComparison.Arm(call.Frame, call.Entry.Pointer.ToInt64(), call.Direct.Pointer.ToInt64(), Observe,
-                    () => Revalidate(call, __instance));
+                    () => Revalidate(call, __instance), preferredDirectLength: call.PreferDirect ? call.Direct.Length : null);
             }
             catch (Exception ex) { call.Frame.Cancel(); Fault("scope capture", ex); }
         }
@@ -370,8 +381,8 @@ namespace TaxiDriver
         private static bool ValidSnapshot(Move call, PathGroup? group) => call.Group != IntPtr.Zero &&
             Leg(call.Entry) && Leg(call.Road) && Ptr(group!.exitToDestinationPath) == IntPtr.Zero &&
             call.Entry.Pointer != call.Road.Pointer && call.Direct.Pointer != call.Entry.Pointer && call.Direct.Pointer != call.Road.Pointer &&
-            call.Direct.Pointer != IntPtr.Zero && call.Direct.Error && call.Direct.State == Il2CppPathfinding.PathCompleteState.Error &&
-            call.Direct.Count == 0 && call.Direct.Length == 0f;
+            (call.PreferDirect || (call.Direct.Pointer != IntPtr.Zero && call.Direct.Error &&
+                call.Direct.State == Il2CppPathfinding.PathCompleteState.Error && call.Direct.Count == 0 && call.Direct.Length == 0f));
         private static bool Same(PathView a, PathView b) => a.Pointer == b.Pointer && a.Id == b.Id &&
             a.Error == b.Error && a.State == b.State && a.Count == b.Count && a.Start.Equals(b.Start) && a.End.Equals(b.End);
         private static bool Revalidate(Move call, Routine routine)
@@ -379,11 +390,14 @@ namespace TaxiDriver
             if (call.Receipt is not { } r || !Bound(r, routine)) return false;
             var c = routine.__4__this;
             var group = routine._finalGroup_5__2;
+            var agent = SpikeState.Vehicle?.Agent;
             // Do not reread state==2: the audited native entry immediately changes it to -1.
             return Ptr(group) == call.Group && Ptr(group.exitToDestinationPath) == IntPtr.Zero &&
                 Same(call.Entry, Read(group.startToEntryPath, false)) && Same(call.Road, Read(group.entryToExitPath, false)) &&
                 Same(call.Direct, Read(c.lastCalculatedPath, false)) &&
-                Ptr(c.generalSeeker.GetCurrentPath()) == call.Direct.Pointer && ManagedReceiptCurrent(r);
+                Ptr(c.generalSeeker.GetCurrentPath()) == call.Direct.Pointer &&
+                (!call.PreferDirect || (agent != null && SpikeRunner.CanPreferDirectDetourVia(agent, r.Target, c.lastCalculatedPath))) &&
+                ManagedReceiptCurrent(r);
         }
 
         // Last check after ALL native-backed reads. Keep this primitive/managed-only:
@@ -393,7 +407,8 @@ namespace TaxiDriver
             r.Epoch == ShortcutComparison.Epoch && r.Nonce == _nonce && Mod.Lifecycle.AcceptingWork &&
             SpikeState.PollingActive && SpikeState.Operation.Active && !SpikeState.Reverse.Active &&
             r.Operation == SpikeState.OperationId && r.Order == SpikeState.NavOrder && r.Generation == SpikeState.Operation.Generation &&
-            r.Target.x == SpikeState.NavTarget.x && r.Target.y == SpikeState.NavTarget.y && r.Target.z == SpikeState.NavTarget.z;
+            ((r.Target.x == SpikeState.NavTarget.x && r.Target.y == SpikeState.NavTarget.y && r.Target.z == SpikeState.NavTarget.z) ||
+                SpikeRunner.IsDetourTarget(r.Target));
 
         private static void LengthPrefix(NativePath __instance, out ShortcutComparison.Call? __state)
         {
@@ -423,11 +438,14 @@ namespace TaxiDriver
             if (__exception != null && __state.HasValue) { __state.Value.Frame.Cancel(); Fault("getter exception"); }
             return __exception;
         }
-        private static void ResultPrefix(VehicleAgent __instance, NavigationUtility.ENavigationCalculationResult result,
+        private static void ResultPrefix(VehicleAgent __instance, ref NavigationUtility.ENavigationCalculationResult result,
             Il2CppScheduleOne.Math.PathSmoothingUtility.SmoothedPath _path)
         {
             try
             {
+                if (result == NavigationUtility.ENavigationCalculationResult.Success &&
+                    SpikeRunner.RejectDetourPath(__instance, _path))
+                    result = NavigationUtility.ENavigationCalculationResult.Failed;
                 if (ShortcutComparison.Current?.Context is not Move { Receipt: { } r } call || Ptr(__instance) != r.Agent) return;
                 call.NativeResult = result.ToString();
                 var points = _path?.vectorPath;
@@ -461,7 +479,7 @@ namespace TaxiDriver
                 if (call.Diagnose && call.Receipt is { } r)
                 {
                     var after = routine._finalGroup_5__2;
-                    Log(r, $"state2-post mode={(Observe ? "Observe" : "Guard")} override={call.Frame.Applied} groupBefore={call.Group} groupAfter={Ptr(after)} entryAfter=[{Show(Read(after?.startToEntryPath, true))}] roadAfter=[{Show(Read(after?.entryToExitPath, true))}] nativeResult={call.NativeResult} nativePath=[{call.NativePath}]");
+                    Log(r, $"state2-post mode={(Observe ? "Observe" : "Guard")} override={call.Frame.Applied} groupBefore={call.Group} groupAfter={Ptr(after)} entryAfter=[{Show(Read(after?.startToEntryPath, true))}] roadAfter=[{Show(Read(after?.entryToExitPath, true))}] nativeResult={call.NativeResult} nativePath=[{call.NativePath}] preferDirectVia={call.PreferDirect}");
                     if (ReferenceEquals(_receipt, r)) _receipt = null;
                 }
             }
@@ -501,8 +519,10 @@ namespace TaxiDriver
     // ==== TaxiDriver section: CruiseSpeedPatch.cs ====
     using System;
     using HarmonyLib;
+    using Il2CppScheduleOne.Vehicles;
     using Il2CppScheduleOne.Vehicles.AI;
     using S1Mods.Shared;
+    using UnityEngine;
 
 
     /// <summary>
@@ -521,6 +541,7 @@ namespace TaxiDriver
         private static bool _enabled;
         private static bool _errorLogged;
         private static int _loggedOrder = -1;
+        private static int _loggedApproachOrder = -1;
 
         internal static void Apply()
         {
@@ -536,7 +557,7 @@ namespace TaxiDriver
                     postfix: new HarmonyMethod(typeof(CruiseSpeedPatch), nameof(UpdateSpeedPostfix)),
                     log: Mod.Log);
                 if (_enabled)
-                    Mod.Log.Info("[cruise] owned autonomous taxi forward base target=50 km/h; native turn, obstacle, destination braking and reverse remain enabled. Achieved speed requires gameplay verification.");
+                    Mod.Log.Info("[cruise] owned autonomous taxi forward base target=50 km/h with a cap near the exact passenger stop; native speed reductions remain enabled. Achieved speed requires gameplay verification.");
                 else
                     Mod.Log.Warn("[cruise] UpdateSpeed hook unavailable; native cruising speed retained.");
             }
@@ -561,7 +582,10 @@ namespace TaxiDriver
                 var flags = __instance.Flags;
                 if (flags == null)
                     return;
+                int order = SpikeState.NavOrder;
+                long operation = SpikeState.OperationId;
                 float nativeBase = __instance.targetSpeed;
+                float approachDistance = GetApproachDistance(__instance, veh);
                 float target = CruiseSpeedPolicy.BaseTargetKmh(
                     nativeBase,
                     ownedTaxi: true,
@@ -569,14 +593,23 @@ namespace TaxiDriver
                     autoDriving: __instance.AutoDriving,
                     playerDriving: veh.DriverPlayer != null,
                     reversing: __instance.IsReversing || SpikeState.Reverse.Active,
-                    nativeOverride: flags.OverrideSpeed);
+                    nativeOverride: flags.OverrideSpeed,
+                    approachDistance: approachDistance);
+                if (order != SpikeState.NavOrder || operation != SpikeState.OperationId ||
+                    SpikeState.Vehicle?.Pointer != veh.Pointer)
+                    return;
                 if (target == nativeBase || !float.IsFinite(target))
                     return;
                 __instance.targetSpeed = target;
-                if (_loggedOrder != SpikeState.NavOrder)
+                if (_loggedOrder != order)
                 {
-                    _loggedOrder = SpikeState.NavOrder;
-                    Mod.Log.Info($"[cruise] order={SpikeState.NavOrder} nativeBase={nativeBase:0.0} targetBase={__instance.targetSpeed:0.0} km/h actual={veh.Speed_Kmh:0.0} km/h; native speed reductions run next.");
+                    _loggedOrder = order;
+                    Mod.Log.Info($"[cruise] order={order} nativeBase={nativeBase:0.0} targetBase={target:0.0} km/h actual={veh.Speed_Kmh:0.0} km/h; native speed reductions run next.");
+                }
+                if (_loggedApproachOrder != order && NavigationArrivalPolicy.IsWithinArrival(approachDistance))
+                {
+                    _loggedApproachOrder = order;
+                    Mod.Log.Info($"[cruise] order={order} passenger stop {approachDistance:0.0} m away; capped base={target:0.0} km/h actual={veh.Speed_Kmh:0.0} km/h.");
                 }
             }
             catch (Exception ex)
@@ -589,6 +622,17 @@ namespace TaxiDriver
             }
         }
 
+        private static float GetApproachDistance(VehicleAgent agent, LandVehicle vehicle)
+        {
+            if (!SpikeState.Operation.Active || !SpikeState.RideActive || SpikeState.NavToPlayer ||
+                SpikeState.RideAwaitingDestination || SpikeState.ActiveTripPoint is not { } stop ||
+                !stop.Equals(SpikeState.NavTarget) || agent.NavigationCalculationInProgress ||
+                !stop.Equals(agent.TargetLocation))
+                return float.NaN;
+
+            return Vector3.Distance(vehicle.transform.position, stop);
+        }
+
         internal static void Remove()
         {
             _enabled = false;
@@ -599,6 +643,7 @@ namespace TaxiDriver
                 _harmony = null;
                 _errorLogged = false;
                 _loggedOrder = -1;
+                _loggedApproachOrder = -1;
             }
         }
     }

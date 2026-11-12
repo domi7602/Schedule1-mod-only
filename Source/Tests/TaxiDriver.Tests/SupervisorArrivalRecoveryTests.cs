@@ -185,6 +185,8 @@ public class SupervisorArrivalRecoveryTests
     private static MethodInfo CompileReplay()
     {
         var runner = CSharpSyntaxTree.ParseText(DriverSafetySourceContractTests.ReadSource("SpikeRunner.cs")).GetRoot();
+        var runnerClass = runner.DescendantNodes().OfType<ClassDeclarationSyntax>()
+            .Single(type => type.Identifier.Text == "SpikeRunner");
         var policies = CSharpSyntaxTree.ParseText(DriverSafetySourceContractTests.ReadSource("DrivingPolicies.cs")).GetRoot();
         string[] methodNames =
         {
@@ -202,7 +204,7 @@ public class SupervisorArrivalRecoveryTests
             "NavigationOperationPolicy", "OperationPhase", "NavigationTerminalPolicy", "PatrolStartPolicy", "TrafficWaitBudget"
         };
         string source = Harness
-            .Replace("/* FIELDS */", string.Join("\n", runner.DescendantNodes().OfType<FieldDeclarationSyntax>()
+            .Replace("/* FIELDS */", string.Join("\n", runnerClass.Members.OfType<FieldDeclarationSyntax>()
                 .Select(field => field.ToFullString())))
             .Replace("/* METHODS */", string.Join("\n", runner.DescendantNodes().OfType<MethodDeclarationSyntax>()
                 .Where(method => methodNames.Contains(method.Identifier.Text)).Select(method => method.ToFullString())))
@@ -342,6 +344,12 @@ public class SupervisorArrivalRecoveryTests
             }
             private static bool TryTeleportRecovery(LandVehicle veh, VehicleAgent agent, Vector3 position, float distance) => false;
             private static bool TryFreeSpotRescue(LandVehicle veh, VehicleAgent agent, string context) { SeenRescues++; return false; }
+            private readonly struct StaticBlocker { }
+            private sealed class DetourDrive { }
+            private static StaticBlocker? ObserveDetourBlocker(LandVehicle veh, VehicleAgent agent, Vector3 position) => null;
+            private static bool TryStartDetour(LandVehicle veh, VehicleAgent agent, StaticBlocker blocker) => false;
+            private static bool TryQueueDetourReverse(LandVehicle veh, VehicleAgent agent, StaticBlocker hit, float now) => false;
+            private static bool CancelFinalDetourOnStall(LandVehicle veh, VehicleAgent agent) => false;
             private static bool TryStartReverse(VehicleAgent agent, LandVehicle veh, float now, string reason) => false;
             private static void TickReDispatch(VehicleAgent agent) { SpikeState.NavReDispatchAt = 0f; }
             private static bool TickStartupRecovery(VehicleAgent agent, LandVehicle veh, Vector3 position, float distance, bool navCalc) => false;

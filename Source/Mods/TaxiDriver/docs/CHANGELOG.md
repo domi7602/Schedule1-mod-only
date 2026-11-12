@@ -1,5 +1,70 @@
 # Changelog
 
+## Local Rathaus departure follow-up — 1.0.6 (2026-11-12)
+
+- With Guard `0411e121…`, two natural Rathaus departures failed after the first
+  recovery episode. One approved the regular path but stalled again; the other
+  found no local via and rejected the regular path because it crossed the
+  observed blocker's clearance.
+- The bounded via search now also checks road points at 12 m to either side
+  after the existing 16 m candidates. Candidates still require a road-graph
+  snap and the resulting native path must pass the blocker-clearance check.
+  An approved direct final leg may use the existing bounded free-spot rescue
+  on a new static blocker after a confirmed halt, with available operation
+  budget and placement outside both blocker bounds. Rescue remains subject
+  to the physical placement and ownership checks.
+- Explicit local Guard `c7baa316…` (PDB `c4dd2bbf…`): two natural
+  TownHallTest / SaveGame_2 rides used CALL points `(60.10, 4.83)` and
+  `(60.17, 3.95)` (x, z). Actual departures were `(65.1, -1.5)` and
+  `(59.3, -4.5)`. Passenger operations 2 and 4 used one and two recovery
+  episodes respectively and checked vias `(52.3, 12.5)` and `(46.5, 9.5)`.
+  Both arrived 2.8 m from the regular Bungalow stop.
+- The old failure poses were not reproduced exactly. Neither the new 12 m
+  search branch nor the direct-final-leg rescue was observed in these rides,
+  and a fourth recovery episode was not observed. These arrivals therefore
+  do not establish those branches' live behavior or broad route reliability.
+  The game was closed without saving; both native save slots were byte-identical.
+  Guard remains installed.
+- The 1,634 TaxiDriver tests passed. Full verification passed 23/23 and
+  isolated Pure passed 22/22 before this documentation update.
+
+## Local recovery, arrival and STOP follow-up — 1.0.6 (2026-11-11)
+
+- A controlled in-game test of Guard `8b8f6406…` used the normal app and native driving. A temporary fixture spent one budget entry after two real recovery episodes. The game granted episode 4 and reached the regular Bungalow stop 3.3 m from the target. The fixture was removed after the run.
+- A static blocker observation can survive low-speed native reversing. If rear clearance ends after a measured retreat and the front has cleared, the taxi stops and checks the detour without continuing in reverse. A different blocker near the intermediate stop can use one available recovery episode to find a physically checked position outside both clearance bounds. The approved final leg uses the normal arrival checks.
+- The taxi now slows before its current passenger destination. Guard `9ece83d1…` reached the regular Bungalow stop at 2.8 m in both Rathaus controls. The north approach's native Complete arrived at 2.1 km/h. An earlier run from the same call point had signaled Complete at 27.6 km/h and stopped 19.1 m short.
+- Docks reproduced a road-snap refusal followed by a same-order native calculation with no active path and a give-up 182.0 m short. Several probes had collapsed onto two sidewalk areas. RoadKeeper now walks the actual route in both directions for its bounded candidate search. During a brief same-order calculation it can check the recently observed corridor with the same physical placement checks.
+- Confirmed STOP closes the phone only when it directly covers the taxi's native exit state. During a moving ride, it revokes navigation immediately and defers the verified exit and cleanup until the exact taxi reaches a confirmed halt. The four-second wait counts active game time.
+- Explicit Release Guard `8de3b2c0…` compiled with zero warnings or errors. All 1,597 TaxiDriver tests passed.
+- After a confirmed directed retreat with the front clear, the absence of a via permits one checked native path to the original stop. It uses the current recovery grant and waits for measured halt before dispatch. The resulting path must clear the original blocker.
+- Road placement checks an oriented envelope built from all eight measured chassis corners. The route search includes intermediate offsets within the existing 8 m range. No-point diagnostics report the actual candidate checks and whether a live corridor was available.
+- Guard `0411e121…` compiled with zero warnings or errors and passed all 1,609 TaxiDriver tests. Four Docks controls from the original call point reached the regular Bungalow stop at 2.8 m each. One used a checked detour and the others used physically checked road snaps. The closest natural departure was about 0.6 m and 1° from the first archived Docks departure. A separate attempt to stage an earlier recorded curb pose was refused by the footprint check.
+
+- A controlled replay on `0411e121…` matched the archived parked pose at the Docks dumpsters. The game reproduced the 7.3 m retreat and the missing intermediate road point. The taxi confirmed a halt, approved the native path to the original stop, and arrived 2.8 m from the regular Bungalow target.
+
+## Local departure recovery follow-up — 1.0.6 (2026-11-11)
+
+- The two earlier failed departures both had an authorized reverse, then reissued a route through the same area. One reached the Sedan with the operation budget exhausted on its next attempt. The other backed out by 2.8 m and later stopped with no clear rear or supported rescue spot.
+- An already-granted reverse can now carry a stationary static-blocker observation into the checked detour, including the last available episode and before the parking-lot fallback. Recovery counts, rear clearance and the operation deadline still apply. The blocker observation is bound to the native reverse and checked transition order.
+- When the first via path crosses the blocker, one alternate road point can prefer the game's own short, complete direct path in Guard. This only changes the exact native length comparison for that calculation. Clearance is checked before selection and again on the resulting smoothed path before releasing Park.
+- Local Guard `8b8f6406…`, TownHallTest / Slot 2: both original pickup request points were retested. Actual departure positions varied. At the first, the confirmed Sedan detour started with recovery #1. At the second, the first via path was refused and the alternate selected the clear 18.8 m native direct path. Both reached the regular Bungalow stop at 3.8 m. A third run from the first pickup request arrived 3.4 m from the regular stop after recovery episode 2. The exact last-budget decision also passed a managed production-method replay.
+- No-deploy Release Guard build: 0 warnings and 0 errors. TaxiDriver tests: 1,471/1,471.
+
+## Local Guard detour candidate — 1.0.6 (2026-11-11)
+
+- A repeat stall near a confirmed static obstacle can now request a bounded reverse. After a measured halt, the taxi tests a road-graph waypoint and checks both native paths against the blocker before driving each leg. The detour retains the regular Bungalow stop and the ride's recovery budget. A native path back through the blocker is rejected before it can drive the taxi.
+- Road snap failures now include rate-limited candidate rejection details for road projection and the physical placement checks.
+- TownHallTest / Slot 2: Guard `1ecd4375…` reached the regular Bungalow stop twice after the Sedan detour, at 3.4 m and 4.0 m. Another departure consumed its recovery budget before a detour could start and stopped 242.6 m before the fallback parking lot. A further retry found no supported recovery pose after the rear check blocked reversing and stopped 255.8 m before the regular stop.
+- A confirmed `STOP` during native path calculation ended the ride before the detour path was accepted. The taxi stayed parked. Automatic exit was unconfirmed, so the cleanup guard retained the taxi until a normal E exit and another STOP confirmed removal.
+- The preceding Guard `322b9a4a…` reached the regular Bungalow stop twice after the Sedan detour (3.3 m, 3.4 m). Its Docks control found a free road reset and reached the regular stop (3.0 m). The original Docks snap refusal did not recur. Its Barn control reached the fallback parking lot (4.0 m) after native path failures.
+- No-deploy Release Guard build: 0 warnings and 0 errors. TaxiDriver tests: 1,417/1,417.
+
+## In-game follow-up — 1.0.6 (2026-11-11)
+
+- **Bungalow route failed on TownHallTest / Slot 2.** Schedule I PID 5540 loaded Guard DLL `9d897a86…`. The phone app's **CALL TAXI** reached a confirmed halt 4.7 m from the pickup point at 1.0 km/h, then 0.0 km/h in Park. S1MCP positioned the player beside the taxi and invoked native `LandVehicle.EnterVehicle`. The passenger-seat hook ran and the app showed **ON BOARD**.
+- The phone app selected the regular Bungalow stop `(-156.0, -4.0, 113.7)` at 06:02:00 CET. The initial native calculation returned `Success` with 202 points. After repeated stalls, recovery switched to the Parking lot `(-156.0, -4.0, 82.3)`, 31.4 m from the original stop, at 06:02:22. At 06:02:34 the ride logged `GAVE UP` 242.4 m short of the replacement stop after four recovery episodes. The cause of the stalls remains undetermined.
+- The player exited with **E** and the phone app's **STOP** cleared the taxi after native destruction was confirmed at 06:03:00. Dominik's successful Barn → Bungalow ride on 2026-11-02 remains a separate verified run.
+
 ## 1.0.6 (2026-11-02)
 - **Early entry log-verified, owner run 15:01–15:04 on unchanged Guard `9d897a86…`:** native pickup Complete had returned, but physical pickup halt was not confirmed. `early pickup boarding` and passenger-seat/park handling ran; first post-entry actuator sample 13.0 km/h, Barn selected and ARRIVED 5.0 m. This verifies entry during pickup braking, not arbitrary earlier timing or the suggested Bungalow-origin route. No separate subjective owner verdict was supplied.
 - That run additionally selected Bungalow: first/repeated calculations failed, fallback switched to parking lot (-156.0, -4.0, 82.3), logged 31.4 m from the goal. Three recovery episodes, checked free-spot placement, then ARRIVED 2.5 m / Complete at the replacement target. **Not the normal Bungalow drop-off**; no GAVE UP. Raw log SHA-256 `87828a9b514b749d56d185615e5f1bd615bdda3d29af13609f112ef9d8c11615`. Evidence only; no production code/build/deploy/game/save changes, commit or push.

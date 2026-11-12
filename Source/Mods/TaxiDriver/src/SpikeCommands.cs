@@ -8,6 +8,7 @@ using Il2CppFishNet;
 using Il2CppScheduleOne.Math;
 using Il2CppScheduleOne.NPCs;
 using Il2CppScheduleOne.PlayerScripts;
+using Il2CppScheduleOne.UI;
 using Il2CppScheduleOne.Vehicles;
 using Il2CppScheduleOne.Vehicles.AI;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
@@ -2612,8 +2613,14 @@ internal static class SpikeCommands
         // could neither walk nor drive: the NPC held the driver seat.
         //
         // A failed exit never destroys (freeze guard) — the state stays retryable.
+        if (_pendingStopExit != null)
+            return ReportStopBraking();
+
         SpikeState.StandSpawnPosition = null;
         bool despawned = Cleanup("stopped", explicitRetry: true);
+        if (_pendingStopExit != null)
+            return false;
+
         if (despawned)
             Print("Ride cancelled — the taxi has been despawned (destroyed) and the state is clear.");
         else if (SpikeState.VehicleOwnership.DestroyPending)
@@ -2665,6 +2672,8 @@ internal static class SpikeCommands
     {
         if (!EnsureAuthority())
             return false;
+        if (_pendingStopExit != null)
+            return ReportStopBraking();
         ReconcileDeadTaxi();
 
         if (!RideLocks.Patched || !NativeActuatorPatch.Healthy)
@@ -2891,6 +2900,132 @@ internal static class SpikeCommands
 
     // ------------------------------------------------------------- cleanup
 
+    private const float StopExitWaitSeconds = 4f;
+
+    private sealed record PendingStopExit(
+        LandVehicle Vehicle, IntPtr TaxiPointer, IntPtr NetworkPointer, IntPtr PlayerPointer,
+        int Order, long Operation, float StartedAt);
+
+    private static PendingStopExit? _pendingStopExit;
+
+    private static bool ReportStopBraking()
+    {
+        SpikeState.SetServiceStatus("Taxi is braking — exit and removal will follow once it stops.");
+        return false;
+    }
+
+    internal static void CancelPendingStopExit() => _pendingStopExit = null;
+
+    private static bool IsStopExitCurrent(PendingStopExit pending) =>
+        Mod.Lifecycle.AcceptingWork && SceneGate.IsInMainScene &&
+        SpikeState.NavOrder == pending.Order && SpikeState.OperationId == pending.Operation &&
+        ReferenceEquals(SpikeState.Vehicle, pending.Vehicle) &&
+        HasAuthority() && IsOwnedTaxi(pending.Vehicle) && pending.Vehicle.Pointer == pending.TaxiPointer;
+
+    private static bool TryDeferStopExit(LandVehicle veh, int order, long operation)
+    {
+        if (!Mod.Lifecycle.AcceptingWork || !SceneGate.IsInMainScene ||
+            !HasAuthority() || !IsOwnedTaxi(veh) || !ReferenceEquals(SpikeState.Vehicle, veh))
+            return false;
+
+        try
+        {
+            IntPtr taxiPointer = veh.Pointer;
+            Player? player = Player.Local;
+            var current = player?.CurrentVehicle;
+            var network = veh.NetworkObject;
+            float now = Time.time;
+            if (player == null || player.Pointer == IntPtr.Zero || player.WasCollected ||
+                current == null || current.WasCollected ||
+                network == null || network.Pointer == IntPtr.Zero || network.WasCollected ||
+                current.Pointer != network.Pointer || !veh.LocalPlayerIsInVehicle ||
+                !ReferenceEquals(veh.DriverPlayer, null) || !float.IsFinite(now) ||
+                !TryReadStopHalt(veh, out bool halted) || halted)
+                return false;
+
+            var pending = new PendingStopExit(veh, taxiPointer, network.Pointer, player.Pointer, order, operation, now);
+            if (_pendingStopExit != null || !IsStopExitCurrent(pending))
+                return false;
+
+            _pendingStopExit = pending;
+            Print("[taxi-cleanup] deferred STOP exit until native park is confirmed.");
+            ReportStopBraking();
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Mod.Log.Warn($"[taxi-cleanup] could not verify a deferred STOP exit: {ex.Message}");
+            return false;
+        }
+    }
+
+    private static bool IsStopExitPassengerCurrent(PendingStopExit pending)
+    {
+        Player? player = Player.Local;
+        var network = pending.Vehicle.NetworkObject;
+        if (player == null || player.Pointer != pending.PlayerPointer || player.WasCollected ||
+            network == null || network.Pointer != pending.NetworkPointer || network.WasCollected ||
+            !ReferenceEquals(pending.Vehicle.DriverPlayer, null))
+            return false;
+
+        var current = player.CurrentVehicle;
+        return pending.Vehicle.LocalPlayerIsInVehicle
+            ? current != null && current.Pointer == pending.NetworkPointer && !current.WasCollected
+            : ReferenceEquals(current, null);
+    }
+
+    // STOP already revoked the ride and ordered Park. This continues its teardown
+    // once the native halt is observed, without another STOP or another park request.
+    internal static bool TickPendingStopExit()
+    {
+        PendingStopExit? pending = _pendingStopExit;
+        if (pending == null)
+            return false;
+
+        try
+        {
+            if (!IsStopExitCurrent(pending) || !IsStopExitPassengerCurrent(pending))
+            {
+                CancelPendingStopExit();
+                Print("[taxi-cleanup] deferred STOP exit cancelled after its taxi or passenger changed.");
+                return false;
+            }
+
+            // The taxi cannot brake while physics is paused.
+            float elapsed = Time.time - pending.StartedAt;
+            if (!float.IsFinite(elapsed) || elapsed < 0f || elapsed >= StopExitWaitSeconds)
+            {
+                CancelPendingStopExit();
+                return RefuseService("Taxi stop could not be confirmed. Once it stops, use E to exit and press STOP again.");
+            }
+
+            if (Time.timeScale == 0f || !TryReadStopHalt(pending.Vehicle, out bool halted) || !halted)
+                return true;
+
+            if (!ReferenceEquals(_pendingStopExit, pending))
+                return false;
+            CancelPendingStopExit(); // consume before a native exit or destroy can reenter
+            long statusBeforeExit = SpikeState.ServiceStatusRevision;
+            if (FinishCleanup(ok: true, explicitRetry: true, pending: pending))
+                SpikeState.SetServiceStatus("Ride cancelled — taxi removed safely.");
+            else if (SpikeState.VehicleOwnership.DestroyPending)
+                SpikeState.SetServiceStatus("Taxi removal is being verified.");
+            else if (SpikeState.ServiceStatusRevision == statusBeforeExit && IsStopExitCurrent(pending))
+                RefuseService("Taxi exit or removal could not be confirmed. Check the taxi before pressing STOP again.");
+            return true;
+        }
+        catch (Exception ex)
+        {
+            if (ReferenceEquals(_pendingStopExit, pending))
+                CancelPendingStopExit();
+            Mod.Log.Warn($"[taxi-cleanup] deferred STOP exit failed: {ex.Message}");
+            if (SpikeState.NavOrder == pending.Order && SpikeState.OperationId == pending.Operation &&
+                Mod.Lifecycle.AcceptingWork && SceneGate.IsInMainScene)
+                RefuseService("Taxi exit could not be confirmed. Use E to exit once it stops, then press STOP again.");
+            return false;
+        }
+    }
+
     /// <summary>
     /// Everyone out, then destroy the spike vehicle and clear the state. Freeze guard
     /// (review B2/M1): the NPC exit is verified, the destroy is refused while
@@ -2901,6 +3036,7 @@ internal static class SpikeCommands
     /// <summary>Stops taxi navigation and releases ride state when Main unloads, without blind teleporting.</summary>
     internal static void AbortForSceneUnload(string reason)
     {
+        CancelPendingStopExit();
         if (!Mod.Lifecycle.AcceptingWork)
             return;
         SpikeState.CancelPendingSpawn();
@@ -2974,6 +3110,7 @@ internal static class SpikeCommands
 
     internal static bool Cleanup(string reason = "cleanup", bool explicitRetry = false)
     {
+        CancelPendingStopExit();
         ReconcileDeadTaxi();
         SpikeState.CancelPendingSpawn();
         SpikeState.ResetAutoRun();
@@ -3029,8 +3166,7 @@ internal static class SpikeCommands
         }
 
         bool ok = true;
-        bool destroyConfirmed = false;
-        bool destroyPending = false;
+        bool wasPassengerRide = SpikeState.RideActive;
 
         // STOP can arrive during pickup, before RideAwaitingBoard makes EndRide
         // treat it as a passenger ride. Invalidate that pickup callback before any
@@ -3044,6 +3180,8 @@ internal static class SpikeCommands
         EndRide(reason); // ride state + input/trunk locks before the teardown
         SpikeState.PollingActive = false;
         SpikeState.CancelPendingSpawn();
+        int stopOrder = SpikeState.NavOrder;
+        long stopOperation = SpikeState.OperationId;
 
         NPC? npc = SpikeState.DriverNpc;
         if (npc != null)
@@ -3092,6 +3230,25 @@ internal static class SpikeCommands
             }
         }
 
+        if (explicitRetry)
+        {
+            if (SpikeState.NavOrder != stopOrder || SpikeState.OperationId != stopOperation ||
+                !ReferenceEquals(SpikeState.Vehicle, initialVeh))
+                return false;
+            if (ok && wasPassengerRide && TryDeferStopExit(initialVeh!, stopOrder, stopOperation))
+                return false;
+        }
+
+        return FinishCleanup(ok, explicitRetry);
+    }
+
+    private static bool FinishCleanup(bool ok, bool explicitRetry, PendingStopExit? pending = null)
+    {
+        if (pending != null && (!IsStopExitCurrent(pending) || !IsStopExitPassengerCurrent(pending)))
+            return false;
+
+        bool destroyConfirmed = false;
+        bool destroyPending = false;
         LandVehicle? veh = SpikeState.Vehicle;
         if (veh != null)
         {
@@ -3111,21 +3268,55 @@ internal static class SpikeCommands
                 if (wasInThisTaxi)
                 {
                     IntPtr playerPointer = player!.Pointer;
-                    veh.ExitVehicle();
-                    Print("LandVehicle.ExitVehicle() called (local player).");
+                    IntPtr taxiPointer = veh.Pointer;
+                    IntPtr networkPointer = taxiNetwork!.Pointer;
+                    int exitOrder = SpikeState.NavOrder;
+                    bool StillCurrent() => !explicitRetry ||
+                        (SceneGate.IsInMainScene && HasAuthority() && IsOwnedTaxi(veh) &&
+                         veh.Pointer == taxiPointer && ReferenceEquals(SpikeState.Vehicle, veh) &&
+                         SpikeState.NavOrder == exitOrder && (pending == null || IsStopExitCurrent(pending)));
+                    bool StillSeated()
+                    {
+                        Player? local = Player.Local;
+                        var seatedVehicle = local?.CurrentVehicle;
+                        var trackedNetwork = veh.NetworkObject;
+                        return local != null && local.Pointer == playerPointer && !local.WasCollected &&
+                            seatedVehicle != null && seatedVehicle.Pointer == networkPointer && !seatedVehicle.WasCollected &&
+                            trackedNetwork != null && trackedNetwork.Pointer == networkPointer && !trackedNetwork.WasCollected &&
+                            veh.LocalPlayerIsInVehicle &&
+                            (pending == null || (local.Pointer == pending.PlayerPointer &&
+                                trackedNetwork.Pointer == pending.NetworkPointer &&
+                                ReferenceEquals(veh.DriverPlayer, null))) &&
+                            StillCurrent();
+                    }
 
-                    // Recovery belongs only to this successful exit, not an already
-                    // absent player, another vehicle, or an unknown/throwing exit.
-                    Player? after = Player.Local;
-                    bool exited = IsOwnedTaxi(veh) && !veh.LocalPlayerIsInVehicle &&
-                        after != null && after.Pointer == playerPointer && !after.WasCollected &&
-                        ReferenceEquals(after.CurrentVehicle, null);
-                    if (exited)
-                        SafeExitGroundSnap(veh);
+                    bool exitReady = !explicitRetry || TryExposeStopExitState(veh, StillSeated);
+                    if (!StillCurrent()) return false;
+                    if (!exitReady)
+                    {
+                        RefuseService("Taxi exit is not ready. Wait for the taxi to stop, close the phone and use E to exit, then press STOP again.");
+                        ok = false;
+                    }
                     else
                     {
-                        Mod.Log.Error("[taxi-cleanup] local player exit could not be verified — ground recovery and destroy refused.");
-                        ok = false;
+                        if (explicitRetry && !StillSeated()) return false;
+                        veh.ExitVehicle();
+                        Print("LandVehicle.ExitVehicle() called (local player).");
+                        if (!StillCurrent()) return false;
+
+                        // Recovery belongs only to this successful exit, not an already
+                        // absent player, another vehicle, or an unknown/throwing exit.
+                        Player? after = Player.Local;
+                        bool exited = IsOwnedTaxi(veh) && !veh.LocalPlayerIsInVehicle &&
+                            after != null && after.Pointer == playerPointer && !after.WasCollected &&
+                            ReferenceEquals(after.CurrentVehicle, null);
+                        if (exited)
+                            SafeExitGroundSnap(veh);
+                        else
+                        {
+                            Mod.Log.Error("[taxi-cleanup] local player exit could not be verified — ground recovery and destroy refused.");
+                            ok = false;
+                        }
                     }
                 }
                 else
@@ -3138,15 +3329,18 @@ internal static class SpikeCommands
                 // nobody drives" report — prove the exit, never assume it.
                 if (SafePlayerInVehicle(veh))
                 {
-                    Mod.Log.Error("LocalPlayerIsInVehicle is still true after LandVehicle.ExitVehicle() — destroy refused (freeze guard). Use the normal E interaction to exit, then press STOP again.");
+                    Mod.Log.Error("[taxi-cleanup] local passenger remains seated or exit status is unreadable — destroy refused (freeze guard). Use the normal E interaction to exit, then press STOP again.");
                     ok = false;
                 }
             }
             catch (Exception ex)
             {
-                Mod.Log.Error($"LandVehicle.ExitVehicle() failed: {ex.Message}");
+                Mod.Log.Error($"[taxi-cleanup] local passenger exit failed: {ex.Message}");
                 ok = false;
             }
+
+            if (pending != null && (!IsStopExitCurrent(pending) || !IsStopExitPassengerCurrent(pending)))
+                return false;
 
             try
             {
@@ -3207,16 +3401,20 @@ internal static class SpikeCommands
                         ok = false;
                     }
                 }
-                else if (ok && !PassengerCleanupPolicy.TryBeginDestroy(
-                    SpikeState.VehicleOwnership, destroyPointer, alive: true, explicitRetry: explicitRetry,
-                    occupancy: ReadPlayerOccupancy(veh)))
-                {
-                    RefuseService("Waiting for passengers or destruction verification — taxi remains tracked; no destroy call issued.");
-                    Mod.Log.Error("[taxi-cleanup] destroy refused by player occupancy or the ownership ledger; handle retained.");
-                    ok = false;
-                }
                 else if (ok)
                 {
+                    PlayerOccupancy occupancy = ReadPlayerOccupancy(veh);
+                    if (pending != null && (!IsStopExitCurrent(pending) || !IsStopExitPassengerCurrent(pending)))
+                        return false;
+                    if (!PassengerCleanupPolicy.TryBeginDestroy(
+                        SpikeState.VehicleOwnership, destroyPointer, alive: true, explicitRetry: explicitRetry && pending == null,
+                        occupancy: occupancy))
+                    {
+                        RefuseService("Waiting for passengers or destruction verification — taxi remains tracked; no destroy call issued.");
+                        Mod.Log.Error("[taxi-cleanup] destroy refused by player occupancy or the ownership ledger; handle retained.");
+                        return false;
+                    }
+
                     try
                     {
                         veh.DestroyVehicle();
@@ -3270,6 +3468,55 @@ internal static class SpikeCommands
             Print("[taxi-cleanup] incomplete — reference retained; no automatic destroy retry was issued.");
 
         return false;
+    }
+
+    // Native ExitVehicle can only pop the vehicle state when it is the top of
+    // its default parent. The phone screen covers that state while STOP runs.
+    private static bool TryExposeStopExitState(LandVehicle veh, Func<bool> stillSeated)
+    {
+        if (!TryReadStopHalt(veh, out bool halted) || !halted)
+            return false;
+
+        var taxiState = veh.State;
+        var parent = taxiState?._defaultParent;
+        if (taxiState == null || taxiState.Pointer == IntPtr.Zero || taxiState.WasCollected ||
+            parent == null || parent.Pointer == IntPtr.Zero || parent.WasCollected)
+            return false;
+
+        var top = parent.Peek();
+        if (top?.Pointer == taxiState.Pointer)
+            return true;
+
+        var menu = GameplayMenu.InstanceExists ? GameplayMenu.Instance : null;
+        if (menu == null || menu.Pointer == IntPtr.Zero || menu.WasCollected || !menu.IsOpen ||
+            menu.CurrentScreen != GameplayMenu.EGameplayScreen.Phone)
+            return false;
+
+        var menuState = menu.State;
+        var stack = parent.Stack;
+        if (menuState == null || menuState.Pointer == IntPtr.Zero || menuState.WasCollected ||
+            top?.Pointer != menuState.Pointer || menuState._defaultParent?.Pointer != parent.Pointer ||
+            stack == null || stack.Count < 2 || stack[stack.Count - 2]?.Pointer != taxiState.Pointer ||
+            !stillSeated() || parent.Peek()?.Pointer != menuState.Pointer)
+            return false;
+
+        // Use the same close path as Tab. Setting Phone.IsOpen alone would
+        // leave the gameplay menu state on the native stack.
+        menu.Close();
+        bool ready = !menu.IsOpen && parent.Peek()?.Pointer == taxiState.Pointer;
+        if (ready)
+            Print("[taxi-cleanup] closed the phone menu and exposed the native taxi exit state.");
+        return ready;
+    }
+
+    private static bool TryReadStopHalt(LandVehicle veh, out bool halted)
+    {
+        float speed = veh.Speed_Kmh;
+        VehicleAgent? agent = veh.Agent;
+        bool readable = float.IsFinite(speed) && agent != null;
+        halted = readable && NavigationArrivalPolicy.IsConfirmedHalt(true, speed, veh.IsReversing) &&
+            !agent!.AutoDriving;
+        return readable;
     }
 
     /// <summary>Clears an owned handle only after the native wrapper reports the vehicle dead.</summary>

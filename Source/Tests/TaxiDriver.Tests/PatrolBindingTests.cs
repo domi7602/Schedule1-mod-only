@@ -90,13 +90,14 @@ public class PatrolBindingTests
     {
         string runner = DriverSafetySourceContractTests.ReadSource("SpikeRunner.cs");
         foreach (string signature in new[] {
-            "private static bool TryFreeSpotRescue(LandVehicle veh, VehicleAgent agent, string context)",
-            "private static bool TryStartReverse(VehicleAgent agent, LandVehicle veh, float now, string reason)",
+            "private static bool TryFreeSpotRescue(LandVehicle veh, VehicleAgent agent, string context,",
+            "private static bool TryStartReverse(VehicleAgent agent, LandVehicle veh, float now, string reason,",
             "private static bool TryTeleportRecovery(LandVehicle veh, VehicleAgent agent, Vector3 position, float distance)" })
         {
             int start = runner.IndexOf(signature, System.StringComparison.Ordinal);
             Assert.True(start >= 0);
-            Assert.Contains("if (TaxiAI.NavigationBlocked) return false;", runner.Substring(start, signature.Length + 85));
+            int body = runner.IndexOf('{', start);
+            Assert.Contains("if (TaxiAI.NavigationBlocked) return false;", runner.Substring(body, 85));
         }
     }
 
