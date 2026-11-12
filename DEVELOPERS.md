@@ -44,7 +44,7 @@ Working from more than one machine? See [`docs/working-across-devices.md`](docs/
 | Requirement | Version | Notes |
 |---|---|---|
 | Windows | 10/11 | The build references DLLs from the installed game; PowerShell scripts assume Windows paths. |
-| .NET SDK | 8.0+ (8.0.426 globally installed on the maintainer machine) | Mods target `net6.0`, but `LangVersion` 12 needs the C# 12 compiler that ships with SDK 8 — a 6.0 SDK cannot build the solution. CI installs the 8.0.x SDK plus the 6.0.x runtime. |
+| .NET SDK | 8.0.x (8.0.426 globally installed on the maintainer machine) | Mods target `net6.0`, but `LangVersion` 12 needs the C# 12 compiler that ships with SDK 8 — a 6.0 SDK cannot build the solution. Root [`global.json`](global.json) selects the latest installed stable 8.0 feature band and patch, so a newer major SDK on a hosted runner cannot take precedence. CI installs the 8.0.x SDK plus the 6.0.x runtime. |
 | PowerShell | 7+ (`pwsh`) | All `Tools/*.ps1` scripts (`#Requires -Version 7` where applicable). Windows execution policy can block script execution (the effective policy depends on machine/user/host scope), so invoke them explicitly as `pwsh -NoProfile -ExecutionPolicy Bypass -File Tools/<script>.ps1` from any shell. |
 | Schedule I | v0.4.7f12 (current runtime; older verifications on v0.4.6f13 / v0.4.7f6 / v0.4.7f9 / v0.4.7f11) | Provides `MelonLoader\Il2CppAssemblies\*.dll` and `MelonLoader\net6\*.dll` referenced by `Directory.Build.props`. |
 | MelonLoader | 0.7.3 | Must be installed into the game directory. |

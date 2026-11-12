@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using TownHallInterior;
 using Xunit;
 
@@ -278,33 +279,44 @@ public sealed class TownHallInteractionTests
         Assert.Contains("gesperrt", player.Notifications[0].Message);
     }
 
-    [Fact]
-    public void Tick_WhenKeyPressedAtOwnedTerminal_WithCash_ExecutesLaundering()
+    [Theory]
+    [InlineData("de-DE", "3.500")]
+    [InlineData("en-US", "3,500")]
+    public void Tick_WhenKeyPressedAtOwnedTerminal_WithCash_ExecutesLaundering(string cultureName, string formattedAmount)
     {
-        var purchase = new BusinessPurchaseManager();
-        purchase.RestoreOwnership(true);
-        var laundering = new BusinessLaunderingManager(purchase);
-        var player = new MockPlayerPort
+        var previousCulture = CultureInfo.CurrentCulture;
+        try
         {
-            X = 56.4f,
-            Y = 5.5f,
-            Z = 30.25f,
-            KeyPressed = true
-        };
-        var launderingPort = new MockLaunderingPort { PlayerCash = 3_500f };
+            CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo(cultureName);
+            var purchase = new BusinessPurchaseManager();
+            purchase.RestoreOwnership(true);
+            var laundering = new BusinessLaunderingManager(purchase);
+            var player = new MockPlayerPort
+            {
+                X = 56.4f,
+                Y = 5.5f,
+                Z = 30.25f,
+                KeyPressed = true
+            };
+            var launderingPort = new MockLaunderingPort { PlayerCash = 3_500f };
 
-        var coordinator = new TownHallInteractionCoordinator(
-            purchase, laundering, player,
-            () => true, () => launderingPort,
-            amount => laundering.TryStartLaundering(CreateContext(), launderingPort, amount));
+            var coordinator = new TownHallInteractionCoordinator(
+                purchase, laundering, player,
+                () => true, () => launderingPort,
+                amount => laundering.TryStartLaundering(CreateContext(), launderingPort, amount));
 
-        coordinator.Tick(0.01f);
+            coordinator.Tick(0.01f);
 
-        Assert.Single(player.Notifications);
-        Assert.Equal("Geldwäsche eingeleitet", player.Notifications[0].Title);
-        Assert.Contains("3.500", player.Notifications[0].Message);
-        Assert.Equal(3_500f, launderingPort.CurrentTotal);
-        Assert.Equal(0f, launderingPort.PlayerCash);
+            Assert.Single(player.Notifications);
+            Assert.Equal("Geldwäsche eingeleitet", player.Notifications[0].Title);
+            Assert.Contains($"+${formattedAmount} Schwarzgeld", player.Notifications[0].Message);
+            Assert.Equal(3_500f, launderingPort.CurrentTotal);
+            Assert.Equal(0f, launderingPort.PlayerCash);
+        }
+        finally
+        {
+            CultureInfo.CurrentCulture = previousCulture;
+        }
     }
 
     [Fact]
