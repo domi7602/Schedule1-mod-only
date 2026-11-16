@@ -1,0 +1,6 @@
+{
+  "name": "NorthIsland",
+  "author": "Dominik",
+  "version": "0.1.0",
+  "description": "Connects the incomplete Northtown Overpass across the northern gap to North Island and builds Northshore Town with full colliders and debug console tools."
+}

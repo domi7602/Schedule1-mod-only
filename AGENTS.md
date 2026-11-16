@@ -150,6 +150,7 @@ Keep exactly one inventory row per mod and supported bold acceptance labels.
 | **PhoneScrollFix** | ✅ (v2.0.0, hover look **Verified 2026-10-11**) | `Mods/PhoneScrollFix/` | `PhoneScrollFix.dll` | Clipped home-icon hover |
 | **WorldLook** | ✅ (v0.3.0-dev.5, **Verified, owner-confirmed 2026-10-25**) | `Mods/WorldLook/` | `WorldLook.dll` + embedded bundle | Owner-confirmed finished in the last session; actions not itemized; prior shader-reload evidence retained |
 | **TownHallInterior** | ✅ (v0.1.0, **Verified, owner-confirmed 2026-11-10**) | `Mods/TownHallInterior/` | `TownHallInterior.dll` | Locally finished; cabinet and hall-storage Save/menu reload accepted. Hash-pinned local slices, not distributable; documented evidence limits retained |
+| **NorthIsland** | ✅ (v0.1.0, Phase 1 **Verified, owner-confirmed 2026-11-16**, DLL `EA91537C…`; Phase 2 property pending) | `Mods/NorthIsland/` | `NorthIsland.dll` | Overpass bridge, Northshore Town, broadphase expansion, anti-tunnel colliders, `BarrierRemover`, `island` tools |
 | **Shared** | ✅ workspace library | `Mods/Shared/` | `Shared.dll` | Reusable helpers; section 5 |
 | **S1API** | ✅ 3.2.2 stable (startup/load observed 2026-11-05) | — | `S1API.Il2Cpp.MelonLoader.dll` + `Plugins/S1APILoader.MelonLoader.dll` | Matching runtime/loader hashes and TownHallTest load observed; phone open/close owner-confirmed; no individual app or broad API/gameplay acceptance; section 1 |
 
