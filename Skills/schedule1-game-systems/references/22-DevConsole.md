@@ -7,6 +7,8 @@
 ## Activation
 Resolve the target build’s supported console setting or activation path first. The old note proposed editing `Game.json` and also named an unrelated movement multiplier; neither establishes a current console activation contract. Do not alter a save or memory merely to inspect available commands.
 
+> **2026-11-20 addendum (runtime evidence):** On f12 the console UI is `Il2CppScheduleOne.UI.ConsoleUI` at `UI/Console`. Its input action `ToggleConsoleReference` is an Input System binding (the backtick key); the public toggle is `ConsoleUI.SetIsOpen(bool)`. The gating setting is `GameSettings.ConsoleEnabled` (in the save `Game.json`), exposed by `GameSettingsWindow.ConsoleToggle`. There is no `Toggle()` method and no static `Instance`; resolve the component by path or `FindObjectOfType`. `GameManager.IS_BETA` is unrelated to console activation. The `ConsoleHotkey` mod calls `SetIsOpen` on F1 and was live-verified under Linux/Proton after a save was loaded; the UI does not exist in the main menu.
+
 ## Known Console Commands
 | Command | Effect |
 |---------|--------|

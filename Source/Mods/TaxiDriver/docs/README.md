@@ -1,5 +1,19 @@
 # TaxiDriver — Registered driver controller and scoped traffic-light bypass
 
+## Current status
+
+The current bounded live record is the 2026-11-12 follow-up in the
+[changelog](CHANGELOG.md) and the [compatibility matrix](../../../../docs/compatibility.md#verification-matrix).
+It is not the 2026-11-02 session below. Source, local build, installation, automated
+tests and in-game observation stay separate. A normal build is not a Guard build;
+Guard remains an explicit `-p:TaxiShortcutGuard=true` opt-in.
+
+The regular CI validation job on commit `5f69c3a` completed successfully on 2026-11-12
+([run 43223295899](https://github.com/domi7602/Schedule1-mod-only/actions/runs/43223295899)).
+That success does not re-accept routes, cover later commits, or describe this working tree.
+The 2026-11-02 sections keep their own failed local gate results. Those results were true
+for that session and are not a current repository-wide failure.
+
 ## Physical-start follow-up — Barn → Bungalow owner-confirmed 2026-11-02
 
 Installed DLL `9d897a865992506e87656b21876702668b43be91cb2e579e6d3327231c072d3a`,
@@ -63,7 +77,7 @@ build, deployment or repeat journey is needed merely to record this acceptance.
 Acceptance-record verification: snapshot `abee387f8b9a` / `f8e82eeece98`, Pure
 **19 passed / 3 failed** (format, versions, workspace-setup Git fixture); docs and
 TaxiDriver **1,402/1,402** passed. All 109 production/test hashes and the installed
-DLL stayed unchanged. The overall repository gate is still not green.
+DLL stayed unchanged. At that 2026-11-02 acceptance-record session, the overall repository gate was still not green.
 
 ## Previous owner-tested build — 1.0.6, 2026-11-02
 
@@ -80,7 +94,7 @@ Independent read-only checker confirmed candidate/installed hash equality and Gu
 in both DLLs; the flag changes the existing shortcut mode only. This is build-mode
 verification, not recovery-code or gameplay acceptance. Isolated Pure: **19 passed /
 3 failed** (global format/version drift and workspace-setup Git/submodule fixture errors);
-test, documentation, skills and XML steps passed. The overall repository gate remains failed.
+test, documentation, skills and XML steps passed. At that 2026-11-02 session, the overall repository gate remained failed.
 **Owner run 2026-11-02 06:20, not accepted:** this exact Guard artifact loaded.
 Normal stopped boarding; Barn arrived at 5.0 m, fare $18. The same-taxi Bungalow
 continuation obtained a valid whole path but stayed at the Barn departure point.

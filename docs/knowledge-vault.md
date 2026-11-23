@@ -103,11 +103,11 @@ needs a fresh, attributed review of that scope or a return to `draft`.
 
 ## Periodic maintenance and change detection
 
-A separately scheduled Codex maintenance task provides a periodic path that does not depend
-on every project agent remembering to update the vault. Its saved schedule and actual active
-state belong to Codex; this Markdown file does not create or start it. The maintenance task
-reads this repository and writes only the vault and its local maintenance state. It does not
-repair project code, alter versions, run the game, deploy, commit or push.
+A separately scheduled Codex maintenance task was the periodic path until 2026-11-20; it is
+no longer used. Its saved schedule and actual active state belonged to Codex; this Markdown
+file did not create or start it. The maintenance task read this repository and wrote only the
+vault and its local maintenance state. It did not repair project code, alter versions, run
+the game, deploy, commit or push.
 
 The vault's `tools/project_changes.py` helper uses `baseline`, `scan` and `ack` operations.
 Consult its current help and the vault's tool documentation for exact commands. The helper
@@ -129,9 +129,9 @@ Changes to substantive project rules remain relevant and must not be ignored mer
 they are in `AGENTS.md`. Historical reports retain their original dates and accepted scope.
 When nothing actionable changed, create no duplicate notes or repetitive vault log entries.
 
-This is periodic local maintenance, not immediate filesystem synchronization. It cannot run
-while the PC or local Codex execution service is unavailable, and it still needs access to
-both folders. Other agents can use the same Markdown files only when their host permits that
+This was periodic local maintenance, not immediate filesystem synchronization. It could not
+run while the PC or local Codex execution service was unavailable, and it still needed access
+to both folders. Other agents can use the same Markdown files only when their host permits that
 access and they load the instructions. A missing path, inactive scheduler or unavailable
 permission must be reported accurately; do not claim a successful update without evidence.
 Repository commits, pushes and deployment retain the rules in [AGENTS.md](../AGENTS.md).

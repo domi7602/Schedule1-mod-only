@@ -1,8 +1,15 @@
 # S1API 3.2.2 — lokales Upgrade vom 2026-11-02
 
+This file remains the 2026-11-02 installation record. Statements below that the pin was
+uncommitted or that the DLLs were not yet loaded were true that day. They are not the
+current status. The pin is committed in the superproject. A later bounded TownHallTest
+startup/load and phone open/close are recorded in
+[launch-preparation.md](../Source/Mods/TownHallInterior/docs/launch-preparation.md)
+and are not copied back into this file as if they happened on 2026-11-02.
+
 ## Ergebnis und Umfang
 
-Offizielle Release-Artefakte bei geschlossenem Spiel installiert; noch **nicht im Spiel geladen**.
+Offizielle Release-Artefakte bei geschlossenem Spiel installiert; am 2026-11-02 noch **nicht im Spiel geladen**.
 Nur diese beiden Dateien wurden ersetzt:
 
 | Ziel relativ zum Spielordner | Vorher SHA-256 | Installiert SHA-256 |
@@ -13,7 +20,7 @@ Nur diese beiden Dateien wurden ersetzt:
 `ThirdParty/S1API` steht sauber auf Tag `v3.2.2`, Commit
 `6b6d7bada39054822732224508cf0f4f45ee7c26`, zuvor
 `a4cbdd9e0ec54895e64fd6be0e91874ba6649c9b` (`v3.2.1`). Die Änderung des Submodulstands
-im übergeordneten Repository ist uncommittet; kein Commit/Push wurde ausgeführt.
+im übergeordneten Repository war am 2026-11-02 noch uncommittet; in dieser Sitzung wurde kein Commit oder Push ausgeführt.
 Die IL2CPP-Assembly meldet `S1API, Version=3.2.2.0` und ProductVersion
 `3.2.2+6b6d7bada39054822732224508cf0f4f45ee7c26`.
 
