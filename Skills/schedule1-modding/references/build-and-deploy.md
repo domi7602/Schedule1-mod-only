@@ -50,6 +50,61 @@ allowlist; only explicit `-Apply` removes it. A Library also holds build evidenc
 keep the current project Library, backups, reports and unlisted diagnostics. Never
 replace the helper with a recursive deletion of Library or whole run directories.
 
+## Cross-platform build gates
+
+A gate wired as `<Exec ... BeforeTargets="BeforeBuild">` runs on every build and is **not**
+covered by `-p:S1NoDeploy=true`; only deploy targets are. When such a gate calls a
+PowerShell script on a host without `pwsh`, the whole solution fails at exit 127 before any
+project compiles. Before blaming the SDK, grep `Source/Mods/**/*.csproj` and
+`Directory.Build.targets` for `Exec` plus `BeforeTargets`, and separate build gates from
+deploy targets.
+
+Keep Windows authoritative and add a non-Windows route instead of deleting the script:
+
+- Port the check to a stdlib-only Python script beside the PowerShell one. Mirror every
+  validation rule (contract fields, hashes/sizes, inventory, duplicate and stale checks,
+  exit code) and keep the same success line so logs stay comparable across hosts.
+- Select it in MSBuild with `Condition="'$(OS)' == 'Windows_NT'"` for `pwsh` and
+  `Condition="'$(OS)' != 'Windows_NT'"` for the port, and expose
+  `<S1Python Condition="'$(S1Python)' == ''">python3</S1Python>` so
+  `-p:S1Python=/path/to/python3` overrides a missing PATH entry. CI runs on
+  `windows-latest`, so the PowerShell branch stays the authoritative gate.
+- Do not install PowerShell merely to unblock a Linux build; port the one blocking step.
+
+Frozen provenance: when the PowerShell script hashes a glob such as `build/*.ps1` into a
+receipt produced by the Windows editor toolchain, the port must stay OUTSIDE that glob —
+no `*.py` in the inventory — or every later build on both hosts fails as "input changed".
+Record that constraint next to the script.
+
+PowerShell and Python do not share comparison or filesystem semantics; a port that reads
+correctly can still accept or reject the wrong inputs:
+
+- `-match`, `-eq` and `-in` compare case-insensitively, while `-ceq` and .NET `EndsWith`
+  are ordinal. Casefold names and regexes for exclusion lists, or `.ENV`, `THUMBS.DB` and
+  `PRIVATE.LOCAL.JSON` pass a filter that blocks their lowercase twins.
+- `Get-ChildItem -Filter` matches case-insensitively and skips hidden entries; `pathlib`
+  `glob` is case-sensitive and includes dotfiles. Match with `name.casefold().endswith(...)`
+  and skip leading dots so the hashed inventory is identical on both hosts.
+- `os.walk` swallows unreadable directories unless `onerror` raises; PowerShell's
+  `$ErrorActionPreference='Stop'` aborts. A silent skip lets a backup or scan report success
+  over missing data.
+- `Copy-Item` keeps timestamps, `shutil.copyfile` does not; use `shutil.copy2` for backups.
+- Catch `UnicodeDecodeError` next to `JSONDecodeError`; otherwise a corrupt input prints a
+  traceback instead of the gate's own `error:` line.
+- PowerShell coerces `1.0`/`"1"` when comparing numbers; a strict Python `isinstance(int)`
+  check false-rejects hand-written receipts. Accept integral floats and numeric strings.
+
+Verify the port by behavior, not by reading it: one positive run against the real artifact,
+then negative probes on scratch copies — flip one byte in the hashed artifact, edit a hashed
+input, delete an inventory file, rewrite one receipt field. Each must fail with its own
+message and exit 1. Finish with
+`dotnet build Source/Mods/S1Mods.sln -c Release -p:S1NoDeploy=true` at 0 warnings/0 errors.
+
+Remaining Linux gap: deploy targets still invoke `pwsh Tools/deploy-mod.ps1`, so a plain
+build without the no-deploy property breaks outside Windows. Use the no-deploy property for
+every verification build; port the deploy helper (plan, preflight, mutex, backups, receipts,
+rollback) only when installation on that host is actually required.
+
 ## Deployment
 
 Check owner authorization already present in the task. Inspect the actual helper and allowlist, enumerate planned outputs, and preserve rollback data for replaced artifacts. Do not remove Shared or another dependency while retaining mods that need it.

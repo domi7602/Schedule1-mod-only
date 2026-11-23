@@ -16,7 +16,7 @@ Before mutation or compatibility claims, read the [workspace contract](reference
 1. Establish the task mode, affected mod, outcome and acceptance criteria; inspect existing code and actual Shared contracts.
 2. Select the relevant specialty below. Resolve APIs against target assemblies/matching source under the [evidence policy](references/evidence-policy.md).
 3. Make the smallest coherent change, separating domain rules, runtime integration and UI where useful. For lifecycle, persistence, payments or network changes, state transitions and partial-failure behavior using [change planning](references/spec-first-workflow.md).
-4. Retain diagnostics and restoration paths. Build through the repository's no-deploy mechanism; run checks that distinguish the fix from the old failure.
+4. Retain diagnostics and restoration paths. Build through the repository's no-deploy mechanism; note that `-p:S1NoDeploy=true` does not skip build-time `Exec` gates, so a PowerShell-only gate still blocks non-Windows hosts — see [cross-platform build gates](references/build-and-deploy.md#cross-platform-build-gates). Run checks that distinguish the fix from the old failure.
 5. If deployment is authorized, verify installed identity/hash, startup and affected gameplay. Report actual results and limits; accepted work stays closed.
 
 ## Route to the specialty
