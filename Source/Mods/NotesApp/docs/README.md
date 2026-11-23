@@ -9,7 +9,7 @@ A feature-rich in-game Notes application for the smartphone in *Schedule I* (ver
 - **Responsive uGUI Design (Method 3 `UITheme`):** Scale-adjusted typography (`Sp`) and dimensions (`Dp`) that look crisp on any resolution and rotated phone canvas.
 - **Real-Time Search & Filter:** Search bar at the top of the list to instantly filter notes by title or body content.
 - **Pinning / Favorites (📌):** Pin your most critical notes (mix formulas, customer schedules, dealer rates) to the top of the list with a distinct amber accent.
-- **Data Resilience (`SafeStorage`):** Atomic file writes with `.tmp` staging, automatic `.bak` backups, and recovery from corruption.
+- **Data Resilience (`SafeStorage`):** Atomic file writes with `.tmp` staging, automatic `.bak` backups, and recovery from corruption. A failed write stays visible and keeps the notes on their original save slot; it is not reported as saved.
 - **Power-User Actions in Detail View:**
   - **Edit:** Modify title and content seamlessly.
   - **Copy:** One-click copy to Windows clipboard (`GUIUtility.systemCopyBuffer`) with visual feedback.
@@ -29,11 +29,11 @@ A feature-rich in-game Notes application for the smartphone in *Schedule I* (ver
 
 ## Storage & Location
 
-Notes are stored in JSON format at:
+Notes are stored per save slot at:
 ```
-<GameDir>\UserData\NotesApp\notes.json
+<GameDir>\UserData\NotesApp\notes_slot_<n>.json
 ```
-Older save files (`List<string>`) and notes without `UpdatedAt`/`IsPinned` properties are automatically migrated on load without data loss.
+`notes.json` is only the legacy file migrated into the active slot. Older `List<string>` files and notes without `UpdatedAt`/`IsPinned` are migrated on load. A failed save does not replace the notes with an empty file and does not move them into another slot.
 
 ---
 
@@ -41,7 +41,7 @@ Older save files (`List<string>`) and notes without `UpdatedAt`/`IsPinned` prope
 
 - **Target Framework:** `net6.0` (C# 12)
 - **Mod Loader:** MelonLoader 0.7.3 (IL2CPP)
-- **Dependencies:** `S1API` (3.2.1-beta.8), `S1Mods.Shared`
+- **Dependencies:** repository S1API pin 3.2.2 (`S1Mods.Shared`). The September 2026 gameplay check remains on its recorded baseline; it is not a 3.2.2 acceptance.
 - **UI Engine:** Unity uGUI (`Canvas`, `ScrollRect`, `VerticalLayoutGroup`, `UIFactory`, `EventHelper`)
 
 ---

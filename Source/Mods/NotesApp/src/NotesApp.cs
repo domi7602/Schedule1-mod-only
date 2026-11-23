@@ -17,15 +17,6 @@ using UITheme = S1Mods.Shared.UITheme;
 
 namespace NotesApp;
 
-public sealed class Note
-{
-    public string Title { get; set; } = string.Empty;
-    public string Text { get; set; } = string.Empty;
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-    public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
-    public bool IsPinned { get; set; } = false;
-}
-
 public sealed class NotesApp : PhoneApp
 {
     private const string SaveFileName = "notes.json";
@@ -64,6 +55,10 @@ public sealed class NotesApp : PhoneApp
     private readonly List<Note> _notes = new();
     private string _savePath = null!;
     private string _lastKnownSlot = "default";
+    private string _notesSlot = "default";
+    private static readonly ModLogger Log = new("NotesApp");
+    private static readonly NotesPersistence Persistence = new(WriteNotes, Log.Error, Log.Info);
+    private Text? _saveStatusText;
     private string _searchQuery = string.Empty;
 
     /// <summary>
@@ -78,14 +73,6 @@ public sealed class NotesApp : PhoneApp
             _lastKnownSlot = $"slot_{slot}";
         }
         return _lastKnownSlot;
-    }
-
-    private string GetNotesPath()
-    {
-        string suffix = GetSaveSlotSuffix();
-        string path = SafeStorage.GetUserDataPath("NotesApp", $"notes_{suffix}.json");
-        TryMigrateLegacyForPath(path, suffix);
-        return path;
     }
 
     private void TryMigrateLegacyForPath(string slotPath, string suffix)
@@ -209,6 +196,7 @@ public sealed class NotesApp : PhoneApp
     {
         base.OnPhoneClosed();
         if (_mainBG != null) _mainBG.SetActive(false);
+        FlushPendingSave();
         // Update bleibt lebenslang subscribed (defensives Unsubscribe-Subscribe in OnCreated).
     }
 
@@ -221,7 +209,6 @@ public sealed class NotesApp : PhoneApp
 
     protected override void OnCreated()
     {
-        _savePath = GetNotesPath();
         Load();
         base.OnCreated();
         _active = this;
@@ -233,7 +220,11 @@ public sealed class NotesApp : PhoneApp
         try { S1API.Lifecycle.GameLifecycle.OnLoadComplete += DispatchLoadComplete; } catch { }
     }
 
-    internal static void TearDownForSceneUnload() => _active = null;
+    internal static void TearDownForSceneUnload()
+    {
+        try { _active?.FlushPendingSave(); } catch { }
+        _active = null;
+    }
 
     private static void DispatchUpdate()
     {
@@ -258,7 +249,6 @@ public sealed class NotesApp : PhoneApp
     {
         try
         {
-            _savePath = GetNotesPath();
             Load();
             RefreshList();
         }
@@ -269,7 +259,6 @@ public sealed class NotesApp : PhoneApp
     {
         try
         {
-            _savePath = GetNotesPath();
             Load();
             RefreshList();
         }
@@ -299,6 +288,8 @@ public sealed class NotesApp : PhoneApp
         focusHook.textInput = _textInput;
         focusHook.searchInput = _searchInput;
 
+        EnsureSaveStatusLabel();
+        ApplySaveStatus();
         RefreshList();
     }
 
@@ -1016,7 +1007,8 @@ public sealed class NotesApp : PhoneApp
             return;
         }
 
-        if (_editingIndex >= 0 && _editingIndex < _notes.Count)
+        bool isNew = _editingIndex < 0 || _editingIndex >= _notes.Count;
+        if (!isNew)
         {
             _notes[_editingIndex].Title = title;
             _notes[_editingIndex].Text = text;
@@ -1032,9 +1024,14 @@ public sealed class NotesApp : PhoneApp
                 UpdatedAt = DateTime.UtcNow,
                 IsPinned = false
             });
-            _editingIndex = -1;
+            _editingIndex = 0;
         }
-        Save();
+
+        if (!Save())
+            return;
+
+        if (isNew)
+            _editingIndex = -1;
         ReturnFromEditor();
     }
 
@@ -1328,9 +1325,52 @@ public sealed class NotesApp : PhoneApp
     {
         try
         {
-            // Ensure path is always slot-fresh (covers slot switch without scene reload)
-            _savePath = GetNotesPath();
-            var loaded = SafeStorage.LoadSafe<List<Note>>(_savePath, fallback: new List<Note>());
+            string slot = GetSaveSlotSuffix();
+            string path = SafeStorage.GetUserDataPath("NotesApp", $"notes_{slot}.json");
+            SlotPreparation prepared = Persistence.Prepare(slot, path, _notes);
+            if (prepared.KeepMemory)
+            {
+                if (!string.IsNullOrEmpty(prepared.Slot))
+                    _notesSlot = prepared.Slot;
+                if (!string.IsNullOrEmpty(prepared.Path))
+                    _savePath = prepared.Path;
+                else if (!string.IsNullOrEmpty(Persistence.BoundPath))
+                    _savePath = Persistence.BoundPath;
+                // Same instance already holds the unsaved list. A new instance starts empty
+                // and must take the retained snapshot instead of loading disk over it.
+                if (_notes.Count == 0 && prepared.Restore != null)
+                    ReplaceNotes(prepared.Restore);
+                ApplySaveStatus();
+                return;
+            }
+
+            _notesSlot = prepared.Slot;
+            _savePath = string.IsNullOrEmpty(prepared.Path) ? path : prepared.Path;
+            TryMigrateLegacyForPath(_savePath, _notesSlot);
+
+            if (prepared.Restore != null)
+            {
+                ReplaceNotes(prepared.Restore);
+                ApplySaveStatus();
+                return;
+            }
+
+            LoadFromDisk(_savePath);
+            if (!Persistence.SaveFailed)
+                Persistence.MarkClean(_notesSlot, _savePath);
+            ApplySaveStatus();
+        }
+        catch (System.Exception ex)
+        {
+            Log.Error("Error loading notes: " + ex.Message);
+        }
+    }
+
+    private void LoadFromDisk(string path)
+    {
+        try
+        {
+            var loaded = SafeStorage.LoadSafe<List<Note>>(path, fallback: new List<Note>());
             _notes.Clear();
             if (loaded != null && loaded.Count > 0)
             {
@@ -1356,11 +1396,11 @@ public sealed class NotesApp : PhoneApp
             }
 
             // Migration from legacy format (List<string>) -> title from first line
-            if (File.Exists(_savePath))
+            if (File.Exists(path))
             {
                 try
                 {
-                    var json = SafeStorage.LoadTextSafe(_savePath, fallback: "");
+                    var json = SafeStorage.LoadTextSafe(path, fallback: "");
                     var legacy = JsonSerializer.Deserialize<List<string>>(json);
                     if (legacy != null && legacy.Count > 0)
                     {
@@ -1399,17 +1439,105 @@ public sealed class NotesApp : PhoneApp
         return first;
     }
 
-    private void Save()
+    private bool Save()
     {
         try
         {
-            _savePath = GetNotesPath();
-            SafeStorage.SaveAtomic(_savePath, _notes);
+            return Persistence.SaveSlot(_notesSlot, _notes);
         }
         catch (System.Exception ex)
         {
-            MelonLogger.Error("Error saving notes: " + ex.Message);
+            Log.Error("Error saving notes: " + ex.Message);
+            return false;
         }
+        finally
+        {
+            ApplySaveStatus();
+        }
+    }
+
+    private void FlushPendingSave()
+    {
+        try
+        {
+            Persistence.FlushOnce(_notesSlot, _notes);
+        }
+        catch (System.Exception ex)
+        {
+            Log.Error("Error saving notes: " + ex.Message);
+        }
+
+        ApplySaveStatus();
+    }
+
+    private static bool WriteNotes(string path, IReadOnlyList<Note> notes)
+    {
+        var copy = new List<Note>(notes.Count);
+        for (int i = 0; i < notes.Count; i++)
+        {
+            Note note = notes[i];
+            if (note != null)
+                copy.Add(note);
+        }
+
+        return SafeStorage.SaveAtomic(path, copy, Log);
+    }
+
+    private void ReplaceNotes(IReadOnlyList<Note> source)
+    {
+        _notes.Clear();
+        for (int i = 0; i < source.Count; i++)
+        {
+            Note? note = source[i];
+            if (note == null)
+                continue;
+            _notes.Add(note);
+        }
+    }
+
+    /// <summary>
+    /// Visible failure strip. The text comes from <see cref="NotesPersistence.StatusText"/>;
+    /// the Unity object itself is not covered by the game-free persistence tests.
+    /// </summary>
+    private void EnsureSaveStatusLabel()
+    {
+        if (_saveStatusText != null || _mainBG == null)
+            return;
+
+        _saveStatusText = UIFactory.Text(
+            "SaveStatus",
+            "",
+            _mainBG.transform,
+            UITheme.Sp(16),
+            TextAnchor.MiddleCenter,
+            FontStyle.Bold);
+        var rt = _saveStatusText.rectTransform;
+        rt.anchorMin = new Vector2(0.04f, BottomBarHeight);
+        rt.anchorMax = new Vector2(0.96f, BottomBarHeight + 0.04f);
+        rt.offsetMin = Vector2.zero;
+        rt.offsetMax = Vector2.zero;
+        _saveStatusText.color = PinnedAmberColor;
+        _saveStatusText.horizontalOverflow = HorizontalWrapMode.Wrap;
+        _saveStatusText.verticalOverflow = VerticalWrapMode.Truncate;
+        _saveStatusText.raycastTarget = false;
+        _saveStatusText.gameObject.SetActive(false);
+    }
+
+    private void ApplySaveStatus()
+    {
+        string? status = Persistence.StatusText;
+        if (_saveStatusText == null)
+            return;
+
+        bool show = !string.IsNullOrEmpty(status);
+        _saveStatusText.gameObject.SetActive(show);
+        if (!show)
+            return;
+
+        // Keep this off the editor header. That slot sits between Back and Stamp
+        // and wrapped the failure sentence over both buttons.
+        _saveStatusText.text = status;
+        _saveStatusText.transform.SetAsLastSibling();
     }
 
     // =====================================================================

@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- A failed `SafeStorage.SaveAtomic` is no longer treated as a successful save. The notes stay in memory, the failure is logged, and the snapshot remains bound to the slot path captured for that attempt. A later success clears the failure. The failure sentence stays on the amber line above the bottom buttons and is not written into the editor title, which overlaps Back and Stamp. This is not a versioned release.
+
 ## 1.0.3 (2026-09-13) — Bug Report Round 6
 Bug Report Round 6: N1 - JSON 'Title'/'Text': null is normalized to string.Empty on load (fixed RefreshList crash on hand-edited/corrupted notes files).
 
