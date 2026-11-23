@@ -91,6 +91,8 @@ public sealed class BankApp : PhoneApp
 
     private Text _reasonText = null!;
     private Text _feedbackText = null!;
+    private Text _historyStatusText = null!;
+    private static readonly Color HistoryWarningColor = new(0.98f, 0.73f, 0.18f, 1f);
 
     private TransferMode _mode = TransferMode.Deposit;
     private float _enteredAmount;
@@ -233,6 +235,14 @@ public sealed class BankApp : PhoneApp
         _feedbackText.color = BankTheme.AccentGreen;
         _feedbackText.horizontalOverflow = HorizontalWrapMode.Wrap;
         SetHeight(_feedbackText.gameObject, UITheme.Dp(20f));
+        // Above Recent, not in the header. The header sits beside the clock and would wrap this sentence over it.
+        _historyStatusText = UIFactory.Text("HistoryStatus", string.Empty, content, UITheme.Sp(12), TextAnchor.MiddleCenter, FontStyle.Bold);
+        _historyStatusText.color = HistoryWarningColor;
+        _historyStatusText.horizontalOverflow = HorizontalWrapMode.Wrap;
+        _historyStatusText.verticalOverflow = VerticalWrapMode.Truncate;
+        _historyStatusText.raycastTarget = false;
+        SetHeight(_historyStatusText.gameObject, UITheme.Dp(48f));
+        _historyStatusText.gameObject.SetActive(false);
         BuildRecentCard(content);
     }
 
@@ -781,6 +791,20 @@ public sealed class BankApp : PhoneApp
         }
     }
 
+    private void ApplyHistoryStatus()
+    {
+        if (!IsAlive(_historyStatusText))
+            return;
+
+        string? status = TransactionHistoryService.StatusText;
+        bool show = !string.IsNullOrEmpty(status);
+        _historyStatusText.gameObject.SetActive(show);
+        if (!show)
+            return;
+
+        _historyStatusText.text = status;
+    }
+
     private void SetFeedback(string text, bool isError)
     {
         if (!IsAlive(_feedbackText)) return;
@@ -802,6 +826,7 @@ public sealed class BankApp : PhoneApp
 
         UpdateWeekly(config);
         UpdateRecent();
+        ApplyHistoryStatus();
         UpdateModeVisuals();
         UpdatePreviewAndAction(config);
     }
@@ -1006,6 +1031,8 @@ public sealed class BankApp : PhoneApp
 
     protected override void OnPhoneClosed()
     {
+        try { TransactionHistoryService.FlushPendingSave(); }
+        catch (Exception ex) { MelonLogger.Error("Bank history flush failed: " + ex.Message); }
         base.OnPhoneClosed();
         if (IsAlive(_mainBG)) _mainBG.SetActive(false);
         _enteredAmount = 0f;

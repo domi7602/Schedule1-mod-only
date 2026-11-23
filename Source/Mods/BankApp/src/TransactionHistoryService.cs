@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using BankApp.Logic;
 using BankApp.Models;
 using Il2CppScheduleOne.DevUtilities;
 using Il2CppScheduleOne.Persistence;
@@ -17,8 +18,27 @@ public static class TransactionHistoryService
     private static BankState? _activeState;
     private static string? _lastResolvedSlot;
     private static string _lastKnownSlot = "default";
+    private static HistoryPersistence? _persistence;
 
     public static event Action? OnHistoryChanged;
+
+    /// <summary>
+    /// Warning for the slot currently in view. Null when that slot's receipt file is saved.
+    /// A pending receipt for another slot does not paint this line.
+    /// </summary>
+    public static string? StatusText
+    {
+        get
+        {
+            string slot = _lastResolvedSlot ?? GetSaveSlotSuffix();
+            return Persistence.StatusFor(slot);
+        }
+    }
+
+    private static HistoryPersistence Persistence => _persistence ??= new HistoryPersistence(
+        static (path, state) => SafeStorage.SaveAtomic(path, state, Mod.Log),
+        static message => Mod.Log?.Error(message),
+        static message => Mod.Log?.Info(message));
 
     public static string GetSaveSlotSuffix()
     {
@@ -130,19 +150,62 @@ public static class TransactionHistoryService
             return _activeState;
         }
 
-        _lastResolvedSlot = currentSlot;
-        string path = GetFilePath();
+        if (_activeState != null
+            && !string.IsNullOrEmpty(_lastResolvedSlot)
+            && !string.Equals(_lastResolvedSlot, currentSlot, StringComparison.Ordinal))
+        {
+            // The old receipt stays on the path captured for that slot. Do not load it into the new one.
+            Persistence.LeaveSlot(_lastResolvedSlot, _activeState);
+            _activeState = null;
+            _lastResolvedSlot = null;
+        }
 
+        string path = GetFilePath();
+        Persistence.Bind(currentSlot, path);
+
+        if (Persistence.TryRestore(currentSlot, out BankState held))
+        {
+            _lastResolvedSlot = currentSlot;
+            _activeState = held;
+            return _activeState;
+        }
+
+        _lastResolvedSlot = currentSlot;
         _activeState = SafeStorage.LoadSafe<BankState>(path, new BankState(), Mod.Log);
         return _activeState;
     }
 
-    public static void SaveActiveState()
+    public static bool SaveActiveState()
     {
-        if (_activeState == null) return;
-        string path = GetFilePath();
-        SafeStorage.SaveAtomic(path, _activeState, Mod.Log);
+        if (_activeState == null)
+            return false;
+
+        // Bind the slot we already resolved. GetFilePath() would follow a newer slot and retarget the receipt.
+        string slot = _lastResolvedSlot ?? GetSaveSlotSuffix();
+        if (string.IsNullOrEmpty(Persistence.PathFor(slot)))
+            Persistence.Bind(slot, PathForKnownSlot(slot));
+
+        bool ok = Persistence.Save(slot, _activeState);
         OnHistoryChanged?.Invoke();
+        return ok;
+    }
+
+    /// <summary>
+    /// One receipt retry when the phone closes. Does not move cash or bank balance.
+    /// </summary>
+    public static void FlushPendingSave()
+    {
+        if (_activeState != null && !string.IsNullOrEmpty(_lastResolvedSlot))
+            Persistence.FlushOnce(_lastResolvedSlot, _activeState);
+        else
+            Persistence.FlushOnce(null, null);
+        OnHistoryChanged?.Invoke();
+    }
+
+    private static string PathForKnownSlot(string slot)
+    {
+        string dir = SafeStorage.GetUserDataPath("BankApp");
+        return Path.Combine(dir, $"bank_{slot}.json");
     }
 
     public static IReadOnlyList<BankTransaction> GetTransactions()
@@ -162,6 +225,8 @@ public static class TransactionHistoryService
             state.Transactions.RemoveRange(150, state.Transactions.Count - 150);
         }
 
+        // A false result means the receipt file was not written. The transfer already happened;
+        // the caller must not refund it or run it again. The entry stays in this state.
         SaveActiveState();
     }
 
@@ -198,6 +263,8 @@ public static class TransactionHistoryService
 
     public static void ResetCache(bool keepSlot = false)
     {
+        if (_activeState != null && !string.IsNullOrEmpty(_lastResolvedSlot))
+            Persistence.LeaveSlot(_lastResolvedSlot, _activeState);
         _activeState = null;
         _lastResolvedSlot = null;
         if (!keepSlot) _lastKnownSlot = "default";

@@ -16,7 +16,7 @@ Since **v0.5.0** the app is **one single screen** — no tabs, no back button, n
 | 4 | **Amount** | The guarded input field (decimal-only, validated by `TransferMath.TryParseAmount`), with chips for `$100`, `$500`, `$1,000` and `MAX`. The chips *set* the field value; `MAX` uses the existing `GetMaxDepositableCash` / `GetMaxWithdrawableCash` helper |
 | 5 | **Preview** | Fee and resulting balance, computed by `TransferMath.ComputeQuote` exactly like before. While depositing with the vanilla limit enabled it also shows "Weekly limit left" and "resets in N days" (`TransferMath.DaysUntilWeeklyReset`) |
 | 6 | **Primary action** | "Deposit $X" / "Withdraw $X" — same disabled state and same error messages as before |
-| 7 | **Recent activity** | The newest five transactions, newest first, grouped by day with `HistoryGrouping` (`TODAY` / `YESTERDAY` / `DAY N`) |
+| 7 | **Recent activity** | The newest five transactions, newest first, grouped by day with `HistoryGrouping` (`TODAY` / `YESTERDAY` / `DAY N`). A failed receipt write leaves the entry visible and shows an amber line above this list. It does not move money again. |
 
 Everything below the header lives in the existing scroll helper, so the page scrolls as a whole. **No code path opens a second screen.** Close and Escape behave exactly as before — they are driven by the phone itself.
 

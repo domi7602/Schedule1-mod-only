@@ -153,6 +153,18 @@ public sealed class BankAppSourceContractTests
     }
 
     [Fact]
+    public void HistoryWarning_StaysAboveRecentAndOutOfTheHeader()
+    {
+        string source = AppSource();
+
+        Assert.Contains("ApplyHistoryStatus", source, StringComparison.Ordinal);
+        Assert.Contains("TransactionHistoryService.StatusText", source, StringComparison.Ordinal);
+        Assert.Contains("TransactionHistoryService.FlushPendingSave", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("_headerMetaText.text = TransactionHistoryService", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("History not saved", source, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void RecentActivity_KeepsHistoryGrouping()
     {
         string source = AppSource();

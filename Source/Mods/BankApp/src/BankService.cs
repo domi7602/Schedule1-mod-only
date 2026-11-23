@@ -221,6 +221,7 @@ public static class BankService
             Fee = fee
         });
 
+        // The receipt write is separate. A failed history file must not refund this deposit or make it look failed.
         BankSoundService.PlayCashSuccess();
         Mod.Log?.Info($"[Bank] Deposit ok: -{amount:0.##} cash, +{netCredited:0.##} bank.");
         return true;
@@ -315,6 +316,7 @@ public static class BankService
             Fee = fee
         });
 
+        // The receipt write is separate. A failed history file must not refund this withdrawal or make it look failed.
         BankSoundService.PlayCashSuccess();
         Mod.Log?.Info($"[Bank] Withdraw ok: -{totalDeducted:0.##} bank, +{amount:0.##} cash.");
         return true;

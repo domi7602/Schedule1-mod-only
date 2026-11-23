@@ -25,8 +25,10 @@
   -->
   <ItemGroup>
     <Compile Include="../../Mods/BankApp/src/TransferMath.cs" Link="Production/Logic/TransferMath.cs" />
+    <Compile Include="../../Mods/BankApp/src/HistoryPersistence.cs" Link="Production/Logic/HistoryPersistence.cs" />
     <Compile Include="../../Mods/BankApp/src/BankNavigation.cs" Link="Production/Logic/HistoryGrouping.cs" />
     <Compile Include="../../Mods/BankApp/src/BankTransaction.cs" Link="Production/Models/BankTransaction.cs" />
+    <Compile Include="../../Mods/BankApp/src/BankState.cs" Link="Production/Models/BankState.cs" />
   </ItemGroup>
 
 </Project>

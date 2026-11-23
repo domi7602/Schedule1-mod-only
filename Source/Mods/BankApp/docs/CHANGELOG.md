@@ -2,6 +2,10 @@
 
 All notable changes to the BankApp mod will be documented in this file.
 
+## Unreleased
+
+- A failed history write is no longer treated as saved. The cash and bank movement is not repeated or refunded. The receipt and weekly counter stay on the path captured for that slot. Above Recent, an amber line says "History not saved. The transfer already happened." until a later flush of that same snapshot succeeds. Version stays 0.5.0.
+
 ## 0.5.0 (2026-10-08) — Single-screen UI
 - **One screen, no navigation:** the Overview, the separate Transaction pane and the activity page are replaced by a single phone-sized page that the player scrolls as a whole: header (app name, in-game day and clock) → balance hero → Deposit/Withdraw mode switcher → amount field with $100/$500/$1,000/MAX chips → fee + balance-after preview (plus the "Weekly limit left" line while depositing) → primary action → the newest five transactions grouped by day.
 - **Removed:** the Transaction pane and its "< Back" button, the `SetTab`/`BankTab` tab switching, `BankNavigation` and the `BankTab` enum, and the Overview action tiles that navigated to the pane. `HistoryGrouping`/`LabelFor` stay — the activity list still uses them.
