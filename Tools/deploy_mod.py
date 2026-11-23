@@ -46,7 +46,9 @@ RECORD_DIR_NAME = ".deploy"
 TEMP_PREFIX = ".s1deploy-tmp-"
 WORKSPACE_ROOT = Path(__file__).resolve().parents[1]
 GAME_PROCESS_NAMES = {"schedule i", "schedulei", "schedule i.exe", "schedulei.exe"}
-DEFAULT_GAME_DIR = Path("C:/Program Files (x86)/Steam/steamapps/common/Schedule I")
+DEFAULT_GAME_DIR = (
+    Path("C:/Program Files (x86)/Steam/steamapps/common/Schedule I") if os.name == "nt" else None
+)
 ROLLBACK_NOTE = "Best-effort in-process rollback only; a crash or kill between writes is not recovered automatically."
 
 
@@ -137,7 +139,13 @@ def _relative_text(value: str) -> str:
 
 
 def resolve_game_dir(game_dir: str | None) -> GameInstall:
-    candidate = (game_dir or os.environ.get("SCHEDULE1_PATH") or str(DEFAULT_GAME_DIR)).strip()
+    candidate = (game_dir or os.environ.get("SCHEDULE1_PATH") or "").strip()
+    if not candidate and DEFAULT_GAME_DIR is not None:
+        candidate = str(DEFAULT_GAME_DIR)
+    if not candidate:
+        raise DeployError(
+            "GameDir is empty: pass -GameDir or set SCHEDULE1_PATH to the Schedule I install."
+        )
     if len(candidate) >= 2 and candidate[0] == candidate[-1] and candidate[0] in "\"'":
         candidate = candidate[1:-1].strip()
     if not candidate:
@@ -172,26 +180,46 @@ def resolve_game_dir(game_dir: str | None) -> GameInstall:
     return GameInstall(full, full / "Mods", full / "UserData")
 
 
-def running_game_processes() -> list[str]:
-    """Fail closed: without a readable process table the game is not proven closed."""
-    if not Path("/proc").is_dir():
+def _process_names(comm: str, cmdline: bytes) -> set[str]:
+    """Only the image name and argv[0] count; a token inside argv is not the game."""
+    names = {comm.strip().casefold()}
+    parts = [part for part in cmdline.split(b"\0") if part]
+    if parts:
+        names.add(os.path.basename(parts[0].decode("utf-8", "replace")).casefold())
+    return names
+
+
+def _scan_processes(proc_root: Path = Path("/proc")) -> list[str]:
+    """Fail closed: without readable process data the game is not proven closed."""
+    if not proc_root.is_dir():
         raise DeployError("Cannot enumerate processes on this host; refusing to deploy (fail-closed).", code=5)
     try:
-        entries = [entry for entry in Path("/proc").iterdir() if entry.name.isdigit()]
+        entries = [entry for entry in proc_root.iterdir() if entry.name.isdigit()]
     except OSError as error:
         raise DeployError(f"Unable to enumerate processes; refusing to deploy (fail-closed): {error}", code=5) from error
+    if not entries:
+        raise DeployError("Unable to enumerate processes; refusing to deploy (fail-closed).", code=5)
 
     matches: list[str] = []
+    readable = 0
     for entry in entries:
         try:
-            comm = (entry / "comm").read_text(encoding="utf-8", errors="replace").strip().casefold()
-            cmdline = (entry / "cmdline").read_bytes().replace(b"\0", b" ").decode("utf-8", "replace").casefold()
+            comm = (entry / "comm").read_text(encoding="utf-8", errors="replace")
+            cmdline = (entry / "cmdline").read_bytes()
         except OSError:
             continue
-        names = {comm} | {Path(part).name for part in cmdline.split() if part}
-        if names & GAME_PROCESS_NAMES:
+        readable += 1
+        if _process_names(comm, cmdline) & GAME_PROCESS_NAMES:
             matches.append(entry.name)
+    if readable == 0:
+        raise DeployError(
+            "Unable to read any process entry; refusing to deploy (fail-closed).", code=5
+        )
     return matches
+
+
+def running_game_processes() -> list[str]:
+    return _scan_processes()
 
 
 def preflight(game_dir: str | None, operation: str) -> GameInstall:
@@ -248,7 +276,12 @@ def new_plan(
 
     plan: list[PlanEntry] = [PlanEntry("dll", dll, os.path.join("Mods", dll.name))]
 
-    candidate_pdb = Path(os.path.abspath(pdb_path)) if pdb_path else dll.with_suffix(".pdb")
+    if pdb_path:
+        if not os.path.isabs(pdb_path):
+            raise DeployError(f"PdbPath must be absolute; got '{pdb_path}'.")
+        candidate_pdb = Path(os.path.abspath(pdb_path))
+    else:
+        candidate_pdb = dll.with_suffix(".pdb")
     if candidate_pdb.is_file():
         plan.append(PlanEntry("pdb", candidate_pdb, os.path.join("UserData", project_name, candidate_pdb.name)))
     elif pdb_path:
@@ -280,7 +313,8 @@ def new_plan(
 
     destinations: dict[str, list[PlanEntry]] = {}
     for entry in plan:
-        destinations.setdefault(entry.destination_relative.casefold(), []).append(entry)
+        # normcase keeps POSIX case-distinct names apart and folds them on Windows.
+        destinations.setdefault(os.path.normcase(entry.destination_relative), []).append(entry)
     duplicates = {key: items for key, items in destinations.items() if len(items) > 1}
     if duplicates:
         details = "\n".join(
@@ -416,9 +450,13 @@ def stale_artifacts(game_root: Path, plan: list[PlanEntry], previous: dict | Non
     for prior in prior_entries:
         if not isinstance(prior, dict):
             continue
+        # Prefer the portable relative path: a receipt written on another host
+        # (Windows/Proton, dual boot) carries an absolute path that does not
+        # exist here, while the relative entry stays valid in this install.
+        relative = str(prior.get("DestinationRelative") or "").strip()
         destination_text = str(prior.get("Destination") or "").strip()
-        if not destination_text and prior.get("DestinationRelative"):
-            destination_text = os.path.join(game_root, str(prior["DestinationRelative"]))
+        if relative:
+            destination_text = os.path.join(game_root, relative.replace("\\", "/"))
         if not destination_text:
             continue
         destination = Path(os.path.abspath(destination_text))

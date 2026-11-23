@@ -10,6 +10,7 @@ guard refuses with exit code 6 and names the patterns instead.
 from __future__ import annotations
 
 import argparse
+import os
 import sys
 from pathlib import Path
 
@@ -23,7 +24,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("-AllowlistPath", "--allowlist-path", dest="allowlist_path", default=None)
     args = parser.parse_args(argv)
 
-    if args.no_deploy:
+    if args.no_deploy or str(os.environ.get("S1NoDeploy", "")).strip().casefold() == "true":
         print("[deploy-thirdparty] NoDeploy active - nothing copied.")
         return 0
 
@@ -32,11 +33,15 @@ def main(argv: list[str] | None = None) -> int:
         print(f"[deploy-thirdparty] ERROR: allowlist not found: '{allowlist}'.", file=sys.stderr)
         return 2
 
-    patterns = [
-        line.strip()
-        for line in allowlist.read_text(encoding="utf-8").splitlines()
-        if line.strip() and not line.lstrip().startswith("#")
-    ]
+    try:
+        patterns = [
+            line.strip()
+            for line in allowlist.read_text(encoding="utf-8").splitlines()
+            if line.strip() and not line.lstrip().startswith("#")
+        ]
+    except (OSError, UnicodeDecodeError) as error:
+        print(f"[deploy-thirdparty] ERROR: cannot read allowlist '{allowlist}': {error}", file=sys.stderr)
+        return 2
     if not patterns:
         print("[deploy-thirdparty] Allowlist is empty - no third-party DLL is deployed.")
         return 0

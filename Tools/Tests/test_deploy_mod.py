@@ -175,5 +175,68 @@ class DeployModTests(unittest.TestCase):
         self.assertTrue((self.game / "Mods" / "icon.png").is_file())
 
 
+    def test_process_scan_fails_closed_without_readable_entries(self):
+        proc = self.base / "proc"
+        (proc / "111").mkdir(parents=True)
+        with self.assertRaises(deploy_mod.DeployError) as caught:
+            deploy_mod._scan_processes(proc)
+        self.assertEqual(caught.exception.code, 5)
+
+    def test_process_scan_matches_only_image_or_argv0(self):
+        proc = self.base / "proc"
+        (proc / "111").mkdir(parents=True)
+        (proc / "111" / "comm").write_text("Schedule I\n", encoding="utf-8")
+        (proc / "111" / "cmdline").write_bytes(b"/opt/Schedule I.exe\0--windowed\0")
+        (proc / "222").mkdir()
+        (proc / "222" / "comm").write_text("grep\n", encoding="utf-8")
+        (proc / "222" / "cmdline").write_bytes(b"grep\0schedulei\0")
+        self.assertEqual(deploy_mod._scan_processes(proc), ["111"])
+
+    def test_relative_pdb_path_is_rejected(self):
+        with self.assertRaises(deploy_mod.DeployError):
+            deploy_mod.invoke(
+                game_dir=str(self.game),
+                project_name="Demo",
+                project_dir=str(self.project),
+                target_path=str(self.dll),
+                pdb_path="Demo.pdb",
+                assets_dir=str(self.assets),
+                mod_json_path=str(self.mod_json),
+                configuration="Release",
+                mutex_timeout_seconds=5,
+                no_deploy=False,
+            )
+        self.assertFalse((self.game / "Mods").exists())
+
+    def test_case_distinct_icons_are_not_duplicates_on_posix(self):
+        if os.path.normcase("A") != "A":
+            self.skipTest("case-insensitive filesystem")
+        (self.assets / "New.PNG").write_bytes(b"upper")
+        (self.assets / "new.png").write_bytes(b"lower")
+        self.deploy()
+        self.assertEqual((self.game / "Mods" / "New.PNG").read_bytes(), b"upper")
+        self.assertEqual((self.game / "Mods" / "new.png").read_bytes(), b"lower")
+
+    def test_foreign_receipt_resolves_through_relative_path(self):
+        self.deploy()
+        receipt_path = self.game / "UserData" / ".deploy" / "receipts" / "Demo.json"
+        record = json.loads(receipt_path.read_text(encoding="utf-8"))
+        for entry in record["Entries"]:
+            entry["Destination"] = "C:\\Games\\Schedule I\\" + entry["DestinationRelative"].replace("/", "\\")
+        receipt_path.write_text(json.dumps(record), encoding="utf-8")
+        (self.assets / "icon.png").unlink()
+        self.deploy()
+        stale = self.receipt()["Stale"]
+        self.assertEqual(len(stale), 1)
+        self.assertTrue(Path(stale[0]["Destination"]).is_relative_to(self.game))
+
+    def test_missing_game_dir_names_schedule1_path(self):
+        with mock.patch.dict(os.environ, {}, clear=True):
+            with self.assertRaises(deploy_mod.DeployError) as caught:
+                deploy_mod.resolve_game_dir(None)
+        self.assertEqual(caught.exception.code, 2)
+        self.assertIn("SCHEDULE1_PATH", str(caught.exception))
+
+
 if __name__ == "__main__":
     unittest.main()
