@@ -66,7 +66,7 @@ public sealed class IslandConsoleCommand : BaseConsoleCommand
 
             case "status":
                 var w = mod.World;
-                return $"NorthIsland aktiv: {(w.IsBuilt ? "JA" : "NEIN")} | Segmente={w.Bridge.ProceduralSegmentCount} | Fallback={w.Bridge.UsedProceduralFallback} | Gebaeude={w.Town.BuildingCount} | Laternen={w.Town.StreetlightCount} | Baeume={w.Town.TreeCount} | Barrieren={w.Barriers.DisabledObjectCount} | BoundaryCollider={w.Barriers.DisabledColliderCount} | Raycast={(mod.RaycastToolEnabled ? "AN" : "AUS")}";
+                return $"NorthIsland aktiv: {(w.IsBuilt ? "JA" : "NEIN")} | Segmente={w.Bridge.ProceduralSegmentCount} | Fallback={w.Bridge.UsedProceduralFallback} | Gebaeude={w.Town.BuildingCount} | Laternen={w.Town.StreetlightCount} | Baeume={w.Town.TreeCount} | Barrieren={w.Barriers.DisabledObjectCount} | BoundaryCollider={w.Barriers.DisabledColliderCount} | Raycast={(mod.RaycastToolEnabled ? "AN" : "AUS")} | {HideoutPropertyHost.Status}";
 
             case "scan":
                 return ScanNearbyColliders();

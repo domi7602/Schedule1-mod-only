@@ -21,11 +21,13 @@ internal sealed class NorthIslandWorld
     {
         if (_root != null) Teardown();
 
+        var watch = System.Diagnostics.Stopwatch.StartNew();
         EnsureBroadphaseWorldBounds();
 
         _root = new GameObject(RootName);
         Bridge.Build(_root.transform);
         Town.Build(_root.transform);
+        HideoutPropertyHost.Publish(_root.transform);
         Barriers.DisableBlockingObjects();
         Physics.SyncTransforms();
 
@@ -33,7 +35,7 @@ internal sealed class NorthIslandWorld
             $"[NorthIsland] Welt bereit: {Bridge.ProceduralSegmentCount} Overpass-Brueckensegmente" +
             (Bridge.UsedProceduralFallback ? " (Fallback aktiv)" : "") +
             $", Northshore Town ({Town.BuildingCount} Gebaeude, {Town.StreetlightCount} Laternen, {Town.TreeCount} Baeume)" +
-            $", {Barriers.DisabledObjectCount} Barrieren + {Barriers.DisabledColliderCount} Boundary-Collider entfernt.");
+            $", {Barriers.DisabledObjectCount} Barrieren + {Barriers.DisabledColliderCount} Boundary-Collider entfernt ({watch.ElapsedMilliseconds} ms).");
     }
 
     /// <summary>
@@ -65,6 +67,7 @@ internal sealed class NorthIslandWorld
 
     internal void Teardown()
     {
+        HideoutPropertyHost.Shutdown();
         Barriers.RestoreAll();
 
         if (_root != null)
@@ -76,4 +79,6 @@ internal sealed class NorthIslandWorld
         Bridge.DisposeAssets();
         Town.DisposeAssets();
     }
+
+    internal void Tick(float deltaTime) => Town.Waterfront.Tick(deltaTime);
 }

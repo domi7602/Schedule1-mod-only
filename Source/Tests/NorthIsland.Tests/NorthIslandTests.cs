@@ -245,4 +245,274 @@ public class NorthIslandTests
             }
         }
     }
+
+    [Fact]
+    public void HideoutGrid_StaysInsideWallsAndClearsTheDoorCorridor()
+    {
+        Assert.True(HideoutPropertyPlan.Inset > HideoutPropertyPlan.AntiTunnel);
+        var tiles = HideoutPropertyPlan.Tiles(0.5f);
+        Assert.InRange(tiles.Count, 400, 800);
+
+        var seen = new HashSet<(int X, int Z)>();
+        foreach (var tile in tiles)
+        {
+            Assert.True(seen.Add((tile.X, tile.Z)));
+            Assert.True(HideoutPropertyPlan.ContainsInterior(tile.WorldX, tile.WorldZ));
+            Assert.True(tile.WorldX >= HideoutPropertyPlan.ExteriorMinX + HideoutPropertyPlan.AntiTunnel);
+            Assert.True(tile.WorldZ >= HideoutPropertyPlan.ExteriorMinZ + HideoutPropertyPlan.AntiTunnel);
+            Assert.True(tile.WorldZ <= HideoutPropertyPlan.ExteriorMaxZ - HideoutPropertyPlan.AntiTunnel);
+        }
+    }
+
+    [Fact]
+    public void HideoutSign_StandsOutsideTheDoorAndOffTheRamp()
+    {
+        Assert.True(HideoutPropertyPlan.SignX > HideoutPropertyPlan.ExteriorMaxX + 2.2f);
+        Assert.True(HideoutPropertyPlan.SignZ > HideoutPropertyPlan.DoorMaxZ + 1.5f);
+        Assert.InRange(HideoutPropertyPlan.SignRootLift, 0.55f, 0.9f);
+        Assert.False(HideoutPropertyPlan.ContainsInterior(HideoutPropertyPlan.SignX, HideoutPropertyPlan.SignZ));
+        float dx = HideoutPropertyPlan.SpawnX - HideoutPropertyPlan.SignX;
+        float dz = HideoutPropertyPlan.SpawnZ - HideoutPropertyPlan.SignZ;
+        Assert.True(dx * dx + dz * dz > 1.5f);
+    }
+
+    [Fact]
+    public void HideoutPurchase_UsesBankBeforeCashAndRefusesAShortWallet()
+    {
+        var bank = HideoutPurchase.Evaluate(true, false, 20000f, 0f);
+        Assert.Equal(HideoutPurchaseStatus.Purchased, bank.Status);
+        Assert.True(bank.ChargeBank);
+        Assert.Equal(20000f, bank.Amount);
+
+        var cash = HideoutPurchase.Evaluate(true, false, 100f, 20000f);
+        Assert.Equal(HideoutPurchaseStatus.Purchased, cash.Status);
+        Assert.False(cash.ChargeBank);
+
+        Assert.Equal(HideoutPurchaseStatus.InsufficientFunds, HideoutPurchase.Evaluate(true, false, 19999f, 19999f).Status);
+        Assert.Equal(HideoutPurchaseStatus.AlreadyOwned, HideoutPurchase.Evaluate(true, true, 50000f, 50000f).Status);
+        Assert.Equal(HideoutPurchaseStatus.NotReady, HideoutPurchase.Evaluate(false, false, 50000f, 50000f).Status);
+        Assert.Equal("$20,000", HideoutPropertyPlan.PriceLabel);
+        Assert.True(HideoutListing.IsPropertyMenu("DocksWarehouse", "Docks Warehouse"));
+        Assert.False(HideoutListing.IsPropertyMenu("Laundromat", "Laundromat"));
+    }
+
+    [Fact]
+    public void HideoutSave_RejectsAnotherSlotAndAnUnownedPlacement()
+    {
+        var ready = new HideoutSaveFile
+        {
+            SaveFolder = @"C:\Saves\SlotA",
+            Owned = false
+        };
+        Assert.Equal(HideoutSaveKind.Ready, HideoutSaveRules.Classify(ready, @"C:\Saves\SlotA", true));
+        Assert.Equal(HideoutSaveKind.ForeignSlot, HideoutSaveRules.Classify(ready, @"C:\Saves\SlotB", true));
+        Assert.Equal(HideoutSaveKind.Missing, HideoutSaveRules.Classify(null, @"C:\Saves\SlotA", false));
+
+        ready.Placements.Add(new HideoutPlacementRecord
+        {
+            Id = "one",
+            ItemId = "bed",
+            X = HideoutPropertyPlan.CenterX,
+            Y = HideoutPropertyPlan.FloorTopY,
+            Z = HideoutPropertyPlan.CenterZ,
+            RotW = 1f
+        });
+        Assert.Equal(HideoutSaveKind.Corrupt, HideoutSaveRules.Classify(ready, @"C:\Saves\SlotA", true));
+
+        ready.Owned = true;
+        Assert.Equal(HideoutSaveKind.Ready, HideoutSaveRules.Classify(ready, @"C:/Saves/SlotA/", true));
+        ready.Schema = 2;
+        Assert.Equal(HideoutSaveKind.Unsupported, HideoutSaveRules.Classify(ready, @"C:\Saves\SlotA", true));
+    }
+
+    [Fact]
+    public void CoastRailClip_OpensExactlyThePierGap()
+    {
+        const float minX = NorthIslandGeometry.BoulevardMinX;
+        const float maxX = NorthIslandGeometry.BoulevardMaxX;
+        const int steps = 35;
+        bool sawGapSegment = false;
+
+        for (int i = 0; i < steps; i++)
+        {
+            float x0 = minX + (maxX - minX) * i / steps;
+            float x1 = minX + (maxX - minX) * (i + 1) / steps;
+            var spans = NorthIslandGeometry.ClipCoastRailSpan(x0, x1);
+
+            float covered = 0f;
+            foreach (var (a, b) in spans)
+            {
+                Assert.True(b > a, $"Empty span returned for segment {i}");
+                Assert.True(a >= x0 - 0.001f && b <= x1 + 0.001f, $"Span ({a},{b}) left segment [{x0},{x1}]");
+                Assert.True(b <= NorthIslandGeometry.PierMinX + 0.001f || a >= NorthIslandGeometry.PierMaxX - 0.001f,
+                    $"Span ({a},{b}) intrudes into the pier entrance gap");
+                covered += b - a;
+            }
+
+            float gapInside = MathF.Max(0f, MathF.Min(x1, NorthIslandGeometry.PierMaxX) - MathF.Max(x0, NorthIslandGeometry.PierMinX));
+            Assert.InRange(MathF.Abs(covered + gapInside - (x1 - x0)), 0f, 0.01f);
+            if (gapInside > 0.001f) sawGapSegment = true;
+        }
+
+        Assert.True(sawGapSegment, "No segment intersected the pier gap — constants drifted?");
+        Assert.Empty(NorthIslandGeometry.ClipCoastRailSpan(15f, 19f));
+        var partial = NorthIslandGeometry.ClipCoastRailSpan(10f, 15f);
+        Assert.Single(partial);
+        Assert.InRange(MathF.Abs(partial[0].B - NorthIslandGeometry.PierMinX), 0f, 0.001f);
+    }
+
+    [Fact]
+    public void PierDeck_StaysAboveWaterAndReachableFromTheBoardwalk()
+    {
+        float walkTop = NorthIslandGeometry.GetPierWalkTopY();
+        Assert.InRange(MathF.Abs(walkTop - (NorthIslandGeometry.GetBoulevardSurfaceY(NorthIslandGeometry.PierCenterX) + 0.10f)), 0f, 0.0001f);
+
+        foreach (float waterY in new[] { -0.2f, 0f, 0.5f })
+        {
+            float deckTop = NorthIslandGeometry.GetPierDeckTopY(waterY);
+            Assert.True(deckTop >= waterY + NorthIslandGeometry.PierFreeboard - 0.001f,
+                $"Deck {deckTop:F3} washed over at waterY={waterY:F2}");
+            Assert.True(deckTop >= walkTop - 0.001f, "Deck dropped below the boardwalk");
+            Assert.True(deckTop - walkTop <= 1.0f, $"Entrance rise {deckTop - walkTop:F2}m too steep for the threshold ramp");
+        }
+    }
+
+    [Fact]
+    public void PierPilings_ReachTheSeabedAlongTheWholePier()
+    {
+        float deckTop = NorthIslandGeometry.GetPierDeckTopY(0f);
+        for (float z = 438f; z <= NorthIslandGeometry.PierEndZ; z += 5f)
+        {
+            foreach (float x in new[] { NorthIslandGeometry.PierMinX + 0.3f, NorthIslandGeometry.PierMaxX - 0.3f })
+            {
+                float seabed = NorthIslandTerrainData.SampleHeight(x, z);
+                Assert.True(seabed < deckTop - 0.8f, $"Piling at ({x},{z}) has no positive length: seabed={seabed:F2}");
+            }
+        }
+
+        foreach (float x in new[] { NorthIslandGeometry.PierHeadMinX + 0.4f, NorthIslandGeometry.PierHeadMaxX - 0.4f })
+        {
+            float seabed = NorthIslandTerrainData.SampleHeight(x, NorthIslandGeometry.PierHeadMaxZ - 0.4f);
+            Assert.True(seabed < deckTop - 0.8f, $"Head piling at ({x},{NorthIslandGeometry.PierHeadMaxZ}) floats: seabed={seabed:F2}");
+        }
+    }
+
+    [Fact]
+    public void PierEntrance_ClearsLampPolesBenchesAndTheWelcomeSign()
+    {
+        // The x=12 north lamp pole must stay outside the guardrail gap with margin.
+        Assert.True(NorthIslandGeometry.PierMinX - 12f >= 1.5f);
+        Assert.True(32f - NorthIslandGeometry.PierMaxX >= 1.5f);
+
+        // Boardwalk bench at x=22 (seat half-width 0.9) must not collide with the wider head platform.
+        Assert.True(22f - 0.9f - NorthIslandGeometry.PierHeadMaxX >= 0.1f);
+
+        // Welcome sign posts (-21.2 / -15.8) stay far west of the pier.
+        Assert.True(NorthIslandGeometry.PierHeadMinX - (-15.8f) > 20f);
+
+        // Pedestrian-wide gap, but the entrance bollard pair (runtime) keeps cars out.
+        Assert.InRange(NorthIslandGeometry.PierMaxX - NorthIslandGeometry.PierMinX, 4f, 8f);
+    }
+
+    [Fact]
+    public void LighthouseMound_StandsInOpenWaterClearOfPierAndBridgeChannel()
+    {
+        float cx = NorthIslandGeometry.LighthouseX;
+        float cz = NorthIslandGeometry.LighthouseZ;
+        float half = NorthIslandGeometry.LighthouseMoundHalfWidth;
+
+        foreach (float dx in new[] { -half, 0f, half })
+        {
+            foreach (float dz in new[] { -half, 0f, half })
+            {
+                float seabed = NorthIslandTerrainData.SampleHeight(cx + dx, cz + dz);
+                Assert.True(seabed < 0.3f, $"Mound corner ({cx + dx},{cz + dz}) is not in open water: seabed={seabed:F2}");
+            }
+        }
+
+        // Clear of the bridge approach channel (x = -25.5..-11.5) and north of the boardwalk rail.
+        Assert.True(cx + half < -25.5f);
+        Assert.True(cz - half > NorthIslandGeometry.PierStartZ);
+
+        // Clear of the pier footprint including its head platform.
+        bool overlapsX = cx + half > NorthIslandGeometry.PierHeadMinX && cx - half < NorthIslandGeometry.PierHeadMaxX;
+        bool overlapsZ = cz + half > NorthIslandGeometry.PierStartZ && cz - half < NorthIslandGeometry.PierHeadMaxZ;
+        Assert.False(overlapsX && overlapsZ, "Lighthouse mound overlaps the pier");
+
+        float baseY = NorthIslandGeometry.GetLighthouseBaseY(NorthIslandGeometry.VisualSeaLevelY);
+        Assert.True(baseY >= NorthIslandGeometry.VisualSeaLevelY + 2f, "Mound must break the visual waterline");
+        Assert.True(NorthIslandTerrainData.SampleHeight(cx, cz) < baseY - 4f, "Mound is not standing in deep water");
+
+        // Water must read between the shoreline and the islet, not a tower on the near grass.
+        float shoreZ = 430f;
+        for (float z = 432f; z < cz; z += 2f)
+        {
+            float h = NorthIslandTerrainData.SampleHeight(cx, z);
+            if (h < -0.15f)
+            {
+                shoreZ = z;
+                break;
+            }
+        }
+
+        Assert.True(cz - half - shoreZ >= 35f, $"Islet too close to shore: shoreZ={shoreZ:F0}, moundSouth={cz - half:F0}");
+    }
+
+    [Fact]
+    public void LighthouseBeam_IsNightOnlyAndRejectsABrokenClock()
+    {
+        Assert.True(NorthIslandGeometry.TryIsLighthouseNight(1800, out bool dusk) && dusk);
+        Assert.True(NorthIslandGeometry.TryIsLighthouseNight(2359, out bool late) && late);
+        Assert.True(NorthIslandGeometry.TryIsLighthouseNight(0, out bool midnight) && midnight);
+        Assert.True(NorthIslandGeometry.TryIsLighthouseNight(559, out bool preDawn) && preDawn);
+
+        Assert.True(NorthIslandGeometry.TryIsLighthouseNight(600, out bool dawn) && !dawn);
+        Assert.True(NorthIslandGeometry.TryIsLighthouseNight(1129, out bool morning) && !morning);
+        Assert.True(NorthIslandGeometry.TryIsLighthouseNight(1759, out bool evening) && !evening);
+
+        Assert.False(NorthIslandGeometry.TryIsLighthouseNight(1860, out _));
+        Assert.False(NorthIslandGeometry.TryIsLighthouseNight(2400, out _));
+        Assert.False(NorthIslandGeometry.TryIsLighthouseNight(-1, out _));
+        Assert.InRange(NorthIslandGeometry.LighthouseRevolutionSeconds, 8f, 30f);
+    }
+
+    [Fact]
+    public void StringLights_KeepHeadroomOverTheBoardwalk()
+    {
+        var xs = NorthIslandGeometry.NorthLampXs;
+        Assert.True(xs.Length >= 2);
+
+        for (int i = 0; i + 1 < xs.Length; i++)
+        {
+            float yA = NorthIslandGeometry.GetBoulevardSurfaceY(xs[i]) + 0.10f + NorthIslandGeometry.StringLightAttachHeight;
+            float yB = NorthIslandGeometry.GetBoulevardSurfaceY(xs[i + 1]) + 0.10f + NorthIslandGeometry.StringLightAttachHeight;
+            float walkMid = NorthIslandGeometry.GetBoulevardSurfaceY((xs[i] + xs[i + 1]) * 0.5f) + 0.10f;
+
+            float minY = float.MaxValue;
+            for (float t = 0f; t <= 1.0001f; t += 0.05f)
+            {
+                float y = NorthIslandGeometry.GetStringLightY(yA, yB, MathF.Min(t, 1f));
+                if (y < minY) minY = y;
+            }
+
+            Assert.True(minY >= walkMid + NorthIslandGeometry.StringLightMinHeadroom,
+                $"String light span {xs[i]}..{xs[i + 1]} dips to {minY:F2}, headroom over walk {walkMid:F2} too low");
+        }
+
+        // Equal-height attachments sag exactly StringLightSag at mid-span.
+        float mid = NorthIslandGeometry.GetStringLightY(5f, 5f, 0.5f);
+        Assert.InRange(MathF.Abs(mid - (5f - NorthIslandGeometry.StringLightSag)), 0f, 0.0001f);
+    }
+
+    [Fact]
+    public void GuardColliderSplit_CoversEverythingExceptThePierGap()
+    {
+        float westWidth = NorthIslandGeometry.PierMinX - NorthIslandGeometry.BoulevardMinX;
+        float eastWidth = NorthIslandGeometry.BoulevardMaxX - NorthIslandGeometry.PierMaxX;
+        float gap = NorthIslandGeometry.PierMaxX - NorthIslandGeometry.PierMinX;
+        float total = NorthIslandGeometry.BoulevardMaxX - NorthIslandGeometry.BoulevardMinX;
+
+        Assert.True(westWidth > 0f && eastWidth > 0f);
+        Assert.InRange(MathF.Abs(westWidth + gap + eastWidth - total), 0f, 0.001f);
+    }
 }

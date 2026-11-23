@@ -40,6 +40,7 @@ public sealed class Mod : MelonMod
         GameLifecycle.OnPreLoad -= HandleWorldTeardown;
         GameLifecycle.OnPreSceneChange -= HandleWorldTeardown;
         GameLifecycle.OnLoadComplete -= HandleWorldReady;
+        HideoutPropertyHost.DisposePatches();
         World.Teardown();
         IsWorldReady = false;
         Instance = null;
@@ -48,6 +49,7 @@ public sealed class Mod : MelonMod
     public override void OnUpdate()
     {
         if (!IsWorldReady) return;
+        World.Tick(Time.deltaTime);
         bool ctrlHeld = Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl);
         if (Input.GetMouseButtonDown(2) && (RaycastToolEnabled || ctrlHeld))
         {

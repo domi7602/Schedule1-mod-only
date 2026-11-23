@@ -18,6 +18,8 @@ internal sealed class BarrierRemover
     private readonly HashSet<int> _disabledColliderIds = new();
     private readonly List<(BoxCollider box, Vector3 center, Vector3 size)> _resizedBoxes = new();
     private readonly HashSet<int> _resizedBoxIds = new();
+    private Dictionary<string, List<GameObject>>? _nameIndex;
+    private int _detailCount;
 
     internal int DisabledObjectCount => _disabledObjects.Count;
     internal int DisabledColliderCount => _disabledColliders.Count;
@@ -29,12 +31,23 @@ internal sealed class BarrierRemover
         _disabledColliderIds.Clear();
         _resizedBoxes.Clear();
         _resizedBoxIds.Clear();
+        _detailCount = 0;
 
-        DisableNamedBarriers();
-        DisableInvisibleWallColliders();
-        DisableNativeRampBrokenCollider();
+        var watch = System.Diagnostics.Stopwatch.StartNew();
+        BuildNameIndex();
+        try
+        {
+            DisableNamedBarriers();
+            DisableInvisibleWallColliders();
+            DisableNativeRampBrokenCollider();
+        }
+        finally
+        {
+            _nameIndex = null;
+        }
 
-        MelonLogger.Msg($"[NorthIsland] Absperrungen entfernt: {_disabledObjects.Count} Objekte, {_disabledColliders.Count} Boundary-Collider, {_resizedBoxes.Count} angepasste BoxCollider.");
+        MelonLogger.Msg(
+            $"[NorthIsland] Absperrungen entfernt in {watch.ElapsedMilliseconds} ms: {_disabledObjects.Count} Objekte, {_disabledColliders.Count} Boundary-Collider, {_resizedBoxes.Count} angepasste BoxCollider, {_detailCount} Einzelschritte.");
     }
 
     internal void RestoreAll()
@@ -69,13 +82,14 @@ internal sealed class BarrierRemover
         var scene = SceneManager.GetActiveScene();
         if (!scene.IsValid()) return;
 
-        foreach (var root in scene.GetRootGameObjects())
-        {
-            if (root == null || root.name == NorthIslandWorld.RootName) continue;
+        if (_nameIndex == null) return;
 
-            foreach (var t in root.GetComponentsInChildren<Transform>(true))
+        foreach (var list in _nameIndex.Values)
+        {
+            foreach (var go in list)
             {
-                if (t == null) continue;
+                if (go == null) continue;
+                var t = go.transform;
 
                 string name = t.name;
                 if (BarrierFilterRules.IsProtectedWorldObject(name)) continue;
@@ -138,7 +152,7 @@ internal sealed class BarrierRemover
                     _disabledColliders.Add(col);
                 }
 
-                MelonLogger.Msg($"[NorthIsland] Unsichtbare Wand deaktiviert: '{n}' layer={col.gameObject.layer} bounds={b.center} size={b.size}");
+                _detailCount++;
             }
         }
     }
@@ -236,57 +250,46 @@ internal sealed class BarrierRemover
     /// </summary>
     private void NormalizeAllOverpassSegmentDeckColliders()
     {
-        var scene = SceneManager.GetActiveScene();
-        if (!scene.IsValid()) return;
-
         int concreteCount = 0;
         int legCount = 0;
 
-        foreach (var root in scene.GetRootGameObjects())
+        foreach (var go in Indexed("Concrete"))
         {
-            if (root == null || root.name == NorthIslandWorld.RootName) continue;
+            var t = go.transform;
+            if (t.parent == null || !t.parent.name.Equals("overpass_segment", StringComparison.OrdinalIgnoreCase))
+                continue;
+            var box = t.GetComponent<BoxCollider>();
+            if (box == null) continue;
+            _resizedBoxes.Add((box, box.center, box.size));
+            box.center = new Vector3(0f, 0f, -0.085f);
+            box.size = new Vector3(10.0f, 14.0f, 0.33f);
+            concreteCount++;
+        }
 
-            foreach (var t in root.GetComponentsInChildren<Transform>(true))
+        foreach (var go in Indexed("Overpass Leg"))
+        {
+            var box = go.GetComponent<BoxCollider>();
+            if (box == null) continue;
+            _resizedBoxes.Add((box, box.center, box.size));
+            box.center = new Vector3(box.center.x, box.center.y, -0.30f);
+            legCount++;
+        }
+
+        foreach (string medianName in new[] { "Cube (1)", "Divider", "concrete_lod1 (3)" })
+        {
+            foreach (var go in Indexed(medianName))
             {
-                if (t == null) continue;
-                string n = t.name;
-
-                if (n.Equals("Concrete", StringComparison.OrdinalIgnoreCase) &&
-                    t.parent != null &&
-                    t.parent.name.Equals("overpass_segment", StringComparison.OrdinalIgnoreCase))
-                {
-                    var box = t.GetComponent<BoxCollider>();
-                    if (box != null)
-                    {
-                        _resizedBoxes.Add((box, box.center, box.size));
-                        box.center = new Vector3(0f, 0f, -0.085f);
-                        box.size = new Vector3(10.0f, 14.0f, 0.33f);
-                        concreteCount++;
-                    }
-                }
-                else if (n.Equals("Overpass Leg", StringComparison.OrdinalIgnoreCase))
-                {
-                    var box = t.GetComponent<BoxCollider>();
-                    if (box != null)
-                    {
-                        _resizedBoxes.Add((box, box.center, box.size));
-                        box.center = new Vector3(box.center.x, box.center.y, -0.30f);
-                        legCount++;
-                    }
-                }
-                else if (BarrierFilterRules.IsNorthMedianCubeMatch(
-                             n,
-                             t.parent != null ? t.parent.name : string.Empty,
-                             t.position.x,
-                             t.position.y,
-                             t.position.z))
-                {
-                    DisableAllCollidersOnTransform(t);
-                    if (t.gameObject.activeSelf)
-                    {
-                        DisableObject(t.gameObject, $"Nord-Mittelstreifen '{n}' @ {t.position}");
-                    }
-                }
+                var t = go.transform;
+                if (!BarrierFilterRules.IsNorthMedianCubeMatch(
+                        t.name,
+                        t.parent != null ? t.parent.name : string.Empty,
+                        t.position.x,
+                        t.position.y,
+                        t.position.z))
+                    continue;
+                DisableAllCollidersOnTransform(t);
+                if (go.activeSelf)
+                    DisableObject(go, $"Nord-Mittelstreifen '{t.name}' @ {t.position}");
             }
         }
 
@@ -338,7 +341,7 @@ internal sealed class BarrierRemover
             if (isMainRampMesh || isInnerTurnObstacle)
             {
                 DisableAllCollidersOnTransform(t);
-                MelonLogger.Msg($"[NorthIsland] Ramp-Collider deaktiviert: '{n}' @ {tp}.");
+                _detailCount++;
             }
         }
     }
@@ -374,7 +377,7 @@ internal sealed class BarrierRemover
                     {
                         if (DisableAllCollidersOnTransform(t) > 0)
                         {
-                            MelonLogger.Msg($"[NorthIsland] Segment-Collider '{n}' auf '{segmentName}' deaktiviert (@ {t.position}).");
+                            _detailCount++;
                         }
                     }
                 }
@@ -429,25 +432,7 @@ internal sealed class BarrierRemover
         }
     }
 
-    private static List<GameObject> FindSceneObjectsByName(string objectName)
-    {
-        var matches = new List<GameObject>();
-        var scene = SceneManager.GetActiveScene();
-        if (!scene.IsValid()) return matches;
-
-        foreach (var root in scene.GetRootGameObjects())
-        {
-            if (root == null || root.name == NorthIslandWorld.RootName) continue;
-
-            foreach (var t in root.GetComponentsInChildren<Transform>(true))
-            {
-                if (t != null && t.name.Equals(objectName, StringComparison.OrdinalIgnoreCase))
-                    matches.Add(t.gameObject);
-            }
-        }
-
-        return matches;
-    }
+    private List<GameObject> FindSceneObjectsByName(string objectName) => Indexed(objectName);
 
     private static Bounds GetEffectiveColliderBounds(Collider col)
     {
@@ -523,7 +508,7 @@ internal sealed class BarrierRemover
                     _disabledColliders.Add(col);
                 }
 
-                MelonLogger.Msg($"[NorthIsland] Fahrbahn-Kollision im Abbiegebereich deaktiviert: '{col.gameObject.name}' (root='{col.transform.root.name}', layer={col.gameObject.layer}, bounds={b.center}, size={b.size})");
+                _detailCount++;
             }
         }
     }
@@ -584,6 +569,38 @@ internal sealed class BarrierRemover
     {
         go.SetActive(false);
         _disabledObjects.Add(go);
-        MelonLogger.Msg($"[NorthIsland] Deaktiviert: {reason}");
+        _detailCount++;
+        _ = reason;
     }
+
+    private void BuildNameIndex()
+    {
+        _nameIndex = new Dictionary<string, List<GameObject>>(StringComparer.OrdinalIgnoreCase);
+        var scene = SceneManager.GetActiveScene();
+        if (!scene.IsValid()) return;
+
+        foreach (var root in scene.GetRootGameObjects())
+        {
+            if (root == null || root.name == NorthIslandWorld.RootName) continue;
+            foreach (var t in root.GetComponentsInChildren<Transform>(true))
+            {
+                if (t == null) continue;
+                if (!_nameIndex.TryGetValue(t.name, out var list))
+                {
+                    list = new List<GameObject>(1);
+                    _nameIndex[t.name] = list;
+                }
+                list.Add(t.gameObject);
+            }
+        }
+    }
+
+    private List<GameObject> Indexed(string objectName)
+    {
+        if (_nameIndex != null && _nameIndex.TryGetValue(objectName, out var found))
+            return found;
+        return _empty;
+    }
+
+    private static readonly List<GameObject> _empty = new();
 }

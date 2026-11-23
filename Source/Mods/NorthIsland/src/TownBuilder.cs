@@ -65,6 +65,9 @@ internal sealed class TownBuilder
     internal int StreetlightCount { get; private set; }
     internal int TreeCount { get; private set; }
 
+    internal NorthshoreNeon Neon { get; } = new();
+    internal NorthshoreWaterfront Waterfront { get; } = new();
+
     internal void Build(Transform root)
     {
         BuildingCount = 0;
@@ -84,6 +87,10 @@ internal sealed class TownBuilder
         BuildHighlandDriveAndPlateau(townRoot.transform);
         BuildTownBuildings(townRoot.transform);
         BuildStreetFurnitureAndNature(townRoot.transform);
+
+        // Dependent decor layers (Phase 3): reference the finished town, never reshape it.
+        Neon.Build(townRoot.transform);
+        Waterfront.Build(townRoot.transform);
 
         Physics.SyncTransforms();
 
@@ -117,6 +124,9 @@ internal sealed class TownBuilder
         DestroyMaterial(ref _treeTrunkMat);
         DestroyMaterial(ref _treeLeavesMat);
         DestroyMaterial(ref _awningRedMat);
+
+        Neon.DisposeAssets();
+        Waterfront.DisposeAssets();
     }
 
     private static void DestroyMaterial(ref Material? mat)
@@ -365,33 +375,44 @@ internal sealed class TownBuilder
                 _sidewalkMat,
                 withCollider: true);
 
-            // Coastal Safety Guardrail along the northern edge (z = 436.5) - WITH COLLIDER on top rail!
-            CreateBox(
-                blvdRoot.transform,
-                $"Blvd_CoastRailTop_{i}",
-                new Vector3(xm, ym + 0.96f, 436.5f),
-                new Vector3(0.10f, 0.12f, segLen),
-                rot,
-                _darkMetalMat,
-                withCollider: true);
+            // Coastal Safety Guardrail along the northern edge (z = 436.5), clipped around the
+            // pier entrance gap (x = 14..20) so the waterfront pier stays reachable on foot.
+            foreach (var (a, b) in NorthIslandGeometry.ClipCoastRailSpan(x0, x1))
+            {
+                float sm = (a + b) * 0.5f;
+                float sy = GetBoulevardSurfaceY(sm, roadCenterZ);
+                float sLen = (b - a) + 0.08f;
+                Vector3 sp0 = new(a, GetBoulevardSurfaceY(a, roadCenterZ), roadCenterZ);
+                Vector3 sp1 = new(b, GetBoulevardSurfaceY(b, roadCenterZ), roadCenterZ);
+                Quaternion sRot = Quaternion.LookRotation((sp1 - sp0).normalized, Vector3.up);
 
-            CreateBox(
-                blvdRoot.transform,
-                $"Blvd_CoastRailMid_{i}",
-                new Vector3(xm, ym + 0.56f, 436.5f),
-                new Vector3(0.08f, 0.06f, segLen),
-                rot,
-                _darkMetalMat,
-                withCollider: false);
+                CreateBox(
+                    blvdRoot.transform,
+                    $"Blvd_CoastRailTop_{i}_{a:F0}",
+                    new Vector3(sm, sy + 0.96f, 436.5f),
+                    new Vector3(0.10f, 0.12f, sLen),
+                    sRot,
+                    _darkMetalMat,
+                    withCollider: true);
 
-            CreateBox(
-                blvdRoot.transform,
-                $"Blvd_CoastPost_{i}",
-                new Vector3(xm, ym + 0.52f, 436.5f),
-                new Vector3(0.11f, 0.96f, 0.11f),
-                Quaternion.identity,
-                _darkMetalMat,
-                withCollider: true);
+                CreateBox(
+                    blvdRoot.transform,
+                    $"Blvd_CoastRailMid_{i}_{a:F0}",
+                    new Vector3(sm, sy + 0.56f, 436.5f),
+                    new Vector3(0.08f, 0.06f, sLen),
+                    sRot,
+                    _darkMetalMat,
+                    withCollider: false);
+
+                CreateBox(
+                    blvdRoot.transform,
+                    $"Blvd_CoastPost_{i}_{a:F0}",
+                    new Vector3(sm, sy + 0.52f, 436.5f),
+                    new Vector3(0.11f, 0.96f, 0.11f),
+                    Quaternion.identity,
+                    _darkMetalMat,
+                    withCollider: true);
+            }
 
             // South sidewalk (z = 421.4 .. 424.0): leave open ONLY at actual road/driveway entrances
             bool isSouthEntrance =
@@ -430,12 +451,21 @@ internal sealed class TownBuilder
         BuildCrosswalk(blvdRoot.transform, -28.0f, roadCenterZ, roadWidth);
         BuildCrosswalk(blvdRoot.transform, 26.5f, roadCenterZ, roadWidth);
 
-        // Continuous invisible safety barrier collider along North Boardwalk (z = 436.55) so cars cannot jump the rail
-        var northGuard = new GameObject("Blvd_NorthCoastGuardCollider");
-        northGuard.transform.SetParent(blvdRoot.transform, false);
-        northGuard.transform.position = new Vector3((minX + maxX) * 0.5f, 1.40f, 436.55f);
-        var ngBox = northGuard.AddComponent<BoxCollider>();
-        ngBox.size = new Vector3(maxX - minX, 2.2f, 0.50f);
+        // Continuous invisible safety barrier collider along North Boardwalk (z = 436.55) so cars
+        // cannot jump the rail — split into two boxes around the pier entrance gap (x = 14..20).
+        float westGuardWidth = NorthIslandGeometry.PierMinX - minX;
+        var northGuardWest = new GameObject("Blvd_NorthCoastGuardCollider_West");
+        northGuardWest.transform.SetParent(blvdRoot.transform, false);
+        northGuardWest.transform.position = new Vector3(minX + westGuardWidth * 0.5f, 1.40f, 436.55f);
+        var ngwBox = northGuardWest.AddComponent<BoxCollider>();
+        ngwBox.size = new Vector3(westGuardWidth, 2.2f, 0.50f);
+
+        float eastGuardWidth = maxX - NorthIslandGeometry.PierMaxX;
+        var northGuardEast = new GameObject("Blvd_NorthCoastGuardCollider_East");
+        northGuardEast.transform.SetParent(blvdRoot.transform, false);
+        northGuardEast.transform.position = new Vector3(NorthIslandGeometry.PierMaxX + eastGuardWidth * 0.5f, 1.40f, 436.55f);
+        var ngeBox = northGuardEast.AddComponent<BoxCollider>();
+        ngeBox.size = new Vector3(eastGuardWidth, 2.2f, 0.50f);
     }
 
     private void BuildBoulevardEndRamp(Transform parent, float edgeX, float centerZ, float roadWidth, bool isWest)
@@ -1037,9 +1067,10 @@ internal sealed class TownBuilder
         float gWallCenterY = h * 0.5f - 0.02f;
         CreateBox(root.transform, "Garage_DriveInApron", apronMid - (apronRot * Vector3.up) * 0.10f, new Vector3(w + 0.6f, 0.20f, apronLen), apronRot, _asphaltMat, true);
         CreateBox(root.transform, "Garage_Floor", center + new Vector3(0f, -0.35f, 0f), new Vector3(w + 0.6f, 0.70f, d + 0.6f), Quaternion.identity, _sidewalkMat, true);
-        CreateBox(root.transform, "Wall_Back", center + new Vector3(0f, gWallCenterY, -d * 0.5f), new Vector3(w - 0.68f, gWallVisH, 0.34f), Quaternion.identity, _brickWallMat, true);
-        CreateBox(root.transform, "Wall_West", center + new Vector3(-w * 0.5f, gWallCenterY, 0f), new Vector3(0.34f, gWallVisH, d), Quaternion.identity, _brickWallMat, true);
-        CreateBox(root.transform, "Wall_East", center + new Vector3(w * 0.5f, gWallCenterY, 0f), new Vector3(0.34f, gWallVisH, d), Quaternion.identity, _brickWallMat, true);
+        // Back wall overlaps both side walls so the west bay corner does not show daylight.
+        CreateBox(root.transform, "Wall_Back", center + new Vector3(0f, gWallCenterY, -d * 0.5f), new Vector3(w + 0.40f, gWallVisH, 0.40f), Quaternion.identity, _brickWallMat, true);
+        CreateBox(root.transform, "Wall_West", center + new Vector3(-w * 0.5f, gWallCenterY, -0.12f), new Vector3(0.40f, gWallVisH, d + 0.24f), Quaternion.identity, _brickWallMat, true);
+        CreateBox(root.transform, "Wall_East", center + new Vector3(w * 0.5f, gWallCenterY, -0.12f), new Vector3(0.40f, gWallVisH, d + 0.24f), Quaternion.identity, _brickWallMat, true);
 
         CreateBox(root.transform, "Pillar_West", center + new Vector3(-w * 0.5f + 0.7f, gWallCenterY, d * 0.5f), new Vector3(1.4f, gWallVisH, 0.34f), Quaternion.identity, _brickWallMat, true);
         CreateBox(root.transform, "Pillar_Center", center + new Vector3(0f, gWallCenterY, d * 0.5f), new Vector3(1.4f, gWallVisH, 0.34f), Quaternion.identity, _brickWallMat, true);
@@ -1131,7 +1162,7 @@ internal sealed class TownBuilder
         CreateBox(propRoot.transform, "WelcomeSign_GlowPanel", new Vector3(-18.5f, signBaseY + 2.2f, 435.84f), new Vector3(5.6f, 0.85f, 0.06f), Quaternion.identity, _emissiveSignMat, false);
 
         // 2. Boulevard Streetlights — strictly on North Boardwalk (z=436.0, facing South) & South Sidewalk (z=421.7, facing North)
-        float[] northLampXs = { -64f, -44f, -29f, -8f, 12f, 32f, 52f, 72f, 92f };
+        float[] northLampXs = NorthIslandGeometry.NorthLampXs;
         for (int i = 0; i < northLampXs.Length; i++)
         {
             float lx = northLampXs[i];

@@ -38,6 +38,95 @@ internal static class NorthIslandGeometry
     internal const float CoastalHouseBodyWidth = 9.5f;
     internal const float CoastalHouseBodyDepth = 8.0f;
 
+    // Northshore Boulevard north-boardwalk streetlight poles (shared with the neon string lights).
+    internal static readonly float[] NorthLampXs = { -64f, -44f, -29f, -8f, 12f, 32f, 52f, 72f, 92f };
+
+    // Waterfront pier: enters through a guardrail gap at x = 14..20 (clear of the x=12 lamp pole
+    // and the x=22 bench), runs north over the coastal shallows to a wider head platform.
+    internal const float PierMinX = 14.0f;
+    internal const float PierMaxX = 20.0f;
+    internal const float PierCenterX = 17.0f;
+    internal const float PierStartZ = 436.6f;
+    internal const float PierEndZ = 472.0f;
+    internal const float PierHeadMinX = 13.0f;
+    internal const float PierHeadMaxX = 21.0f;
+    internal const float PierHeadMaxZ = 476.5f;
+    internal const float PierFreeboard = 0.8f;   // deck top stays this far above the visual sea level
+    internal const float PierRailHeight = 1.0f;
+
+    // Visual waterline. The native ocean object's transform/bounds sit at y = -6.50 with a
+    // zero-size renderer at load (observed 2026-11-16) and are not the surface the player sees.
+    // The heightmap coastline meets the water at about y = 0.
+    internal const float VisualSeaLevelY = 0.0f;
+
+    // Lighthouse on a stone islet in open water, northwest of the pier and clear of the
+    // bridge channel (x = -25.5..-11.5). z = 496 is ~50 m past the x = -38 shoreline (z ~ 446).
+    internal const float LighthouseX = -38.0f;
+    internal const float LighthouseZ = 496.0f;
+    internal const float LighthouseMoundHalfWidth = 3.5f;
+    internal const float LighthouseMoundFreeboard = 2.6f; // mound top above the visual sea level
+    internal const int LighthouseNightStartHhmm = 1800;
+    internal const int LighthouseDayStartHhmm = 600;
+    internal const float LighthouseRevolutionSeconds = 15f;
+
+    // Neon string lights sag between existing north-boardwalk lamp poles.
+    internal const float StringLightAttachHeight = 5.45f;
+    internal const float StringLightSag = 1.15f;
+    internal const float StringLightMinHeadroom = 2.4f;
+
+    /// <summary>
+    /// Top surface of the north boardwalk at the pier entrance (flush with Blvd_NorthWalk boxes).
+    /// </summary>
+    internal static float GetPierWalkTopY() => GetBoulevardSurfaceY(PierCenterX) + 0.10f;
+
+    /// <summary>
+    /// Pier deck top elevation for a discovered ocean plane height: never below the boardwalk
+    /// and always <see cref="PierFreeboard"/> above the water so waves do not wash over the deck.
+    /// </summary>
+    internal static float GetPierDeckTopY(float waterY)
+        => MathF.Max(GetPierWalkTopY(), waterY + PierFreeboard);
+
+    /// <summary>
+    /// Breakwater mound top elevation for a waterline height. Callers pass <see cref="VisualSeaLevelY"/>;
+    /// the native ocean object origin is not the visible surface.
+    /// </summary>
+    internal static float GetLighthouseBaseY(float waterY) => waterY + LighthouseMoundFreeboard;
+
+    /// <summary>
+    /// Night is 18:00–05:59 (<paramref name="hhmm"/> is TimeManager.CurrentTime, not elapsed minutes).
+    /// An unreadable clock returns false so the beam stays off instead of spinning at noon.
+    /// </summary>
+    internal static bool TryIsLighthouseNight(int hhmm, out bool night)
+    {
+        night = false;
+        if (hhmm < 0 || hhmm > 2359 || hhmm % 100 >= 60)
+            return false;
+        night = hhmm >= LighthouseNightStartHhmm || hhmm < LighthouseDayStartHhmm;
+        return true;
+    }
+
+    /// <summary>
+    /// Clips one 5m coast-guardrail segment [x0, x1] against the open pier entrance gap
+    /// (PierMinX, PierMaxX). Returns 0..2 visible sub-spans; rails and posts are only built
+    /// on the returned spans so the gap stays exactly pier-wide.
+    /// </summary>
+    internal static (float A, float B)[] ClipCoastRailSpan(float x0, float x1)
+    {
+        var spans = new System.Collections.Generic.List<(float, float)>(2);
+        float leftEnd = MathF.Min(x1, PierMinX);
+        if (leftEnd > x0 + 0.001f) spans.Add((x0, leftEnd));
+        float rightStart = MathF.Max(x0, PierMaxX);
+        if (x1 > rightStart + 0.001f) spans.Add((rightStart, x1));
+        return spans.ToArray();
+    }
+
+    /// <summary>
+    /// Height of a string light at parameter t in [0,1] between attachment heights yA/yB
+    /// (parabolic sag, lowest point mid-span).
+    /// </summary>
+    internal static float GetStringLightY(float yA, float yB, float t)
+        => yA + (yB - yA) * t - StringLightSag * 4f * t * (1f - t);
+
     // Schedule I uses MultiboxPruningBroadphase clamped around [-250, 250] in X/Z and [-50, 50] in Y,
     // which drops dynamic Rigidbody (LandVehicle) collisions north of z = +250. Expand via
     // Physics.RebuildBroadphaseRegions to keep both Hyland Point and North Island inside valid regions.

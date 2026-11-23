@@ -14,5 +14,7 @@
     <Compile Include="../../Mods/NorthIsland/src/NorthIslandTerrainData.cs" Link="Production/%(Filename)%(Extension)" />
     <Compile Include="../../Mods/NorthIsland/src/NorthIslandGeometry.cs" Link="Production/%(Filename)%(Extension)" />
     <Compile Include="../../Mods/NorthIsland/src/BarrierFilterRules.cs" Link="Production/%(Filename)%(Extension)" />
+    <Compile Include="../../Mods/NorthIsland/src/HideoutPropertyPlan.cs" Link="Production/%(Filename)%(Extension)" />
+    <Compile Include="../../Mods/NorthIsland/src/HideoutPurchase.cs" Link="Production/%(Filename)%(Extension)" />
   </ItemGroup>
 </Project>
