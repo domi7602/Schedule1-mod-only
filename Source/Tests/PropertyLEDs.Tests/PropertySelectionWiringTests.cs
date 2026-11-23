@@ -56,7 +56,7 @@ public sealed class PropertySelectionWiringTests
     {
         string app = Source("PropertyLEDsApp.cs");
         int start = app.IndexOf("private void Update()", StringComparison.Ordinal);
-        int end = app.IndexOf("private void ToggleAdvanced()", start, StringComparison.Ordinal);
+        int end = app.IndexOf("private void LogMeasuredLayout(", start, StringComparison.Ordinal);
         string update = app.Substring(start, end - start);
         int handler = update.IndexOf("catch (Exception ex)", StringComparison.Ordinal);
         string recovery = update.Substring(handler);
@@ -81,6 +81,38 @@ public sealed class PropertySelectionWiringTests
         int selected = app.IndexOf("private PropertyEntry? SelectedProperty()", invalidate, StringComparison.Ordinal);
         Assert.True(invalidate >= 0 && selected > invalidate);
         Assert.Contains("_selection.Invalidate();", app.Substring(invalidate, selected - invalidate));
+    }
+
+    [Fact]
+    public void PropertyStepDoesNotRequireAnEditGate()
+    {
+        string app = Source("PropertyLEDsApp.cs");
+        int start = app.IndexOf("private void StepProperty(int delta)", StringComparison.Ordinal);
+        int end = app.IndexOf("private static int IndexOf(", start, StringComparison.Ordinal);
+        Assert.True(start >= 0 && end > start);
+        string step = app.Substring(start, end - start);
+        Assert.DoesNotContain("CanEdit()", step);
+        Assert.Contains("_selection.Select(next);", step);
+        Assert.Contains("Phone property step:", step);
+    }
+
+    [Fact]
+    public void OwnershipProbeContinuesAfterTheFirstPropertyAndPhoneOpenRefreshesIt()
+    {
+        string runtime = Source("LEDRuntime.cs");
+        int start = runtime.IndexOf("internal static void Tick()", StringComparison.Ordinal);
+        int end = runtime.IndexOf("internal static void Flush()", start, StringComparison.Ordinal);
+        Assert.True(start >= 0 && end > start);
+        string tick = runtime.Substring(start, end - start);
+        Assert.Contains("OwnershipWatch.ShouldProbe", tick);
+        Assert.DoesNotContain("Entries.Count > 0", tick);
+        Assert.Contains("OwnershipWatch.ShouldCommit", runtime);
+        Assert.Contains("Registry.TryRefresh()", runtime);
+
+        string app = Source("PropertyLEDsApp.cs");
+        Assert.Contains("LEDRuntime.RefreshOwnership()", app);
+        Assert.Contains("prevRect.SetAsLastSibling()", app);
+        Assert.Contains("nextRect.SetAsLastSibling()", app);
     }
 
     [Fact]

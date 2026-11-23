@@ -62,7 +62,5 @@ public sealed class TypographyTests
     {
         Assert.True(AppLayout.SliderHeadingHeight >= AppLayout.FontSliderCaption);
         Assert.True(AppLayout.InlineStateHeight >= AppLayout.FontInlineState);
-        Assert.True(AppLayout.AdvancedHeight >= AppLayout.FontButton);
-        Assert.True(AppLayout.ActionHeight >= AppLayout.FontButton);
     }
 }

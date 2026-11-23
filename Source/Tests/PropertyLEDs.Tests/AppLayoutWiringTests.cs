@@ -78,26 +78,14 @@ public sealed class AppLayoutWiringTests
     }
 
     [Fact]
-    public void AdvancedIntensityIsBuiltOnceCollapsedOnOpenAndToggleOnlyRebuildsView()
+    public void ColorIntensityIsDirectlyInMainStackWithoutAdvancedOrWhitePreset()
     {
         var source = Source();
-        Assert.Contains("BuildSlider(_advancedPanel.transform, 2, \"Color intensity\", 1f);", source);
-        Assert.Contains("Height(_advancedPanel, AppLayout.SliderHeight);", source);
-        Assert.Contains("_advancedPanel.SetActive(false);", source);
-        Assert.Contains("if (opened) SetAdvancedExpanded(false);", source);
-        Assert.Contains("\"Advanced\", ToggleAdvanced", source);
-        Assert.Contains("_advancedPanel.SetActive(expanded);", source);
-        Assert.Contains("AppLayout.Measure(height, _layoutScale, _advancedExpanded, _status.gameObject.activeSelf)", source);
-        Assert.Contains("advanced={_advancedExpanded}", source);
-        int start = source.IndexOf("private void ToggleAdvanced()", StringComparison.Ordinal);
-        int end = source.IndexOf("private void LogMeasuredLayout", start, StringComparison.Ordinal);
-        string toggle = source.Substring(start, end - start);
-        Assert.Contains("_layoutDirty = true;", toggle);
-        Assert.Contains("LogMeasuredLayout(false);", toggle);
-        Assert.DoesNotContain("\n        Edit(", toggle);
-        Assert.DoesNotContain("LEDRuntime.Apply", toggle);
-        Assert.DoesNotContain("Destroy(", toggle);
-        Assert.DoesNotContain("BuildSlider", toggle);
+        Assert.Contains("BuildSlider(content, 2, \"Color intensity\", 1f);", source);
+        Assert.DoesNotContain("\"Advanced\"", source);
+        Assert.DoesNotContain("ToggleAdvanced", source);
+        Assert.DoesNotContain("\"White\"", source);
+        Assert.Contains("AppLayout.Measure(height, _layoutScale, _status.gameObject.activeSelf)", source);
         Assert.Contains("_sliders[2].value = _shown.ColorIntensity;", source);
         Assert.Contains("_values[2].text = F(_shown.ColorIntensity * 100f) + \"%\";", source);
     }

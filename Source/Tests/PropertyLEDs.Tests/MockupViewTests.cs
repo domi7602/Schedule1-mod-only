@@ -114,20 +114,17 @@ public sealed class MockupViewTests
     }
 
     [Fact]
-    public void MockupSizingFitsCollapsedAndAddsOnlyHiddenControlWhenExpanded()
+    public void MockupSizingFitsDirectFourSliderStack()
     {
         Assert.Equal(74f, AppLayout.SelectorHeight);
         Assert.Equal(26f, AppLayout.SliderHeadingHeight);
         Assert.Equal(28f, AppLayout.SliderTrackHeight);
         Assert.Equal(58f, AppLayout.PreviewHeight);
-        Assert.Equal(54f, AppLayout.ActionHeight);
         Assert.Equal(68f, AppLayout.PowerHeight);
-        Assert.Equal(34f, AppLayout.AdvancedHeight);
         Assert.Equal(12f, AppLayout.Gap);
         Assert.Equal(4f, AppLayout.Padding);
         Assert.Equal(54f, AppLayout.SliderHeight);
-        Assert.Equal(472f, AppLayout.ContentHeight(1));
-        Assert.Equal(538f, AppLayout.ContentHeight(1, true));
+        Assert.Equal(426f, AppLayout.ContentHeight(1));
         // 0.1.4 scroll region is 88.5% of the phone, not the retired 80% footer budget.
         Assert.True(AppLayout.ContentHeight(1) <= 750 * 0.885f);
     }

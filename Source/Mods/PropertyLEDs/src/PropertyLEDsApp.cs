@@ -33,14 +33,12 @@ public sealed class PropertyLEDsApp : PhoneApp
     private readonly List<Texture2D> _drawnTextures = new();
     private Image _powerTrack = null!;
     private RectTransform _powerKnob = null!;
-    private Text _powerDetail = null!, _advancedLabel = null!;
+    private Text _powerDetail = null!;
     private readonly List<Action> _unwire = new();
     private readonly List<Selectable> _controls = new();
     private readonly Slider[] _sliders = new Slider[4];
     private readonly Text[] _values = new Text[4];
     private GameObject _mainBG = null!;
-    private GameObject _advancedPanel = null!;
-    private bool _advancedExpanded;
     private CanvasGroup _controlGate = null!;
     private Text _propertyLabel = null!, _status = null!, _toggleLabel = null!;
     private Text _propertyContext = null!;
@@ -62,10 +60,9 @@ public sealed class PropertyLEDsApp : PhoneApp
     private float _layoutWidth = -1, _layoutHeight = -1, _layoutScale;
     private bool _layoutDirty = true;
     private VerticalLayoutGroup _contentLayout = null!;
-    private readonly List<LayoutElement> _selectorSizes = new(), _presetSizes = new();
+    private readonly List<LayoutElement> _selectorSizes = new();
     private readonly LayoutElement[] _sliderSizes = new LayoutElement[4], _trackSizes = new LayoutElement[4];
-    private LayoutElement _advancedSize = null!, _advancedButtonSize = null!,
-        _advancedPanelSize = null!, _powerSize = null!, _actionSize = null!;
+    private LayoutElement _powerSize = null!;
 
     /// <summary>
     /// Reference height that makes <see cref="UITheme"/> scale from the visible short side.
@@ -141,37 +138,8 @@ public sealed class PropertyLEDsApp : PhoneApp
         BuildSlider(content, 0, "Color", 1f);
         BuildSlider(content, 1, "Saturation", 1f);
         BuildSlider(content, 3, "Brightness", 5f);
-        var advanced = Row(content, "AdvancedToggle", AppLayout.AdvancedHeight);
-        var advancedButton = AddButton(advanced.transform, "Advanced", "Advanced", ToggleAdvanced, out _advancedLabel);
-        _advancedLabel.text = "Advanced  +";
-        _advancedSize = advanced.GetComponent<LayoutElement>();
-        _advancedButtonSize = advancedButton.transform.parent.GetComponent<LayoutElement>();
-        _advancedPanel = UIFactory.Panel("AdvancedPanel", content, Color.clear);
-        _advancedPanel.GetComponent<Image>().raycastTarget = false;
-        Height(_advancedPanel, AppLayout.SliderHeight);
-        _advancedPanelSize = _advancedPanel.GetComponent<LayoutElement>();
-        var advancedLayout = _advancedPanel.AddComponent<VerticalLayoutGroup>();
-        advancedLayout.childControlWidth = advancedLayout.childControlHeight = true;
-        advancedLayout.childForceExpandWidth = true;
-        advancedLayout.childForceExpandHeight = false;
-        advancedLayout.spacing = 0;
-        BuildSlider(_advancedPanel.transform, 2, "Color intensity", 1f);
-        _advancedPanel.SetActive(false);
+        BuildSlider(content, 2, "Color intensity", 1f);
         BuildPowerCard(content);
-        var actions = Row(content, "Presets", AppLayout.ActionHeight);
-        _actionSize = actions.GetComponent<LayoutElement>();
-        AddButton(actions.transform, "White", "White", () => Edit(settings =>
-        {
-            // Preset changes the colour only; brightness and the on/off intent stay untouched, and
-            // the edit itself switches the LEDs on so the result is visible immediately.
-            var white = LEDSettings.White();
-            settings.Hue = white.Hue;
-            settings.Saturation = white.Saturation;
-            settings.ColorIntensity = white.ColorIntensity;
-            settings.EnableForEdit();
-        }), out var whiteLabel);
-        ButtonIcon(whiteLabel, "Sun");
-        _presetSizes.Add(whiteLabel.transform.parent.parent.GetComponent<LayoutElement>());
 
         RefreshView();
     }
@@ -184,7 +152,7 @@ public sealed class PropertyLEDsApp : PhoneApp
             bool open = IsOpen();
             bool opened = open && !_mainBG.activeSelf;
             if (_mainBG.activeSelf != open) _mainBG.SetActive(open);
-            if (opened) SetAdvancedExpanded(false);
+            if (opened) LEDRuntime.RefreshOwnership();
             bool ready = LEDRuntime.Ready && NetworkGuard.IsInMainScene;
             if (!ready && _lastReady) Invalidate();
             if (open && (opened || ready != _lastReady || _shownRevision != LEDRuntime.Revision || Time.unscaledTime - _lastPoll > 0.5f))
@@ -209,30 +177,13 @@ public sealed class PropertyLEDsApp : PhoneApp
         }
     }
 
-    private void ToggleAdvanced()
-    {
-        if (!CanEdit()) return;
-        SetAdvancedExpanded(!_advancedExpanded);
-    }
-
-    private void SetAdvancedExpanded(bool expanded)
-    {
-        if (!NetworkGuard.IsAlive(_advancedPanel)) return;
-        if (_advancedExpanded == expanded) return;
-        _advancedExpanded = expanded;
-        _advancedPanel.SetActive(expanded);
-        _advancedLabel.text = expanded ? "Advanced  -" : "Advanced  +";
-        _layoutDirty = true;
-        LogMeasuredLayout(false);
-    }
-
     private void LogMeasuredLayout(bool opened)
     {
         if (!NetworkGuard.IsAlive(_scrollViewport) || !NetworkGuard.IsAlive(_scrollContent)) return;
         // Cheap cached-rect read: stale first-open measurements converge without repeated rebuilds.
         float width = _scrollViewport.rect.width, height = _scrollViewport.rect.height;
         if (!AppLayout.ShouldApply(width, height, _layoutWidth, _layoutHeight, _layoutDirty)) return;
-        var sizing = AppLayout.Measure(height, _layoutScale, _advancedExpanded, _status.gameObject.activeSelf);
+        var sizing = AppLayout.Measure(height, _layoutScale, _status.gameObject.activeSelf);
         _contentLayout.spacing = sizing.Gap;
         for (int i = 0; i < _selectorSizes.Count; i++) ApplyHeight(_selectorSizes[i], sizing.Selector);
         for (int i = 0; i < _sliderSizes.Length; i++)
@@ -240,12 +191,7 @@ public sealed class PropertyLEDsApp : PhoneApp
             ApplyHeight(_sliderSizes[i], sizing.Slider);
             ApplyHeight(_trackSizes[i], sizing.Slider - AppLayout.SliderHeadingHeight * _layoutScale);
         }
-        ApplyHeight(_advancedSize, sizing.Advanced);
-        ApplyHeight(_advancedButtonSize, sizing.Advanced);
-        ApplyHeight(_advancedPanelSize, sizing.Slider);
         ApplyHeight(_powerSize, sizing.Power);
-        ApplyHeight(_actionSize, sizing.Action);
-        for (int i = 0; i < _presetSizes.Count; i++) ApplyHeight(_presetSizes[i], sizing.Action);
         _scrollContent.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, sizing.Content);
         LayoutRebuilder.ForceRebuildLayoutImmediate(_scrollContent);
         _layoutWidth = width;
@@ -253,9 +199,9 @@ public sealed class PropertyLEDsApp : PhoneApp
         _layoutDirty = false;
         float contentHeight = _scrollContent.rect.height;
         Mod.Log.Info($"Phone layout: viewport={F(width)}x{F(height)}, content={F(contentHeight)}, " +
-            $"expected={F(sizing.Content)}, advanced={_advancedExpanded}, inline={_status.gameObject.activeSelf}, " +
+            $"expected={F(sizing.Content)}, inline={_status.gameObject.activeSelf}, " +
             $"selector={F(sizing.Selector)}, preview={F(sizing.Preview)}, slider={F(sizing.Slider)}, " +
-            $"power={F(sizing.Power)}, actions={F(sizing.Action)}, gap={F(sizing.Gap)}, " +
+            $"power={F(sizing.Power)}, gap={F(sizing.Gap)}, " +
             $"overflow={F(Mathf.Max(0, contentHeight - height))}; native visual verification pending.");
     }
 
@@ -373,11 +319,23 @@ public sealed class PropertyLEDsApp : PhoneApp
 
     private void StepProperty(int delta)
     {
-        if (!CanEdit()) return;
+        // Navigation is not a settings write. The edit gate swallows the click when the
+        // revision is stale, which leaves the arrows looking dead and the apartment unreachable.
+        if (_destroyed || !NetworkGuard.IsAlive(_mainBG) || !_mainBG.activeInHierarchy || !IsOpen())
+        {
+            Mod.Log.Info("Phone property step ignored: app not open.");
+            return;
+        }
         var properties = LEDRuntime.Properties;
+        if (properties.Count < 2)
+        {
+            Mod.Log.Info($"Phone property step ignored: owned={properties.Count}.");
+            return;
+        }
         int index = 0;
         for (int i = 0; i < properties.Count; i++) if (properties[i].Id == _propertyId) { index = i; break; }
         string next = properties[(index + delta + properties.Count) % properties.Count].Id;
+        Mod.Log.Info($"Phone property step: {_propertyId ?? "none"} -> {next}.");
         _selection.Select(next);
         _propertyId = next;
         RefreshView(); // No Apply or file writes on navigation.
@@ -466,12 +424,12 @@ public sealed class PropertyLEDsApp : PhoneApp
         // Anchored hit boxes do not negotiate width with long property/room names.
         var prevRect = prev.transform.parent.GetComponent<RectTransform>();
         Rect(prevRect, 1, 0, 1, 1);
-        prevRect.offsetMin = new Vector2(-UITheme.Dp(60), UITheme.Dp(8));
-        prevRect.offsetMax = new Vector2(-UITheme.Dp(34), -UITheme.Dp(8));
+        prevRect.offsetMin = new Vector2(-UITheme.Dp(68), UITheme.Dp(4));
+        prevRect.offsetMax = new Vector2(-UITheme.Dp(36), -UITheme.Dp(4));
         var nextRect = following.transform.parent.GetComponent<RectTransform>();
         Rect(nextRect, 1, 0, 1, 1);
-        nextRect.offsetMin = new Vector2(-UITheme.Dp(30), UITheme.Dp(8));
-        nextRect.offsetMax = new Vector2(-UITheme.Dp(4), -UITheme.Dp(8));
+        nextRect.offsetMin = new Vector2(-UITheme.Dp(34), UITheme.Dp(4));
+        nextRect.offsetMax = new Vector2(-UITheme.Dp(2), -UITheme.Dp(4));
         var heading = Label(name + "Caption", caption, card.transform, AppLayout.FontSelectorCaption, FontStyle.Bold);
         label = Label(name + "Label", "...", card.transform, AppLayout.FontSelectorLabel, FontStyle.Bold);
         context = Label(name + "Context", "", card.transform, AppLayout.FontSelectorContext);
@@ -480,6 +438,9 @@ public sealed class PropertyLEDsApp : PhoneApp
         SelectorBand(heading, AppLayout.SelectorCaptionBandBottom, AppLayout.SelectorCaptionBandTop);
         SelectorBand(label, AppLayout.SelectorLabelBandBottom, AppLayout.SelectorLabelBandTop);
         SelectorBand(context, AppLayout.SelectorContextBandBottom, AppLayout.SelectorContextBandTop);
+        // Draw the arrows after the labels so their hit boxes stay in front.
+        prevRect.SetAsLastSibling();
+        nextRect.SetAsLastSibling();
     }
 
     private static void SelectorBand(Text text, float bottom, float top)
@@ -592,13 +553,13 @@ public sealed class PropertyLEDsApp : PhoneApp
 
     private Button AddButton(Transform parent, string name, string caption, Action click, out Text label, float width = 0)
     {
-        var (root, button, text) = UIFactory.RoundedButtonWithLabel(name, caption, parent, name == "White" ? new Color(0.17f, 0.20f, 0.23f, 1) : Surface,
-            UITheme.Dp(width), UITheme.Dp(AppLayout.ActionHeight), UITheme.Sp(AppLayout.FontButton), Color.white);
+        var (root, button, text) = UIFactory.RoundedButtonWithLabel(name, caption, parent, Surface,
+            UITheme.Dp(width), UITheme.Dp(AppLayout.PowerHeight), UITheme.Sp(AppLayout.FontButton), Color.white);
         root.GetComponent<Mask>().showMaskGraphic = false;
         var le = root.GetComponent<LayoutElement>();
         le.layoutPriority = 10;
         le.minWidth = le.preferredWidth = UITheme.Dp(width);
-        le.minHeight = le.preferredHeight = UITheme.Dp(name == "Advanced" ? AppLayout.AdvancedHeight : AppLayout.ActionHeight);
+        le.minHeight = le.preferredHeight = UITheme.Dp(AppLayout.PowerHeight);
         le.flexibleHeight = 0;
         var colors = button.colors;
         colors.normalColor = Color.white;
@@ -673,16 +634,6 @@ public sealed class PropertyLEDsApp : PhoneApp
         _powerKnob.anchorMin = _powerKnob.anchorMax = new Vector2(0.25f, 0.5f);
         _powerKnob.sizeDelta = new Vector2(UITheme.Dp(26), UITheme.Dp(26));
         _powerKnob.anchoredPosition = Vector2.zero;
-    }
-
-    private Image ButtonIcon(Text text, string kind)
-    {
-        var icon = DrawIcon(kind, text.transform.parent, Color.white);
-        Rect(icon.rectTransform, 0.06f, 0.25f, 0.24f, 0.75f);
-        Rect(text.rectTransform, 0.26f, 0, 0.97f, 1);
-        text.alignment = TextAnchor.MiddleCenter;
-        text.fontSize = UITheme.Sp(AppLayout.FontButton);
-        return icon;
     }
 
     // White-alpha raster shapes avoid emoji/font fallback and stay crisp at phone scale.

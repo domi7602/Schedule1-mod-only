@@ -35,14 +35,12 @@ public static class AppLayout
     public const float SliderTrackHeight = 28f;
     public const float SliderHeight = SliderHeadingHeight + SliderTrackHeight;
     public const float PreviewHeight = 58f;
-    public const float ActionHeight = 54f;
     public const float PowerHeight = 68f;
-    public const float AdvancedHeight = 34f;
     public const float Gap = 12f;
     public const float Padding = 4f;
 
-    public readonly record struct Sizing(float Selector, float Preview, float Slider, float Advanced,
-        float Power, float Action, float Gap, float Content);
+    public readonly record struct Sizing(float Selector, float Preview, float Slider,
+        float Power, float Gap, float Content);
 
     public const float InlineStateHeight = 32f;
 
@@ -50,19 +48,18 @@ public static class AppLayout
         float.IsFinite(width) && float.IsFinite(height) && width > 1 && height > 1 &&
         (dirty || System.Math.Abs(width - appliedWidth) > 0.5f || System.Math.Abs(height - appliedHeight) > 0.5f);
 
-    public static Sizing Measure(float viewport, float scale, bool expanded, bool inlineState)
+    public static Sizing Measure(float viewport, float scale, bool inlineState)
     {
         // Stretch usable controls, not a spacer. Keep minimum hit areas on small screens.
         float state = inlineState ? InlineStateHeight * scale : 0;
-        int gaps = 6 + (expanded ? 1 : 0) + (inlineState ? 1 : 0);
-        float minimum = ContentHeight(scale, expanded) + state + (inlineState ? Gap * scale : 0);
+        int gaps = 5 + (inlineState ? 1 : 0);
+        float minimum = ContentHeight(scale) + state + (inlineState ? Gap * scale : 0);
         float stretch = System.Math.Clamp((viewport - state) / (minimum - state), 1f, 1.5f);
         float gap = System.Math.Clamp(Gap * scale * stretch + System.Math.Max(0, viewport - state - (minimum - state) * stretch) / gaps,
             Gap * scale, Gap * scale * 3f);
         float content = (minimum - state - gaps * Gap * scale) * stretch + gaps * gap + state;
         return new(SelectorHeight * scale * stretch, PreviewHeight * scale * stretch,
-            SliderHeight * scale * stretch, AdvancedHeight * scale * stretch,
-            PowerHeight * scale * stretch, ActionHeight * scale * stretch, gap, content);
+            SliderHeight * scale * stretch, PowerHeight * scale * stretch, gap, content);
     }
 
     public readonly record struct Tone(float R, float G, float B, float A);
@@ -78,10 +75,7 @@ public static class AppLayout
         return new(0.80f, 0.85f, 0.90f, 1f);
     }
 
-    // Property card, three sliders, advanced row, power card, presets: seven children.
-    public static float ContentHeight(float scale) => ContentHeight(scale, false);
-
-    public static float ContentHeight(float scale, bool advancedExpanded) =>
-        (SelectorHeight + 3 * SliderHeight + ActionHeight + AdvancedHeight + PowerHeight +
-         6 * Gap + 2 * Padding + (advancedExpanded ? SliderHeight + Gap : 0)) * scale;
+    // Property card, four sliders, power card: six children.
+    public static float ContentHeight(float scale) =>
+        (SelectorHeight + 4 * SliderHeight + PowerHeight + 5 * Gap + 2 * Padding) * scale;
 }

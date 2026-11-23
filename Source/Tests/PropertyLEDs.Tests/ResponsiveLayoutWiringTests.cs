@@ -32,13 +32,12 @@ public sealed class ResponsiveLayoutWiringTests
     {
         string s = Source();
         Assert.Contains("AppLayout.ShouldApply(width, height, _layoutWidth, _layoutHeight, _layoutDirty)", s);
-        Assert.Contains("AppLayout.Measure(height, _layoutScale, _advancedExpanded, _status.gameObject.activeSelf)", s);
+        Assert.Contains("AppLayout.Measure(height, _layoutScale, _status.gameObject.activeSelf)", s);
         Assert.Contains("_contentLayout.spacing = sizing.Gap;", s);
         Assert.Contains("ApplyHeight(_selectorSizes[i], sizing.Selector);", s);
         Assert.Contains("ApplyHeight(_sliderSizes[i], sizing.Slider);", s);
         Assert.Contains("ApplyHeight(_trackSizes[i], sizing.Slider - AppLayout.SliderHeadingHeight * _layoutScale);", s);
-        Assert.Contains("ApplyHeight(_presetSizes[i], sizing.Action);", s);
-        Assert.Contains("ApplyHeight(_advancedPanelSize, sizing.Slider);", s);
+        Assert.Contains("ApplyHeight(_powerSize, sizing.Power);", s);
         Assert.Contains("fitter.verticalFit = ContentSizeFitter.FitMode.Unconstrained;", s);
         Assert.Contains("_scrollContent.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, sizing.Content);", s);
         Assert.DoesNotContain("Canvas.ForceUpdateCanvases();", s);

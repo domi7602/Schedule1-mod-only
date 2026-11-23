@@ -98,6 +98,25 @@ internal sealed class PropertyRegistry
         _entries = entries.AsReadOnly();
     }
 
+    /// <summary>
+    /// Reads the native owned lists. An empty follow-up read keeps the previous non-empty set
+    /// and returns false, so a transient empty list cannot wipe lights that were just built.
+    /// </summary>
+    internal bool TryRefresh()
+    {
+        var previousEntries = _entries;
+        var previousById = new Dictionary<string, PropertyEntry>(_byId, StringComparer.Ordinal);
+        Refresh();
+        if (_entries.Count == 0 && previousEntries.Count > 0)
+        {
+            _byId.Clear();
+            foreach (var pair in previousById) _byId.Add(pair.Key, pair.Value);
+            _entries = previousEntries;
+            return false;
+        }
+        return true;
+    }
+
     private void Add(PropertyWrapper wrapper, Transform anchor, bool business, List<PropertyEntry> entries,
         HashSet<string> ambiguousIds)
     {

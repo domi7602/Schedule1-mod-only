@@ -6,55 +6,39 @@ namespace PropertyLEDs.Tests;
 public sealed class ResponsiveLayoutTests
 {
     [Theory]
-    [InlineData(750f, 1f, false)]
-    [InlineData(750f, 1f, true)]
-    [InlineData(1201f, 1.6013333f, false)]
-    [InlineData(1201f, 1.6013333f, true)]
-    [InlineData(1500f, 2f, false)]
-    [InlineData(1500f, 2f, true)]
-    public void FullHeightDistributionMatchesSumOfNativeContracts(float phone, float scale, bool expanded)
+    [InlineData(750f, 1f)]
+    [InlineData(1201f, 1.6013333f)]
+    [InlineData(1500f, 2f)]
+    public void FullHeightDistributionMatchesSumOfNativeContracts(float phone, float scale)
     {
         float viewport = phone * 0.885f;
-        var size = AppLayout.Measure(viewport, scale, expanded, false);
+        var size = AppLayout.Measure(viewport, scale, false);
         float stretch = size.Selector / (AppLayout.SelectorHeight * scale);
-        float sum = size.Selector + (expanded ? 4 : 3) * size.Slider +
-            size.Advanced + size.Power + size.Action + (expanded ? 7 : 6) * size.Gap +
+        float sum = size.Selector + 4 * size.Slider + size.Power + 5 * size.Gap +
             2 * AppLayout.Padding * scale * stretch;
-        float minimum = AppLayout.ContentHeight(scale, expanded);
-        if (minimum <= viewport)
-            Assert.InRange(System.Math.Abs(viewport - size.Content), 0, 0.01f);
-        else
-        {
-            // Approved Phase-1 constants exceed the scroll region when Advanced is open.
-            // Measure must not shrink below the minimum; the existing scroller absorbs it.
-            Assert.Equal(minimum, size.Content, 2);
-            Assert.True(size.Content > viewport);
-            Assert.Equal(1f, stretch, 3);
-        }
+        float minimum = AppLayout.ContentHeight(scale);
+        Assert.True(minimum <= viewport);
+        Assert.InRange(System.Math.Abs(viewport - size.Content), 0, 0.01f);
         Assert.InRange(System.Math.Abs(sum - size.Content), 0, 0.01f);
     }
 
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
-    public void SmallViewportOverflowsInsteadOfClippingLowerActions(bool expanded)
+    [Fact]
+    public void SmallViewportOverflowsInsteadOfClippingLowerActions()
     {
-        var size = AppLayout.Measure(400, 1.6f, expanded, false);
-        Assert.Equal(AppLayout.ContentHeight(1.6f, expanded), size.Content, 2);
+        var size = AppLayout.Measure(400, 1.6f, false);
+        Assert.Equal(AppLayout.ContentHeight(1.6f), size.Content, 2);
         Assert.True(size.Content > 400);
-        Assert.Equal(AppLayout.ActionHeight * 1.6f, size.Action, 2);
+        Assert.Equal(AppLayout.PowerHeight * 1.6f, size.Power, 2);
     }
 
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
-    public void InlineStateAddsOnlyItsRealHeightAndGapAtMinimum(bool expanded)
+    [Fact]
+    public void InlineStateAddsOnlyItsRealHeightAndGapAtMinimum()
     {
-        var normal = AppLayout.Measure(400, 1, expanded, false);
-        var state = AppLayout.Measure(400, 1, expanded, true);
+        var normal = AppLayout.Measure(400, 1, false);
+        var state = AppLayout.Measure(400, 1, true);
         Assert.Equal(AppLayout.InlineStateHeight + AppLayout.Gap, state.Content - normal.Content, 2);
-        var stretched = AppLayout.Measure(1062.885f, 1.6013333f, expanded, true);
-        float minimum = AppLayout.ContentHeight(1.6013333f, expanded) +
+        var stretched = AppLayout.Measure(1062.885f, 1.6013333f, true);
+        float minimum = AppLayout.ContentHeight(1.6013333f) +
             (AppLayout.InlineStateHeight + AppLayout.Gap) * 1.6013333f;
         if (minimum <= 1062.885f)
             Assert.Equal(1062.885f, stretched.Content, 2);
@@ -68,7 +52,7 @@ public sealed class ResponsiveLayoutTests
     [Fact]
     public void ExtremeViewportBoundsControlGrowthAndGroupGaps()
     {
-        var size = AppLayout.Measure(10000, 1, false, false);
+        var size = AppLayout.Measure(10000, 1, false);
         Assert.Equal(AppLayout.SelectorHeight * 1.5f, size.Selector);
         Assert.Equal(AppLayout.Gap * 3, size.Gap);
         Assert.True(size.Content < 10000); // Do not create enormous cards or a blank filler.
@@ -90,7 +74,7 @@ public sealed class ResponsiveLayoutTests
     public void ObservedPhoneUsesFreedFooterHeightAcrossRealControls()
     {
         float scale = 1201f / 750f;
-        var size = AppLayout.Measure(1201f * 0.885f, scale, false, false);
+        var size = AppLayout.Measure(1201f * 0.885f, scale, false);
         Assert.Equal(1201f * 0.885f, size.Content, 2);
         Assert.True(size.Selector > AppLayout.SelectorHeight * scale);
         Assert.True(size.Slider > AppLayout.SliderHeight * scale);

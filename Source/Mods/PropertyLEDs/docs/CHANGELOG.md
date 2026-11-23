@@ -3,6 +3,16 @@
 All notable changes to PropertyLEDs are documented here. Format: Keep a Changelog;
 versioning: SemVer.
 
+## 0.1.13 (2026-11-12)
+- An empty ownership read no longer replaces a known owned set. On slot 1, 0.1.12 found 2 properties and built 2 LED groups, then a read one second later returned 0 and wiped the lights. The phone then showed `No owned properties`.
+- 129 PropertyLEDs tests passed. Release no-deploy build: 0 warnings/errors. Installed 2026-11-12 with the game closed; installed DLL matches SHA-256 `e6f726baef515063f38210bd5e267747e37c86b4245a274d3a8af9e38d4fd2b8`.
+- **Owner-confirmed 2026-11-12 (evening):** Dominik reloaded the corrected user catalog (`led reload`) and confirmed the RV strips sit perfectly inside. `Latest.log` 20:19:13 built 1 group, 20:19:33 phone on `rv`. The room (`rv/main`, verified, ca. 8,9 × 2,9 m at local Y 3.70, anchor frame with +90° yaw) lives in `UserData/PropertyLEDs/layouts.json` (36 rooms now), not in the DLL; no code change, no new version.
+
+## 0.1.12 (2026-11-12)
+- Property arrows no longer depend on the settings-edit gate, and their hit boxes sit in front of the selector labels. A stale revision was swallowing the click, so the selected property did not change.
+- Ownership discovery keeps probing for 30 s after load even when the starter RV is already listed, and the phone open reads the owned list again. A later apartment is rebuilt from saved settings instead of staying dark. An unchanged id set does not rebuild.
+- 128 PropertyLEDs tests passed. Release no-deploy build: 0 warnings/errors. Installed 2026-11-12 with the game closed; installed DLL matches SHA-256 `941f8260f6d4571f2b92e3baa3f4ef91b5139b5c13738807d4a75b2a885aa218`. In-game selector and apartment-light acceptance are open.
+
 ## 0.1.11 (2026-10-26)
 - Show amber `No LED layout available` for the selected property when its catalog has no verified room; distinguish unverified-only entries. Replace the misleading power detail while retaining saved Enabled and toggle state. No geometry or settings schema changes.
 - Recovered the missing local catalog byte-for-byte from the historical import candidate: SHA-256 `07bbc5620ea3eac1d45e736af5dd76c377565ca39dd2481bc6ee72a0d75f5f11`, 35 rooms across 12 properties. Installed catalog readback matches; slot-1 settings hash is unchanged. Historical verification flags were preserved, not newly visually verified. Cause of file disappearance is unknown.

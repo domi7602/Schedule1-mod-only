@@ -4,8 +4,8 @@ Room-by-room RGB LED strips along the ceiling and wall edges of your owned prope
 businesses, controlled from a dedicated phone app. Developed independently for *Schedule I*
 (MelonLoader, IL2CPP, S1API). No code, models or textures from any existing LED mod are used.
 
-> **Status: Verified, owner-confirmed 2026-10-25 (v0.1.10, landscape phone and tighter insets).** Dominik explicitly confirmed the LED edges are correct. The same-day log shows the app initialized and LED groups built; it does not measure edge clearance. v0.1.8 remains **Verified, owner-confirmed 2026-10-24** (location-aware initial selection and property-named power status; 115 tests pass). That confirmation had been missing from the record and was supplied retroactively; native location/status fitting, toggle/color and the save roundtrip were not itemized. The mod builds, deploys and ships a complete settings,
-> rendering, phone and diagnostics implementation. It deliberately contains **no built-in room
+> **Status: Verified, owner-confirmed 2026-11-12 (v0.1.13, selector, motel lights and RV room).** DLL `e6f726ba…`. Dominik confirmed the motel strips, the `motelroom` ↔ `rv` arrows, and the RV strips sitting perfectly inside after `led reload` (`Latest.log` 20:19:13 built 1 group, 20:19:33 phone on `rv`). The RV room (`rv/main`, verified, ca. 8,9 × 2,9 m at local Y 3.70) lives in the user catalog `layouts.json`, not in the DLL.
+> The mod builds, deploys and ships a complete settings, rendering, phone and diagnostics implementation. It deliberately contains **no built-in room
 > coordinates**: until a room has been measured and marked verified in the layout catalog, no
 > persistent LED geometry is placed there. See
 > [`implementation-status.md`](implementation-status.md) for the implementation history and the

@@ -16,10 +16,10 @@ internal static class LEDRuntime
     private static readonly LEDLightingController Lighting = new();
     private static LEDSettingsStore? _store;
     private static bool _loaded;
-    // S1API Property/Business expose no purchase event, and the owned lists can still be empty when
-    // OnLoadComplete fires. Retry a bounded number of times instead of a per-frame or scene-wide scan.
-    private const int MaxOwnershipRetries = 30;
-    private const double OwnershipRetrySeconds = 1.0;
+    // S1API Property/Business expose no purchase event, and the owned lists can still be
+    // incomplete when OnLoadComplete fires. The starter RV can appear before a purchased
+    // apartment. Keep probing for the bounded window; do not stop at the first property.
+    private const double OwnershipRetrySeconds = OwnershipWatch.IntervalSeconds;
     private static int _ownershipRetries;
     private static double _nextOwnershipRetryAt;
     private static bool _currentPropertyWarned;
@@ -169,35 +169,67 @@ internal static class LEDRuntime
         Mod.Log.Info($"LED runtime ready for slot {_store.LoadedSlot}: {Registry.Entries.Count} owned properties/businesses.");
     }
 
+    private static bool _emptyProbeLogged;
+
     internal static void Tick()
     {
-        // No scene/property/material scans: only a managed pending-write/debounce check plus a
-        // bounded ownership retry while the game's own owned lists are still empty.
+        // No scene/property/material scans: only a managed pending-write check plus a bounded
+        // ownership probe. A partial list is not complete, so the probe does not stop at the RV.
         if (!_loaded) return;
         _store?.Flush(false);
-        if (_ownershipRetries >= MaxOwnershipRetries || Registry.Entries.Count > 0) return;
         double now = Clock.Elapsed.TotalSeconds;
-        if (now < _nextOwnershipRetryAt) return;
+        if (!OwnershipWatch.ShouldProbe(_ownershipRetries, Registry.Entries.Count, now, _nextOwnershipRetryAt)) return;
+        if (!NetworkGuard.IsInMainScene) return;
         _ownershipRetries++;
         _nextOwnershipRetryAt = now + OwnershipRetrySeconds;
-        if (!NetworkGuard.IsInMainScene) return;
-        Registry.Refresh();
-        if (Registry.Entries.Count == 0)
+        if (!AdoptOwnedProperties())
         {
-            if (_ownershipRetries == MaxOwnershipRetries)
-                Mod.Log.Warn($"Owned property list stayed empty after {MaxOwnershipRetries} s; LEDs stay off until an explicit refresh.");
+            if (_ownershipRetries == OwnershipWatch.MaxAttempts && Registry.Entries.Count == 0)
+                Mod.Log.Warn($"Owned property list stayed empty after {OwnershipWatch.MaxAttempts} s; LEDs stay off until the phone is opened or an explicit refresh.");
             return;
         }
+        Mod.Log.Info($"Ownership data updated after {_ownershipRetries} s: {Registry.Entries.Count} owned properties/businesses.");
+    }
+
+    /// <summary>One explicit owned-list read for phone open, including after the timed window.</summary>
+    internal static void RefreshOwnership()
+    {
+        if (!Ready || !NetworkGuard.IsInMainScene) return;
+        if (AdoptOwnedProperties())
+            Mod.Log.Info($"Phone ownership refresh: {Registry.Entries.Count} owned properties/businesses.");
+    }
+
+    private static bool AdoptOwnedProperties()
+    {
+        var before = SnapshotIds();
+        if (!Registry.TryRefresh())
+        {
+            if (!_emptyProbeLogged)
+            {
+                _emptyProbeLogged = true;
+                Mod.Log.Info($"Ownership probe kept {before.Count} properties; the native owned list was empty.");
+            }
+            return false;
+        }
+        if (!OwnershipWatch.ShouldCommit(before, SnapshotIds())) return false;
         Lighting.Rebuild(Registry, Layouts, GetSettings);
         Revision++;
-        Mod.Log.Info($"Ownership data arrived after {_ownershipRetries} s: {Registry.Entries.Count} owned properties/businesses.");
+        return true;
+    }
+
+    private static List<string> SnapshotIds()
+    {
+        var ids = new List<string>(Registry.Entries.Count);
+        for (int i = 0; i < Registry.Entries.Count; i++) ids.Add(Registry.Entries[i].Id);
+        return ids;
     }
 
     internal static void Flush() => _store?.Flush();
 
     internal static void Reset()
     {
-        _ownershipRetries = MaxOwnershipRetries; // no retries until the next load arms them
+        _emptyProbeLogged = false;
+        _ownershipRetries = OwnershipWatch.MaxAttempts; // no retries until the next load arms them
         _nextOwnershipRetryAt = 0;
         _currentPropertyWarned = false;
         // Captured-slot flush occurs BEFORE resetting scene references or the loaded state.
