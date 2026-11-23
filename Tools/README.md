@@ -18,7 +18,7 @@ game. Run its standalone suite with `python -m unittest discover -s Tools/s1-cli
 | Script | Purpose |
 |---|---|
 | `build-all.ps1` | Builds `Source/Mods/S1Mods.sln` (`-Config Release` by default); regenerates the SLN first if it is missing. Deploys into the game directory unless `S1NoDeploy=true`. |
-| `gen-sln.ps1` | Regenerates `S1Mods.sln` from all `*.csproj` under `Source/Mods/` and `Source/Tests/` with deterministic MD5-based project GUIDs. Run after adding or removing a project; CI verifies the committed SLN matches. |
+| `gen-sln.ps1` | Regenerates `S1Mods.sln` from all `*.csproj` under `Source/Mods/` and `Source/Tests/` with deterministic MD5-based project GUIDs and Windows-form `\` paths. Run after adding or removing a project; CI verifies the committed SLN byte for byte. Adding projects with `dotnet sln add` on Linux writes `/` separators and Linux-derived GUIDs, so always regenerate with this script and commit its output. |
 | `new-mod.ps1` | Scaffolds `Source/Mods/<Name>/` with `src/` (csproj + `Mod.cs`), `docs/` (`mod.json`, `README.md`, `CHANGELOG.md`) and `assets/`. The README directs executable tests to `Source/Tests/<Name>.Tests/`; no placeholder test folder/project is created. |
 | `deploy-thirdparty.ps1` | Called by `Directory.Build.targets` when `Shared` builds: copies whitelisted third-party DLLs from `ThirdParty/` into `<GameDir>\Mods\` according to `ThirdParty/.deployallow`. Uses a mutex so parallel MSBuild invocations do not race. |
 

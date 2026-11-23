@@ -76,6 +76,19 @@ receipt produced by the Windows editor toolchain, the port must stay OUTSIDE tha
 no `*.py` in the inventory — or every later build on both hosts fails as "input changed".
 Record that constraint next to the script.
 
+## Solution determinism across hosts
+
+`Tools/gen-sln.ps1` must own `S1Mods.sln`. Its output is Windows-shaped even when the repo lives
+on Linux: backslash-relative paths, MD5 GUIDs over those exact strings, folder blocks, one blank
+line between the project blocks and `Global`, and no trailing newline. CI runs `gen-sln.ps1 -Check`
+on Windows, so a solution touched by `dotnet sln add` on Linux (forward slashes, Linux-derived
+GUIDs) fails as "Solution differs" even though the build works locally. Regenerate, never hand-edit.
+
+A user-local PowerShell (GitHub release tarball unpacked to e.g. `~/.local/pwsh/pwsh`) is acceptable
+for running the repository's own verification scripts (`gen-sln -Check`, `check-doc-paths`,
+`check-version-sync`) on Linux. The **build** must still work without it; do not reintroduce a
+PowerShell-only MSBuild gate.
+
 PowerShell and Python do not share comparison or filesystem semantics; a port that reads
 correctly can still accept or reject the wrong inputs:
 
