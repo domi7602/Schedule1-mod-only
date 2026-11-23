@@ -61,18 +61,13 @@ Keep this repository authoritative for code, skills, rules, versions and accepta
 existing notes where possible; cite source paths, inspection date, revision, working-tree
 state and file hashes where needed. Do not publish conjecture as established knowledge,
 duplicate the mod inventory or turn historical acceptance into new verification.
-A separately scheduled Codex maintenance run was an additional execution path until
-2026-11-20; it is no longer used. Instruction files alone do not schedule work or grant
-folder access. Follow the connection guide for its scope and limits. Missing vault access does not block independent project work; report
+A separate recurring Codex maintenance run is an additional execution path; instruction
+files alone do not schedule work or grant folder access. Follow the connection guide for
+its scope and limits. Missing vault access does not block independent project work; report
 the gap when the requested knowledge update depends on it. All other project rules remain
 in force, including preservation of unrelated changes and commit/push/deployment limits.
 
 ## 1. Setup
-
-**Current dependency status:** S1API **3.2.2** (`6b6d7ba`) is the committed submodule pin.
-The 2026-11-02 upgrade note recorded that pin as still uncommitted; that was true for that
-session only. Bounded TownHallTest startup/load and phone open/close were observed
-2026-11-05 and are not a broad gameplay acceptance. Counts below stay attached to their runs.
 
 **Recorded local baseline:** Schedule I Open Beta **v0.4.7f12**, Unity **2022.3.62f2**,
 Steam build **25796331** (log/manifest, 2026-10-08); MelonLoader **0.7.3**, S1API **3.2.2 stable** (installed 2026-11-02, startup/load observed 2026-11-05),
@@ -86,16 +81,15 @@ runtimes **6.0.36 / 8.0.32** are global in `C:\Program Files\dotnet` (2026-10-24
 - Required files: `Mods/S1API.Il2Cpp.MelonLoader.dll` (exact name),
   `UserLibs/S1MAPI_Il2Cpp.dll` and `MelonLoader/Il2CppAssemblies/`. The latter is generated
   by the game's first run; absent/wrong references break compilation.
-- S1API source target: `6b6d7bada39054822732224508cf0f4f45ee7c26` / `v3.2.2`,
-  committed in the superproject. Official release IL2CPP `d751a3cb…` and loader
-  `b05187bd…` were installed 2026-11-02 with verified 3.2.1 backups.
+- S1API source target: `6b6d7bada39054822732224508cf0f4f45ee7c26` / `v3.2.2`;
+  clean submodule checkout updated, superproject change uncommitted. Official release
+  IL2CPP `d751a3cb…` and loader `b05187bd…` installed with verified 3.2.1 backups.
   ProductVersion `3.2.2+6b6d7bada…`; matching runtime/loader hashes and TownHallTest
   startup/load observed 2026-11-05; phone opening/closing subsequently owner-confirmed,
   no broad API/gameplay acceptance. [Bounded live record](Source/Mods/TownHallInterior/docs/launch-preparation.md).
-  The 2026-11-02 no-deploy check recorded 0 warnings/errors, 4,157 tests + 265 console
-  checks and a clean ApiCompat run. Those figures belong to that upgrade, not to the
-  current working tree. [Upgrade evidence and rollback](docs/s1api-upgrade-3.2.2.md)
-  owns exact hashes and limits.
+  Whole-solution no-deploy
+  build 0 warnings/errors, 4,157 tests + 265 console checks passed; ApiCompat passed.
+  [Upgrade evidence and rollback](docs/s1api-upgrade-3.2.2.md) owns exact hashes and limits.
   **Do not downgrade to 3.2.0**: pre-f6 NPC renames cause
   `MissingMethodException: NPCHealth.set_npc`. [Prior provenance](docs/history/agent-mod-history-20261024.md)
   and older beta.8 / 3.2.1 build records remain historical.
@@ -147,19 +141,16 @@ Keep exactly one inventory row per mod and supported bold acceptance labels.
 | **AutoPackagingStation** | ✅ (v0.4.7, **Verified 2026-10-15, owner-confirmed tested session**) | `Mods/AutoPackagingStation/` | `AutoPackagingStation.dll` | Buildable; legacy migration unverified |
 | **HitmanPhone** | ✅ (v0.3.4, SP load-gate/reload **Verified 2026-11-10**; dead-drop objective **Verified 2026-11-11** (prior v0.3.2: **Verified, owner-confirmed 2026-10-25**)) | `Mods/HitmanPhone/` | `HitmanPhone.dll` | SP load false-warning fix verified; offers use own customers; tracker app removed |
 | **MessagesPlus** | ✅ (v0.4.6, **Verified, owner-confirmed 2026-10-15**) | `Mods/MessagesPlus/` | `MessagesPlus.dll` | Popup/response repair; original test date not supplied |
-| **ProductAppQoL** | ✅ (v0.1.1, **In-Game-Verify open** (prior v0.1.0: **Verified 2026-10-10**)) | `Mods/ProductAppQoL/` | `ProductAppQoL.dll` | Mouse/touch asking-price buttons |
+| **ProductAppQoL** | ✅ (v0.1.0, **Verified 2026-10-10**) | `Mods/ProductAppQoL/` | `ProductAppQoL.dll` | Mouse/touch asking-price buttons |
 | **PoliceTestMode** | ✅ (v0.1.0, default suppression/reload **Verified 2026-11-10**; console toggle/occupancy **Verified 2026-11-11**) | `Mods/PoliceTestMode/` | `PoliceTestMode.dll` | 43/43 hooks, 17 leases, curfew/officer suppression & menu/reload restore verified |
 | **TaxiDriver** | ✅ (v1.0.6, focused singleplayer live verification; prior v1.0.0 owner-confirmed 2026-10-24) | `Mods/TaxiDriver/` | `TaxiDriver.dll` + GLB folder | 2026-11-12 follow-up: pickup braking and both controlled historical departures reached Bungalow. Guard `7e5bc3e0…` confirmed the final-leg retreat, 12 m street selection and first-via direct choice through arrival at 2.8 m, using 2 recovery episodes plus regular RoadKeeper corrections. The normal control without the pose fixture also arrived at 2.8 m with 1 recovery and $49 paid. Natural episode 4 was not observed. Exact builds and limits are in the changelog |
 | **StorageScanner** | 🆕 (v0.2.0, **Verified 2026-10-11**) | `Mods/StorageScanner/` | `StorageScanner.dll` + icon | Read-only storage overview |
 | **S1MCP** | ✅ (v1.0.5, **Verified, owner-confirmed 2026-10-24**) | `ThirdParty/S1MCPServer-master/` | `S1MCPServer-IL2CPP.dll` | HHMM fix; read/no-op write observed, not every write form |
 | **LightControl** | ✅ (v0.1.1; 0.1.0 **Verified, owner-confirmed 2026-10-24**) | `Mods/LightControl/` | `LightControl.dll` | 0.1.1 deployed log-only Rainbow fix; prior acceptance not itemized |
-| **PropertyLEDs** | ✅ (v0.1.13, selector, motel lights and RV room **Verified, owner-confirmed 2026-11-12**) | `Mods/PropertyLEDs/` | `PropertyLEDs.dll` + icon | Arrows cycle motel/RV; motel + RV strips seen in game |
+| **PropertyLEDs** | ✅ (v0.1.11, 35-room catalog/reload **Verified 2026-11-10**; missing-layout UI and unowned root check **Verified 2026-11-11** (prior v0.1.10: **Verified, owner-confirmed 2026-10-25**)) | `Mods/PropertyLEDs/` | `PropertyLEDs.dll` + icon | 35/35 verified rooms & reload verified; landscape phone, tighter insets |
 | **PhoneScrollFix** | ✅ (v2.0.0, hover look **Verified 2026-10-11**) | `Mods/PhoneScrollFix/` | `PhoneScrollFix.dll` | Clipped home-icon hover |
 | **WorldLook** | ✅ (v0.3.0-dev.5, **Verified, owner-confirmed 2026-10-25**) | `Mods/WorldLook/` | `WorldLook.dll` + embedded bundle | Owner-confirmed finished in the last session; actions not itemized; prior shader-reload evidence retained |
 | **TownHallInterior** | ✅ (v0.1.0, **Verified, owner-confirmed 2026-11-10**) | `Mods/TownHallInterior/` | `TownHallInterior.dll` | Locally finished; cabinet and hall-storage Save/menu reload accepted. Hash-pinned local slices, not distributable; documented evidence limits retained |
-| **PreserveRV** | 🧪 (v0.1.0, intact RV and readable note **owner-confirmed 2026-11-12**, DLL `5CC97AEE…`; reload and later quest steps unverified) | `Mods/PreserveRV/` | `PreserveRV.dll` | Preserve intact RV and original quest note; no PropertyLEDs changes |
-| **NorthIsland** | ✅ (v0.1.0, Phase 1 **Verified, owner-confirmed 2026-11-16**, DLL `EA91537C…`; Phase 2 property + Phase 3 nights/waterfront implemented, in-game verification open) | `Mods/NorthIsland/` | `NorthIsland.dll` | Overpass bridge, Northshore Town, broadphase expansion, anti-tunnel colliders, `BarrierRemover`, `island` tools, hideout purchase/grid, neon signage/string lights, pier & lighthouse |
-| **ConsoleHotkey** | 🧪 (v0.1.0, **Verified 2026-11-20**) | `Mods/ConsoleHotkey/` | `ConsoleHotkey.dll` | F1 toggles the vanilla developer console in gameplay; Linux dead-key workaround |
 | **Shared** | ✅ workspace library | `Mods/Shared/` | `Shared.dll` | Reusable helpers; section 5 |
 | **S1API** | ✅ 3.2.2 stable (startup/load observed 2026-11-05) | — | `S1API.Il2Cpp.MelonLoader.dll` + `Plugins/S1APILoader.MelonLoader.dll` | Matching runtime/loader hashes and TownHallTest load observed; phone open/close owner-confirmed; no individual app or broad API/gameplay acceptance; section 1 |
 
