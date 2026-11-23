@@ -36,7 +36,7 @@ def main(argv: list[str] | None = None) -> int:
     try:
         patterns = [
             line.strip()
-            for line in allowlist.read_text(encoding="utf-8").splitlines()
+            for line in allowlist.read_text(encoding="utf-8-sig").splitlines()
             if line.strip() and not line.lstrip().startswith("#")
         ]
     except (OSError, UnicodeDecodeError) as error:

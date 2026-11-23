@@ -26,6 +26,7 @@ import argparse
 import hashlib
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -131,6 +132,11 @@ class PlanEntry:
         return row
 
 
+def _destination_key(value: str) -> str:
+    """Folded on case-insensitive targets only (Windows, default macOS APFS)."""
+    return value.casefold() if sys.platform == "darwin" else os.path.normcase(value)
+
+
 def _relative_text(value: str) -> str:
     return value.replace(os.sep, "/") if os.sep != "/" else value
 
@@ -156,9 +162,11 @@ def resolve_game_dir(game_dir: str | None) -> GameInstall:
     if str(full) == full.anchor:
         raise DeployError(f"GameDir must not be a filesystem root ('{full}').")
     workspace = Path(os.path.abspath(WORKSPACE_ROOT))
-    if full == workspace:
+    full_real = Path(os.path.realpath(full))
+    workspace_real = Path(os.path.realpath(workspace))
+    if full == workspace or full_real == workspace_real:
         raise DeployError(f"GameDir points at the repository root ('{full}').")
-    if workspace in full.parents:
+    if workspace in full.parents or workspace_real in full_real.parents:
         raise DeployError(f"GameDir is inside the repository ('{full}'); refusing to deploy into the repo.")
     if not full.is_dir():
         raise DeployError(f"Schedule I install not found at '{full}'.", code=3)
@@ -218,8 +226,38 @@ def _scan_processes(proc_root: Path = Path("/proc")) -> list[str]:
     return matches
 
 
+def _ps_rows(selector: str) -> dict[str, str]:
+    try:
+        result = subprocess.run(["ps", "-axo", selector], capture_output=True, text=True, check=False)
+    except OSError as error:
+        raise DeployError(f"Unable to enumerate processes; refusing to deploy (fail-closed): {error}", code=5) from error
+    if result.returncode != 0 or not result.stdout.strip():
+        raise DeployError("Unable to enumerate processes; refusing to deploy (fail-closed).", code=5)
+    rows: dict[str, str] = {}
+    for line in result.stdout.splitlines():
+        match = re.match(r"\s*(\d+)\s+(.*)$", line)
+        if match:
+            rows[match.group(1)] = match.group(2)
+    return rows
+
+
+def _scan_processes_ps() -> list[str]:
+    """Fallback for hosts without /proc (macOS/BSD); still fail-closed."""
+    comms = _ps_rows("pid=,comm=")
+    arguments = _ps_rows("pid=,args=")
+    matches: list[str] = []
+    for pid, comm in comms.items():
+        argv = (arguments.get(pid) or "").split()
+        names = {comm.strip().casefold()}
+        if argv:
+            names.add(os.path.basename(argv[0]).casefold())
+        if names & GAME_PROCESS_NAMES:
+            matches.append(pid)
+    return matches
+
+
 def running_game_processes() -> list[str]:
-    return _scan_processes()
+    return _scan_processes() if Path("/proc").is_dir() else _scan_processes_ps()
 
 
 def preflight(game_dir: str | None, operation: str) -> GameInstall:
@@ -253,8 +291,6 @@ def new_plan(
     assets_dir: str | None,
     mod_json_path: str | None,
 ) -> list[PlanEntry]:
-    import re
-
     if (
         not re.match(r"^[A-Za-z0-9][A-Za-z0-9._-]*$", project_name)
         or ".." in project_name
@@ -313,8 +349,7 @@ def new_plan(
 
     destinations: dict[str, list[PlanEntry]] = {}
     for entry in plan:
-        # normcase keeps POSIX case-distinct names apart and folds them on Windows.
-        destinations.setdefault(os.path.normcase(entry.destination_relative), []).append(entry)
+        destinations.setdefault(_destination_key(entry.destination_relative), []).append(entry)
     duplicates = {key: items for key, items in destinations.items() if len(items) > 1}
     if duplicates:
         details = "\n".join(
@@ -365,16 +400,28 @@ class DeployMutex:
     """Per-install POSIX lock; mirrors the named mutex of deploy-mod.ps1."""
 
     def __init__(self, install: GameInstall, timeout_seconds: int) -> None:
-        normalized = os.path.abspath(install.game_dir).rstrip(os.sep).lower()
+        # realpath keeps /A/S1 and /a/s1 apart on a case-sensitive host and makes
+        # two spellings of the same install share one lock.
+        normalized = os.path.realpath(install.game_dir).rstrip(os.sep)
         digest = hashlib.sha256(normalized.encode("utf-8")).hexdigest()[:16]
-        self.path = Path(tempfile.gettempdir()) / f"{MUTEX_PREFIX}{digest}.lock"
+        base = Path(os.environ.get("XDG_RUNTIME_DIR") or tempfile.gettempdir()) / "s1deploy-locks"
+        self.path = base / f"{MUTEX_PREFIX}{digest}.lock"
         self.timeout_seconds = timeout_seconds
         self.handle = None
 
     def __enter__(self) -> "DeployMutex":
         if fcntl is None:
             raise DeployError("The Python deploy port supports POSIX hosts; use deploy-mod.ps1 on Windows.")
-        self.handle = self.path.open("a+")
+        base = self.path.parent
+        base.mkdir(mode=0o700, parents=True, exist_ok=True)
+        if base.is_symlink():
+            raise DeployError(f"Deploy lock directory is a symlink; refusing: '{base}'.")
+        flags = os.O_CREAT | os.O_RDWR | getattr(os, "O_NOFOLLOW", 0)
+        try:
+            descriptor = os.open(self.path, flags, 0o600)
+        except OSError as error:
+            raise DeployError(f"Cannot open the deploy lock '{self.path}' safely: {error}") from error
+        self.handle = os.fdopen(descriptor, "a+")
         deadline = time.monotonic() + self.timeout_seconds
         while True:
             try:
@@ -444,7 +491,7 @@ def stale_artifacts(game_root: Path, plan: list[PlanEntry], previous: dict | Non
     stale: list[dict] = []
     if previous is None:
         return stale
-    current = {str(entry.destination).casefold() for entry in plan}
+    current = {_destination_key(str(entry.destination)) for entry in plan}
     seen: set[str] = set()
     prior_entries = list(previous.get("Entries") or []) + list(previous.get("Stale") or [])
     for prior in prior_entries:
@@ -460,7 +507,7 @@ def stale_artifacts(game_root: Path, plan: list[PlanEntry], previous: dict | Non
         if not destination_text:
             continue
         destination = Path(os.path.abspath(destination_text))
-        folded = str(destination).casefold()
+        folded = _destination_key(str(destination))
         if folded in current or folded in seen:
             continue
         seen.add(folded)
@@ -533,7 +580,15 @@ def rollback(entries: list[PlanEntry], game_root: Path, backup_dir: Path | None)
                     raise DeployError(
                         f"Backup hash mismatch for '{entry.destination_relative}'; refusing to restore."
                     )
-                shutil.copy2(backup_full, entry.destination)
+                staged = staged_path(entry.destination)
+                try:
+                    shutil.copy2(backup_full, staged)
+                    if sha256_hex(staged) != entry.original_sha256:
+                        raise DeployError(f"Restored copy hash mismatch for '{entry.destination_relative}'.")
+                    os.replace(staged, entry.destination)
+                finally:
+                    if staged.exists():
+                        staged.unlink(missing_ok=True)
                 if sha256_hex(entry.destination) != entry.original_sha256:
                     raise DeployError(f"Restored file hash mismatch for '{entry.destination_relative}'.")
                 entry.state = "Restored"
@@ -685,6 +740,17 @@ def invoke(
                     if sha256_hex(staged) != entry.source_sha256:
                         raise DeployError(
                             f"Staged copy hash mismatch before replacing '{entry.destination}'."
+                        )
+                    # The backup was verified earlier; a writer may still have
+                    # changed the target since. Refuse instead of overwriting it.
+                    if entry.existed_before:
+                        if not entry.destination.is_file() or sha256_hex(entry.destination) != entry.original_sha256:
+                            raise DeployError(
+                                f"Destination changed during deploy; refusing to overwrite '{entry.destination}'."
+                            )
+                    elif entry.destination.exists() or entry.destination.is_symlink():
+                        raise DeployError(
+                            f"A file appeared at '{entry.destination}' during deploy; refusing to replace it."
                         )
                     os.replace(staged, entry.destination)
                 finally:
@@ -845,6 +911,9 @@ def main(argv: list[str] | None = None) -> int:
         print(f"[deploy-mod] ERROR: {error}", file=sys.stderr)
         return error.code
     except OSError as error:
+        print(f"[deploy-mod] ERROR: {error}", file=sys.stderr)
+        return 2
+    except Exception as error:  # contract: a reported failure, never a traceback
         print(f"[deploy-mod] ERROR: {error}", file=sys.stderr)
         return 2
     return 0

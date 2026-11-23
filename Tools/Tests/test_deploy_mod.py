@@ -8,8 +8,11 @@ The fixture never touches a real install: every test builds a throwaway game
 root with the MelonLoader probe the preflight requires.
 """
 
+import contextlib
+import io
 import json
 import os
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -236,6 +239,60 @@ class DeployModTests(unittest.TestCase):
                 deploy_mod.resolve_game_dir(None)
         self.assertEqual(caught.exception.code, 2)
         self.assertIn("SCHEDULE1_PATH", str(caught.exception))
+
+
+    def test_mutex_symlink_is_refused_without_touching_the_target(self):
+        outside = self.base / "outside-lock"
+        outside.write_text("untouched", encoding="utf-8")
+        runtime = self.base / "runtime"
+        lock_dir = runtime / "s1deploy-locks"
+        lock_dir.mkdir(parents=True)
+        digest = deploy_mod.hashlib.sha256(
+            deploy_mod.os.path.realpath(self.game).rstrip(deploy_mod.os.sep).encode()
+        ).hexdigest()[:16]
+        (lock_dir / f"{deploy_mod.MUTEX_PREFIX}{digest}.lock").symlink_to(outside)
+        with mock.patch.dict(os.environ, {"XDG_RUNTIME_DIR": str(runtime)}):
+            with self.assertRaises(deploy_mod.DeployError):
+                self.deploy()
+        self.assertEqual(outside.read_text(encoding="utf-8"), "untouched")
+
+    def test_rollback_restore_does_not_write_through_hardlinks(self):
+        self.deploy()
+        outside = self.base / "outside.dll"
+        os.link(self.game / "Mods" / "Demo.dll", outside)
+        (self.project / "Demo.pdb").write_bytes(b"pdb")
+        self.dll.write_bytes(b"broken-build")
+        (self.assets / "new.png").write_bytes(b"new")
+        icon = self.game / "Mods" / "new.png"
+        real_replace = os.replace
+
+        def failing_replace(source, destination):
+            if Path(destination) == icon and Path(source).name.startswith(deploy_mod.TEMP_PREFIX):
+                raise OSError("injected replace failure")
+            return real_replace(source, destination)
+
+        with mock.patch.object(deploy_mod.os, "replace", side_effect=failing_replace):
+            with self.assertRaises(deploy_mod.DeployError):
+                self.deploy()
+        self.assertEqual((self.game / "Mods" / "Demo.dll").read_bytes(), b"new-dll")
+        self.assertEqual(outside.read_bytes(), b"new-dll")
+
+    def test_ps_fallback_scan_matches_image_name(self):
+        def fake_run(command, **kwargs):
+            selector = command[-1]
+            output = "  123 Schedule I\n  456 grep\n" if selector == "pid=,comm=" else "  123 /opt/Schedule I.exe --x\n  456 grep schedulei\n"
+            return subprocess.CompletedProcess(args=command, returncode=0, stdout=output)
+
+        with mock.patch.object(deploy_mod.subprocess, "run", side_effect=fake_run):
+            self.assertEqual(deploy_mod._scan_processes_ps(), ["123"])
+
+    def test_cli_reports_internal_errors_without_traceback(self):
+        with mock.patch.object(deploy_mod, "invoke", side_effect=ValueError("boom")):
+            with contextlib.redirect_stderr(io.StringIO()) as stderr:
+                code = deploy_mod.main(["-ProjectName", "Demo", "-ProjectDir", str(self.project), "-TargetPath", str(self.dll)])
+        self.assertEqual(code, 2)
+        self.assertIn("boom", stderr.getvalue())
+        self.assertNotIn("Traceback", stderr.getvalue())
 
 
 if __name__ == "__main__":
