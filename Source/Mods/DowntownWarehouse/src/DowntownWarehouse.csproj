@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>DowntownWarehouse</AssemblyName>
+    <RootNamespace>DowntownWarehouse</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="..\assets\main-cut.json" LogicalName="DowntownWarehouse.main-cut.json" />
+  </ItemGroup>
+</Project>

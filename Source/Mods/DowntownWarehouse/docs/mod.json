@@ -1,0 +1,8 @@
+{
+  "name": "DowntownWarehouse",
+  "version": "0.1.0",
+  "author": "Dominik",
+  "description": "Purchasable singleplayer warehouse behind Handy Hank's Hardware with interior shell, working door, save point, build grid, and placement persistence.",
+  "game": "Schedule I",
+  "loader": "MelonLoader"
+}
