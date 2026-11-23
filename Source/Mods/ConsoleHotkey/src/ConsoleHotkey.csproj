@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>ConsoleHotkey</AssemblyName>
+    <RootNamespace>ConsoleHotkey</RootNamespace>
+  </PropertyGroup>
+</Project>
