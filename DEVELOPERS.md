@@ -103,6 +103,12 @@ This exception changes no target framework or runtime and suppresses no compiler
 warnings. Reassess it with a mod-runtime migration; use `-p:CheckEolTargetFramework=true`
 to restore the diagnostic explicitly.
 
+On a Linux/macOS host without the .NET 6 runtime, `dotnet test` aborts because the `net6.0`
+testhost cannot start. Either install the 6.0 runtime (CI does) or let the host roll forward:
+`DOTNET_ROLL_FORWARD=Major dotnet test Source/Tests/<Name>.Tests/<Name>.Tests.csproj -c Release -p:S1NoDeploy=true`.
+Roll-forward runs the testhost on .NET 8; it changes no project target and is not a substitute
+for the Windows CI matrix.
+
 The table lists the shared and game-free suites:
 
 | Project | Scope | Needs game assemblies |
