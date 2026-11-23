@@ -24,6 +24,6 @@ inside the hall.
 ## Limits
 
 Singleplayer only; multiplayer is not supported. The warehouse geometry is local to this
-mod and uses the extracted `assets/main-cut.json` layout. There is no release packaging.
+mod and uses the extracted [`main-cut.json`](../assets/main-cut.json) layout. There is no release packaging.
 
 See [CHANGELOG.md](CHANGELOG.md) for the current version.
