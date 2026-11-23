@@ -2,6 +2,9 @@
   <PropertyGroup>
     <AssemblyName>WorldLook</AssemblyName>
     <RootNamespace>WorldLook</RootNamespace>
+    <!-- Cross-platform shader gate: PowerShell on Windows, Python 3 elsewhere.
+         Override with -p:S1Python=/path/to/python3 when it is not on PATH. -->
+    <S1Python Condition="'$(S1Python)' == ''">python3</S1Python>
   </PropertyGroup>
   <ItemGroup>
     <EmbeddedResource Include="../assets/embedded/worldlook-shaders.bundle" LogicalName="WorldLook.Shaders.bundle" />
@@ -10,7 +13,10 @@
   </ItemGroup>
   <Target Name="CheckWorldLookShaderBundle" BeforeTargets="BeforeBuild">
     <Error Condition="!Exists('$(MSBuildProjectDirectory)/../assets/embedded/worldlook-shaders.bundle') Or !Exists('$(MSBuildProjectDirectory)/../assets/embedded/shader-build.json')"
-           Text="WorldLook shader inputs are missing. Run pwsh -NoProfile -ExecutionPolicy Bypass -File Source/Mods/WorldLook/build/Build.ps1 -ShadersOnly." />
-    <Exec Command="pwsh -NoProfile -NonInteractive -ExecutionPolicy Bypass -File &quot;$(MSBuildProjectDirectory)/../build/Verify-ShaderBundle.ps1&quot; -ProjectRoot &quot;$(MSBuildProjectDirectory)/..&quot;" />
+           Text="WorldLook shader inputs are missing. Rebuild the bundle with Source/Mods/WorldLook/build/Build.ps1 -ShadersOnly on a machine with Unity 2022.3.62f3." />
+    <Exec Condition="'$(OS)' == 'Windows_NT'"
+          Command="pwsh -NoProfile -NonInteractive -ExecutionPolicy Bypass -File &quot;$(MSBuildProjectDirectory)/../build/Verify-ShaderBundle.ps1&quot; -ProjectRoot &quot;$(MSBuildProjectDirectory)/..&quot;" />
+    <Exec Condition="'$(OS)' != 'Windows_NT'"
+          Command="&quot;$(S1Python)&quot; &quot;$(MSBuildProjectDirectory)/../build/verify_shader_bundle.py&quot; --project-root &quot;$(MSBuildProjectDirectory)/..&quot;" />
   </Target>
 </Project>

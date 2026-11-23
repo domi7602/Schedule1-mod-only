@@ -1,6 +1,8 @@
 # Canonical WorldLook build
 
-Run from the repository root using PowerShell 7 (`pwsh`). Unity 2022.3.62f3 and, for a full build, .NET SDK 8+ are required. The mod still targets `net6.0` / C# 12. Close the game before building.
+Shader *rebuilds* run from the repository root using PowerShell 7 (`pwsh`). Unity 2022.3.62f3 and, for a full build, .NET SDK 8+ are required. The mod still targets `net6.0` / C# 12. Close the game before building.
+
+Validating an existing bundle and compiling the C# project work on Linux and macOS as well: the `.csproj` gate selects `Verify-ShaderBundle.ps1` on Windows and `verify_shader_bundle.py` elsewhere (`python3` from `PATH`; override with `-p:S1Python=/path/to/python3`). Both scripts apply the same receipt, hash and provenance checks. `verify_shader_bundle.py` deliberately stays outside the frozen shader input inventory, because `shader-build.json` was produced by the Windows editor build.
 
 ## Commands
 
@@ -8,6 +10,7 @@ Run from the repository root using PowerShell 7 (`pwsh`). Unity 2022.3.62f3 and,
 - Rebuild only the shader bundle: `pwsh -NoProfile -ExecutionPolicy Bypass -File Source/Mods/WorldLook/build/Build.ps1 -ShadersOnly`
 - Full shader + C# build: `pwsh -NoProfile -ExecutionPolicy Bypass -File Source/Mods/WorldLook/build/Build.ps1`
 - Validate a previously generated bundle: `pwsh -NoProfile -ExecutionPolicy Bypass -File Source/Mods/WorldLook/build/Verify-ShaderBundle.ps1`
+- Validate without PowerShell (Linux/macOS): `python3 Source/Mods/WorldLook/build/verify_shader_bundle.py --project-root Source/Mods/WorldLook`
 - C# compile using an already verified bundle: `dotnet build Source/Mods/WorldLook/src/WorldLook.csproj -c Release -p:S1NoDeploy=true`
 
 `-GamePath`, `-UnityPath`, `-DotNetPath` and `-Configuration Debug` are optional. Game resolution is explicit path, then `SCHEDULE1_PATH`, legacy `SCHEDULE_I_GAME_DIR`, then the repository's default Steam path. Unity resolution also accepts `UNITY_EDITOR_PATH`. The SDK lookup prefers the user-local `.dotnet/dotnet.exe` when present. The script does not install tools.
