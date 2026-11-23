@@ -24,6 +24,13 @@ game. Run its standalone suite with `python -m unittest discover -s Tools/s1-cli
 
 `build-all.ps1 -NoDeploy` disables deployment; an existing `S1NoDeploy=true` environment setting is also respected. `-GameDir` overrides the installation path consistently for mod and third-party copies, and `-DotnetPath` selects the SDK host. The active SDK must support C# 12.
 
+On hosts without PowerShell the MSBuild deploy targets fall back to POSIX Python ports
+(`-p:S1Python=/path/to/python3` overrides the interpreter): `deploy_mod.py` mirrors
+`deploy-mod.ps1` and `deploy_thirdparty.py` guards the opt-in third-party step. The guard
+treats the shipped empty allowlist as a clean no-op and refuses (exit 6) once patterns are
+listed, because the copy/overwrite rules stay in `deploy-thirdparty.ps1`. Windows keeps the
+PowerShell path unchanged.
+
 `build-all.ps1`, `test-all.ps1` and `verify.ps1` share `dotnet-sdk.ps1`: explicit
 `-DotnetPath`, then the executable on PATH, then an existing user-local host if PATH
 has none. The selected active SDK must be 8+; merely having SDK 8 installed beside

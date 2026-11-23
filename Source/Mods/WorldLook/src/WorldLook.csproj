@@ -2,9 +2,6 @@
   <PropertyGroup>
     <AssemblyName>WorldLook</AssemblyName>
     <RootNamespace>WorldLook</RootNamespace>
-    <!-- Cross-platform shader gate: PowerShell on Windows, Python 3 elsewhere.
-         Override with -p:S1Python=/path/to/python3 when it is not on PATH. -->
-    <S1Python Condition="'$(S1Python)' == ''">python3</S1Python>
   </PropertyGroup>
   <ItemGroup>
     <EmbeddedResource Include="../assets/embedded/worldlook-shaders.bundle" LogicalName="WorldLook.Shaders.bundle" />

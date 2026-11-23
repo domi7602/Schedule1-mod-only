@@ -15,7 +15,12 @@
   -->
   <PropertyGroup>
     <S1NoDeploy Condition="'$(NoDeploy)' == 'true'">true</S1NoDeploy>
+    <!-- Non-Windows hosts have no PowerShell: the deploy steps below fall back
+         to the POSIX Python ports. Override with -p:S1Python=/path/to/python3. -->
+    <S1Python Condition="'$(S1Python)' == ''">python3</S1Python>
     <_S1DeployModScript>$(MSBuildThisFileDirectory)..\..\Tools\deploy-mod.ps1</_S1DeployModScript>
+    <_S1DeployModPython>$(MSBuildThisFileDirectory)../../Tools/deploy_mod.py</_S1DeployModPython>
+    <_S1DeployThirdPartyPython>$(MSBuildThisFileDirectory)../../Tools/deploy_thirdparty.py</_S1DeployThirdPartyPython>
     <_S1DeployThirdPartyScript>$(MSBuildThisFileDirectory)..\..\Tools\deploy-thirdparty.ps1</_S1DeployThirdPartyScript>
     <!-- Pass the exact GameDir the build resolved (property > SCHEDULE1_PATH > default),
          without a trailing separator before the closing quote. -->
@@ -23,17 +28,21 @@
     <!-- The deploy script owns plan derivation; these are the conventional inputs. -->
     <_S1DeployProjectDir>$(MSBuildProjectDirectory)</_S1DeployProjectDir>
     <_S1DeployAssetsDir>$(MSBuildProjectDirectory)\..\assets</_S1DeployAssetsDir>
+    <_S1DeployAssetsDirUnix>$(MSBuildProjectDirectory)/../assets</_S1DeployAssetsDirUnix>
     <_S1DeployModJson>$(MSBuildProjectDirectory)\..\docs\mod.json</_S1DeployModJson>
+    <_S1DeployModJsonUnix>$(MSBuildProjectDirectory)/../docs/mod.json</_S1DeployModJsonUnix>
   </PropertyGroup>
 
   <Target Name="DeployMod" AfterTargets="Build" Condition="'$(S1NoDeploy)' != 'true' And '$(MSBuildProjectName)' != 'Shared' And Exists('$(TargetPath)')">
-    <Exec Command="pwsh -NoProfile -NonInteractive -ExecutionPolicy Bypass -File &quot;$(_S1DeployModScript)&quot; -GameDir &quot;$(_S1EffectiveGameDir)&quot; -ProjectName &quot;$(MSBuildProjectName)&quot; -Configuration &quot;$(Configuration)&quot; -TargetPath &quot;$(TargetPath)&quot; -ProjectDir &quot;$(_S1DeployProjectDir)&quot; -AssetsDir &quot;$(_S1DeployAssetsDir)&quot; -ModJsonPath &quot;$(_S1DeployModJson)&quot;" />
+    <Exec Condition="'$(OS)' == 'Windows_NT'" Command="pwsh -NoProfile -NonInteractive -ExecutionPolicy Bypass -File &quot;$(_S1DeployModScript)&quot; -GameDir &quot;$(_S1EffectiveGameDir)&quot; -ProjectName &quot;$(MSBuildProjectName)&quot; -Configuration &quot;$(Configuration)&quot; -TargetPath &quot;$(TargetPath)&quot; -ProjectDir &quot;$(_S1DeployProjectDir)&quot; -AssetsDir &quot;$(_S1DeployAssetsDir)&quot; -ModJsonPath &quot;$(_S1DeployModJson)&quot;" />
+    <Exec Condition="'$(OS)' != 'Windows_NT'" Command="&quot;$(S1Python)&quot; &quot;$(_S1DeployModPython)&quot; -GameDir &quot;$(_S1EffectiveGameDir)&quot; -ProjectName &quot;$(MSBuildProjectName)&quot; -Configuration &quot;$(Configuration)&quot; -TargetPath &quot;$(TargetPath)&quot; -ProjectDir &quot;$(_S1DeployProjectDir)&quot; -AssetsDir &quot;$(_S1DeployAssetsDirUnix)&quot; -ModJsonPath &quot;$(_S1DeployModJsonUnix)&quot;" />
   </Target>
 
   <!-- Shared.dll is not transitively propagated (Private=false) — deploy it once, explicitly,
        through the same receipt/rollback path as every other project. -->
   <Target Name="DeployShared" AfterTargets="Build" Condition="'$(S1NoDeploy)' != 'true' And '$(MSBuildProjectName)' == 'Shared' And Exists('$(TargetPath)')">
-    <Exec Command="pwsh -NoProfile -NonInteractive -ExecutionPolicy Bypass -File &quot;$(_S1DeployModScript)&quot; -GameDir &quot;$(_S1EffectiveGameDir)&quot; -ProjectName &quot;Shared&quot; -Configuration &quot;$(Configuration)&quot; -TargetPath &quot;$(TargetPath)&quot; -ProjectDir &quot;$(_S1DeployProjectDir)&quot; -AssetsDir &quot;$(_S1DeployAssetsDir)&quot; -ModJsonPath &quot;$(_S1DeployModJson)&quot;" />
+    <Exec Condition="'$(OS)' == 'Windows_NT'" Command="pwsh -NoProfile -NonInteractive -ExecutionPolicy Bypass -File &quot;$(_S1DeployModScript)&quot; -GameDir &quot;$(_S1EffectiveGameDir)&quot; -ProjectName &quot;Shared&quot; -Configuration &quot;$(Configuration)&quot; -TargetPath &quot;$(TargetPath)&quot; -ProjectDir &quot;$(_S1DeployProjectDir)&quot; -AssetsDir &quot;$(_S1DeployAssetsDir)&quot; -ModJsonPath &quot;$(_S1DeployModJson)&quot;" />
+    <Exec Condition="'$(OS)' != 'Windows_NT'" Command="&quot;$(S1Python)&quot; &quot;$(_S1DeployModPython)&quot; -GameDir &quot;$(_S1EffectiveGameDir)&quot; -ProjectName &quot;Shared&quot; -Configuration &quot;$(Configuration)&quot; -TargetPath &quot;$(TargetPath)&quot; -ProjectDir &quot;$(_S1DeployProjectDir)&quot; -AssetsDir &quot;$(_S1DeployAssetsDirUnix)&quot; -ModJsonPath &quot;$(_S1DeployModJsonUnix)&quot;" />
   </Target>
 
   <!--
@@ -43,7 +52,8 @@
     SHA256 after each copy. Runs only once with Shared, since all mods depend on Shared.
   -->
   <Target Name="DeployThirdParty" AfterTargets="Build" Condition="'$(S1NoDeploy)' != 'true' And '$(MSBuildProjectName)' == 'Shared' And Exists('$(TargetPath)')">
-    <Message Importance="low" Text="[DeployThirdParty] running $(_S1DeployThirdPartyScript)..." />
-    <Exec Command="pwsh -NoProfile -NonInteractive -ExecutionPolicy Bypass -File &quot;$(_S1DeployThirdPartyScript)&quot; -GameDir &quot;$(_S1EffectiveGameDir)&quot;" />
+    <Message Importance="low" Text="[DeployThirdParty] running $(_S1DeployThirdPartyScript) or its Python guard..." />
+    <Exec Condition="'$(OS)' == 'Windows_NT'" Command="pwsh -NoProfile -NonInteractive -ExecutionPolicy Bypass -File &quot;$(_S1DeployThirdPartyScript)&quot; -GameDir &quot;$(_S1EffectiveGameDir)&quot;" />
+    <Exec Condition="'$(OS)' != 'Windows_NT'" Command="&quot;$(S1Python)&quot; &quot;$(_S1DeployThirdPartyPython)&quot; -GameDir &quot;$(_S1EffectiveGameDir)&quot;" />
   </Target>
 </Project>
