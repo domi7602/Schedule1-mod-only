@@ -1,0 +1,6 @@
+{
+  "name": "PreserveRV",
+  "author": "Dominik",
+  "version": "0.1.0",
+  "description": "Behält das Wohnmobil und den Originalzettel der Startquest; blockiert die native RV-Zerstörung nur im Einzelspieler. Lokal installiert, Gameplay noch nicht geprüft."
+}

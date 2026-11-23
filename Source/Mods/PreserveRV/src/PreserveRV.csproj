@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>PreserveRV</AssemblyName>
+    <RootNamespace>PreserveRV</RootNamespace>
+  </PropertyGroup>
+</Project>
