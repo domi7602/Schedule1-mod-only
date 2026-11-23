@@ -1,6 +1,8 @@
 # ProductAppQoL
 
-**ProductAppQoL** — quality-of-life fixes for the vanilla Product app on the in-game phone. The first fix: the **asking-price −/+ buttons respond to mouse and touch**.
+**ProductAppQoL** — quality-of-life fixes for the vanilla Product app on the in-game phone:
+- **Asking-price −/+ buttons respond to mouse and touch** (tap = ±$1, hold = repeat with acceleration).
+- **Fixed search bar and sort controls** above the product list (search by product name or effect, sort by Default / Name / Price / Market Value / Addictiveness / Listed).
 
 The mod is **patch-only**: it hooks the existing vanilla `ProductAppDetailPanel` (Harmony postfix on `Awake`) and adds its input helper next to the untouched vanilla Button components. It does **not** register a new PhoneApp or change gameplay values beyond the clicks you make.
 
